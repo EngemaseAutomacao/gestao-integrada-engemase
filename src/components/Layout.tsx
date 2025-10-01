@@ -41,6 +41,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
     { title: "Histórico Completo", url: "/admin/history", icon: History },
+    { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
 
   return (
