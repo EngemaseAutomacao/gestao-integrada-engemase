@@ -1,0 +1,197 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Package, Search, QrCode, CheckCircle, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+
+interface Tool {
+  id: string;
+  name: string;
+  description: string | null;
+  quantity_available: number;
+  quantity_total: number;
+  employee_only: boolean;
+}
+
+export default function Dashboard() {
+  const { profile } = useAuth();
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadTools();
+  }, []);
+
+  const loadTools = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("tools")
+        .select("*")
+        .order("name");
+
+      if (error) throw error;
+
+      // Filter out employee-only tools for third-party users
+      const filteredTools = data?.filter(tool => {
+        if (profile?.category === "third_party" && tool.employee_only) {
+          return false;
+        }
+        return true;
+      }) || [];
+
+      setTools(filteredTools);
+    } catch (error: any) {
+      toast.error("Erro ao carregar ferramentas", {
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredTools = tools.filter((tool) =>
+    tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleCheckout = (toolId: string) => {
+    navigate(`/checkout?toolId=${toolId}`);
+  };
+
+  const handleCheckin = (toolId: string) => {
+    navigate(`/checkin?toolId=${toolId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Package className="w-8 h-8 animate-pulse text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Ferramentas Disponíveis</CardTitle>
+            <CheckCircle className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Ferramentas</CardTitle>
+            <Package className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {tools.reduce((acc, tool) => acc + tool.quantity_total, 0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Em Uso</CardTitle>
+            <AlertCircle className="h-4 w-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Ferramentas</CardTitle>
+          <CardDescription>Lista de ferramentas disponíveis</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar ferramenta..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="space-y-3">
+            {filteredTools.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Nenhuma ferramenta encontrada
+              </p>
+            ) : (
+              filteredTools.map((tool) => (
+                <Card key={tool.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">{tool.name}</h3>
+                          {tool.employee_only && (
+                            <Badge variant="outline" className="text-xs">
+                              Apenas Funcionários
+                            </Badge>
+                          )}
+                        </div>
+                        {tool.description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {tool.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-sm">
+                          <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
+                            Disponível: {tool.quantity_available}/{tool.quantity_total}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleCheckout(tool.id)}
+                          disabled={tool.quantity_available === 0}
+                        >
+                          Retirar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleCheckin(tool.id)}
+                        >
+                          Devolver
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
