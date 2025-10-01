@@ -98,6 +98,11 @@ export default function AdminLogs() {
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };
 
+  const isOverdue = (estimatedReturnDate: string | null, status: string) => {
+    if (!estimatedReturnDate || status !== "checked_out") return false;
+    return new Date(estimatedReturnDate) < new Date();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -148,7 +153,7 @@ export default function AdminLogs() {
               {filteredLogs.map((entry) => (
                 <Card key={entry.id} className="border-l-4 border-l-primary">
                   <CardContent className="p-4">
-                    <div className="space-y-3">
+                      <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
                           <h3 className="font-semibold text-lg">{entry.tools.name}</h3>
@@ -156,9 +161,14 @@ export default function AdminLogs() {
                             <p className="text-sm text-muted-foreground">S/N: {entry.tools.serial_number}</p>
                           )}
                         </div>
-                        <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
-                          {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                        </Badge>
+                        <div className="flex gap-2">
+                          <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+                            {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                          </Badge>
+                          {isOverdue(entry.estimated_return_date, entry.status) && (
+                            <Badge variant="destructive">Atrasado</Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="grid gap-2 text-sm">
@@ -190,7 +200,7 @@ export default function AdminLogs() {
                           {entry.estimated_return_date && (
                             <div>
                               <span className="font-medium text-foreground">Previsão de Devolução:</span>
-                              <p className="text-muted-foreground">
+                              <p className={isOverdue(entry.estimated_return_date, entry.status) ? "text-destructive font-medium" : "text-muted-foreground"}>
                                 {format(new Date(entry.estimated_return_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                               </p>
                             </div>

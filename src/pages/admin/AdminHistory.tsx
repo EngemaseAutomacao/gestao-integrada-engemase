@@ -99,6 +99,11 @@ export default function AdminHistory() {
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };
 
+  const isOverdue = (estimatedReturnDate: string | null, status: string) => {
+    if (!estimatedReturnDate || status !== "checked_out") return false;
+    return new Date(estimatedReturnDate) < new Date();
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -211,9 +216,14 @@ export default function AdminHistory() {
                       {entry.checked_in_by_profile?.full_name || "-"}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
-                        {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                      </Badge>
+                      <div className="flex gap-2">
+                        <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+                          {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                        </Badge>
+                        {isOverdue(entry.estimated_return_date, entry.status) && (
+                          <Badge variant="destructive">Atrasado</Badge>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -134,12 +134,16 @@ export default function Checkin() {
                     <SelectValue placeholder="Selecione a ferramenta para devolver" />
                   </SelectTrigger>
                   <SelectContent>
-                    {checkouts.map((checkout) => (
-                      <SelectItem key={checkout.id} value={checkout.id}>
-                        {checkout.tools.name}
-                        {checkout.construction_site && ` - ${checkout.construction_site}`}
-                      </SelectItem>
-                    ))}
+                    {checkouts.map((checkout) => {
+                      const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                      return (
+                        <SelectItem key={checkout.id} value={checkout.id}>
+                          {checkout.tools.name}
+                          {checkout.construction_site && ` - ${checkout.construction_site}`}
+                          {isOverdue && " ⚠️ ATRASADO"}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>

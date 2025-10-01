@@ -94,6 +94,9 @@ export default function UserHistory() {
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
                             {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
                           </Badge>
+                          {entry.estimated_return_date && entry.status === "checked_out" && new Date(entry.estimated_return_date) < new Date() && (
+                            <Badge variant="destructive">Atrasado</Badge>
+                          )}
                         </div>
                         <div className="mt-2 space-y-1 text-sm text-muted-foreground">
                           {entry.construction_site && (
@@ -105,7 +108,7 @@ export default function UserHistory() {
                             <span className="font-medium text-foreground">Retirada:</span> {format(new Date(entry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                           </p>
                           {entry.estimated_return_date && (
-                            <p>
+                            <p className={entry.status === "checked_out" && new Date(entry.estimated_return_date) < new Date() ? "text-destructive font-medium" : ""}>
                               <span className="font-medium text-foreground">Previsão de Devolução:</span> {format(new Date(entry.estimated_return_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                             </p>
                           )}
