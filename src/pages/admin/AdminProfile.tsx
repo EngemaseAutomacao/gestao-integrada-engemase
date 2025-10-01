@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, User, Lock } from "lucide-react";
 import { z } from "zod";
+import { Navigate } from "react-router-dom";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Senha atual é obrigatória"),
@@ -18,13 +19,17 @@ const passwordSchema = z.object({
   path: ["confirmPassword"],
 });
 
-export default function Profile() {
+export default function AdminProfile() {
   const { profile, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  if (!profile || profile.role !== "admin") {
+    return <Navigate to="/" />;
+  }
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,8 +91,8 @@ export default function Profile() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Perfil</h2>
-        <p className="text-muted-foreground">Gerencie suas informações e configurações</p>
+        <h2 className="text-3xl font-bold tracking-tight">Alterar Senha</h2>
+        <p className="text-muted-foreground">Atualize sua senha de acesso ao sistema</p>
       </div>
 
       <Card>

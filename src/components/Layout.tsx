@@ -35,13 +35,13 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Dashboard", url: "/", icon: Home },
     { title: "Ferramentas", url: "/tools", icon: Package },
     { title: "Meu Histórico", url: "/history", icon: History },
-    { title: "Perfil", url: "/profile", icon: User },
   ];
 
   const adminMenuItems = [
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
     { title: "Logs do Sistema", url: "/admin/logs", icon: ClipboardList },
+    { title: "Alterar Senha", url: "/admin/profile", icon: User },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
 
