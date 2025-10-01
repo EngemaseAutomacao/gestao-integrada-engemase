@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList } from "lucide-react";
+import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
@@ -35,6 +35,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Dashboard", url: "/", icon: Home },
     { title: "Ferramentas", url: "/tools", icon: Package },
     { title: "Meu Histórico", url: "/history", icon: History },
+    { title: "Perfil", url: "/profile", icon: User },
   ];
 
   const adminMenuItems = [

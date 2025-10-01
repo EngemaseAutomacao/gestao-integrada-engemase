@@ -11,6 +11,7 @@ import Tools from "./pages/Tools";
 import Checkout from "./pages/Checkout";
 import Checkin from "./pages/Checkin";
 import UserHistory from "./pages/UserHistory";
+import Profile from "./pages/Profile";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTools from "./pages/admin/AdminTools";
 import AdminHistory from "./pages/admin/AdminHistory";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
             <Route path="/checkin" element={<Layout><Checkin /></Layout>} />
             <Route path="/history" element={<Layout><UserHistory /></Layout>} />
+            <Route path="/profile" element={<Layout><Profile /></Layout>} />
             <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
             <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
             <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
