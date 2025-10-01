@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -47,7 +48,9 @@ export default function ManualEntry() {
   const [checkoutForm, setCheckoutForm] = useState({
     toolId: "",
     userId: "",
+    constructionSite: "",
     date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+    estimatedReturnDate: "",
     notes: "",
   });
 
@@ -113,7 +116,7 @@ export default function ManualEntry() {
   const handleManualCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!checkoutForm.toolId || !checkoutForm.userId) {
+    if (!checkoutForm.toolId || !checkoutForm.userId || !checkoutForm.constructionSite || !checkoutForm.estimatedReturnDate) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -128,6 +131,8 @@ export default function ManualEntry() {
           user_id: checkoutForm.userId,
           checked_out_by: profile!.id,
           checkout_date: new Date(checkoutForm.date).toISOString(),
+          construction_site: checkoutForm.constructionSite.trim(),
+          estimated_return_date: new Date(checkoutForm.estimatedReturnDate).toISOString(),
           status: "checked_out",
           notes: checkoutForm.notes.trim() || null,
         });
@@ -138,7 +143,9 @@ export default function ManualEntry() {
       setCheckoutForm({
         toolId: "",
         userId: "",
+        constructionSite: "",
         date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+        estimatedReturnDate: "",
         notes: "",
       });
       loadData();
@@ -264,15 +271,40 @@ export default function ManualEntry() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="checkout-date">Data e Hora da Retirada *</Label>
-                  <input
-                    id="checkout-date"
-                    type="datetime-local"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={checkoutForm.date}
-                    onChange={(e) => setCheckoutForm({ ...checkoutForm, date: e.target.value })}
+                  <Label htmlFor="construction-site">Obra de Destino *</Label>
+                  <Input
+                    id="construction-site"
+                    placeholder="Ex: Obra Residencial Centro, Edifício Comercial..."
+                    value={checkoutForm.constructionSite}
+                    onChange={(e) => setCheckoutForm({ ...checkoutForm, constructionSite: e.target.value })}
                     required
                   />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="checkout-date">Data e Hora da Retirada *</Label>
+                    <input
+                      id="checkout-date"
+                      type="datetime-local"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={checkoutForm.date}
+                      onChange={(e) => setCheckoutForm({ ...checkoutForm, date: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="estimated-return">Previsão de Devolução *</Label>
+                    <input
+                      id="estimated-return"
+                      type="datetime-local"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={checkoutForm.estimatedReturnDate}
+                      onChange={(e) => setCheckoutForm({ ...checkoutForm, estimatedReturnDate: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

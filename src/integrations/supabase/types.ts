@@ -50,7 +50,9 @@ export type Database = {
           checked_out_by: string
           checkin_date: string | null
           checkout_date: string
+          construction_site: string | null
           created_at: string
+          estimated_return_date: string | null
           id: string
           notes: string | null
           status: Database["public"]["Enums"]["checkout_status"]
@@ -63,7 +65,9 @@ export type Database = {
           checked_out_by: string
           checkin_date?: string | null
           checkout_date?: string
+          construction_site?: string | null
           created_at?: string
+          estimated_return_date?: string | null
           id?: string
           notes?: string | null
           status?: Database["public"]["Enums"]["checkout_status"]
@@ -76,7 +80,9 @@ export type Database = {
           checked_out_by?: string
           checkin_date?: string | null
           checkout_date?: string
+          construction_site?: string | null
           created_at?: string
+          estimated_return_date?: string | null
           id?: string
           notes?: string | null
           status?: Database["public"]["Enums"]["checkout_status"]

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,6 +25,8 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>([]);
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
+  const [constructionSite, setConstructionSite] = useState("");
+  const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingTools, setLoadingTools] = useState(true);
@@ -68,6 +71,16 @@ export default function Checkout() {
       return;
     }
 
+    if (!constructionSite.trim()) {
+      toast.error("Informe a obra de destino");
+      return;
+    }
+
+    if (!estimatedReturnDate) {
+      toast.error("Informe a data estimada de devolução");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -78,6 +91,8 @@ export default function Checkout() {
           user_id: profile!.id,
           checked_out_by: profile!.id,
           status: "checked_out",
+          construction_site: constructionSite.trim(),
+          estimated_return_date: new Date(estimatedReturnDate).toISOString(),
           notes: notes.trim() || null,
         });
 
@@ -129,6 +144,32 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="construction_site">Obra de Destino *</Label>
+              <Input
+                id="construction_site"
+                placeholder="Ex: Obra Residencial Centro, Edifício Comercial..."
+                value={constructionSite}
+                onChange={(e) => setConstructionSite(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="estimated_return">Previsão de Devolução *</Label>
+              <input
+                id="estimated_return"
+                type="datetime-local"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={estimatedReturnDate}
+                onChange={(e) => setEstimatedReturnDate(e.target.value)}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Informe até quando você planeja usar a ferramenta
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="notes">Observações (opcional)</Label>
               <Textarea
                 id="notes"
@@ -140,7 +181,7 @@ export default function Checkout() {
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit" disabled={loading || !selectedToolId} className="flex-1">
+              <Button type="submit" disabled={loading || !selectedToolId || !constructionSite || !estimatedReturnDate} className="flex-1">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Confirmar Retirada
               </Button>

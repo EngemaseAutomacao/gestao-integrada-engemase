@@ -16,6 +16,8 @@ interface HistoryEntry {
   checkout_date: string;
   checkin_date: string | null;
   status: string;
+  construction_site: string | null;
+  estimated_return_date: string | null;
   tools: {
     name: string;
   };
@@ -51,6 +53,8 @@ export default function AdminHistory() {
           checkout_date,
           checkin_date,
           status,
+          construction_site,
+          estimated_return_date,
           notes,
           tools (name),
           profiles!tool_checkouts_user_id_fkey (full_name, category)
@@ -161,9 +165,11 @@ export default function AdminHistory() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Ferramenta</TableHead>
+                  <TableHead>Obra</TableHead>
                   <TableHead>Usuário</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Retirada</TableHead>
+                  <TableHead>Previsão</TableHead>
                   <TableHead>Devolução</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -172,10 +178,16 @@ export default function AdminHistory() {
                 {filteredHistory.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell className="font-medium">{entry.tools.name}</TableCell>
+                    <TableCell>{entry.construction_site || "-"}</TableCell>
                     <TableCell>{entry.profiles.full_name}</TableCell>
                     <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
                     <TableCell>
                       {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                    </TableCell>
+                    <TableCell>
+                      {entry.estimated_return_date
+                        ? format(new Date(entry.estimated_return_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                        : "-"}
                     </TableCell>
                     <TableCell>
                       {entry.checkin_date

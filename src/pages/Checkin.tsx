@@ -13,6 +13,8 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 interface Checkout {
   id: string;
   tool_id: string;
+  construction_site: string | null;
+  estimated_return_date: string | null;
   tools: {
     name: string;
   };
@@ -40,6 +42,8 @@ export default function Checkin() {
         .select(`
           id,
           tool_id,
+          construction_site,
+          estimated_return_date,
           tools (name)
         `)
         .eq("user_id", profile!.id)
@@ -133,6 +137,7 @@ export default function Checkin() {
                     {checkouts.map((checkout) => (
                       <SelectItem key={checkout.id} value={checkout.id}>
                         {checkout.tools.name}
+                        {checkout.construction_site && ` - ${checkout.construction_site}`}
                       </SelectItem>
                     ))}
                   </SelectContent>

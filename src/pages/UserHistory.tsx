@@ -12,6 +12,8 @@ interface HistoryEntry {
   checkout_date: string;
   checkin_date: string | null;
   status: string;
+  construction_site: string | null;
+  estimated_return_date: string | null;
   tools: {
     name: string;
   };
@@ -36,6 +38,8 @@ export default function UserHistory() {
           checkout_date,
           checkin_date,
           status,
+          construction_site,
+          estimated_return_date,
           notes,
           tools (name)
         `)
@@ -92,12 +96,22 @@ export default function UserHistory() {
                           </Badge>
                         </div>
                         <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                          {entry.construction_site && (
+                            <p>
+                              <span className="font-medium text-foreground">Obra:</span> {entry.construction_site}
+                            </p>
+                          )}
                           <p>
-                            Retirada: {format(new Date(entry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            <span className="font-medium text-foreground">Retirada:</span> {format(new Date(entry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                           </p>
+                          {entry.estimated_return_date && (
+                            <p>
+                              <span className="font-medium text-foreground">Previsão de Devolução:</span> {format(new Date(entry.estimated_return_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            </p>
+                          )}
                           {entry.checkin_date && (
                             <p>
-                              Devolução: {format(new Date(entry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                              <span className="font-medium text-foreground">Devolução Real:</span> {format(new Date(entry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                             </p>
                           )}
                           {entry.notes && (
