@@ -40,7 +40,6 @@ export default function Layout({ children }: LayoutProps) {
   const adminMenuItems = [
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
-    { title: "Histórico Completo", url: "/admin/history", icon: History },
     { title: "Logs do Sistema", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
