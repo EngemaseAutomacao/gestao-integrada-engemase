@@ -25,6 +25,12 @@ interface HistoryEntry {
     full_name: string;
     category: "engemase_employee" | "third_party";
   };
+  checked_out_by_profile: {
+    full_name: string;
+  } | null;
+  checked_in_by_profile: {
+    full_name: string;
+  } | null;
   notes: string | null;
 }
 
@@ -57,7 +63,9 @@ export default function AdminHistory() {
           estimated_return_date,
           notes,
           tools (name),
-          profiles!tool_checkouts_user_id_fkey (full_name, category)
+          profiles!tool_checkouts_user_id_fkey (full_name, category),
+          checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name),
+          checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name)
         `)
         .order("checkout_date", { ascending: false });
 
@@ -169,8 +177,10 @@ export default function AdminHistory() {
                   <TableHead>Usuário</TableHead>
                   <TableHead>Categoria</TableHead>
                   <TableHead>Retirada</TableHead>
+                  <TableHead>Retirado Por</TableHead>
                   <TableHead>Previsão</TableHead>
                   <TableHead>Devolução</TableHead>
+                  <TableHead>Devolvido Por</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -185,6 +195,9 @@ export default function AdminHistory() {
                       {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </TableCell>
                     <TableCell>
+                      {entry.checked_out_by_profile?.full_name || "-"}
+                    </TableCell>
+                    <TableCell>
                       {entry.estimated_return_date
                         ? format(new Date(entry.estimated_return_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
                         : "-"}
@@ -193,6 +206,9 @@ export default function AdminHistory() {
                       {entry.checkin_date
                         ? format(new Date(entry.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
                         : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {entry.checked_in_by_profile?.full_name || "-"}
                     </TableCell>
                     <TableCell>
                       <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
