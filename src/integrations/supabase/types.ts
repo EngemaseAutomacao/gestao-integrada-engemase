@@ -14,7 +14,157 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          category: Database["public"]["Enums"]["user_category"]
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["user_category"]
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["user_category"]
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tool_checkouts: {
+        Row: {
+          checked_in_by: string | null
+          checked_out_by: string
+          checkin_date: string | null
+          checkout_date: string
+          created_at: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["checkout_status"]
+          tool_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checked_in_by?: string | null
+          checked_out_by: string
+          checkin_date?: string | null
+          checkout_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["checkout_status"]
+          tool_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checked_in_by?: string | null
+          checked_out_by?: string
+          checkin_date?: string | null
+          checkout_date?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["checkout_status"]
+          tool_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_checkouts_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_checkouts_checked_out_by_fkey"
+            columns: ["checked_out_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_checkouts_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_checkouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tools: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          employee_only: boolean
+          id: string
+          name: string
+          qr_code: string | null
+          quantity_available: number
+          quantity_total: number
+          serial_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          employee_only?: boolean
+          id?: string
+          name: string
+          qr_code?: string | null
+          quantity_available?: number
+          quantity_total?: number
+          serial_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          employee_only?: boolean
+          id?: string
+          name?: string
+          qr_code?: string | null
+          quantity_available?: number
+          quantity_total?: number
+          serial_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tools_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +173,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      checkout_status: "checked_out" | "checked_in"
+      user_category: "engemase_employee" | "third_party"
+      user_role: "admin" | "employee" | "third_party"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +302,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      checkout_status: ["checked_out", "checked_in"],
+      user_category: ["engemase_employee", "third_party"],
+      user_role: ["admin", "employee", "third_party"],
+    },
   },
 } as const
