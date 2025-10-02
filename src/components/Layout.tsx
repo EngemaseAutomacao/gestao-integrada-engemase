@@ -4,6 +4,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import engemaseLogo from "@/assets/engemase-logo.png";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -49,19 +50,16 @@ export default function Layout({ children }: LayoutProps) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <Sidebar>
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Wrench className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="font-semibold text-sm truncate">Engemase Tools</h2>
-                <p className="text-xs text-muted-foreground truncate">{profile.full_name}</p>
-              </div>
+          <div className="p-4 border-b space-y-3">
+            <div className="flex items-center justify-center">
+              <img src={engemaseLogo} alt="Engemase Engenharia" className="w-32 h-auto" />
             </div>
-            <Badge className={`mt-2 w-full justify-center bg-${categoryColor} text-${categoryColor}-foreground`}>
-              {categoryLabel}
-            </Badge>
+            <div className="text-center">
+              <p className="text-sm font-medium truncate">{profile.full_name}</p>
+              <Badge className={`mt-2 w-full justify-center bg-${categoryColor} text-${categoryColor}-foreground`}>
+                {categoryLabel}
+              </Badge>
+            </div>
           </div>
 
           <SidebarContent>

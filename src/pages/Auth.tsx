@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Wrench } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import engemaseLogo from "@/assets/engemase-logo.png";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -42,11 +43,11 @@ export default function Auth() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-            <Wrench className="w-8 h-8 text-primary-foreground" />
+        <CardHeader className="space-y-4 text-center">
+          <div className="mx-auto w-48 h-auto">
+            <img src={engemaseLogo} alt="Engemase Engenharia" className="w-full h-auto" />
           </div>
-          <CardTitle className="text-2xl">Engemase Tool Control</CardTitle>
+          <CardTitle className="text-2xl">Controle de Ferramentas</CardTitle>
           <CardDescription>
             Entre com sua conta
           </CardDescription>
