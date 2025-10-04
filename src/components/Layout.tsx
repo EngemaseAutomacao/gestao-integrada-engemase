@@ -4,6 +4,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { Notifications } from "@/components/Notifications";
 import engemaseLogo from "@/assets/engemase-logo.png";
 
 interface LayoutProps {
@@ -116,9 +117,12 @@ export default function Layout({ children }: LayoutProps) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="h-16 border-b bg-card flex items-center px-4 gap-4">
-            <SidebarTrigger />
-            <h1 className="text-lg font-semibold">Controle de Ferramentas Engemase</h1>
+          <header className="h-16 border-b bg-card flex items-center justify-between px-4 gap-4">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <h1 className="text-lg font-semibold">Controle de Ferramentas Engemase</h1>
+            </div>
+            <Notifications />
           </header>
           <div className="flex-1 p-6 overflow-auto">
             {children}

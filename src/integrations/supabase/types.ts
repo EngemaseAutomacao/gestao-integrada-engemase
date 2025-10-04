@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          checkout_id: string | null
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          title: string
+          tool_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          checkout_id?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          tool_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          checkout_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          tool_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_checkout_id_fkey"
+            columns: ["checkout_id"]
+            isOneToOne: false
+            referencedRelation: "tool_checkouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           category: Database["public"]["Enums"]["user_category"]
@@ -203,6 +254,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_low_stock: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      check_overdue_tools: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      check_return_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_email_from_username: {
         Args: { _username: string }
         Returns: string
