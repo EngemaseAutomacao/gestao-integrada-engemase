@@ -11,7 +11,8 @@ interface Tool {
   id: string;
   name: string;
   description: string | null;
-  serial_number: string | null;
+  tag: string | null;
+  brand: string | null;
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
@@ -57,7 +58,8 @@ export default function Tools() {
   const filteredTools = tools.filter((tool) =>
     tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     tool.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.serial_number?.toLowerCase().includes(searchQuery.toLowerCase())
+    tool.tag?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.brand?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (loading) {
@@ -86,7 +88,7 @@ export default function Tools() {
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por nome, descrição ou número de série..."
+              placeholder="Buscar por nome, descrição, TAG ou marca..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -106,11 +108,14 @@ export default function Tools() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg">{tool.name}</h3>
-                          {tool.serial_number && (
-                            <p className="text-sm text-muted-foreground">
-                              Nº Série: {tool.serial_number}
-                            </p>
-                          )}
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            {tool.tag && (
+                              <p>TAG: {tool.tag}</p>
+                            )}
+                            {tool.brand && (
+                              <p>Marca: {tool.brand}</p>
+                            )}
+                          </div>
                         </div>
                         <Package className="w-5 h-5 text-primary shrink-0" />
                       </div>

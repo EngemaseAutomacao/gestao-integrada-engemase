@@ -18,7 +18,8 @@ interface Tool {
   id: string;
   name: string;
   description: string | null;
-  serial_number: string | null;
+  tag: string | null;
+  brand: string | null;
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
@@ -33,7 +34,8 @@ export default function AdminTools() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    serial_number: "",
+    tag: "",
+    brand: "",
     quantity_total: 1,
     employee_only: false,
   });
@@ -75,7 +77,8 @@ export default function AdminTools() {
           .update({
             name: formData.name,
             description: formData.description || null,
-            serial_number: formData.serial_number || null,
+            tag: formData.tag || null,
+            brand: formData.brand || null,
             quantity_total: formData.quantity_total,
             employee_only: formData.employee_only,
           })
@@ -89,7 +92,8 @@ export default function AdminTools() {
           .insert({
             name: formData.name,
             description: formData.description || null,
-            serial_number: formData.serial_number || null,
+            tag: formData.tag || null,
+            brand: formData.brand || null,
             quantity_total: formData.quantity_total,
             quantity_available: formData.quantity_total,
             employee_only: formData.employee_only,
@@ -117,7 +121,8 @@ export default function AdminTools() {
     setFormData({
       name: tool.name,
       description: tool.description || "",
-      serial_number: tool.serial_number || "",
+      tag: tool.tag || "",
+      brand: tool.brand || "",
       quantity_total: tool.quantity_total,
       employee_only: tool.employee_only,
     });
@@ -148,7 +153,8 @@ export default function AdminTools() {
     setFormData({
       name: "",
       description: "",
-      serial_number: "",
+      tag: "",
+      brand: "",
       quantity_total: 1,
       employee_only: false,
     });
@@ -192,11 +198,19 @@ export default function AdminTools() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="serial_number">Número de Série</Label>
+                  <Label htmlFor="tag">TAG</Label>
                   <Input
-                    id="serial_number"
-                    value={formData.serial_number}
-                    onChange={(e) => setFormData({ ...formData, serial_number: e.target.value })}
+                    id="tag"
+                    value={formData.tag}
+                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="brand">Marca</Label>
+                  <Input
+                    id="brand"
+                    value={formData.brand}
+                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                   />
                 </div>
               </div>
@@ -263,7 +277,8 @@ export default function AdminTools() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Nº Série</TableHead>
+                  <TableHead>TAG</TableHead>
+                  <TableHead>Marca</TableHead>
                   <TableHead>Disponível/Total</TableHead>
                   <TableHead>Restrição</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -273,7 +288,8 @@ export default function AdminTools() {
                 {tools.map((tool) => (
                   <TableRow key={tool.id}>
                     <TableCell className="font-medium">{tool.name}</TableCell>
-                    <TableCell>{tool.serial_number || "-"}</TableCell>
+                    <TableCell>{tool.tag || "-"}</TableCell>
+                    <TableCell>{tool.brand || "-"}</TableCell>
                     <TableCell>
                       <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
                         {tool.quantity_available}/{tool.quantity_total}

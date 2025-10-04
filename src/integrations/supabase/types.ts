@@ -126,6 +126,7 @@ export type Database = {
       }
       tools: {
         Row: {
+          brand: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -135,10 +136,11 @@ export type Database = {
           qr_code: string | null
           quantity_available: number
           quantity_total: number
-          serial_number: string | null
+          tag: string | null
           updated_at: string
         }
         Insert: {
+          brand?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -148,10 +150,11 @@ export type Database = {
           qr_code?: string | null
           quantity_available?: number
           quantity_total?: number
-          serial_number?: string | null
+          tag?: string | null
           updated_at?: string
         }
         Update: {
+          brand?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -161,7 +164,7 @@ export type Database = {
           qr_code?: string | null
           quantity_available?: number
           quantity_total?: number
-          serial_number?: string | null
+          tag?: string | null
           updated_at?: string
         }
         Relationships: [

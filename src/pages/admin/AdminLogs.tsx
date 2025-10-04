@@ -20,7 +20,7 @@ interface LogEntry {
   notes: string | null;
   tools: {
     name: string;
-    serial_number: string | null;
+    tag: string | null;
   };
   profiles: {
     full_name: string;
@@ -63,7 +63,7 @@ export default function AdminLogs() {
           construction_site,
           estimated_return_date,
           notes,
-          tools (name, serial_number),
+          tools (name, tag),
           profiles!tool_checkouts_user_id_fkey (full_name, category, email),
           checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name, email),
           checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name, email)
@@ -157,8 +157,8 @@ export default function AdminLogs() {
                       <div className="flex items-start justify-between">
                         <div>
                           <h3 className="font-semibold text-lg">{entry.tools.name}</h3>
-                          {entry.tools.serial_number && (
-                            <p className="text-sm text-muted-foreground">S/N: {entry.tools.serial_number}</p>
+                          {entry.tools.tag && (
+                            <p className="text-sm text-muted-foreground">TAG: {entry.tools.tag}</p>
                           )}
                         </div>
                         <div className="flex gap-2">
