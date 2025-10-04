@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      maintenance_records: {
+        Row: {
+          condition_after: string | null
+          condition_before: string | null
+          cost: number | null
+          created_at: string
+          description: string
+          id: string
+          maintenance_type: string
+          next_maintenance_date: string | null
+          parts_replaced: string | null
+          performed_by: string
+          tool_id: string
+          updated_at: string
+        }
+        Insert: {
+          condition_after?: string | null
+          condition_before?: string | null
+          cost?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          maintenance_type: string
+          next_maintenance_date?: string | null
+          parts_replaced?: string | null
+          performed_by: string
+          tool_id: string
+          updated_at?: string
+        }
+        Update: {
+          condition_after?: string | null
+          condition_before?: string | null
+          cost?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          maintenance_type?: string
+          next_maintenance_date?: string | null
+          parts_replaced?: string | null
+          performed_by?: string
+          tool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_records_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           checkout_id: string | null
@@ -178,6 +231,7 @@ export type Database = {
       tools: {
         Row: {
           brand: string | null
+          condition: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -192,6 +246,7 @@ export type Database = {
         }
         Insert: {
           brand?: string | null
+          condition?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -206,6 +261,7 @@ export type Database = {
         }
         Update: {
           brand?: string | null
+          condition?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -269,6 +325,20 @@ export type Database = {
       get_email_from_username: {
         Args: { _username: string }
         Returns: string
+      }
+      get_tool_usage_history: {
+        Args: { tool_uuid: string }
+        Returns: {
+          checkin_date: string
+          checkout_date: string
+          checkout_id: string
+          construction_site: string
+          days_used: number
+          status: string
+          user_category: string
+          user_email: string
+          user_name: string
+        }[]
       }
       has_role: {
         Args: {
