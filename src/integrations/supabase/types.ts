@@ -59,6 +59,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "maintenance_records_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "maintenance_records_tool_id_fkey"
             columns: ["tool_id"]
             isOneToOne: false

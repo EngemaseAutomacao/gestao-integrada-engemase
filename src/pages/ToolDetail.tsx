@@ -109,7 +109,7 @@ export default function ToolDetail() {
         .order("created_at", { ascending: false });
 
       if (maintenanceError) throw maintenanceError;
-      setMaintenanceRecords(maintenanceData || []);
+      setMaintenanceRecords(maintenanceData as any || []);
 
       // Load usage history
       const { data: usageData, error: usageError } = await supabase

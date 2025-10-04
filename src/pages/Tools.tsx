@@ -4,8 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Package, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Package, Search, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Tool {
   id: string;
@@ -20,6 +22,7 @@ interface Tool {
 
 export default function Tools() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -140,9 +143,18 @@ export default function Tools() {
                             </Badge>
                           )}
                         </div>
-                        <span className="text-sm font-medium">
-                          {tool.quantity_available}/{tool.quantity_total}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">
+                            {tool.quantity_available}/{tool.quantity_total}
+                          </span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => navigate(`/tools/${tool.id}`)}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

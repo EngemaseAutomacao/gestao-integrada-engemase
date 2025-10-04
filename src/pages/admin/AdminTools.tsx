@@ -11,8 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2 } from "lucide-react";
-import { Navigate } from "react-router-dom";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 interface Tool {
   id: string;
@@ -20,6 +20,7 @@ interface Tool {
   description: string | null;
   tag: string | null;
   brand: string | null;
+  condition: string;
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
@@ -27,6 +28,7 @@ interface Tool {
 
 export default function AdminTools() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -279,6 +281,7 @@ export default function AdminTools() {
                   <TableHead>Nome</TableHead>
                   <TableHead>TAG</TableHead>
                   <TableHead>Marca</TableHead>
+                  <TableHead>Condição</TableHead>
                   <TableHead>Disponível/Total</TableHead>
                   <TableHead>Restrição</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
@@ -290,6 +293,26 @@ export default function AdminTools() {
                     <TableCell className="font-medium">{tool.name}</TableCell>
                     <TableCell>{tool.tag || "-"}</TableCell>
                     <TableCell>{tool.brand || "-"}</TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant="outline" 
+                        className={
+                          tool.condition === 'excellent' ? 'bg-green-500 text-white' :
+                          tool.condition === 'good' ? 'bg-blue-500 text-white' :
+                          tool.condition === 'fair' ? 'bg-yellow-500 text-white' :
+                          tool.condition === 'poor' ? 'bg-orange-500 text-white' :
+                          'bg-red-500 text-white'
+                        }
+                      >
+                        {
+                          tool.condition === 'excellent' ? 'Excelente' :
+                          tool.condition === 'good' ? 'Bom' :
+                          tool.condition === 'fair' ? 'Regular' :
+                          tool.condition === 'poor' ? 'Ruim' :
+                          'Precisa Manutenção'
+                        }
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
                         {tool.quantity_available}/{tool.quantity_total}
@@ -303,6 +326,9 @@ export default function AdminTools() {
                       )}
                     </TableCell>
                     <TableCell className="text-right space-x-2">
+                      <Button variant="ghost" size="sm" onClick={() => navigate(`/tools/${tool.id}`)}>
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
                         <Pencil className="w-4 h-4" />
                       </Button>

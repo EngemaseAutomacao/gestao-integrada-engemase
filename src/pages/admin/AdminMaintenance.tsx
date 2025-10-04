@@ -115,7 +115,7 @@ export default function AdminMaintenance() {
       if (recordsRes.error) throw recordsRes.error;
       if (toolsRes.error) throw toolsRes.error;
 
-      setRecords(recordsRes.data || []);
+      setRecords(recordsRes.data as any || []);
       setTools(toolsRes.data || []);
     } catch (error: any) {
       toast.error("Erro ao carregar dados", {
