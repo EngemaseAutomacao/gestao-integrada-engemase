@@ -1,10 +1,10 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, BarChart3 } from "lucide-react";
+import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, BarChart3, Bell } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Notifications } from "@/components/Notifications";
+import { NotificationBell } from "@/components/NotificationBell";
 import engemaseLogo from "@/assets/engemase-logo.png";
 
 interface LayoutProps {
@@ -43,6 +43,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
     { title: "Dashboard Analítico", url: "/admin/analytics", icon: BarChart3 },
+    { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs do Sistema", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
@@ -123,7 +124,7 @@ export default function Layout({ children }: LayoutProps) {
               <SidebarTrigger />
               <h1 className="text-lg font-semibold">Controle de Ferramentas Engemase</h1>
             </div>
-            <Notifications />
+            <NotificationBell />
           </header>
           <div className="flex-1 p-6 overflow-auto">
             {children}
