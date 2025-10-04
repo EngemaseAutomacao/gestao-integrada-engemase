@@ -35,7 +35,7 @@ export default function AdminReports() {
   const [filters, setFilters] = useState<ReportFilters>({
     startDate: "",
     endDate: "",
-    toolId: "",
+    toolId: "all",
     constructionSite: "",
     reportType: "checkouts",
   });
@@ -77,7 +77,7 @@ export default function AdminReports() {
     if (filters.endDate) {
       query = query.lte("checkout_date", filters.endDate);
     }
-    if (filters.toolId) {
+    if (filters.toolId && filters.toolId !== "all") {
       query = query.eq("tool_id", filters.toolId);
     }
     if (filters.constructionSite) {
@@ -105,7 +105,7 @@ export default function AdminReports() {
     if (filters.endDate) {
       query = query.lte("created_at", filters.endDate);
     }
-    if (filters.toolId) {
+    if (filters.toolId && filters.toolId !== "all") {
       query = query.eq("tool_id", filters.toolId);
     }
 
@@ -120,7 +120,7 @@ export default function AdminReports() {
   const fetchInventoryData = async () => {
     let query = supabase.from("tools").select("*");
 
-    if (filters.toolId) {
+    if (filters.toolId && filters.toolId !== "all") {
       query = query.eq("id", filters.toolId);
     }
 
@@ -400,7 +400,7 @@ export default function AdminReports() {
                   <SelectValue placeholder="Todas as ferramentas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as ferramentas</SelectItem>
+                  <SelectItem value="all">Todas as ferramentas</SelectItem>
                   {tools.map((tool) => (
                     <SelectItem key={tool.id} value={tool.id}>
                       {tool.name}
