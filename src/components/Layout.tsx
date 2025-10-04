@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
 import { InstallPWA } from "@/components/InstallPWA";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import engemaseLogo from "@/assets/engemase-logo.png";
 
 interface LayoutProps {
@@ -129,6 +130,7 @@ export default function Layout({ children }: LayoutProps) {
               <h1 className="text-lg font-semibold">Controle de Ferramentas Engemase</h1>
             </div>
             <div className="flex items-center gap-2">
+              <OfflineIndicator />
               <InstallPWA />
               <NotificationBell />
             </div>

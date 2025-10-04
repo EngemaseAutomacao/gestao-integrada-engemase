@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOffline } from "@/contexts/OfflineContext";
+import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -23,8 +25,10 @@ interface Checkout {
 export default function Checkin() {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
+  const { isOnline, addPendingOperation } = useOffline();
+  const { data: cachedCheckouts, saveToCache } = useOfflineStorage<Checkout[]>("checkouts", []);
   const navigate = useNavigate();
-  const [checkouts, setCheckouts] = useState<Checkout[]>([]);
+  const [checkouts, setCheckouts] = useState<Checkout[]>(cachedCheckouts || []);
   const [selectedCheckoutId, setSelectedCheckoutId] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,6 +41,18 @@ export default function Checkin() {
 
   const loadCheckouts = async () => {
     try {
+      if (!isOnline) {
+        // Use cached data when offline
+        if (cachedCheckouts && cachedCheckouts.length > 0) {
+          setCheckouts(cachedCheckouts);
+          toast.info("Modo offline - usando dados em cache");
+        } else {
+          toast.warning("Nenhum dado em cache disponível");
+        }
+        setLoadingCheckouts(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("tool_checkouts")
         .select(`
@@ -53,6 +69,7 @@ export default function Checkin() {
       if (error) throw error;
 
       setCheckouts(data || []);
+      saveToCache(data || []);
 
       // Auto-select if toolId is provided
       if (toolIdParam && data) {
@@ -81,14 +98,27 @@ export default function Checkin() {
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from("tool_checkouts")
-        .update({
-          status: "checked_in",
+      const checkinData = {
+        checkoutId: selectedCheckoutId,
+        updates: {
+          status: "checked_in" as const,
           checkin_date: new Date().toISOString(),
           checked_in_by: profile!.id,
           notes: notes.trim() ? notes : null,
-        })
+        },
+      };
+
+      if (!isOnline) {
+        // Save operation for later sync
+        addPendingOperation("checkin", checkinData);
+        toast.success("Ferramenta devolvida (offline)! Será sincronizada quando conectar.");
+        navigate("/");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("tool_checkouts")
+        .update(checkinData.updates)
         .eq("id", selectedCheckoutId);
 
       if (error) throw error;

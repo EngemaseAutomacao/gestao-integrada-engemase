@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOffline } from "@/contexts/OfflineContext";
+import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,8 +24,10 @@ interface Tool {
 export default function Checkout() {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
+  const { isOnline, addPendingOperation } = useOffline();
+  const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("tools", []);
   const navigate = useNavigate();
-  const [tools, setTools] = useState<Tool[]>([]);
+  const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
   const [constructionSite, setConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
@@ -37,6 +41,18 @@ export default function Checkout() {
 
   const loadTools = async () => {
     try {
+      if (!isOnline) {
+        // Use cached data when offline
+        if (cachedTools && cachedTools.length > 0) {
+          setTools(cachedTools);
+          toast.info("Modo offline - usando dados em cache");
+        } else {
+          toast.warning("Nenhum dado em cache disponível");
+        }
+        setLoadingTools(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("tools")
         .select("*")
@@ -54,6 +70,7 @@ export default function Checkout() {
       }) || [];
 
       setTools(filteredTools);
+      saveToCache(filteredTools);
     } catch (error: any) {
       toast.error("Erro ao carregar ferramentas", {
         description: error.message,
@@ -84,17 +101,27 @@ export default function Checkout() {
     setLoading(true);
 
     try {
+      const checkoutData = {
+        tool_id: selectedToolId,
+        user_id: profile!.id,
+        checked_out_by: profile!.id,
+        status: "checked_out" as const,
+        construction_site: constructionSite.trim(),
+        estimated_return_date: new Date(estimatedReturnDate).toISOString(),
+        notes: notes.trim() || null,
+      };
+
+      if (!isOnline) {
+        // Save operation for later sync
+        addPendingOperation("checkout", checkoutData);
+        toast.success("Ferramenta retirada (offline)! Será sincronizada quando conectar.");
+        navigate("/");
+        return;
+      }
+
       const { error } = await supabase
         .from("tool_checkouts")
-        .insert({
-          tool_id: selectedToolId,
-          user_id: profile!.id,
-          checked_out_by: profile!.id,
-          status: "checked_out",
-          construction_site: constructionSite.trim(),
-          estimated_return_date: new Date(estimatedReturnDate).toISOString(),
-          notes: notes.trim() || null,
-        });
+        .insert(checkoutData);
 
       if (error) throw error;
 
