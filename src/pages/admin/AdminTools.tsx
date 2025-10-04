@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 interface Tool {
@@ -24,6 +24,7 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
+  image_url: string | null;
 }
 
 export default function AdminTools() {
@@ -41,6 +42,8 @@ export default function AdminTools() {
     quantity_total: 1,
     employee_only: false,
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     loadTools();
@@ -73,6 +76,27 @@ export default function AdminTools() {
     setLoading(true);
 
     try {
+      let imageUrl = editingTool?.image_url || null;
+
+      // Upload image if a new one was selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('tool-images')
+          .upload(filePath, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('tool-images')
+          .getPublicUrl(filePath);
+
+        imageUrl = publicUrl;
+      }
+
       if (editingTool) {
         const { error } = await supabase
           .from("tools")
@@ -83,6 +107,7 @@ export default function AdminTools() {
             brand: formData.brand || null,
             quantity_total: formData.quantity_total,
             employee_only: formData.employee_only,
+            image_url: imageUrl,
           })
           .eq("id", editingTool.id);
 
@@ -100,6 +125,7 @@ export default function AdminTools() {
             quantity_available: formData.quantity_total,
             employee_only: formData.employee_only,
             created_by: profile!.id,
+            image_url: imageUrl,
           });
 
         if (error) throw error;
@@ -128,6 +154,7 @@ export default function AdminTools() {
       quantity_total: tool.quantity_total,
       employee_only: tool.employee_only,
     });
+    setImagePreview(tool.image_url);
     setDialogOpen(true);
   };
 
@@ -160,6 +187,20 @@ export default function AdminTools() {
       quantity_total: 1,
       employee_only: false,
     });
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -228,6 +269,23 @@ export default function AdminTools() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="image">Foto da Ferramenta</Label>
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                {imagePreview && (
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="mt-2 h-32 w-32 object-cover rounded-lg border"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="quantity_total">Quantidade Total *</Label>
                 <Input
                   id="quantity_total"
@@ -278,6 +336,7 @@ export default function AdminTools() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Foto</TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>TAG</TableHead>
                   <TableHead>Marca</TableHead>
@@ -290,6 +349,19 @@ export default function AdminTools() {
               <TableBody>
                 {tools.map((tool) => (
                   <TableRow key={tool.id}>
+                    <TableCell>
+                      {tool.image_url ? (
+                        <img 
+                          src={tool.image_url} 
+                          alt={tool.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                          <Package className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{tool.name}</TableCell>
                     <TableCell>{tool.tag || "-"}</TableCell>
                     <TableCell>{tool.brand || "-"}</TableCell>

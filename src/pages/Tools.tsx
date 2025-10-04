@@ -18,6 +18,7 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
+  image_url: string | null;
 }
 
 export default function Tools() {
@@ -108,6 +109,13 @@ export default function Tools() {
                 <Card key={tool.id}>
                   <CardContent className="p-4">
                     <div className="space-y-3">
+                      {tool.image_url && (
+                        <img 
+                          src={tool.image_url} 
+                          alt={tool.name}
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                      )}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg">{tool.name}</h3>

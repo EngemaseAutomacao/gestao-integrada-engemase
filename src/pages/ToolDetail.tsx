@@ -20,6 +20,7 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
+  image_url: string | null;
 }
 
 interface MaintenanceRecord {
@@ -155,6 +156,13 @@ export default function ToolDetail() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {tool.image_url && (
+            <img 
+              src={tool.image_url} 
+              alt={tool.name}
+              className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
+            />
+          )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {tool.tag && (
               <div>

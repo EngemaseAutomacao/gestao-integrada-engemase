@@ -244,6 +244,7 @@ export type Database = {
           description: string | null
           employee_only: boolean
           id: string
+          image_url: string | null
           name: string
           qr_code: string | null
           quantity_available: number
@@ -259,6 +260,7 @@ export type Database = {
           description?: string | null
           employee_only?: boolean
           id?: string
+          image_url?: string | null
           name: string
           qr_code?: string | null
           quantity_available?: number
@@ -274,6 +276,7 @@ export type Database = {
           description?: string | null
           employee_only?: boolean
           id?: string
+          image_url?: string | null
           name?: string
           qr_code?: string | null
           quantity_available?: number
