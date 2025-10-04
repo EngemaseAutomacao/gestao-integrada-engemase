@@ -235,6 +235,69 @@ export type Database = {
           },
         ]
       }
+      tool_issues: {
+        Row: {
+          checkout_id: string | null
+          created_at: string
+          description: string
+          id: string
+          reported_by: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: Database["public"]["Enums"]["issue_severity"]
+          status: Database["public"]["Enums"]["issue_status"]
+          title: string
+          tool_id: string
+          updated_at: string
+        }
+        Insert: {
+          checkout_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          reported_by: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          status?: Database["public"]["Enums"]["issue_status"]
+          title: string
+          tool_id: string
+          updated_at?: string
+        }
+        Update: {
+          checkout_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          reported_by?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          status?: Database["public"]["Enums"]["issue_status"]
+          title?: string
+          tool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_issues_checkout_id_fkey"
+            columns: ["checkout_id"]
+            isOneToOne: false
+            referencedRelation: "tool_checkouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_issues_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tools: {
         Row: {
           brand: string | null
@@ -360,6 +423,8 @@ export type Database = {
     }
     Enums: {
       checkout_status: "checked_out" | "checked_in"
+      issue_severity: "low" | "medium" | "high" | "critical"
+      issue_status: "open" | "in_progress" | "resolved" | "closed"
       user_category: "engemase_employee" | "third_party"
       user_role: "admin" | "employee" | "third_party"
     }
@@ -490,6 +555,8 @@ export const Constants = {
   public: {
     Enums: {
       checkout_status: ["checked_out", "checked_in"],
+      issue_severity: ["low", "medium", "high", "critical"],
+      issue_status: ["open", "in_progress", "resolved", "closed"],
       user_category: ["engemase_employee", "third_party"],
       user_role: ["admin", "employee", "third_party"],
     },

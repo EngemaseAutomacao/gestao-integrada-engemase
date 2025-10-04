@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 
 interface Checkout {
   id: string;
@@ -159,12 +159,25 @@ export default function Checkin() {
                 />
               </div>
 
-              <div className="flex gap-3">
-                <Button type="submit" disabled={loading || !selectedCheckoutId} className="flex-1">
+              <div className="flex flex-col gap-3">
+                <Button type="submit" disabled={loading || !selectedCheckoutId} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
-                <Button type="button" variant="outline" onClick={() => navigate("/")}>
+                {selectedCheckoutId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    asChild
+                    className="w-full"
+                  >
+                    <Link to={`/report-issue?checkoutId=${selectedCheckoutId}`}>
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Reportar Problema
+                    </Link>
+                  </Button>
+                )}
+                <Button type="button" variant="outline" onClick={() => navigate("/")} className="w-full">
                   Cancelar
                 </Button>
               </div>

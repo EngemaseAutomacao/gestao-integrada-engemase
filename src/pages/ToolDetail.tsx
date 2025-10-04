@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ArrowLeft, Package, Wrench, History, Calendar, User, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -48,6 +48,18 @@ interface UsageHistory {
   days_used: number;
 }
 
+interface ToolIssue {
+  id: string;
+  title: string;
+  description: string;
+  severity: string;
+  status: string;
+  created_at: string;
+  reporter: {
+    full_name: string;
+  };
+}
+
 const conditionLabels: Record<string, string> = {
   excellent: "Excelente",
   good: "Bom",
@@ -79,11 +91,13 @@ export default function ToolDetail() {
   const [tool, setTool] = useState<Tool | null>(null);
   const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
   const [usageHistory, setUsageHistory] = useState<UsageHistory[]>([]);
+  const [issues, setIssues] = useState<ToolIssue[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
       loadToolData();
+      loadIssues();
     }
   }, [id]);
 
@@ -124,6 +138,26 @@ export default function ToolDetail() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadIssues = async () => {
+    if (!id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("tool_issues")
+        .select(`
+          *,
+          reporter:profiles!reported_by(full_name)
+        `)
+        .eq("tool_id", id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setIssues(data as any || []);
+    } catch (error) {
+      console.error("Error loading issues:", error);
     }
   };
 
@@ -309,6 +343,77 @@ export default function ToolDetail() {
                           <Clock className="w-4 h-4 text-muted-foreground" />
                           <span>{usage.days_used} dias</span>
                         </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Issues History */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Histórico de Problemas
+            </CardTitle>
+            <CardDescription>
+              {issues.length} problemas reportados
+            </CardDescription>
+          </div>
+          <Button asChild size="sm">
+            <Link to={`/report-issue?toolId=${id}`}>
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Reportar Problema
+            </Link>
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {issues.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              Nenhum problema reportado
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {issues.map((issue) => (
+                <Card key={issue.id} className="border-l-4 border-l-primary">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          {issue.status === "resolved" || issue.status === "closed" ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <AlertCircle className="h-4 w-4 text-yellow-500" />
+                          )}
+                          <h4 className="font-semibold">{issue.title}</h4>
+                        </div>
+                        <Badge variant={
+                          issue.severity === "critical" ? "destructive" :
+                          issue.severity === "high" ? "destructive" :
+                          issue.severity === "medium" ? "default" : "secondary"
+                        }>
+                          {issue.severity === "low" ? "Baixa" :
+                           issue.severity === "medium" ? "Média" :
+                           issue.severity === "high" ? "Alta" : "Crítica"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm">{issue.description}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4" />
+                          {issue.reporter.full_name}
+                        </div>
+                        <span>{format(new Date(issue.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
+                        <Badge variant="outline">
+                          {issue.status === "open" ? "Aberto" :
+                           issue.status === "in_progress" ? "Em Progresso" :
+                           issue.status === "resolved" ? "Resolvido" : "Fechado"}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
