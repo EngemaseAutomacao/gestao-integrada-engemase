@@ -35,6 +35,7 @@ export default function AdminUsers() {
     email: "",
     password: "",
     fullName: "",
+    username: "",
     category: "engemase_employee" as "engemase_employee" | "third_party",
     role: "employee" as "admin" | "employee" | "third_party",
   });
@@ -70,19 +71,20 @@ export default function AdminUsers() {
     setLoading(true);
 
     try {
-      // Create auth user using admin API
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: formData.fullName,
+      // Call Edge Function to create user
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          username: formData.username,
           category: formData.category,
           role: formData.role,
         },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success("Usuário criado com sucesso!");
       setDialogOpen(false);
@@ -90,6 +92,7 @@ export default function AdminUsers() {
         email: "",
         password: "",
         fullName: "",
+        username: "",
         category: "engemase_employee",
         role: "employee",
       });
@@ -107,8 +110,13 @@ export default function AdminUsers() {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      // Call Edge Function to delete user
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId },
+      });
+
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success("Usuário excluído com sucesso!");
       loadUsers();
@@ -144,12 +152,16 @@ export default function AdminUsers() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.admin.updateUserById(
-        selectedUser.id,
-        { password: newPassword }
-      );
+      // Call Edge Function to update password
+      const { data, error } = await supabase.functions.invoke('update-user-password', {
+        body: {
+          userId: selectedUser.id,
+          newPassword: newPassword,
+        },
+      });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success(`Senha de ${selectedUser.full_name} alterada com sucesso!`);
       setPasswordDialogOpen(false);
@@ -216,6 +228,17 @@ export default function AdminUsers() {
                   id="fullName"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">Nome de Usuário *</Label>
+                <Input
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  placeholder="usuario.sobrenome"
                   required
                 />
               </div>
