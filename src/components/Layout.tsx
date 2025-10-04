@@ -5,6 +5,7 @@ import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList,
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
+import { InstallPWA } from "@/components/InstallPWA";
 import engemaseLogo from "@/assets/engemase-logo.png";
 
 interface LayoutProps {
@@ -127,7 +128,10 @@ export default function Layout({ children }: LayoutProps) {
               <SidebarTrigger />
               <h1 className="text-lg font-semibold">Controle de Ferramentas Engemase</h1>
             </div>
-            <NotificationBell />
+            <div className="flex items-center gap-2">
+              <InstallPWA />
+              <NotificationBell />
+            </div>
           </header>
           <div className="flex-1 p-6 overflow-auto">
             {children}
