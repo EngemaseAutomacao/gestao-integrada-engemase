@@ -15,7 +15,6 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTools from "./pages/admin/AdminTools";
 import AdminHistory from "./pages/admin/AdminHistory";
 import AdminLogs from "./pages/admin/AdminLogs";
-import AdminProfile from "./pages/admin/AdminProfile";
 import ManualEntry from "./pages/admin/ManualEntry";
 import NotFound from "./pages/NotFound";
 
@@ -39,7 +38,6 @@ const App = () => (
             <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
             <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
             <Route path="/admin/logs" element={<Layout><AdminLogs /></Layout>} />
-            <Route path="/admin/profile" element={<Layout><AdminProfile /></Layout>} />
             <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

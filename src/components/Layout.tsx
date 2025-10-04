@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, User } from "lucide-react";
+import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import engemaseLogo from "@/assets/engemase-logo.png";
@@ -42,7 +42,6 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
     { title: "Logs do Sistema", url: "/admin/logs", icon: ClipboardList },
-    { title: "Alterar Senha", url: "/admin/profile", icon: User },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
 
