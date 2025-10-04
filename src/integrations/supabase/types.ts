@@ -23,6 +23,7 @@ export type Database = {
           id: string
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
+          username: string | null
         }
         Insert: {
           category?: Database["public"]["Enums"]["user_category"]
@@ -32,6 +33,7 @@ export type Database = {
           id: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          username?: string | null
         }
         Update: {
           category?: Database["public"]["Enums"]["user_category"]
@@ -41,6 +43,7 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -171,12 +174,39 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       checkout_status: "checked_out" | "checked_in"
