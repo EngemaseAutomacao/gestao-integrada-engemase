@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, BarChart3, Bell } from "lucide-react";
+import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, BarChart3, Bell, FileText } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -44,6 +44,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
     { title: "Manutenções", url: "/admin/maintenance", icon: Wrench },
     { title: "Dashboard Analítico", url: "/admin/analytics", icon: BarChart3 },
+    { title: "Relatórios", url: "/admin/reports", icon: FileText },
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs do Sistema", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },

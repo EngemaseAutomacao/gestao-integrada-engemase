@@ -19,6 +19,7 @@ import AdminLogs from "./pages/admin/AdminLogs";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminMaintenance from "./pages/admin/AdminMaintenance";
+import AdminReports from "./pages/admin/AdminReports";
 import ManualEntry from "./pages/admin/ManualEntry";
 import NotFound from "./pages/NotFound";
 
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/admin/analytics" element={<Layout><AdminAnalytics /></Layout>} />
             <Route path="/admin/notifications" element={<Layout><AdminNotifications /></Layout>} />
             <Route path="/admin/maintenance" element={<Layout><AdminMaintenance /></Layout>} />
+            <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
             <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

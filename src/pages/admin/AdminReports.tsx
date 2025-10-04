@@ -1,0 +1,533 @@
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import { FileText, Download, Loader2, FileSpreadsheet } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+
+interface ReportFilters {
+  startDate: string;
+  endDate: string;
+  toolId: string;
+  constructionSite: string;
+  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary";
+}
+
+interface Tool {
+  id: string;
+  name: string;
+}
+
+export default function AdminReports() {
+  const { profile } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [filters, setFilters] = useState<ReportFilters>({
+    startDate: "",
+    endDate: "",
+    toolId: "",
+    constructionSite: "",
+    reportType: "checkouts",
+  });
+
+  useEffect(() => {
+    loadTools();
+  }, []);
+
+  if (!profile || profile.role !== "admin") {
+    return <Navigate to="/" />;
+  }
+
+  const loadTools = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("tools")
+        .select("id, name")
+        .order("name");
+
+      if (error) throw error;
+      setTools(data || []);
+    } catch (error: any) {
+      console.error("Error loading tools:", error);
+    }
+  };
+
+  const fetchReportData = async () => {
+    let query = supabase.from("tool_checkouts").select(`
+      *,
+      tools (name, tag, brand),
+      profiles!tool_checkouts_user_id_fkey (full_name, email, category),
+      checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name),
+      checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name)
+    `);
+
+    if (filters.startDate) {
+      query = query.gte("checkout_date", filters.startDate);
+    }
+    if (filters.endDate) {
+      query = query.lte("checkout_date", filters.endDate);
+    }
+    if (filters.toolId) {
+      query = query.eq("tool_id", filters.toolId);
+    }
+    if (filters.constructionSite) {
+      query = query.ilike("construction_site", `%${filters.constructionSite}%`);
+    }
+
+    query = query.order("checkout_date", { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data;
+  };
+
+  const fetchMaintenanceData = async () => {
+    let query = supabase.from("maintenance_records").select(`
+      *,
+      tools (name, tag, brand),
+      profiles (full_name, email)
+    `);
+
+    if (filters.startDate) {
+      query = query.gte("created_at", filters.startDate);
+    }
+    if (filters.endDate) {
+      query = query.lte("created_at", filters.endDate);
+    }
+    if (filters.toolId) {
+      query = query.eq("tool_id", filters.toolId);
+    }
+
+    query = query.order("created_at", { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data;
+  };
+
+  const fetchInventoryData = async () => {
+    let query = supabase.from("tools").select("*");
+
+    if (filters.toolId) {
+      query = query.eq("id", filters.toolId);
+    }
+
+    query = query.order("name");
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data;
+  };
+
+  const exportToPDF = async () => {
+    setLoading(true);
+    try {
+      let data: any[] = [];
+      let title = "";
+      let columns: string[] = [];
+      let rows: any[][] = [];
+
+      switch (filters.reportType) {
+        case "checkouts":
+          data = await fetchReportData();
+          title = "Relatório de Retiradas/Devoluções";
+          columns = ["Ferramenta", "Usuário", "Retirada", "Devolução", "Status", "Obra"];
+          rows = data.map((item: any) => [
+            item.tools?.name || "-",
+            item.profiles?.full_name || "-",
+            format(new Date(item.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            item.checkin_date ? format(new Date(item.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+            item.status === "checked_out" ? "Em Uso" : "Devolvida",
+            item.construction_site || "-",
+          ]);
+          break;
+
+        case "maintenance":
+          data = await fetchMaintenanceData();
+          title = "Relatório de Manutenções";
+          columns = ["Ferramenta", "Tipo", "Descrição", "Realizado por", "Data", "Custo"];
+          rows = data.map((item: any) => [
+            item.tools?.name || "-",
+            item.maintenance_type,
+            item.description,
+            item.profiles?.full_name || "-",
+            format(new Date(item.created_at), "dd/MM/yyyy", { locale: ptBR }),
+            item.cost ? `R$ ${item.cost.toFixed(2)}` : "-",
+          ]);
+          break;
+
+        case "inventory":
+          data = await fetchInventoryData();
+          title = "Relatório de Inventário";
+          columns = ["Nome", "TAG", "Marca", "Condição", "Disponível", "Total"];
+          rows = data.map((item: any) => [
+            item.name,
+            item.tag || "-",
+            item.brand || "-",
+            item.condition,
+            item.quantity_available.toString(),
+            item.quantity_total.toString(),
+          ]);
+          break;
+
+        case "usage_summary":
+          data = await fetchReportData();
+          title = "Resumo de Uso de Ferramentas";
+          const toolUsage = new Map();
+          data.forEach((item: any) => {
+            const toolName = item.tools?.name || "Desconhecido";
+            if (!toolUsage.has(toolName)) {
+              toolUsage.set(toolName, { count: 0, totalDays: 0 });
+            }
+            const usage = toolUsage.get(toolName);
+            usage.count++;
+            if (item.checkin_date) {
+              const days = Math.ceil(
+                (new Date(item.checkin_date).getTime() - new Date(item.checkout_date).getTime()) /
+                  (1000 * 60 * 60 * 24)
+              );
+              usage.totalDays += days;
+            }
+          });
+          columns = ["Ferramenta", "Total de Usos", "Total de Dias", "Média de Dias"];
+          rows = Array.from(toolUsage.entries()).map(([name, usage]: [string, any]) => [
+            name,
+            usage.count.toString(),
+            usage.totalDays.toString(),
+            (usage.totalDays / usage.count).toFixed(1),
+          ]);
+          break;
+      }
+
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(18);
+      doc.text(title, 14, 20);
+      doc.setFontSize(11);
+      doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
+      
+      if (filters.startDate || filters.endDate) {
+        let periodText = "Período: ";
+        if (filters.startDate) {
+          periodText += `${format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR })}`;
+        }
+        if (filters.endDate) {
+          periodText += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
+        }
+        doc.text(periodText, 14, 34);
+      }
+
+      // Table
+      autoTable(doc, {
+        head: [columns],
+        body: rows,
+        startY: filters.startDate || filters.endDate ? 40 : 34,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [79, 70, 229] },
+      });
+
+      doc.save(`relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+      toast.success("Relatório PDF gerado com sucesso!");
+    } catch (error: any) {
+      toast.error("Erro ao gerar relatório", {
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportToExcel = async () => {
+    setLoading(true);
+    try {
+      let data: any[] = [];
+      let sheetName = "";
+
+      switch (filters.reportType) {
+        case "checkouts":
+          data = await fetchReportData();
+          sheetName = "Retiradas";
+          data = data.map((item: any) => ({
+            Ferramenta: item.tools?.name || "-",
+            TAG: item.tools?.tag || "-",
+            Usuário: item.profiles?.full_name || "-",
+            Email: item.profiles?.email || "-",
+            Categoria: item.profiles?.category || "-",
+            Retirada: format(new Date(item.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            Devolução: item.checkin_date
+              ? format(new Date(item.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+              : "-",
+            Status: item.status === "checked_out" ? "Em Uso" : "Devolvida",
+            Obra: item.construction_site || "-",
+            "Retirado por": item.checked_out_by_profile?.full_name || "-",
+            "Devolvido por": item.checked_in_by_profile?.full_name || "-",
+          }));
+          break;
+
+        case "maintenance":
+          data = await fetchMaintenanceData();
+          sheetName = "Manutenções";
+          data = data.map((item: any) => ({
+            Ferramenta: item.tools?.name || "-",
+            TAG: item.tools?.tag || "-",
+            Tipo: item.maintenance_type,
+            Descrição: item.description,
+            "Condição Antes": item.condition_before || "-",
+            "Condição Depois": item.condition_after || "-",
+            "Realizado por": item.profiles?.full_name || "-",
+            Data: format(new Date(item.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            Custo: item.cost ? `R$ ${item.cost.toFixed(2)}` : "-",
+            "Peças Substituídas": item.parts_replaced || "-",
+          }));
+          break;
+
+        case "inventory":
+          data = await fetchInventoryData();
+          sheetName = "Inventário";
+          data = data.map((item: any) => ({
+            Nome: item.name,
+            TAG: item.tag || "-",
+            Marca: item.brand || "-",
+            Descrição: item.description || "-",
+            Condição: item.condition,
+            Disponível: item.quantity_available,
+            Total: item.quantity_total,
+            "Apenas Funcionários": item.employee_only ? "Sim" : "Não",
+          }));
+          break;
+
+        case "usage_summary":
+          data = await fetchReportData();
+          sheetName = "Resumo de Uso";
+          const toolUsage = new Map();
+          data.forEach((item: any) => {
+            const toolName = item.tools?.name || "Desconhecido";
+            if (!toolUsage.has(toolName)) {
+              toolUsage.set(toolName, { count: 0, totalDays: 0 });
+            }
+            const usage = toolUsage.get(toolName);
+            usage.count++;
+            if (item.checkin_date) {
+              const days = Math.ceil(
+                (new Date(item.checkin_date).getTime() - new Date(item.checkout_date).getTime()) /
+                  (1000 * 60 * 60 * 24)
+              );
+              usage.totalDays += days;
+            }
+          });
+          data = Array.from(toolUsage.entries()).map(([name, usage]: [string, any]) => ({
+            Ferramenta: name,
+            "Total de Usos": usage.count,
+            "Total de Dias": usage.totalDays,
+            "Média de Dias por Uso": (usage.totalDays / usage.count).toFixed(1),
+          }));
+          break;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+      // Auto-size columns
+      const maxWidth = data.reduce((w: any, r: any) => {
+        return Math.max(w, ...Object.keys(r).map(k => String(r[k]).length));
+      }, 10);
+      worksheet["!cols"] = Object.keys(data[0] || {}).map(() => ({ wch: maxWidth }));
+
+      XLSX.writeFile(workbook, `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+      toast.success("Relatório Excel gerado com sucesso!");
+    } catch (error: any) {
+      toast.error("Erro ao gerar relatório", {
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Relatórios</h2>
+        <p className="text-muted-foreground">Gere e exporte relatórios personalizados</p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Configurar Relatório</CardTitle>
+          <CardDescription>Selecione os filtros e o tipo de relatório desejado</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="reportType">Tipo de Relatório *</Label>
+              <Select
+                value={filters.reportType}
+                onValueChange={(value) =>
+                  setFilters({ ...filters, reportType: value as ReportFilters["reportType"] })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="checkouts">Retiradas/Devoluções</SelectItem>
+                  <SelectItem value="maintenance">Manutenções</SelectItem>
+                  <SelectItem value="inventory">Inventário Atual</SelectItem>
+                  <SelectItem value="usage_summary">Resumo de Uso</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="toolId">Ferramenta Específica</Label>
+              <Select value={filters.toolId} onValueChange={(value) => setFilters({ ...filters, toolId: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todas as ferramentas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todas as ferramentas</SelectItem>
+                  {tools.map((tool) => (
+                    <SelectItem key={tool.id} value={tool.id}>
+                      {tool.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {filters.reportType === "checkouts" && (
+              <div className="space-y-2">
+                <Label htmlFor="constructionSite">Obra</Label>
+                <Input
+                  id="constructionSite"
+                  value={filters.constructionSite}
+                  onChange={(e) => setFilters({ ...filters, constructionSite: e.target.value })}
+                  placeholder="Filtrar por obra..."
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Data Inicial</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={filters.startDate}
+                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endDate">Data Final</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={filters.endDate}
+                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4 border-t">
+            <Button onClick={exportToPDF} disabled={loading} className="flex-1">
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileText className="mr-2 h-4 w-4" />
+              )}
+              Exportar PDF
+            </Button>
+            <Button onClick={exportToExcel} disabled={loading} className="flex-1" variant="secondary">
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+              )}
+              Exportar Excel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tipos de Relatórios Disponíveis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Retiradas/Devoluções</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Histórico completo de check-in/check-out</li>
+                  <li>• Informações do usuário e obra</li>
+                  <li>• Status atual das ferramentas</li>
+                  <li>• Datas de retirada e devolução</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Manutenções</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Registro de todas as manutenções</li>
+                  <li>• Custos e peças substituídas</li>
+                  <li>• Condição antes e depois</li>
+                  <li>• Responsável pela manutenção</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Inventário Atual</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Estado atual de todas as ferramentas</li>
+                  <li>• Quantidades disponíveis e totais</li>
+                  <li>• Condição de cada ferramenta</li>
+                  <li>• Informações técnicas (TAG, marca)</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Resumo de Uso</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Estatísticas de uso por ferramenta</li>
+                  <li>• Total de dias em uso</li>
+                  <li>• Média de dias por uso</li>
+                  <li>• Ferramentas mais utilizadas</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
