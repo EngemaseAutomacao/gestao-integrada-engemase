@@ -78,19 +78,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (username: string, password: string) => {
     try {
-      // Buscar o email associado ao username usando query builder
-      const query = supabase
-        .from("profiles")
-        .select("email");
-      
-      const { data: profiles, error: profileError } = await (query as any).eq("username", username);
+      // Use secure function to get email from username
+      const { data: email, error: lookupError } = await supabase
+        .rpc("get_email_from_username", { _username: username });
 
-      if (profileError || !profiles || profiles.length === 0) {
+      if (lookupError || !email) {
         return { error: { message: "Usuário não encontrado" } };
       }
 
       const { error } = await supabase.auth.signInWithPassword({
-        email: profiles[0].email,
+        email: email,
         password,
       });
       return { error };
