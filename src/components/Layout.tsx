@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, BarChart3, Bell, FileText, AlertCircle } from "lucide-react";
+import { Home, Package, History, Users, Settings, LogOut, Wrench, ClipboardList, BarChart3, Bell, FileText, AlertCircle, Car, ArrowLeftCircle } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -15,6 +15,18 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const { user, profile, loading, signOut } = useAuth();
+  const location = useLocation();
+
+  // Check if we're in the ferramentas module
+  const isFerramentasModule = location.pathname.startsWith('/ferramentas') || 
+                               location.pathname.startsWith('/tools') ||
+                               location.pathname.startsWith('/checkout') ||
+                               location.pathname.startsWith('/checkin') ||
+                               location.pathname.startsWith('/history') ||
+                               location.pathname.startsWith('/report-issue');
+
+  // Check if we're on the home page
+  const isHomePage = location.pathname === '/';
 
   if (loading) {
     return (
@@ -57,10 +69,10 @@ export default function Layout({ children }: LayoutProps) {
   const categoryLabel = profile.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
   const categoryColor = profile.category === "engemase_employee" ? "badge-employee" : "badge-thirdparty";
 
-  const mainMenuItems = [
-    { title: "Dashboard", url: "/", icon: Home },
-    { title: "Ferramentas", url: "/tools", icon: Package },
-    { title: "Meu Histórico", url: "/history", icon: History },
+  const ferramentasMenuItems = [
+    { title: "Início Ferramentas", url: "/ferramentas", icon: Wrench },
+    { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
+    { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
   ];
 
   const adminMenuItems = [
@@ -92,23 +104,44 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {mainMenuItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
+            {/* Back to Home button */}
+            {!isHomePage && (
+              <SidebarGroup>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
                       <SidebarMenuButton asChild>
-                        <NavLink to={item.url} end className={({ isActive }) => isActive ? "bg-sidebar-accent" : ""}>
-                          <item.icon className="w-4 h-4" />
-                          <span>{item.title}</span>
+                        <NavLink to="/" className="text-muted-foreground hover:text-foreground">
+                          <ArrowLeftCircle className="w-4 h-4" />
+                          <span>Voltar ao Menu</span>
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+            {/* Ferramentas Menu - only show when in ferramentas module */}
+            {isFerramentasModule && (
+              <SidebarGroup>
+                <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {ferramentasMenuItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <NavLink to={item.url} end className={({ isActive }) => isActive ? "bg-sidebar-accent" : ""}>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
 
             {isAdmin && (
               <SidebarGroup>
