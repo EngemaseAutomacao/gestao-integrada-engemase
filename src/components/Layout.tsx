@@ -252,7 +252,7 @@ export default function Layout({ children }: LayoutProps) {
                 className="text-destructive focus:text-destructive cursor-pointer"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Sair
+                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
