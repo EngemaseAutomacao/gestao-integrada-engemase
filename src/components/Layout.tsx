@@ -1,19 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation, NavLink } from "react-router-dom";
 import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarGroup, 
-  SidebarGroupContent, 
-  SidebarGroupLabel, 
-  SidebarMenu, 
-  SidebarMenuButton, 
-  SidebarMenuItem, 
-  SidebarProvider, 
-  SidebarTrigger,
-  useSidebar 
-} from "@/components/ui/sidebar";
-import { 
   Home, 
   Package, 
   History, 
@@ -27,10 +14,8 @@ import {
   FileText, 
   AlertCircle, 
   Car, 
-  ArrowLeftCircle,
-  ChevronLeft,
-  PanelLeftClose,
-  PanelLeft
+  ChevronDown,
+  ArrowLeft
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -40,7 +25,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import engemaseLogo from "@/assets/engemase-logo.png";
 
@@ -48,52 +40,11 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-function SidebarMenuItemWithTooltip({ 
-  item, 
-  isActive,
-  collapsed
-}: { 
-  item: { title: string; url: string; icon: any }; 
-  isActive: boolean;
-  collapsed: boolean;
-}) {
-  const content = (
-    <SidebarMenuButton asChild className={cn(
-      "transition-all duration-200",
-      isActive && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-    )}>
-      <NavLink to={item.url} end>
-        <item.icon className="w-4 h-4 shrink-0" />
-        <span className={cn(
-          "transition-all duration-200",
-          collapsed && "opacity-0 w-0"
-        )}>{item.title}</span>
-      </NavLink>
-    </SidebarMenuButton>
-  );
-
-  if (collapsed) {
-    return (
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          {content}
-        </TooltipTrigger>
-        <TooltipContent side="right" className="font-medium">
-          {item.title}
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return content;
-}
-
-function SidebarContentWrapper() {
-  const { profile, signOut } = useAuth();
+export default function Layout({ children }: LayoutProps) {
+  const { user, profile, loading, signOut } = useAuth();
   const location = useLocation();
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
-
+  
+  const isHomePage = location.pathname === '/';
   const isFerramentasModule = location.pathname.startsWith('/ferramentas') || 
                                location.pathname.startsWith('/tools') ||
                                location.pathname.startsWith('/checkout') ||
@@ -102,10 +53,8 @@ function SidebarContentWrapper() {
                                location.pathname.startsWith('/report-issue');
   const isVeiculosModule = location.pathname.startsWith('/veiculos');
   const isAdminModule = location.pathname.startsWith('/admin');
-  const isHomePage = location.pathname === '/';
 
   const isAdmin = profile?.role === "admin";
-  const categoryLabel = profile?.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
 
   const ferramentasMenuItems = [
     { title: "Dashboard", url: "/ferramentas", icon: Wrench },
@@ -118,11 +67,8 @@ function SidebarContentWrapper() {
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
   ];
 
-  const sistemaMenuItems = [
-    { title: "Início", url: "/", icon: Home },
-  ];
-
   const adminMenuItems = [
+    { title: "Dashboard", url: "/admin", icon: BarChart3 },
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Ferramentas", url: "/admin/tools", icon: Package },
     { title: "Manutenções", url: "/admin/maintenance", icon: Wrench },
@@ -134,183 +80,40 @@ function SidebarContentWrapper() {
     { title: "Problemas", url: "/admin/issues", icon: AlertCircle },
   ];
 
+  const getCurrentModuleInfo = () => {
+    if (isFerramentasModule) {
+      return { 
+        title: "Ferramentas", 
+        icon: Wrench, 
+        items: ferramentasMenuItems,
+        color: "text-primary"
+      };
+    }
+    if (isVeiculosModule) {
+      return { 
+        title: "Veículos", 
+        icon: Car, 
+        items: veiculosMenuItems,
+        color: "text-primary"
+      };
+    }
+    if (isAdminModule && isAdmin) {
+      return { 
+        title: "Administração", 
+        icon: Settings, 
+        items: adminMenuItems,
+        color: "text-orange-500"
+      };
+    }
+    return null;
+  };
+
+  const currentModule = getCurrentModuleInfo();
+
   const isActiveRoute = (url: string) => {
     if (url === "/") return location.pathname === "/";
     return location.pathname === url || location.pathname.startsWith(url + "/");
   };
-
-  return (
-    <>
-      {/* Logo and User Info */}
-      <div className={cn(
-        "border-b transition-all duration-200",
-        collapsed ? "p-2" : "p-4"
-      )}>
-        <div className="flex items-center justify-center mb-3">
-          <img 
-            src={engemaseLogo} 
-            alt="Engemase" 
-            className={cn(
-              "transition-all duration-200",
-              collapsed ? "w-8 h-auto" : "w-28 h-auto"
-            )} 
-          />
-        </div>
-        {!collapsed && (
-          <div className="text-center space-y-1.5">
-            <p className="text-sm font-medium truncate">{profile?.full_name}</p>
-            <Badge 
-              variant="secondary" 
-              className={cn(
-                "text-xs",
-                profile?.category === "engemase_employee" 
-                  ? "bg-primary/10 text-primary border-primary/20" 
-                  : "bg-warning/10 text-warning border-warning/20"
-              )}
-            >
-              {categoryLabel}
-            </Badge>
-          </div>
-        )}
-      </div>
-
-      <SidebarContent className="px-2">
-        {/* Back to Home */}
-        {!isHomePage && (
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuItemWithTooltip
-                    item={{ title: "Voltar ao Menu", url: "/", icon: ArrowLeftCircle }}
-                    isActive={false}
-                    collapsed={collapsed}
-                  />
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Home Menu */}
-        {isHomePage && (
-          <SidebarGroup>
-            {!collapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground">Sistema</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {sistemaMenuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuItemWithTooltip
-                      item={item}
-                      isActive={isActiveRoute(item.url)}
-                      collapsed={collapsed}
-                    />
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Ferramentas Menu */}
-        {isFerramentasModule && (
-          <SidebarGroup>
-            {!collapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground">Ferramentas</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {ferramentasMenuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuItemWithTooltip
-                      item={item}
-                      isActive={isActiveRoute(item.url)}
-                      collapsed={collapsed}
-                    />
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Veículos Menu */}
-        {isVeiculosModule && (
-          <SidebarGroup>
-            {!collapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground">Veículos</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {veiculosMenuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuItemWithTooltip
-                      item={item}
-                      isActive={isActiveRoute(item.url)}
-                      collapsed={collapsed}
-                    />
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Admin Menu */}
-        {isAdminModule && isAdmin && (
-          <SidebarGroup>
-            {!collapsed && <SidebarGroupLabel className="text-xs uppercase tracking-wider text-muted-foreground">Administração</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminMenuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuItemWithTooltip
-                      item={item}
-                      isActive={isActiveRoute(item.url)}
-                      collapsed={collapsed}
-                    />
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Logout - fixed at bottom */}
-        <SidebarGroup className="mt-auto pb-4">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                {collapsed ? (
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton 
-                        onClick={signOut}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <LogOut className="w-4 h-4" />
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Sair</TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <SidebarMenuButton 
-                    onClick={signOut}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sair</span>
-                  </SidebarMenuButton>
-                )}
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </>
-  );
-}
-
-export default function Layout({ children }: LayoutProps) {
-  const { user, profile, loading, signOut } = useAuth();
-  const location = useLocation();
-  const isHomePage = location.pathname === '/';
 
   if (loading) {
     return (
@@ -350,78 +153,123 @@ export default function Layout({ children }: LayoutProps) {
     );
   }
 
-  // Home page: simple layout without sidebar
-  if (isHomePage) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        {/* Simple Header for Home */}
-        <header className="h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 sticky top-0 z-40">
-          <div className="flex items-center gap-3">
-            <img src={engemaseLogo} alt="Engemase" className="h-8 w-auto" />
-          </div>
-          <div className="flex items-center gap-2">
-            <OfflineIndicator />
-            <InstallPWA />
-            <ThemeToggle />
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
-              <span className="text-sm font-medium text-foreground">{profile?.full_name}</span>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={signOut}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Sair</span>
-            </Button>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
-
-        {/* Footer */}
-        <Footer />
-      </div>
-    );
-  }
-
-  // Other pages: full layout with sidebar
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <Sidebar collapsible="icon" className="border-r">
-          <SidebarContentWrapper />
-        </Sidebar>
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Header */}
+      <header className="h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          {/* Logo */}
+          <NavLink to="/" className="flex items-center gap-2">
+            <img src={engemaseLogo} alt="Engemase" className="h-8 w-auto" />
+          </NavLink>
 
-        <div className="flex-1 flex flex-col min-h-screen">
-          {/* Header */}
-          <header className="h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 gap-4 sticky top-0 z-40">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="h-8 w-8" />
-              <div className="h-4 w-px bg-border hidden sm:block" />
-              <Breadcrumbs />
-            </div>
-            <div className="flex items-center gap-1">
-              <OfflineIndicator />
-              <InstallPWA />
-              <ThemeToggle />
-              <NotificationBell />
-            </div>
-          </header>
+          {/* Back button + Module Dropdown (only on non-home pages) */}
+          {!isHomePage && currentModule && (
+            <>
+              <div className="h-6 w-px bg-border hidden sm:block" />
+              
+              {/* Back to Home */}
+              <NavLink to="/">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground hover:text-foreground">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Menu</span>
+                </Button>
+              </NavLink>
 
-          {/* Main Content */}
-          <main className="flex-1 p-4 md:p-6 overflow-auto">
-            {children}
-          </main>
+              {/* Module Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className={cn("gap-2", currentModule.color)}>
+                    <currentModule.icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{currentModule.title}</span>
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56 bg-popover border shadow-lg z-50">
+                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">
+                    {currentModule.title}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {currentModule.items.map((item) => (
+                    <DropdownMenuItem key={item.url} asChild>
+                      <NavLink 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-2 cursor-pointer",
+                          isActiveRoute(item.url) && "bg-primary/10 text-primary font-medium"
+                        )}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        {item.title}
+                      </NavLink>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-          {/* Footer */}
-          <Footer />
+              {/* Breadcrumbs */}
+              <div className="hidden md:block">
+                <Breadcrumbs />
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    </SidebarProvider>
+
+        {/* Right side */}
+        <div className="flex items-center gap-2">
+          <OfflineIndicator />
+          <InstallPWA />
+          <ThemeToggle />
+          {!isHomePage && <NotificationBell />}
+          
+          {/* User dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2 max-w-[180px]">
+                <span className="text-sm font-medium truncate hidden sm:inline">
+                  {profile?.full_name?.split(' ')[0]}
+                </span>
+                <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-popover border shadow-lg z-50">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium">{profile?.full_name}</p>
+                  <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                  <Badge 
+                    variant="secondary" 
+                    className={cn(
+                      "w-fit text-xs mt-1",
+                      profile?.category === "engemase_employee" 
+                        ? "bg-primary/10 text-primary" 
+                        : "bg-orange-500/10 text-orange-500"
+                    )}
+                  >
+                    {profile?.category === "engemase_employee" ? "Funcionário" : "Terceirizado"}
+                  </Badge>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={signOut}
+                className="text-destructive focus:text-destructive cursor-pointer"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 p-4 md:p-6 overflow-auto">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <Footer />
+    </div>
   );
 }
