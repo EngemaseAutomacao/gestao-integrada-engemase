@@ -7,8 +7,10 @@ interface Profile {
   id: string;
   email: string;
   full_name: string;
+  username: string | null;
   category: "engemase_employee" | "third_party";
   role: "admin" | "employee" | "third_party";
+  approved: boolean;
 }
 
 interface AuthContextType {
