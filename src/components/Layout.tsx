@@ -25,6 +25,9 @@ export default function Layout({ children }: LayoutProps) {
                                location.pathname.startsWith('/history') ||
                                location.pathname.startsWith('/report-issue');
 
+  // Check if we're in the admin module
+  const isAdminModule = location.pathname.startsWith('/admin');
+
   // Check if we're on the home page
   const isHomePage = location.pathname === '/';
 
@@ -169,7 +172,8 @@ export default function Layout({ children }: LayoutProps) {
               </SidebarGroup>
             )}
 
-            {isAdmin && (
+            {/* Admin Menu - only show when in admin module */}
+            {isAdminModule && isAdmin && (
               <SidebarGroup>
                 <SidebarGroupLabel>Administração</SidebarGroupLabel>
                 <SidebarGroupContent>

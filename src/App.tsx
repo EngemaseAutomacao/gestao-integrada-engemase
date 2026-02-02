@@ -15,6 +15,7 @@ import ToolDetail from "./pages/ToolDetail";
 import Checkout from "./pages/Checkout";
 import Checkin from "./pages/Checkin";
 import UserHistory from "./pages/UserHistory";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTools from "./pages/admin/AdminTools";
 import AdminHistory from "./pages/admin/AdminHistory";
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/checkin" element={<Layout><Checkin /></Layout>} />
             <Route path="/history" element={<Layout><UserHistory /></Layout>} />
             {/* Admin Routes */}
+            <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
             <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
             <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
             <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />

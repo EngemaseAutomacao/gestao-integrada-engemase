@@ -1,0 +1,76 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Package, Wrench, BarChart3, FileText, Bell, ClipboardList, Settings, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+
+interface AdminCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  to: string;
+}
+
+function AdminCard({ title, description, icon, to }: AdminCardProps) {
+  return (
+    <Link to={to} className="block">
+      <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-orange-500 border-orange-500/20">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+              {icon}
+            </div>
+            <div>
+              <CardTitle className="text-lg">{title}</CardTitle>
+              <CardDescription className="text-sm">{description}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+    </Link>
+  );
+}
+
+export default function AdminDashboard() {
+  const { profile } = useAuth();
+
+  // Redirect non-admins
+  if (profile?.role !== "admin") {
+    return <Navigate to="/" />;
+  }
+
+  const adminItems = [
+    { title: "Usuários", description: "Gerenciar contas e permissões", icon: <Users className="w-5 h-5 text-orange-500" />, to: "/admin/users" },
+    { title: "Ferramentas", description: "Adicionar e editar ferramentas", icon: <Package className="w-5 h-5 text-orange-500" />, to: "/admin/tools" },
+    { title: "Manutenções", description: "Registro de manutenções", icon: <Wrench className="w-5 h-5 text-orange-500" />, to: "/admin/maintenance" },
+    { title: "Analytics", description: "Dashboard analítico", icon: <BarChart3 className="w-5 h-5 text-orange-500" />, to: "/admin/analytics" },
+    { title: "Relatórios", description: "Gerar e exportar relatórios", icon: <FileText className="w-5 h-5 text-orange-500" />, to: "/admin/reports" },
+    { title: "Notificações", description: "Configurar alertas", icon: <Bell className="w-5 h-5 text-orange-500" />, to: "/admin/notifications" },
+    { title: "Logs", description: "Histórico do sistema", icon: <ClipboardList className="w-5 h-5 text-orange-500" />, to: "/admin/logs" },
+    { title: "Entrada Manual", description: "Registros manuais", icon: <Settings className="w-5 h-5 text-orange-500" />, to: "/admin/manual" },
+    { title: "Problemas", description: "Issues reportados", icon: <AlertCircle className="w-5 h-5 text-orange-500" />, to: "/admin/issues" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
+        <p className="text-muted-foreground mt-1">
+          Gerencie todos os aspectos do sistema
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {adminItems.map((item) => (
+          <AdminCard
+            key={item.title}
+            title={item.title}
+            description={item.description}
+            icon={item.icon}
+            to={item.to}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
