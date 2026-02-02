@@ -1,7 +1,7 @@
 {
-  "name": "Engemase Tool Control",
-  "short_name": "Engemase Tools",
-  "description": "Sistema de controle de ferramentas para Engemase Engenharia",
+  "name": "Sistema de Gestão Engemase",
+  "short_name": "Engemase Gestão",
+  "description": "Sistema de gestão de ferramentas e veículos para Engemase Engenharia",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
