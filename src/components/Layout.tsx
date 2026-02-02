@@ -75,6 +75,11 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
   ];
 
+  // General system menu - shown when not in a specific module
+  const sistemaMenuItems = [
+    { title: "Início", url: "/", icon: Home },
+  ];
+
   const adminMenuItems = [
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Package },
@@ -104,7 +109,28 @@ export default function Layout({ children }: LayoutProps) {
           </div>
 
           <SidebarContent>
-            {/* Back to Home button */}
+            {/* Sistema Menu - shown when on home page or not in a specific module */}
+            {isHomePage && (
+              <SidebarGroup>
+                <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {sistemaMenuItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <NavLink to={item.url} end className={({ isActive }) => isActive ? "bg-sidebar-accent" : ""}>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+            {/* Back to Home button - shown when in a module */}
             {!isHomePage && (
               <SidebarGroup>
                 <SidebarGroupContent>
