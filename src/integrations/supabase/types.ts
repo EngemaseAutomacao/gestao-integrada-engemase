@@ -383,22 +383,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_low_stock: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      check_overdue_tools: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      check_return_reminders: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      get_email_from_username: {
-        Args: { _username: string }
-        Returns: string
-      }
+      check_low_stock: { Args: never; Returns: undefined }
+      check_overdue_tools: { Args: never; Returns: undefined }
+      check_return_reminders: { Args: never; Returns: undefined }
+      get_email_from_username: { Args: { _username: string }; Returns: string }
       get_tool_usage_history: {
         Args: { tool_uuid: string }
         Returns: {
