@@ -65,19 +65,13 @@ Deno.serve(async (req) => {
 
     console.log('Found profile:', profile.email);
 
-    // Check if auth user exists
-    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    
-    if (listError) {
-      console.error('Error listing users:', listError);
-      throw listError;
-    }
+    // Check if auth user exists (by id)
+    const { data: getUserData, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(body.profileId);
+    const existingUser = getUserData?.user ?? null;
 
-    const existingUser = users.find(u => u.id === body.profileId);
-    
-    if (existingUser) {
-      // User exists, just update password
-      console.log('User exists, updating password');
+    if (existingUser && !getUserError) {
+      // User exists, update password and keep profile email in sync (critical for username->email login)
+      console.log('Auth user exists, updating password');
       const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
         existingUser.id,
         { password: body.password }
@@ -88,8 +82,25 @@ Deno.serve(async (req) => {
         throw updateError;
       }
 
+      const authEmail = existingUser.email ?? null;
+      if (authEmail && profile.email !== authEmail) {
+        console.log('Syncing profile email to auth email:', { from: profile.email, to: authEmail });
+        const { error: syncEmailError } = await supabaseAdmin
+          .from('profiles')
+          .update({ email: authEmail })
+          .eq('id', profile.id);
+        if (syncEmailError) {
+          console.error('Error syncing profile email:', syncEmailError);
+          // don't throw; password reset is the main action
+        }
+      }
+
       return new Response(
-        JSON.stringify({ success: true, action: 'password_updated' }),
+        JSON.stringify({
+          success: true,
+          action: 'password_updated',
+          authEmail,
+        }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200,
