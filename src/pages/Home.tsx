@@ -85,10 +85,9 @@ export default function Home() {
 
         <ModuleCard
           title="Controle de Veículos"
-          description="Registre entradas e saídas de veículos com fotos"
-          icon={<Car className="w-8 h-8 text-muted-foreground" />}
-          disabled
-          comingSoon
+          description="Registre entradas e saídas de veículos com quilometragem"
+          icon={<Car className="w-8 h-8 text-primary" />}
+          to="/veiculos"
         />
 
         {isAdmin && (

@@ -1,0 +1,215 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Car, ArrowRightCircle, ArrowLeftCircle, List, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export default function VehicleDashboard() {
+  const { data: stats } = useQuery({
+    queryKey: ["vehicle-stats"],
+    queryFn: async () => {
+      const [vehiclesRes, checkoutsRes] = await Promise.all([
+        supabase.from("vehicles").select("id, status"),
+        supabase.from("vehicle_checkouts").select("id, status").eq("status", "checked_out")
+      ]);
+
+      const vehicles = vehiclesRes.data || [];
+      const activeCheckouts = checkoutsRes.data || [];
+
+      return {
+        totalVehicles: vehicles.length,
+        available: vehicles.filter(v => v.status === "available").length,
+        inUse: vehicles.filter(v => v.status === "in_use").length,
+        activeCheckouts: activeCheckouts.length
+      };
+    }
+  });
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Car className="w-8 h-8 text-primary" />
+          Controle de Veículos
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Gerencie a entrada e saída de veículos
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total de Veículos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalVehicles || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Disponíveis
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats?.available || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Em Uso
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{stats?.inUse || 0}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Saídas Ativas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{stats?.activeCheckouts || 0}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ArrowRightCircle className="w-5 h-5 text-orange-600" />
+              Registrar Saída
+            </CardTitle>
+            <CardDescription>
+              Registre a saída de um veículo com quilometragem
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <Link to="/veiculos/saida">Registrar Saída</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ArrowLeftCircle className="w-5 h-5 text-green-600" />
+              Registrar Chegada
+            </CardTitle>
+            <CardDescription>
+              Registre a chegada de um veículo com quilometragem
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/veiculos/chegada">Registrar Chegada</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <List className="w-5 h-5 text-blue-600" />
+              Lista de Veículos
+            </CardTitle>
+            <CardDescription>
+              Veja todos os veículos cadastrados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="secondary" className="w-full">
+              <Link to="/veiculos/lista">Ver Veículos</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Atividade Recente
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RecentVehicleActivity />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function RecentVehicleActivity() {
+  const { data: recentCheckouts, isLoading } = useQuery({
+    queryKey: ["recent-vehicle-checkouts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vehicle_checkouts")
+        .select(`
+          id,
+          checkout_date,
+          checkin_date,
+          km_checkout,
+          km_checkin,
+          status,
+          destination,
+          vehicles!inner(name, plate),
+          profiles!vehicle_checkouts_user_id_fkey(full_name)
+        `)
+        .order("checkout_date", { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  if (isLoading) {
+    return <p className="text-muted-foreground text-center py-4">Carregando...</p>;
+  }
+
+  if (!recentCheckouts || recentCheckouts.length === 0) {
+    return <p className="text-muted-foreground text-center py-4">Nenhuma atividade recente</p>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {recentCheckouts.map((checkout: any) => (
+        <div key={checkout.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div>
+            <p className="font-medium">{checkout.vehicles.name} - {checkout.vehicles.plate}</p>
+            <p className="text-sm text-muted-foreground">
+              {checkout.profiles?.full_name} • {checkout.destination || "Sem destino"}
+            </p>
+          </div>
+          <div className="text-right">
+            <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+              checkout.status === "checked_out" 
+                ? "bg-orange-100 text-orange-800" 
+                : "bg-green-100 text-green-800"
+            }`}>
+              {checkout.status === "checked_out" ? "Em uso" : "Devolvido"}
+            </span>
+            <p className="text-xs text-muted-foreground mt-1">
+              KM: {checkout.km_checkout.toLocaleString()}
+              {checkout.km_checkin && ` → ${checkout.km_checkin.toLocaleString()}`}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
