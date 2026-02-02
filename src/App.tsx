@@ -15,6 +15,10 @@ import ToolDetail from "./pages/ToolDetail";
 import Checkout from "./pages/Checkout";
 import Checkin from "./pages/Checkin";
 import UserHistory from "./pages/UserHistory";
+import VehicleDashboard from "./pages/vehicles/VehicleDashboard";
+import VehicleCheckout from "./pages/vehicles/VehicleCheckout";
+import VehicleCheckin from "./pages/vehicles/VehicleCheckin";
+import VehicleList from "./pages/vehicles/VehicleList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTools from "./pages/admin/AdminTools";
@@ -50,6 +54,11 @@ const App = () => (
             <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
             <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
             <Route path="/ferramentas/historico" element={<Layout><UserHistory /></Layout>} />
+            {/* Veículos Routes */}
+            <Route path="/veiculos" element={<Layout><VehicleDashboard /></Layout>} />
+            <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
+            <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
+            <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
             {/* Legacy routes - redirect to new paths */}
             <Route path="/tools" element={<Layout><Tools /></Layout>} />
             <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />

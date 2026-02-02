@@ -25,6 +25,9 @@ export default function Layout({ children }: LayoutProps) {
                                location.pathname.startsWith('/history') ||
                                location.pathname.startsWith('/report-issue');
 
+  // Check if we're in the veículos module
+  const isVeiculosModule = location.pathname.startsWith('/veiculos');
+
   // Check if we're in the admin module
   const isAdminModule = location.pathname.startsWith('/admin');
 
@@ -76,6 +79,11 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Início Ferramentas", url: "/ferramentas", icon: Wrench },
     { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
+  ];
+
+  const veiculosMenuItems = [
+    { title: "Início Veículos", url: "/veiculos", icon: Car },
+    { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
   ];
 
   // General system menu - shown when not in a specific module
@@ -158,6 +166,27 @@ export default function Layout({ children }: LayoutProps) {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {ferramentasMenuItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <NavLink to={item.url} end className={({ isActive }) => isActive ? "bg-sidebar-accent" : ""}>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+            {/* Veículos Menu - only show when in veículos module */}
+            {isVeiculosModule && (
+              <SidebarGroup>
+                <SidebarGroupLabel>Veículos</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {veiculosMenuItems.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
                           <NavLink to={item.url} end className={({ isActive }) => isActive ? "bg-sidebar-accent" : ""}>

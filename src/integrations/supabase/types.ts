@@ -381,6 +381,142 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_checkouts: {
+        Row: {
+          checked_in_by: string | null
+          checked_out_by: string
+          checkin_date: string | null
+          checkout_date: string
+          created_at: string
+          destination: string | null
+          id: string
+          km_checkin: number | null
+          km_checkout: number
+          notes: string | null
+          purpose: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          checked_in_by?: string | null
+          checked_out_by: string
+          checkin_date?: string | null
+          checkout_date?: string
+          created_at?: string
+          destination?: string | null
+          id?: string
+          km_checkin?: number | null
+          km_checkout: number
+          notes?: string | null
+          purpose?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          checked_in_by?: string | null
+          checked_out_by?: string
+          checkin_date?: string | null
+          checkout_date?: string
+          created_at?: string
+          destination?: string | null
+          id?: string
+          km_checkin?: number | null
+          km_checkout?: number
+          notes?: string | null
+          purpose?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_checkouts_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_checkouts_checked_out_by_fkey"
+            columns: ["checked_out_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_checkouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_checkouts_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          brand: string | null
+          color: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string | null
+          model: string | null
+          name: string
+          plate: string
+          status: string | null
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          model?: string | null
+          name: string
+          plate: string
+          status?: string | null
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          brand?: string | null
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          model?: string | null
+          name?: string
+          plate?: string
+          status?: string | null
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
