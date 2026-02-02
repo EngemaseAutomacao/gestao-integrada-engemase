@@ -127,6 +127,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approved: boolean
           category: Database["public"]["Enums"]["user_category"]
           created_at: string
           email: string
@@ -137,6 +138,7 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          approved?: boolean
           category?: Database["public"]["Enums"]["user_category"]
           created_at?: string
           email: string
@@ -147,6 +149,7 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          approved?: boolean
           category?: Database["public"]["Enums"]["user_category"]
           created_at?: string
           email?: string
