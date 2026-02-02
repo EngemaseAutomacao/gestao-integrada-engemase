@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OfflineProvider } from "@/contexts/OfflineContext";
 import Layout from "@/components/Layout";
 import Auth from "./pages/Auth";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
 import ToolDetail from "./pages/ToolDetail";
@@ -38,6 +39,7 @@ const App = () => (
           <AuthProvider>
             <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/" element={<Layout><Dashboard /></Layout>} />
             <Route path="/tools" element={<Layout><Tools /></Layout>} />
             <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />

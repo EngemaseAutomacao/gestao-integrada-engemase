@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import engemaseLogo from "@/assets/engemase-logo.png";
@@ -90,6 +90,14 @@ export default function Auth() {
             </Button>
           </form>
         </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-sm text-muted-foreground">
+            Não tem uma conta?{" "}
+            <Link to="/register" className="text-primary hover:underline">
+              Criar conta
+            </Link>
+          </p>
+        </CardFooter>
       </Card>
     </div>
   );
