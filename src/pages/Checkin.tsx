@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { SignaturePad } from "@/components/SignaturePad";
+import { PhotoCapture } from "@/components/PhotoCapture";
 
 interface Checkout {
   id: string;
@@ -35,6 +38,12 @@ export default function Checkin() {
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
   const toolIdParam = searchParams.get("toolId");
 
+  // Photo and signature states
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [photoConfirmed, setPhotoConfirmed] = useState(false);
+  const [signatureConfirmed, setSignatureConfirmed] = useState(false);
+
   useEffect(() => {
     loadCheckouts();
   }, []);
@@ -42,7 +51,6 @@ export default function Checkin() {
   const loadCheckouts = async () => {
     try {
       if (!isOnline) {
-        // Use cached data when offline
         if (cachedCheckouts && cachedCheckouts.length > 0) {
           setCheckouts(cachedCheckouts);
           toast.info("Modo offline - usando dados em cache");
@@ -71,7 +79,6 @@ export default function Checkin() {
       setCheckouts(data || []);
       saveToCache(data || []);
 
-      // Auto-select if toolId is provided
       if (toolIdParam && data) {
         const checkout = data.find(c => c.tool_id === toolIdParam);
         if (checkout) {
@@ -87,6 +94,36 @@ export default function Checkin() {
     }
   };
 
+  const uploadImage = async (dataUrl: string, type: "photo" | "signature"): Promise<string | null> => {
+    try {
+      const base64Data = dataUrl.split(",")[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: type === "photo" ? "image/jpeg" : "image/png" });
+
+      const fileName = `checkin_${type}_${Date.now()}_${Math.random().toString(36).substring(7)}.${type === "photo" ? "jpg" : "png"}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("checkout-images")
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("checkout-images")
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error(`Error uploading ${type}:`, error);
+      return null;
+    }
+  };
+
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -95,9 +132,25 @@ export default function Checkin() {
       return;
     }
 
+    if (!signatureConfirmed) {
+      toast.error("Por favor, assine para confirmar a devolução");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      let photoUrl: string | null = null;
+      let signatureUrl: string | null = null;
+
+      if (photoDataUrl) {
+        photoUrl = await uploadImage(photoDataUrl, "photo");
+      }
+
+      if (signatureDataUrl) {
+        signatureUrl = await uploadImage(signatureDataUrl, "signature");
+      }
+
       const checkinData = {
         checkoutId: selectedCheckoutId,
         updates: {
@@ -105,14 +158,15 @@ export default function Checkin() {
           checkin_date: new Date().toISOString(),
           checked_in_by: profile!.id,
           notes: notes.trim() ? notes : null,
+          checkin_photo_url: photoUrl,
+          checkin_signature_url: signatureUrl,
         },
       };
 
       if (!isOnline) {
-        // Save operation for later sync
         addPendingOperation("checkin", checkinData);
         toast.success("Ferramenta devolvida (offline)! Será sincronizada quando conectar.");
-        navigate("/");
+        navigate("/ferramentas");
         return;
       }
 
@@ -124,7 +178,7 @@ export default function Checkin() {
       if (error) throw error;
 
       toast.success("Ferramenta devolvida com sucesso!");
-      navigate("/");
+      navigate("/ferramentas");
     } catch (error: any) {
       toast.error("Erro ao devolver ferramenta", {
         description: error.message,
@@ -134,9 +188,21 @@ export default function Checkin() {
     }
   };
 
+  const handlePhotoCapture = (dataUrl: string) => {
+    setPhotoDataUrl(dataUrl);
+    setPhotoConfirmed(true);
+    toast.success("Foto confirmada!");
+  };
+
+  const handleSignatureSave = (dataUrl: string) => {
+    setSignatureDataUrl(dataUrl);
+    setSignatureConfirmed(true);
+    toast.success("Assinatura confirmada!");
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <Button variant="ghost" onClick={() => navigate("/")} className="gap-2">
+      <Button variant="ghost" onClick={() => navigate("/ferramentas")} className="gap-2">
         <ArrowLeft className="w-4 h-4" />
         Voltar
       </Button>
@@ -189,8 +255,68 @@ export default function Checkin() {
                 />
               </div>
 
+              {/* Photo Capture */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label>Foto da Ferramenta (opcional)</Label>
+                  {photoConfirmed && (
+                    <Badge variant="secondary" className="gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Capturada
+                    </Badge>
+                  )}
+                </div>
+                {!photoConfirmed ? (
+                  <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado da ferramenta na devolução" />
+                ) : (
+                  <div className="relative">
+                    <img src={photoDataUrl!} alt="Foto capturada" className="w-full h-48 object-cover rounded-lg" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}
+                    >
+                      Refazer
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Signature Pad */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label>Assinatura Digital *</Label>
+                  {signatureConfirmed && (
+                    <Badge variant="secondary" className="gap-1">
+                      <CheckCircle className="w-3 h-3" />
+                      Confirmada
+                    </Badge>
+                  )}
+                </div>
+                {!signatureConfirmed ? (
+                  <SignaturePad onSave={handleSignatureSave} title="Assine para confirmar a devolução" />
+                ) : (
+                  <div className="relative">
+                    <div className="border rounded-lg p-2 bg-white">
+                      <img src={signatureDataUrl!} alt="Assinatura" className="w-full h-24 object-contain" />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => { setSignatureConfirmed(false); setSignatureDataUrl(null); }}
+                    >
+                      Refazer
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <div className="flex flex-col gap-3">
-                <Button type="submit" disabled={loading || !selectedCheckoutId} className="w-full">
+                <Button type="submit" disabled={loading || !selectedCheckoutId || !signatureConfirmed} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
@@ -207,7 +333,7 @@ export default function Checkin() {
                     </Link>
                   </Button>
                 )}
-                <Button type="button" variant="outline" onClick={() => navigate("/")} className="w-full">
+                <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="w-full">
                   Cancelar
                 </Button>
               </div>

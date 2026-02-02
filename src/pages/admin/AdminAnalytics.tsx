@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp, Clock, AlertTriangle, Package } from "lucide-react";
+import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench } from "lucide-react";
 import { Navigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from "recharts";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface ToolUsageData {
   name: string;
@@ -18,11 +20,27 @@ interface DelayRateData {
   rate: number;
 }
 
+interface MonthlyData {
+  month: string;
+  checkouts: number;
+  checkins: number;
+  delays: number;
+}
+
+interface CategoryData {
+  name: string;
+  value: number;
+}
+
 interface AnalyticsMetrics {
   totalCheckouts: number;
   averageUsageDays: number;
   totalDelays: number;
   activeCheckouts: number;
+  totalTools: number;
+  toolsInUse: number;
+  totalUsers: number;
+  maintenanceCount: number;
 }
 
 export default function AdminAnalytics() {
@@ -33,10 +51,16 @@ export default function AdminAnalytics() {
     averageUsageDays: 0,
     totalDelays: 0,
     activeCheckouts: 0,
+    totalTools: 0,
+    toolsInUse: 0,
+    totalUsers: 0,
+    maintenanceCount: 0,
   });
   const [topTools, setTopTools] = useState<ToolUsageData[]>([]);
   const [delaysBySite, setDelaysBySite] = useState<DelayRateData[]>([]);
   const [delaysByUser, setDelaysByUser] = useState<DelayRateData[]>([]);
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
 
   useEffect(() => {
     loadAnalytics();
@@ -61,14 +85,27 @@ export default function AdminAnalytics() {
           user_id,
           tool_id,
           tools (name),
-          profiles!tool_checkouts_user_id_fkey (full_name)
+          profiles!tool_checkouts_user_id_fkey (full_name, category)
         `);
 
       if (error) throw error;
 
+      // Fetch tools count
+      const { data: tools } = await supabase.from("tools").select("id, quantity_available, quantity_total");
+      
+      // Fetch users count
+      const { data: users } = await supabase.from("profiles").select("id, category");
+      
+      // Fetch maintenance count
+      const { data: maintenances } = await supabase.from("maintenance_records").select("id");
+
       // Calculate metrics
       const totalCheckouts = checkouts?.length || 0;
       const activeCheckouts = checkouts?.filter(c => c.status === "checked_out").length || 0;
+      const totalTools = tools?.length || 0;
+      const toolsInUse = tools?.filter(t => t.quantity_available < t.quantity_total).length || 0;
+      const totalUsers = users?.length || 0;
+      const maintenanceCount = maintenances?.length || 0;
       
       // Calculate average usage time
       const completedCheckouts = checkouts?.filter(c => c.checkin_date) || [];
@@ -94,6 +131,10 @@ export default function AdminAnalytics() {
         averageUsageDays,
         totalDelays,
         activeCheckouts,
+        totalTools,
+        toolsInUse,
+        totalUsers,
+        maintenanceCount,
       });
 
       // Top 10 most requested tools
@@ -161,6 +202,47 @@ export default function AdminAnalytics() {
         .slice(0, 5);
       setDelaysByUser(userDelayData);
 
+      // Monthly trend (last 6 months)
+      const monthlyStats: MonthlyData[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const date = subMonths(new Date(), i);
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(date);
+        
+        const monthCheckouts = checkouts?.filter(c => {
+          const checkoutDate = new Date(c.checkout_date);
+          return checkoutDate >= monthStart && checkoutDate <= monthEnd;
+        }) || [];
+        
+        const monthCheckins = checkouts?.filter(c => {
+          if (!c.checkin_date) return false;
+          const checkinDate = new Date(c.checkin_date);
+          return checkinDate >= monthStart && checkinDate <= monthEnd;
+        }) || [];
+        
+        const monthDelays = monthCheckouts.filter(c => {
+          if (!c.estimated_return_date) return false;
+          const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
+          return returnDate > new Date(c.estimated_return_date);
+        }).length;
+        
+        monthlyStats.push({
+          month: format(date, "MMM/yy", { locale: ptBR }),
+          checkouts: monthCheckouts.length,
+          checkins: monthCheckins.length,
+          delays: monthDelays,
+        });
+      }
+      setMonthlyData(monthlyStats);
+
+      // Category distribution
+      const employeeCheckouts = checkouts?.filter(c => c.profiles?.category === "engemase_employee").length || 0;
+      const thirdPartyCheckouts = checkouts?.filter(c => c.profiles?.category === "third_party").length || 0;
+      setCategoryData([
+        { name: "Funcionários", value: employeeCheckouts },
+        { name: "Terceirizados", value: thirdPartyCheckouts },
+      ]);
+
     } catch (error) {
       console.error("Error loading analytics:", error);
     } finally {
@@ -227,7 +309,7 @@ export default function AdminAnalytics() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Em Uso Atualmente</CardTitle>
-            <TrendingUp className="h-4 w-4 text-success" />
+            <TrendingUp className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.activeCheckouts}</div>
@@ -236,7 +318,86 @@ export default function AdminAnalytics() {
         </Card>
       </div>
 
-      {/* Charts */}
+      {/* Secondary Metrics */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Ferramentas</CardTitle>
+            <Wrench className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalTools}</div>
+            <p className="text-xs text-muted-foreground">{metrics.toolsInUse} em uso</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Usuários</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalUsers}</div>
+            <p className="text-xs text-muted-foreground">Cadastrados</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Manutenções</CardTitle>
+            <Wrench className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.maintenanceCount}</div>
+            <p className="text-xs text-muted-foreground">Registradas</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Taxa de Atraso</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-warning" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {metrics.totalCheckouts > 0 
+                ? `${Math.round((metrics.totalDelays / metrics.totalCheckouts) * 100)}%`
+                : "0%"}
+            </div>
+            <p className="text-xs text-muted-foreground">Geral</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Monthly Trend Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tendência Mensal</CardTitle>
+          <CardDescription>Retiradas, devoluções e atrasos nos últimos 6 meses</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="month" className="text-xs" />
+              <YAxis className="text-xs" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px'
+                }}
+              />
+              <Legend />
+              <Area type="monotone" dataKey="checkouts" name="Retiradas" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
+              <Area type="monotone" dataKey="checkins" name="Devoluções" stackId="2" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.6} />
+              <Area type="monotone" dataKey="delays" name="Atrasos" stackId="3" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Charts Row 1 */}
       <div className="grid gap-4 md:grid-cols-2">
         {/* Top Tools Chart */}
         <Card>
@@ -246,16 +407,10 @@ export default function AdminAnalytics() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topTools}>
+              <BarChart data={topTools} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="name" 
-                  angle={-45} 
-                  textAnchor="end" 
-                  height={100}
-                  className="text-xs"
-                />
-                <YAxis className="text-xs" />
+                <XAxis type="number" className="text-xs" />
+                <YAxis dataKey="name" type="category" width={120} className="text-xs" />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'hsl(var(--background))',
@@ -269,6 +424,44 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
 
+        {/* Category Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Uso por Categoria</CardTitle>
+            <CardDescription>Distribuição de retiradas por tipo de usuário</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="hsl(var(--primary))"
+                  dataKey="value"
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '6px'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row 2 */}
+      <div className="grid gap-4 md:grid-cols-2">
         {/* Delays by Site Chart */}
         <Card>
           <CardHeader>
@@ -335,41 +528,6 @@ export default function AdminAnalytics() {
                 />
                 <Bar dataKey="rate" fill="hsl(var(--warning))" name="Taxa (%)" />
               </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Tool Distribution Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Distribuição de Uso</CardTitle>
-            <CardDescription>Proporção das 5 ferramentas mais usadas</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={topTools.slice(0, 5)}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="hsl(var(--primary))"
-                  dataKey="count"
-                >
-                  {topTools.slice(0, 5).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '6px'
-                  }}
-                />
-              </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

@@ -166,7 +166,11 @@ export type Database = {
           checked_in_by: string | null
           checked_out_by: string
           checkin_date: string | null
+          checkin_photo_url: string | null
+          checkin_signature_url: string | null
           checkout_date: string
+          checkout_photo_url: string | null
+          checkout_signature_url: string | null
           construction_site: string | null
           created_at: string
           estimated_return_date: string | null
@@ -181,7 +185,11 @@ export type Database = {
           checked_in_by?: string | null
           checked_out_by: string
           checkin_date?: string | null
+          checkin_photo_url?: string | null
+          checkin_signature_url?: string | null
           checkout_date?: string
+          checkout_photo_url?: string | null
+          checkout_signature_url?: string | null
           construction_site?: string | null
           created_at?: string
           estimated_return_date?: string | null
@@ -196,7 +204,11 @@ export type Database = {
           checked_in_by?: string | null
           checked_out_by?: string
           checkin_date?: string | null
+          checkin_photo_url?: string | null
+          checkin_signature_url?: string | null
           checkout_date?: string
+          checkout_photo_url?: string | null
+          checkout_signature_url?: string | null
           construction_site?: string | null
           created_at?: string
           estimated_return_date?: string | null
