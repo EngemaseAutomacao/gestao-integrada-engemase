@@ -31,6 +31,28 @@ export default function Layout({ children }: LayoutProps) {
     return <Navigate to="/auth" />;
   }
 
+  // Check if user is approved
+  if (!profile.approved) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
+        <div className="text-center space-y-4 max-w-md">
+          <Wrench className="w-16 h-16 text-muted-foreground mx-auto" />
+          <h1 className="text-2xl font-bold">Aguardando Aprovação</h1>
+          <p className="text-muted-foreground">
+            Sua conta foi criada com sucesso, mas ainda não foi aprovada por um administrador.
+            Por favor, aguarde a aprovação para acessar o sistema.
+          </p>
+          <button 
+            onClick={signOut}
+            className="text-primary hover:underline"
+          >
+            Sair e tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const isAdmin = profile.role === "admin";
   const categoryLabel = profile.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
   const categoryColor = profile.category === "engemase_employee" ? "badge-employee" : "badge-thirdparty";
