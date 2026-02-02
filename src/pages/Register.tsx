@@ -13,7 +13,6 @@ import engemaseLogo from "@/assets/engemase-logo.png";
 export default function Register() {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [category, setCategory] = useState<"engemase_employee" | "third_party">("engemase_employee");
@@ -38,11 +37,21 @@ export default function Register() {
       return;
     }
 
+    // Check if username contains only valid characters
+    const usernameRegex = /^[a-z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+      toast.error("O nome de usuário deve conter apenas letras minúsculas, números e underline");
+      return;
+    }
+
     setLoading(true);
 
     try {
+      // Generate internal email from username
+      const generatedEmail = `${username}@engemase.local`;
+
       const { error } = await supabase.auth.signUp({
-        email,
+        email: generatedEmail,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
@@ -56,9 +65,13 @@ export default function Register() {
       });
 
       if (error) {
-        toast.error("Erro ao criar conta", {
-          description: error.message,
-        });
+        if (error.message.includes("already registered")) {
+          toast.error("Este nome de usuário já está em uso");
+        } else {
+          toast.error("Erro ao criar conta", {
+            description: error.message,
+          });
+        }
       } else {
         toast.success("Conta criada com sucesso!", {
           description: "Aguarde a aprovação de um administrador para acessar o sistema.",
@@ -113,18 +126,6 @@ export default function Register() {
               <p className="text-xs text-muted-foreground">
                 Este será usado para fazer login
               </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
             </div>
 
             <div className="space-y-2">
