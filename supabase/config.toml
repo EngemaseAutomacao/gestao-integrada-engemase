@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.bootstrap-admin]
 verify_jwt = false
+
+[functions.reset-admin-password]
+verify_jwt = false
