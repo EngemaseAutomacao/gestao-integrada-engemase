@@ -22,7 +22,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { InstallPWA } from "@/components/InstallPWA";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import {
@@ -207,10 +207,6 @@ export default function Layout({ children }: LayoutProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Breadcrumbs */}
-              <div className="hidden md:block">
-                <Breadcrumbs />
-              </div>
             </>
           )}
         </div>
