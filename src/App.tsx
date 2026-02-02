@@ -8,6 +8,7 @@ import { OfflineProvider } from "@/contexts/OfflineContext";
 import Layout from "@/components/Layout";
 import Auth from "./pages/Auth";
 import Register from "./pages/Register";
+import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
 import ToolDetail from "./pages/ToolDetail";
@@ -40,12 +41,21 @@ const App = () => (
             <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/" element={<Layout><Dashboard /></Layout>} />
+            <Route path="/" element={<Layout><Home /></Layout>} />
+            {/* Ferramentas Routes */}
+            <Route path="/ferramentas" element={<Layout><Dashboard /></Layout>} />
+            <Route path="/ferramentas/lista" element={<Layout><Tools /></Layout>} />
+            <Route path="/ferramentas/:id" element={<Layout><ToolDetail /></Layout>} />
+            <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
+            <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
+            <Route path="/ferramentas/historico" element={<Layout><UserHistory /></Layout>} />
+            {/* Legacy routes - redirect to new paths */}
             <Route path="/tools" element={<Layout><Tools /></Layout>} />
             <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
             <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
             <Route path="/checkin" element={<Layout><Checkin /></Layout>} />
             <Route path="/history" element={<Layout><UserHistory /></Layout>} />
+            {/* Admin Routes */}
             <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
             <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
             <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
