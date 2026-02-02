@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Bell } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Bell, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,6 +13,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Notification {
   id: string;
@@ -28,6 +31,46 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    return localStorage.getItem("notification-sound") !== "disabled";
+  });
+  
+  const { playNotificationSound } = useNotificationSound();
+  const { permission, isSupported, requestPermission, showPushNotification } = usePushNotifications();
+  const previousNotificationIds = useRef<Set<string>>(new Set());
+  const isInitialLoad = useRef(true);
+
+  // Request push notification permission on mount
+  useEffect(() => {
+    if (isSupported && permission === "default") {
+      // Don't auto-request, wait for user interaction
+    }
+  }, [isSupported, permission]);
+
+  const handleNewNotification = useCallback((notification: Notification) => {
+    // Show toast popup
+    toast(notification.title, {
+      description: notification.message,
+      duration: 5000,
+      action: {
+        label: "Ver",
+        onClick: () => setOpen(true),
+      },
+    });
+
+    // Play sound if enabled
+    if (soundEnabled) {
+      playNotificationSound();
+    }
+
+    // Show push notification if permitted
+    if (permission === "granted") {
+      showPushNotification(notification.title, {
+        body: notification.message,
+        tag: notification.id,
+      });
+    }
+  }, [soundEnabled, playNotificationSound, permission, showPushNotification]);
 
   useEffect(() => {
     if (user) {
@@ -44,8 +87,15 @@ export function NotificationBell() {
             table: 'notifications',
             filter: `user_id=eq.${user.id}`
           },
-          () => {
-            loadNotifications();
+          (payload) => {
+            const newNotification = payload.new as Notification;
+            
+            // Add to list
+            setNotifications(prev => [newNotification, ...prev]);
+            setUnreadCount(prev => prev + 1);
+            
+            // Trigger popup, sound, and push
+            handleNewNotification(newNotification);
           }
         )
         .subscribe();
@@ -54,7 +104,7 @@ export function NotificationBell() {
         supabase.removeChannel(channel);
       };
     }
-  }, [user]);
+  }, [user, handleNewNotification]);
 
   const loadNotifications = async () => {
     try {
@@ -66,8 +116,15 @@ export function NotificationBell() {
 
       if (error) throw error;
 
-      setNotifications((data as Notification[]) || []);
-      setUnreadCount(data?.filter(n => !n.read).length || 0);
+      const notificationData = (data as Notification[]) || [];
+      setNotifications(notificationData);
+      setUnreadCount(notificationData.filter(n => !n.read).length);
+      
+      // Store initial IDs to detect new ones
+      if (isInitialLoad.current) {
+        previousNotificationIds.current = new Set(notificationData.map(n => n.id));
+        isInitialLoad.current = false;
+      }
     } catch (error: any) {
       console.error("Error loading notifications:", error);
     }
@@ -116,12 +173,28 @@ export function NotificationBell() {
     }
   };
 
+  const toggleSound = () => {
+    const newValue = !soundEnabled;
+    setSoundEnabled(newValue);
+    localStorage.setItem("notification-sound", newValue ? "enabled" : "disabled");
+    toast.success(newValue ? "Som de notificação ativado" : "Som de notificação desativado");
+  };
+
+  const handleEnablePush = async () => {
+    const granted = await requestPermission();
+    if (granted) {
+      toast.success("Notificações push ativadas!");
+    } else {
+      toast.error("Permissão para notificações negada");
+    }
+  };
+
   const getNotificationColor = (type: string) => {
     switch (type) {
       case "overdue":
         return "text-destructive";
       case "low_stock":
-        return "text-warning";
+        return "text-orange-500";
       case "return_reminder":
         return "text-primary";
       default:
@@ -144,20 +217,55 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96" align="end">
+      <PopoverContent className="w-96 bg-popover border shadow-lg z-50" align="end">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">Notificações</h3>
-            {unreadCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={markAllAsRead}
-                className="text-xs"
-              >
-                Marcar todas como lidas
-              </Button>
-            )}
+            <div className="flex items-center gap-1">
+              {/* Sound toggle */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={toggleSound}
+                  >
+                    {soundEnabled ? (
+                      <Volume2 className="h-4 w-4" />
+                    ) : (
+                      <VolumeX className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {soundEnabled ? "Desativar som" : "Ativar som"}
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Push notification toggle */}
+              {isSupported && permission !== "granted" && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEnablePush}
+                  className="text-xs"
+                >
+                  Ativar push
+                </Button>
+              )}
+
+              {unreadCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={markAllAsRead}
+                  className="text-xs"
+                >
+                  Marcar lidas
+                </Button>
+              )}
+            </div>
           </div>
 
           <ScrollArea className="h-[400px]">
