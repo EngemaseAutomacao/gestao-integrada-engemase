@@ -309,6 +309,8 @@ function SidebarContentWrapper() {
 
 export default function Layout({ children }: LayoutProps) {
   const { user, profile, loading, signOut } = useAuth();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   if (loading) {
     return (
@@ -348,6 +350,46 @@ export default function Layout({ children }: LayoutProps) {
     );
   }
 
+  // Home page: simple layout without sidebar
+  if (isHomePage) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        {/* Simple Header for Home */}
+        <header className="h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 sticky top-0 z-40">
+          <div className="flex items-center gap-3">
+            <img src={engemaseLogo} alt="Engemase" className="h-8 w-auto" />
+          </div>
+          <div className="flex items-center gap-2">
+            <OfflineIndicator />
+            <InstallPWA />
+            <ThemeToggle />
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50">
+              <span className="text-sm font-medium text-foreground">{profile?.full_name}</span>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={signOut}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Sair</span>
+            </Button>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+
+        {/* Footer */}
+        <Footer />
+      </div>
+    );
+  }
+
+  // Other pages: full layout with sidebar
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
