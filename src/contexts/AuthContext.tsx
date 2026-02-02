@@ -46,7 +46,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               .eq("id", session.user.id)
               .maybeSingle();
             
-            setProfile(data);
+            if (data) {
+              const profileData = data as unknown as Profile;
+              setProfile({
+                ...profileData,
+                approved: (data as any).approved ?? true // Handle existing users without approved field
+              });
+            }
             setLoading(false);
           }, 0);
         } else {
@@ -67,7 +73,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .eq("id", session.user.id)
           .maybeSingle()
           .then(({ data }) => {
-            setProfile(data);
+            if (data) {
+              const profileData = data as unknown as Profile;
+              setProfile({
+                ...profileData,
+                approved: (data as any).approved ?? true // Handle existing users without approved field
+              });
+            }
             setLoading(false);
           });
       } else {
