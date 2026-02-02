@@ -27,7 +27,8 @@ interface Notification {
 }
 
 export function NotificationBell() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
@@ -278,22 +279,24 @@ export function NotificationBell() {
                 </Button>
               )}
 
-              {/* Test notification button */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={sendTestNotification}
-                    className="text-xs"
-                  >
-                    Testar
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Enviar notificação de teste
-                </TooltipContent>
-              </Tooltip>
+              {/* Test notification button - only for admins */}
+              {isAdmin && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={sendTestNotification}
+                      className="text-xs"
+                    >
+                      Testar
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Enviar notificação de teste
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               {unreadCount > 0 && (
                 <Button
