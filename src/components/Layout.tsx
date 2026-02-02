@@ -149,7 +149,7 @@ export default function Layout({ children }: LayoutProps) {
           <header className="h-16 border-b bg-card flex items-center justify-between px-4 gap-4">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <h1 className="text-lg font-semibold">Controle de Ferramentas Engemase</h1>
+              <h1 className="text-lg font-semibold">Sistema de Gestão Engemase</h1>
             </div>
             <div className="flex items-center gap-2">
               <OfflineIndicator />
