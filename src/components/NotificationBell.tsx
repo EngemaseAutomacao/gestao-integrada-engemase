@@ -189,6 +189,29 @@ export function NotificationBell() {
     }
   };
 
+  const sendTestNotification = async () => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: "return_reminder",
+        title: "🔔 Notificação de Teste",
+        message: "Esta é uma notificação de teste para verificar se o sistema está funcionando corretamente.",
+        read: false,
+      });
+
+      if (error) throw error;
+      
+      // Close popover to see the toast
+      setOpen(false);
+    } catch (error: any) {
+      toast.error("Erro ao enviar notificação de teste", {
+        description: error.message,
+      });
+    }
+  };
+
   const getNotificationColor = (type: string) => {
     switch (type) {
       case "overdue":
@@ -254,6 +277,23 @@ export function NotificationBell() {
                   Ativar push
                 </Button>
               )}
+
+              {/* Test notification button */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={sendTestNotification}
+                    className="text-xs"
+                  >
+                    Testar
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Enviar notificação de teste
+                </TooltipContent>
+              </Tooltip>
 
               {unreadCount > 0 && (
                 <Button
