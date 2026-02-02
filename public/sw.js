@@ -1,5 +1,5 @@
-const CACHE_NAME = 'engemase-tools-v2';
-const DYNAMIC_CACHE = 'engemase-dynamic-v2';
+const CACHE_NAME = 'engemase-tools-v3';
+const DYNAMIC_CACHE = 'engemase-dynamic-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -15,6 +15,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(urlsToCache))
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -96,4 +97,78 @@ self.addEventListener('activate', (event) => {
       return self.clients.claim();
     })
   );
+});
+
+// Handle push notifications
+self.addEventListener('push', (event) => {
+  console.log('[SW] Push event received');
+  
+  let data = {
+    title: 'Notificação',
+    body: 'Você tem uma nova notificação',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: 'default',
+    data: {}
+  };
+  
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      data = { ...data, ...payload };
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+  
+  const options = {
+    body: data.body,
+    icon: data.icon || '/icon-192.png',
+    badge: data.badge || '/icon-192.png',
+    tag: data.tag || 'default',
+    data: data.data || {},
+    vibrate: [200, 100, 200],
+    requireInteraction: false,
+    actions: [
+      { action: 'open', title: 'Abrir' },
+      { action: 'close', title: 'Fechar' }
+    ]
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] Notification click:', event.action);
+  
+  event.notification.close();
+  
+  if (event.action === 'close') {
+    return;
+  }
+  
+  // Open the app or focus existing window
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // If there's already a window open, focus it
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        // Otherwise open a new window
+        if (clients.openWindow) {
+          return clients.openWindow('/');
+        }
+      })
+  );
+});
+
+// Handle notification close
+self.addEventListener('notificationclose', (event) => {
+  console.log('[SW] Notification closed');
 });
