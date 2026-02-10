@@ -52,7 +52,7 @@ export default function Auth() {
           <div className="mx-auto w-48 h-auto">
             <img src={engemaseLogo} alt="Engemase Engenharia" className="w-full h-auto" />
           </div>
-          <CardTitle className="text-2xl">Sistema de Gestão Engemase</CardTitle>
+          <CardTitle className="text-2xl">Sistema de Gestão de Ativos</CardTitle>
           <CardDescription>
             Entre com sua conta
           </CardDescription>
