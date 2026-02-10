@@ -8,7 +8,7 @@ export function Footer() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <Wrench className="h-3.5 w-3.5 text-primary" />
-          <span>Sistema de Gestão Engemase</span>
+          <span>Sistema de Gestão de Ativos</span>
         </div>
         <div className="flex items-center gap-4">
           <span>© {currentYear} Engemase Engenharia</span>
