@@ -18,7 +18,9 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
+  cacheDir: "node_modules/.vite_fresh",
   optimizeDeps: {
     include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime"],
+    force: true,
   },
 }));
