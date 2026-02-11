@@ -594,7 +594,7 @@ export type Database = {
       checkout_status: "checked_out" | "checked_in"
       issue_severity: "low" | "medium" | "high" | "critical"
       issue_status: "open" | "in_progress" | "resolved" | "closed"
-      user_category: "engemase_employee" | "third_party"
+      user_category: "engemase_employee" | "third_party" | "socios"
       user_role: "admin" | "employee" | "third_party"
     }
     CompositeTypes: {
@@ -726,7 +726,7 @@ export const Constants = {
       checkout_status: ["checked_out", "checked_in"],
       issue_severity: ["low", "medium", "high", "critical"],
       issue_status: ["open", "in_progress", "resolved", "closed"],
-      user_category: ["engemase_employee", "third_party"],
+      user_category: ["engemase_employee", "third_party", "socios"],
       user_role: ["admin", "employee", "third_party"],
     },
   },

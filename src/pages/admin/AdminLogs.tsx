@@ -24,7 +24,7 @@ interface LogEntry {
   };
   profiles: {
     full_name: string;
-    category: "engemase_employee" | "third_party";
+    category: "engemase_employee" | "third_party" | "socios";
     email: string;
   };
   checked_out_by_profile: {
@@ -91,9 +91,12 @@ export default function AdminLogs() {
     return matchesSearch;
   });
 
-  const getCategoryBadge = (category: "engemase_employee" | "third_party") => {
+  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
     if (category === "engemase_employee") {
       return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
+    }
+    if (category === "socios") {
+      return <Badge className="bg-primary text-primary-foreground">Sócio</Badge>;
     }
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };

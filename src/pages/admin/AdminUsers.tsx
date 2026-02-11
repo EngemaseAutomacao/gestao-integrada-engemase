@@ -18,7 +18,8 @@ interface Profile {
   id: string;
   email: string;
   full_name: string;
-  category: "engemase_employee" | "third_party";
+  username: string | null;
+  category: "engemase_employee" | "third_party" | "socios";
   role: "admin" | "employee" | "third_party";
 }
 
@@ -27,6 +28,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [newPassword, setNewPassword] = useState("");
@@ -36,7 +38,14 @@ export default function AdminUsers() {
     password: "",
     fullName: "",
     username: "",
-    category: "engemase_employee" as "engemase_employee" | "third_party",
+    category: "engemase_employee" as "engemase_employee" | "third_party" | "socios",
+    role: "employee" as "admin" | "employee" | "third_party",
+  });
+  const [editFormData, setEditFormData] = useState({
+    fullName: "",
+    email: "",
+    username: "",
+    category: "engemase_employee" as "engemase_employee" | "third_party" | "socios",
     role: "employee" as "admin" | "employee" | "third_party",
   });
 
@@ -71,7 +80,6 @@ export default function AdminUsers() {
     setLoading(true);
 
     try {
-      // Call Edge Function to create user
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: formData.email,
@@ -106,11 +114,55 @@ export default function AdminUsers() {
     }
   };
 
+  const handleOpenEditDialog = (user: Profile) => {
+    setSelectedUser(user);
+    setEditFormData({
+      fullName: user.full_name,
+      email: user.email,
+      username: user.username || "",
+      category: user.category,
+      role: user.role,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('update-user', {
+        body: {
+          userId: selectedUser.id,
+          fullName: editFormData.fullName,
+          email: editFormData.email,
+          username: editFormData.username,
+          category: editFormData.category,
+          role: editFormData.role,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success("Usuário atualizado com sucesso!");
+      setEditDialogOpen(false);
+      setSelectedUser(null);
+      loadUsers();
+    } catch (error: any) {
+      toast.error("Erro ao atualizar usuário", {
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteUser = async (userId: string) => {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
     try {
-      // Call Edge Function to delete user
       const { data, error } = await supabase.functions.invoke('delete-user', {
         body: { userId },
       });
@@ -138,7 +190,6 @@ export default function AdminUsers() {
     e.preventDefault();
     setPasswordError("");
 
-    // Validar senha
     const passwordSchema = z.string().min(6, "A senha deve ter no mínimo 6 caracteres");
     const validation = passwordSchema.safeParse(newPassword);
 
@@ -152,7 +203,6 @@ export default function AdminUsers() {
     setLoading(true);
 
     try {
-      // Call Edge Function to update password
       const { data, error } = await supabase.functions.invoke('update-user-password', {
         body: {
           userId: selectedUser.id,
@@ -179,6 +229,9 @@ export default function AdminUsers() {
   const getCategoryBadge = (category: string) => {
     if (category === "engemase_employee") {
       return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
+    }
+    if (category === "socios") {
+      return <Badge className="bg-primary text-primary-foreground">Sócio</Badge>;
     }
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };
@@ -270,7 +323,7 @@ export default function AdminUsers() {
                 <Label htmlFor="category">Categoria *</Label>
                 <Select
                   value={formData.category}
-                  onValueChange={(value: "engemase_employee" | "third_party") =>
+                  onValueChange={(value: "engemase_employee" | "third_party" | "socios") =>
                     setFormData({ ...formData, category: value })
                   }
                 >
@@ -280,6 +333,7 @@ export default function AdminUsers() {
                   <SelectContent>
                     <SelectItem value="engemase_employee">Funcionário Engemase</SelectItem>
                     <SelectItem value="third_party">Terceirizado</SelectItem>
+                    <SelectItem value="socios">Sócio</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -350,6 +404,14 @@ export default function AdminUsers() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => handleOpenEditDialog(user)}
+                          title="Editar usuário"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleOpenPasswordDialog(user)}
                           title="Alterar senha"
                         >
@@ -373,6 +435,98 @@ export default function AdminUsers() {
           )}
         </CardContent>
       </Card>
+
+      {/* Dialog para editar usuário */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Usuário</DialogTitle>
+            <DialogDescription>
+              Atualize os dados de {selectedUser?.full_name}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleEditUser} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editFullName">Nome Completo *</Label>
+              <Input
+                id="editFullName"
+                value={editFormData.fullName}
+                onChange={(e) => setEditFormData({ ...editFormData, fullName: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editUsername">Nome de Usuário *</Label>
+              <Input
+                id="editUsername"
+                value={editFormData.username}
+                onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editEmail">Email *</Label>
+              <Input
+                id="editEmail"
+                type="email"
+                value={editFormData.email}
+                onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editCategory">Categoria *</Label>
+              <Select
+                value={editFormData.category}
+                onValueChange={(value: "engemase_employee" | "third_party" | "socios") =>
+                  setEditFormData({ ...editFormData, category: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="engemase_employee">Funcionário Engemase</SelectItem>
+                  <SelectItem value="third_party">Terceirizado</SelectItem>
+                  <SelectItem value="socios">Sócio</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editRole">Função *</Label>
+              <Select
+                value={editFormData.role}
+                onValueChange={(value: "admin" | "employee" | "third_party") =>
+                  setEditFormData({ ...editFormData, role: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Administrador</SelectItem>
+                  <SelectItem value="employee">Funcionário</SelectItem>
+                  <SelectItem value="third_party">Terceirizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="submit" disabled={loading} className="flex-1">
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Salvar Alterações
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog para alterar senha */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>

@@ -8,7 +8,7 @@ interface Profile {
   email: string;
   full_name: string;
   username: string | null;
-  category: "engemase_employee" | "third_party";
+  category: "engemase_employee" | "third_party" | "socios";
   role: "admin" | "employee" | "third_party";
   approved: boolean;
 }
@@ -19,7 +19,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (username: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string, category: "engemase_employee" | "third_party") => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, category: "engemase_employee" | "third_party" | "socios") => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -114,7 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     email: string,
     password: string,
     fullName: string,
-    category: "engemase_employee" | "third_party"
+    category: "engemase_employee" | "third_party" | "socios"
   ) => {
     const redirectUrl = `${window.location.origin}/`;
     
