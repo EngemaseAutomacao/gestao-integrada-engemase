@@ -14,7 +14,10 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    // Prevent multiple React copies in the bundle (common cause of: Cannot read properties of null (reading 'useState'))
     dedupe: ["react", "react-dom"],
+  },
+  optimizeDeps: {
+    include: ["react", "react-dom"],
+    force: true,
   },
 }));
