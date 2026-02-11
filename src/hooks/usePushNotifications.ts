@@ -5,6 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 // VAPID public key from environment - this is safe to expose in frontend
 const VAPID_PUBLIC_KEY = "BPWmnkrLExvOSYROSkyfPjumwQ5XK2jpJek7-A6z-IYDtCAXEVJNQ6i4-dd-DwJmaCIYk0GVRUmT_iITyo8pJB0";
 
+// Helper to access pushManager with proper typing
+const getPushManager = (reg: ServiceWorkerRegistration) => (reg as any).pushManager;
+
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = '='.repeat((4 - base64String.length % 4) % 4);
   const base64 = (base64String + padding)
@@ -46,7 +49,7 @@ export function usePushNotifications() {
     
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await getPushManager(registration).getSubscription();
       
       if (subscription) {
         // Verify it exists in database
@@ -105,11 +108,11 @@ export function usePushNotifications() {
       const registration = await navigator.serviceWorker.ready;
 
       // Check for existing subscription
-      let subscription = await registration.pushManager.getSubscription();
+      let subscription = await getPushManager(registration).getSubscription();
 
       // If no subscription, create one
       if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
+        subscription = await getPushManager(registration).subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
@@ -155,7 +158,7 @@ export function usePushNotifications() {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const subscription = await getPushManager(registration).getSubscription();
 
       if (subscription) {
         // Remove from database
