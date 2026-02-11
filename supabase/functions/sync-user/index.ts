@@ -12,17 +12,16 @@ interface SyncUserRequest {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Parse request body
     const body: SyncUserRequest = await req.json();
 
-    // Simple secret key check for one-time use
-    if (body.secretKey !== 'ENGEMASE_SYNC_2024') {
+    // Validate secret key from environment variable
+    const expectedSecret = Deno.env.get('SYNC_USER_SECRET_KEY');
+    if (!expectedSecret || body.secretKey !== expectedSecret) {
       return new Response(
         JSON.stringify({ error: 'Invalid secret key' }),
         {
@@ -46,7 +45,6 @@ Deno.serve(async (req) => {
 
     console.log('Looking for profile:', body.profileId);
 
-    // Get profile data
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
@@ -65,12 +63,10 @@ Deno.serve(async (req) => {
 
     console.log('Found profile:', profile.email);
 
-    // Check if auth user exists (by id)
     const { data: getUserData, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(body.profileId);
     const existingUser = getUserData?.user ?? null;
 
     if (existingUser && !getUserError) {
-      // User exists, update password and keep profile email in sync (critical for username->email login)
       console.log('Auth user exists, updating password');
       const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
         existingUser.id,
@@ -91,7 +87,6 @@ Deno.serve(async (req) => {
           .eq('id', profile.id);
         if (syncEmailError) {
           console.error('Error syncing profile email:', syncEmailError);
-          // don't throw; password reset is the main action
         }
       }
 
@@ -108,11 +103,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // User doesn't exist in auth, create with same ID
     console.log('User does not exist in auth, creating...');
     
-    // We can't create a user with a specific ID, so we need a different approach
-    // Create a new auth user and update the profile's foreign keys
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: profile.email,
       password: body.password,
@@ -131,68 +123,19 @@ Deno.serve(async (req) => {
     }
 
     console.log('Created auth user:', authData.user.id);
-    console.log('Need to update profile and related tables from old ID', body.profileId, 'to new ID', authData.user.id);
 
-    // Update all related tables with the new user ID
-    // First, update tools created_by
-    await supabaseAdmin
-      .from('tools')
-      .update({ created_by: authData.user.id })
-      .eq('created_by', body.profileId);
+    await supabaseAdmin.from('tools').update({ created_by: authData.user.id }).eq('created_by', body.profileId);
+    await supabaseAdmin.from('tool_checkouts').update({ user_id: authData.user.id }).eq('user_id', body.profileId);
+    await supabaseAdmin.from('tool_checkouts').update({ checked_out_by: authData.user.id }).eq('checked_out_by', body.profileId);
+    await supabaseAdmin.from('tool_checkouts').update({ checked_in_by: authData.user.id }).eq('checked_in_by', body.profileId);
+    await supabaseAdmin.from('tool_issues').update({ reported_by: authData.user.id }).eq('reported_by', body.profileId);
+    await supabaseAdmin.from('tool_issues').update({ resolved_by: authData.user.id }).eq('resolved_by', body.profileId);
+    await supabaseAdmin.from('maintenance_records').update({ performed_by: authData.user.id }).eq('performed_by', body.profileId);
+    await supabaseAdmin.from('notifications').update({ user_id: authData.user.id }).eq('user_id', body.profileId);
+    await supabaseAdmin.from('user_roles').update({ user_id: authData.user.id }).eq('user_id', body.profileId);
 
-    // Update tool_checkouts
-    await supabaseAdmin
-      .from('tool_checkouts')
-      .update({ user_id: authData.user.id })
-      .eq('user_id', body.profileId);
+    await supabaseAdmin.from('profiles').delete().eq('id', body.profileId);
 
-    await supabaseAdmin
-      .from('tool_checkouts')
-      .update({ checked_out_by: authData.user.id })
-      .eq('checked_out_by', body.profileId);
-
-    await supabaseAdmin
-      .from('tool_checkouts')
-      .update({ checked_in_by: authData.user.id })
-      .eq('checked_in_by', body.profileId);
-
-    // Update tool_issues
-    await supabaseAdmin
-      .from('tool_issues')
-      .update({ reported_by: authData.user.id })
-      .eq('reported_by', body.profileId);
-
-    await supabaseAdmin
-      .from('tool_issues')
-      .update({ resolved_by: authData.user.id })
-      .eq('resolved_by', body.profileId);
-
-    // Update maintenance_records
-    await supabaseAdmin
-      .from('maintenance_records')
-      .update({ performed_by: authData.user.id })
-      .eq('performed_by', body.profileId);
-
-    // Update notifications
-    await supabaseAdmin
-      .from('notifications')
-      .update({ user_id: authData.user.id })
-      .eq('user_id', body.profileId);
-
-    // Update user_roles
-    await supabaseAdmin
-      .from('user_roles')
-      .update({ user_id: authData.user.id })
-      .eq('user_id', body.profileId);
-
-    // Now delete the old profile and create new one with the auth user ID
-    await supabaseAdmin
-      .from('profiles')
-      .delete()
-      .eq('id', body.profileId);
-
-    // The new profile should be created automatically by the trigger
-    // But let's make sure it has the right data
     await supabaseAdmin
       .from('profiles')
       .update({
@@ -204,7 +147,6 @@ Deno.serve(async (req) => {
       })
       .eq('id', authData.user.id);
 
-    // Add admin role if needed
     if (profile.role === 'admin') {
       await supabaseAdmin
         .from('user_roles')

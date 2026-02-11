@@ -12,17 +12,16 @@ interface ResetPasswordRequest {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Parse request body
     const body: ResetPasswordRequest = await req.json();
 
-    // Simple secret key check for one-time use
-    if (body.secretKey !== 'ENGEMASE_RESET_2024') {
+    // Validate secret key from environment variable
+    const expectedSecret = Deno.env.get('ADMIN_RESET_SECRET_KEY');
+    if (!expectedSecret || body.secretKey !== expectedSecret) {
       return new Response(
         JSON.stringify({ error: 'Invalid secret key' }),
         {
@@ -32,7 +31,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create Supabase client with service role for admin operations
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -46,7 +44,6 @@ Deno.serve(async (req) => {
 
     console.log('Looking for user:', body.email);
 
-    // Get user by email
     const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (listError) {
@@ -66,7 +63,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update user password
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
       user.id,
       { password: body.newPassword }
