@@ -16,7 +16,9 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom"],
   },
+  cacheDir: "node_modules/.vite_v2",
   optimizeDeps: {
+    include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime"],
     force: true,
   },
 }));
