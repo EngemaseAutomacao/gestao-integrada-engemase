@@ -22,7 +22,7 @@ interface Tool {
 interface User {
   id: string;
   full_name: string;
-  category: "engemase_employee" | "third_party";
+  category: "engemase_employee" | "third_party" | "socios";
 }
 
 interface Checkout {

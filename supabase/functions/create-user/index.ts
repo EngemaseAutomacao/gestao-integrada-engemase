@@ -10,7 +10,7 @@ interface CreateUserRequest {
   password: string;
   fullName: string;
   username: string;
-  category: 'engemase_employee' | 'third_party';
+  category: 'engemase_employee' | 'third_party' | 'socios';
   role: 'admin' | 'employee' | 'third_party';
 }
 

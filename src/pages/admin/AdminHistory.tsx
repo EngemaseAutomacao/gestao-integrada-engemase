@@ -29,7 +29,7 @@ interface HistoryEntry {
   };
   profiles: {
     full_name: string;
-    category: "engemase_employee" | "third_party";
+    category: "engemase_employee" | "third_party" | "socios";
   };
   checked_out_by_profile: {
     full_name: string;
@@ -103,9 +103,12 @@ export default function AdminHistory() {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const getCategoryBadge = (category: "engemase_employee" | "third_party") => {
+  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
     if (category === "engemase_employee") {
       return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
+    }
+    if (category === "socios") {
+      return <Badge className="bg-primary text-primary-foreground">Sócio</Badge>;
     }
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };
