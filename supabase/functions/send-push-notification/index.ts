@@ -46,10 +46,8 @@ async function generateVapidJWT(
   const payloadB64 = uint8ArrayToBase64Url(new TextEncoder().encode(payloadStr));
   const unsignedToken = `${headerB64}.${payloadB64}`;
 
-  // Import private key - for VAPID we need to use PKCS8 format
   const privateKeyBytes = base64UrlToUint8Array(privateKey);
   
-  // Create the proper key format for P-256
   const cryptoKey = await crypto.subtle.importKey(
     'pkcs8',
     createPKCS8Key(privateKeyBytes),
@@ -58,23 +56,19 @@ async function generateVapidJWT(
     ['sign']
   );
 
-  // Sign the token
   const signatureBuffer = await crypto.subtle.sign(
     { name: 'ECDSA', hash: 'SHA-256' },
     cryptoKey,
     new TextEncoder().encode(unsignedToken)
   );
 
-  // Convert DER signature to raw format (r || s)
   const signatureArray = new Uint8Array(signatureBuffer);
   const signatureB64 = uint8ArrayToBase64Url(signatureArray);
 
   return `${unsignedToken}.${signatureB64}`;
 }
 
-// Helper to create PKCS8 key from raw bytes
 function createPKCS8Key(rawKey: Uint8Array): ArrayBuffer {
-  // PKCS8 header for P-256 EC private key
   const pkcs8Header = new Uint8Array([
     0x30, 0x81, 0x87, 0x02, 0x01, 0x00, 0x30, 0x13,
     0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02,
@@ -83,11 +77,6 @@ function createPKCS8Key(rawKey: Uint8Array): ArrayBuffer {
     0x01, 0x01, 0x04, 0x20
   ]);
   
-  const pkcs8Footer = new Uint8Array([
-    0xa1, 0x44, 0x03, 0x42, 0x00, 0x04
-  ]);
-
-  // For now, just return raw key wrapped - simplified approach
   const result = new Uint8Array(pkcs8Header.length + rawKey.length);
   result.set(pkcs8Header);
   result.set(rawKey, pkcs8Header.length);
@@ -107,6 +96,41 @@ Deno.serve(async (req) => {
     const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY');
     const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY');
 
+    // Authenticate caller - require admin role
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseAuth = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user: caller }, error: callerError } = await supabaseAuth.auth.getUser(token);
+
+    if (callerError || !caller) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if caller is admin
+    const { data: callerProfile } = await supabaseAuth
+      .from('profiles')
+      .select('role')
+      .eq('id', caller.id)
+      .single();
+
+    if (callerProfile?.role !== 'admin') {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { userId, title, body, type, toolId, checkoutId } = await req.json();
 
     if (!userId || !title) {
@@ -116,12 +140,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabase = createClient(
-      SUPABASE_URL!,
-      SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabase = supabaseAuth;
 
-    // Insert notification into database (triggers realtime for in-app notifications)
+    // Insert notification into database
     const { data: notification, error: notifError } = await supabase
       .from('notifications')
       .insert({
@@ -152,7 +173,6 @@ Deno.serve(async (req) => {
 
     const pushResults: Array<{ endpoint: string; status: string; reason?: string; code?: number; message?: string }> = [];
 
-    // Send Web Push to all user's devices using simple fetch
     if (subscriptions && subscriptions.length > 0 && VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
       const pushPayload = JSON.stringify({
         title,
@@ -191,7 +211,6 @@ Deno.serve(async (req) => {
           });
 
           if (response.status === 410 || response.status === 404) {
-            // Subscription expired or invalid, remove it
             await supabase
               .from('push_subscriptions')
               .delete()
