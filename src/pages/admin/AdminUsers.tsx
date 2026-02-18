@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { UserPlus, Loader2, Pencil, Trash2, Key } from "lucide-react";
+import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
 
@@ -21,6 +21,7 @@ interface Profile {
   username: string | null;
   category: "engemase_employee" | "third_party" | "socios";
   role: "admin" | "employee" | "third_party";
+  approved: boolean;
 }
 
 export default function AdminUsers() {
@@ -176,6 +177,22 @@ export default function AdminUsers() {
       toast.error("Erro ao excluir usuário", {
         description: error.message,
       });
+    }
+  };
+
+  const handleApproveUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ approved: true } as any)
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      toast.success("Usuário aprovado com sucesso!");
+      loadUsers();
+    } catch (error: any) {
+      toast.error("Erro ao aprovar usuário", { description: error.message });
     }
   };
 
@@ -385,12 +402,13 @@ export default function AdminUsers() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Função</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
+                   <TableHead>Nome</TableHead>
+                   <TableHead>Email</TableHead>
+                   <TableHead>Categoria</TableHead>
+                   <TableHead>Função</TableHead>
+                   <TableHead>Status</TableHead>
+                   <TableHead className="text-right">Ações</TableHead>
+                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
@@ -398,9 +416,33 @@ export default function AdminUsers() {
                     <TableCell className="font-medium">{user.full_name}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{getCategoryBadge(user.category)}</TableCell>
-                    <TableCell>{getRoleBadge(user.role)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                     <TableCell>{getRoleBadge(user.role)}</TableCell>
+                     <TableCell>
+                       {user.approved ? (
+                         <Badge className="bg-green-500/10 text-green-600 gap-1">
+                           <CheckCircle className="w-3 h-3" />
+                           Aprovado
+                         </Badge>
+                       ) : (
+                         <Badge className="bg-yellow-500/10 text-yellow-600 gap-1">
+                           <Clock className="w-3 h-3" />
+                           Pendente
+                         </Badge>
+                       )}
+                     </TableCell>
+                     <TableCell className="text-right">
+                       <div className="flex justify-end gap-2">
+                         {!user.approved && (
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleApproveUser(user.id)}
+                             title="Aprovar usuário"
+                             className="text-green-600 hover:text-green-700"
+                           >
+                             <CheckCircle className="w-4 h-4" />
+                           </Button>
+                         )}
                         <Button
                           variant="ghost"
                           size="sm"
