@@ -447,6 +447,7 @@ export type Database = {
           photo_right_checkin: string | null
           photo_right_checkout: string | null
           purpose: string | null
+          refueled: boolean | null
           status: string | null
           updated_at: string
           user_id: string
@@ -472,6 +473,7 @@ export type Database = {
           photo_right_checkin?: string | null
           photo_right_checkout?: string | null
           purpose?: string | null
+          refueled?: boolean | null
           status?: string | null
           updated_at?: string
           user_id: string
@@ -497,6 +499,7 @@ export type Database = {
           photo_right_checkin?: string | null
           photo_right_checkout?: string | null
           purpose?: string | null
+          refueled?: boolean | null
           status?: string | null
           updated_at?: string
           user_id?: string
