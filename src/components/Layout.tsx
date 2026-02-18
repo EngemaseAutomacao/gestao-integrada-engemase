@@ -45,14 +45,17 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   
   const isHomePage = location.pathname === '/';
+  const adminToolRoutes = ['/admin/tools', '/admin/maintenance', '/admin/issues', '/admin/history'];
+  const isAdminToolRoute = adminToolRoutes.some(r => location.pathname.startsWith(r));
   const isFerramentasModule = location.pathname.startsWith('/ferramentas') || 
                                location.pathname.startsWith('/tools') ||
                                location.pathname.startsWith('/checkout') ||
                                location.pathname.startsWith('/checkin') ||
                                location.pathname.startsWith('/history') ||
-                               location.pathname.startsWith('/report-issue');
+                               location.pathname.startsWith('/report-issue') ||
+                               isAdminToolRoute;
   const isVeiculosModule = location.pathname.startsWith('/veiculos');
-  const isAdminModule = location.pathname.startsWith('/admin');
+  const isAdminModule = location.pathname.startsWith('/admin') && !isAdminToolRoute;
 
   const isAdmin = profile?.role === "admin";
 
@@ -60,6 +63,12 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Dashboard", url: "/ferramentas", icon: Wrench },
     { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
+    ...(isAdmin ? [
+      { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Settings },
+      { title: "Manutenções", url: "/admin/maintenance", icon: Wrench },
+      { title: "Problemas", url: "/admin/issues", icon: AlertCircle },
+      { title: "Histórico Geral", url: "/admin/history", icon: ClipboardList },
+    ] : []),
   ];
 
   const veiculosMenuItems = [
@@ -70,14 +79,11 @@ export default function Layout({ children }: LayoutProps) {
   const adminMenuItems = [
     { title: "Dashboard", url: "/admin", icon: BarChart3 },
     { title: "Usuários", url: "/admin/users", icon: Users },
-    { title: "Ferramentas", url: "/admin/tools", icon: Package },
-    { title: "Manutenções", url: "/admin/maintenance", icon: Wrench },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
-    { title: "Problemas", url: "/admin/issues", icon: AlertCircle },
   ];
 
   const getCurrentModuleInfo = () => {
