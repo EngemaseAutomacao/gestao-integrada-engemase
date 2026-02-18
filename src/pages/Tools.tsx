@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Package, Search, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +28,7 @@ export default function Tools() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
   useEffect(() => {
     loadTools();
@@ -113,7 +115,8 @@ export default function Tools() {
                         <img 
                           src={tool.image_url} 
                           alt={tool.name}
-                          className="w-full h-48 object-cover rounded-lg"
+                          className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setEnlargedImage(tool.image_url)}
                         />
                       )}
                       <div className="flex items-start justify-between gap-2">
@@ -172,6 +175,21 @@ export default function Tools() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Foto da ferramenta</DialogTitle>
+          </DialogHeader>
+          {enlargedImage && (
+            <img
+              src={enlargedImage}
+              alt="Foto ampliada"
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

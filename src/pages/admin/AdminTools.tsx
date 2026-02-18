@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 interface Tool {
@@ -34,6 +34,7 @@ export default function AdminTools() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -76,7 +77,7 @@ export default function AdminTools() {
     setLoading(true);
 
     try {
-      let imageUrl = editingTool?.image_url || null;
+      let imageUrl = editingTool?.image_url !== undefined ? editingTool.image_url : null;
 
       // Upload image if a new one was selected
       if (imageFile) {
@@ -277,11 +278,29 @@ export default function AdminTools() {
                   onChange={handleImageChange}
                 />
                 {imagePreview && (
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
-                    className="mt-2 h-32 w-32 object-cover rounded-lg border"
-                  />
+                  <div className="relative inline-block mt-2">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      className="h-32 w-32 object-cover rounded-lg border cursor-pointer"
+                      onClick={() => setEnlargedImage(imagePreview)}
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                        if (editingTool) {
+                          setEditingTool({ ...editingTool, image_url: null });
+                        }
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
                 )}
               </div>
 
@@ -354,7 +373,8 @@ export default function AdminTools() {
                         <img 
                           src={tool.image_url} 
                           alt={tool.name}
-                          className="w-12 h-12 object-cover rounded"
+                          className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => setEnlargedImage(tool.image_url)}
                         />
                       ) : (
                         <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
@@ -415,6 +435,21 @@ export default function AdminTools() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Foto da ferramenta</DialogTitle>
+          </DialogHeader>
+          {enlargedImage && (
+            <img
+              src={enlargedImage}
+              alt="Foto ampliada"
+              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
