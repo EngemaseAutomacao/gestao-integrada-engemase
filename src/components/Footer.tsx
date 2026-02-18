@@ -6,16 +6,16 @@ export function Footer() {
   const buildDate = new Date(BUILD_DATE).toLocaleDateString("pt-BR");
 
   return (
-    <footer className="border-t bg-card/50 backdrop-blur-sm py-3 px-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Wrench className="h-3.5 w-3.5 text-primary" />
+    <footer className="border-t bg-card/50 backdrop-blur-sm py-2 px-3 sm:py-3 sm:px-4">
+      <div className="flex flex-col items-center gap-1 text-[10px] sm:text-xs text-muted-foreground sm:flex-row sm:justify-between sm:gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Wrench className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary" />
           <span>Sistema de Gestão de Ativos</span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
           <span>© {currentYear} Engemase Engenharia</span>
-          <span className="hidden sm:inline">•</span>
-          <span className="hidden sm:inline">v{APP_VERSION}</span>
+          <span>•</span>
+          <span>v{APP_VERSION}</span>
           <span className="hidden sm:inline">•</span>
           <span className="hidden sm:inline">Build: {buildDate}</span>
         </div>
