@@ -41,14 +41,11 @@ export default function AdminDashboard() {
 
   const adminItems = [
     { title: "Usuários", description: "Gerenciar contas e permissões", icon: <Users className="w-5 h-5 text-orange-500" />, to: "/admin/users" },
-    { title: "Ferramentas", description: "Adicionar e editar ferramentas", icon: <Package className="w-5 h-5 text-orange-500" />, to: "/admin/tools" },
-    { title: "Manutenções", description: "Registro de manutenções", icon: <Wrench className="w-5 h-5 text-orange-500" />, to: "/admin/maintenance" },
     { title: "Analytics", description: "Dashboard analítico", icon: <BarChart3 className="w-5 h-5 text-orange-500" />, to: "/admin/analytics" },
     { title: "Relatórios", description: "Gerar e exportar relatórios", icon: <FileText className="w-5 h-5 text-orange-500" />, to: "/admin/reports" },
     { title: "Notificações", description: "Configurar alertas", icon: <Bell className="w-5 h-5 text-orange-500" />, to: "/admin/notifications" },
     { title: "Logs", description: "Histórico do sistema", icon: <ClipboardList className="w-5 h-5 text-orange-500" />, to: "/admin/logs" },
     { title: "Entrada Manual", description: "Registros manuais", icon: <Settings className="w-5 h-5 text-orange-500" />, to: "/admin/manual" },
-    { title: "Problemas", description: "Issues reportados", icon: <AlertCircle className="w-5 h-5 text-orange-500" />, to: "/admin/issues" },
   ];
 
   return (
