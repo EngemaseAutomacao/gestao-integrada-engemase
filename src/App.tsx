@@ -9,6 +9,7 @@ import { OfflineProvider } from "@/contexts/OfflineContext";
 import Layout from "@/components/Layout";
 import Auth from "./pages/Auth";
 import Register from "./pages/Register";
+import ChangePassword from "./pages/ChangePassword";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
@@ -48,6 +49,7 @@ const App = () => (
             <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/" element={<Layout><Home /></Layout>} />
             {/* Ferramentas Routes */}
             <Route path="/ferramentas" element={<Layout><Dashboard /></Layout>} />

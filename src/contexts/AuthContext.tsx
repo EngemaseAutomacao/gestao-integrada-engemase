@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ interface Profile {
   category: "engemase_employee" | "third_party" | "socios";
   role: "admin" | "employee" | "third_party";
   approved: boolean;
+  first_login: boolean;
 }
 
 interface AuthContextType {
@@ -21,6 +22,7 @@ interface AuthContextType {
   signIn: (username: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, category: "engemase_employee" | "third_party" | "socios") => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,10 +34,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (data) {
+        setProfile({
+          ...(data as unknown as Profile),
+          approved: (data as any).approved ?? true,
+          first_login: (data as any).first_login ?? false,
+        });
+      }
+    } catch {
+      // Profile fetch failed silently
+    }
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
+  }, [user, fetchProfile]);
+
   useEffect(() => {
     let isMounted = true;
 
-    const fetchProfile = async (userId: string) => {
+    const fetchProfileMounted = async (userId: string) => {
       try {
         const { data } = await supabase
           .from("profiles")
@@ -44,10 +72,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .maybeSingle();
 
         if (data && isMounted) {
-          const profileData = data as unknown as Profile;
           setProfile({
-            ...profileData,
+            ...(data as unknown as Profile),
             approved: (data as any).approved ?? true,
+            first_login: (data as any).first_login ?? false,
           });
         }
       } catch {
@@ -64,7 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (currentSession?.user) {
           setTimeout(() => {
-            if (isMounted) fetchProfile(currentSession.user.id);
+            if (isMounted) fetchProfileMounted(currentSession.user.id);
           }, 0);
         } else {
           setProfile(null);
@@ -82,7 +110,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          await fetchProfile(currentSession.user.id);
+          await fetchProfileMounted(currentSession.user.id);
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -99,7 +127,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (username: string, password: string) => {
     try {
-      // Use secure function to get email from username
       const { data: email, error: lookupError } = await supabase
         .rpc("get_email_from_username", { _username: username });
 
@@ -155,6 +182,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signIn,
         signUp,
         signOut,
+        refreshProfile,
       }}
     >
       {children}
