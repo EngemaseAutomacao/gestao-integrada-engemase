@@ -131,6 +131,7 @@ export type Database = {
           category: Database["public"]["Enums"]["user_category"]
           created_at: string
           email: string
+          first_login: boolean
           full_name: string
           id: string
           role: Database["public"]["Enums"]["user_role"]
@@ -142,6 +143,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["user_category"]
           created_at?: string
           email: string
+          first_login?: boolean
           full_name: string
           id: string
           role?: Database["public"]["Enums"]["user_role"]
@@ -153,6 +155,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["user_category"]
           created_at?: string
           email?: string
+          first_login?: boolean
           full_name?: string
           id?: string
           role?: Database["public"]["Enums"]["user_role"]

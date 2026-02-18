@@ -133,6 +133,10 @@ export default function Layout({ children }: LayoutProps) {
     return <Navigate to="/auth" />;
   }
 
+  if (profile.first_login) {
+    return <Navigate to="/change-password" />;
+  }
+
   if (!profile.approved) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
