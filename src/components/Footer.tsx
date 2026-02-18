@@ -1,8 +1,9 @@
 import { Wrench } from "lucide-react";
-import { APP_VERSION } from "@/version";
+import { APP_VERSION, BUILD_DATE } from "@/version";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const buildDate = new Date(BUILD_DATE).toLocaleDateString("pt-BR");
 
   return (
     <footer className="border-t bg-card/50 backdrop-blur-sm py-3 px-4">
@@ -15,6 +16,8 @@ export function Footer() {
           <span>© {currentYear} Engemase Engenharia</span>
           <span className="hidden sm:inline">•</span>
           <span className="hidden sm:inline">v{APP_VERSION}</span>
+          <span className="hidden sm:inline">•</span>
+          <span className="hidden sm:inline">Build: {buildDate}</span>
         </div>
       </div>
     </footer>
