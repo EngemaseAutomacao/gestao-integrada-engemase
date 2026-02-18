@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeftCircle, Car, Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ export default function VehicleCheckin() {
   const [kmCheckin, setKmCheckin] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [refueled, setRefueled] = useState<string | null>(null);
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null });
   const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null });
@@ -70,6 +72,7 @@ export default function VehicleCheckin() {
       if (!selectedCheckout) throw new Error("Selecione um veículo");
       if (!kmCheckin) throw new Error("Informe a quilometragem de chegada");
       if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
+      if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
       const checkout = activeCheckouts?.find(c => c.id === selectedCheckout);
       if (checkout && parseInt(kmCheckin) < checkout.km_checkout) {
@@ -91,6 +94,7 @@ export default function VehicleCheckin() {
           km_checkin: parseInt(kmCheckin),
           checked_in_by: user.id,
           notes: notes || undefined,
+          refueled: refueled === "yes",
           photo_front_checkin: frontUrl,
           photo_back_checkin: backUrl,
           photo_left_checkin: leftUrl,
@@ -234,6 +238,20 @@ export default function VehicleCheckin() {
                 )}
               </div>
 
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
+                <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="refueled-yes" />
+                    <Label htmlFor="refueled-yes" className="cursor-pointer">Sim</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="refueled-no" />
+                    <Label htmlFor="refueled-no" className="cursor-pointer">Não</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações</Label>
                 <Textarea
@@ -266,7 +284,7 @@ export default function VehicleCheckin() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedCheckout || !kmCheckin || !allPhotos || checkinMutation.isPending}
+            disabled={!selectedCheckout || !kmCheckin || !allPhotos || refueled === null || checkinMutation.isPending}
             className="flex-1"
           >
             {checkinMutation.isPending ? "Registrando..." : "Registrar Chegada"}
