@@ -438,6 +438,14 @@ export type Database = {
           km_checkin: number | null
           km_checkout: number
           notes: string | null
+          photo_back_checkin: string | null
+          photo_back_checkout: string | null
+          photo_front_checkin: string | null
+          photo_front_checkout: string | null
+          photo_left_checkin: string | null
+          photo_left_checkout: string | null
+          photo_right_checkin: string | null
+          photo_right_checkout: string | null
           purpose: string | null
           status: string | null
           updated_at: string
@@ -455,6 +463,14 @@ export type Database = {
           km_checkin?: number | null
           km_checkout: number
           notes?: string | null
+          photo_back_checkin?: string | null
+          photo_back_checkout?: string | null
+          photo_front_checkin?: string | null
+          photo_front_checkout?: string | null
+          photo_left_checkin?: string | null
+          photo_left_checkout?: string | null
+          photo_right_checkin?: string | null
+          photo_right_checkout?: string | null
           purpose?: string | null
           status?: string | null
           updated_at?: string
@@ -472,6 +488,14 @@ export type Database = {
           km_checkin?: number | null
           km_checkout?: number
           notes?: string | null
+          photo_back_checkin?: string | null
+          photo_back_checkout?: string | null
+          photo_front_checkin?: string | null
+          photo_front_checkout?: string | null
+          photo_left_checkin?: string | null
+          photo_left_checkout?: string | null
+          photo_right_checkin?: string | null
+          photo_right_checkout?: string | null
           purpose?: string | null
           status?: string | null
           updated_at?: string

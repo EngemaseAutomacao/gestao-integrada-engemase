@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRightCircle, Car, Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 
 export default function VehicleCheckout() {
   const { user } = useAuth();
@@ -20,9 +20,18 @@ export default function VehicleCheckout() {
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [kmCheckout, setKmCheckout] = useState("");
   const [destination, setDestination] = useState("");
-  const [purpose, setPurpose] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null });
+  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null });
+
+  const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
+    setPhotos(prev => ({ ...prev, [key]: file }));
+    setPreviews(prev => ({ ...prev, [key]: preview }));
+  };
+
+  const allPhotos = Object.values(photos).every(Boolean);
 
   const { data: availableVehicles, isLoading } = useQuery({
     queryKey: ["available-vehicles"],
@@ -38,11 +47,28 @@ export default function VehicleCheckout() {
     }
   });
 
+  const uploadPhoto = async (file: File, prefix: string) => {
+    const fileExt = file.name.split(".").pop();
+    const filePath = `vehicles/${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const { error } = await supabase.storage.from("checkout-images").upload(filePath, file);
+    if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage.from("checkout-images").getPublicUrl(filePath);
+    return publicUrl;
+  };
+
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
       if (!kmCheckout) throw new Error("Informe a quilometragem de saída");
+      if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
+
+      const [frontUrl, backUrl, leftUrl, rightUrl] = await Promise.all([
+        uploadPhoto(photos.front!, "front_out"),
+        uploadPhoto(photos.back!, "back_out"),
+        uploadPhoto(photos.left!, "left_out"),
+        uploadPhoto(photos.right!, "right_out"),
+      ]);
 
       const { error } = await supabase.from("vehicle_checkouts").insert({
         vehicle_id: selectedVehicle,
@@ -50,9 +76,12 @@ export default function VehicleCheckout() {
         checked_out_by: user.id,
         km_checkout: parseInt(kmCheckout),
         destination,
-        purpose,
         notes,
-        status: "checked_out"
+        status: "checked_out",
+        photo_front_checkout: frontUrl,
+        photo_back_checkout: backUrl,
+        photo_left_checkout: leftUrl,
+        photo_right_checkout: rightUrl,
       });
 
       if (error) throw error;
@@ -179,16 +208,6 @@ export default function VehicleCheckout() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="purpose">Motivo/Finalidade</Label>
-                <Input
-                  id="purpose"
-                  placeholder="Ex: Visita técnica, Entrega de material"
-                  value={purpose}
-                  onChange={(e) => setPurpose(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="notes">Observações</Label>
                 <Textarea
                   id="notes"
@@ -198,6 +217,12 @@ export default function VehicleCheckout() {
                   rows={3}
                 />
               </div>
+
+              <VehiclePhotoCapture
+                photos={photos}
+                previews={previews}
+                onPhotoChange={handlePhotoChange}
+              />
             </CardContent>
           </Card>
         )}
@@ -214,7 +239,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !kmCheckout || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !kmCheckout || !allPhotos || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}
