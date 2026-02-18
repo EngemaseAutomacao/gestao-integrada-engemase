@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 interface Tool {
@@ -270,13 +270,25 @@ export default function AdminTools() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Foto da Ferramenta</Label>
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
+                <Label>Foto da Ferramenta</Label>
+                <div>
+                  <input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => document.getElementById('image')?.click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Escolher Foto
+                  </Button>
+                </div>
                 {imagePreview && (
                   <div className="relative inline-block mt-2">
                     <img 
