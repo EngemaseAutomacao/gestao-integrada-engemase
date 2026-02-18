@@ -2,15 +2,37 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Car, Search, Plus } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Label } from "@/components/ui/label";
+import { Car, Search, Plus, Loader2, Pencil, Trash2, Upload, X } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
+
+interface VehicleForm {
+  name: string;
+  plate: string;
+  brand: string;
+  model: string;
+  year: string;
+  color: string;
+}
+
+const emptyForm: VehicleForm = { name: "", plate: "", brand: "", model: "", year: "", color: "" };
 
 export default function VehicleList() {
   const { profile } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<VehicleForm>(emptyForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const isAdmin = profile?.role === "admin";
 
   const { data: vehicles, isLoading } = useQuery({
@@ -46,6 +68,107 @@ export default function VehicleList() {
     }
   };
 
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const openNew = () => {
+    resetForm();
+    setDialogOpen(true);
+  };
+
+  const openEdit = (vehicle: any) => {
+    setEditingId(vehicle.id);
+    setFormData({
+      name: vehicle.name,
+      plate: vehicle.plate,
+      brand: vehicle.brand || "",
+      model: vehicle.model || "",
+      year: vehicle.year?.toString() || "",
+      color: vehicle.color || "",
+    });
+    setImagePreview(vehicle.image_url);
+    setDialogOpen(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      let imageUrl = editingId ? (imagePreview?.startsWith("data:") ? null : imagePreview) : null;
+
+      if (imageFile) {
+        const fileExt = imageFile.name.split(".").pop();
+        const filePath = `${Math.random()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from("tool-images").upload(filePath, imageFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from("tool-images").getPublicUrl(filePath);
+        imageUrl = publicUrl;
+      }
+
+      // If image was removed
+      if (!imagePreview && !imageFile) {
+        imageUrl = null;
+      }
+
+      const payload = {
+        name: formData.name,
+        plate: formData.plate.toUpperCase(),
+        brand: formData.brand || null,
+        model: formData.model || null,
+        year: formData.year ? parseInt(formData.year) : null,
+        color: formData.color || null,
+        image_url: imageUrl,
+      };
+
+      if (editingId) {
+        const { error } = await supabase.from("vehicles").update(payload).eq("id", editingId);
+        if (error) throw error;
+        toast.success("Veículo atualizado com sucesso!");
+      } else {
+        const { error } = await supabase.from("vehicles").insert({ ...payload, created_by: profile!.id });
+        if (error) throw error;
+        toast.success("Veículo cadastrado com sucesso!");
+      }
+
+      setDialogOpen(false);
+      resetForm();
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
+    } catch (error: any) {
+      toast.error("Erro ao salvar veículo", { description: error.message });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir este veículo?")) return;
+    try {
+      const { error } = await supabase.from("vehicles").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Veículo excluído!");
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
+    } catch (error: any) {
+      toast.error("Erro ao excluir veículo", { description: error.message });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -59,7 +182,7 @@ export default function VehicleList() {
           </p>
         </div>
         {isAdmin && (
-          <Button>
+          <Button onClick={openNew}>
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Veículo
           </Button>
@@ -94,7 +217,8 @@ export default function VehicleList() {
                       <img 
                         src={vehicle.image_url} 
                         alt={vehicle.name}
-                        className="w-12 h-12 rounded-lg object-cover"
+                        className="w-12 h-12 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => setEnlargedImage(vehicle.image_url)}
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
@@ -117,6 +241,16 @@ export default function VehicleList() {
                   {vehicle.year && <p>Ano: {vehicle.year}</p>}
                   {vehicle.color && <p>Cor: {vehicle.color}</p>}
                 </div>
+                {isAdmin && (
+                  <div className="flex gap-2 mt-3 pt-3 border-t">
+                    <Button variant="ghost" size="sm" onClick={() => openEdit(vehicle)}>
+                      <Pencil className="w-4 h-4 mr-1" /> Editar
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(vehicle.id)}>
+                      <Trash2 className="w-4 h-4 mr-1 text-destructive" /> Excluir
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -131,6 +265,89 @@ export default function VehicleList() {
           </CardContent>
         </Card>
       )}
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Editar Veículo" : "Adicionar Veículo"}</DialogTitle>
+            <DialogDescription>
+              {editingId ? "Atualize os dados do veículo" : "Cadastre um novo veículo no sistema"}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="v-name">Nome *</Label>
+                <Input id="v-name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="v-plate">Placa *</Label>
+                <Input id="v-plate" value={formData.plate} onChange={(e) => setFormData({ ...formData, plate: e.target.value })} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="v-brand">Marca</Label>
+                <Input id="v-brand" value={formData.brand} onChange={(e) => setFormData({ ...formData, brand: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="v-model">Modelo</Label>
+                <Input id="v-model" value={formData.model} onChange={(e) => setFormData({ ...formData, model: e.target.value })} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="v-year">Ano</Label>
+                <Input id="v-year" type="number" value={formData.year} onChange={(e) => setFormData({ ...formData, year: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="v-color">Cor</Label>
+                <Input id="v-color" value={formData.color} onChange={(e) => setFormData({ ...formData, color: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Foto do Veículo</Label>
+              <div>
+                <input id="v-image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                <Button type="button" variant="outline" className="gap-2" onClick={() => document.getElementById("v-image")?.click()}>
+                  <Upload className="h-4 w-4" />
+                  Escolher Foto
+                </Button>
+              </div>
+              {imagePreview && (
+                <div className="relative inline-block mt-2">
+                  <img src={imagePreview} alt="Preview" className="h-32 w-32 object-cover rounded-lg border cursor-pointer" onClick={() => setEnlargedImage(imagePreview)} />
+                  <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => { setImageFile(null); setImagePreview(null); }}>
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="submit" disabled={saving} className="flex-1">
+                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {editingId ? "Atualizar" : "Cadastrar"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Enlarged Image Dialog */}
+      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
+        <DialogContent className="max-w-3xl p-2">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Foto do veículo</DialogTitle>
+          </DialogHeader>
+          {enlargedImage && (
+            <img src={enlargedImage} alt="Foto ampliada" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
