@@ -226,7 +226,7 @@ export default function Layout({ children }: LayoutProps) {
           <OfflineIndicator />
           <InstallPWA />
           <ThemeToggle />
-          {!isHomePage && <NotificationBell />}
+          <NotificationBell />
           
           {/* User dropdown */}
           <DropdownMenu>
