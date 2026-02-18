@@ -37,16 +37,16 @@ export function NotificationBell() {
   });
   
   const { playNotificationSound } = useNotificationSound();
-  const { permission, isSupported, requestPermission, showPushNotification } = usePushNotifications();
+  const { permission, isSupported, isSubscribed, subscribe, unsubscribe, requestPermission, showPushNotification } = usePushNotifications();
   const previousNotificationIds = useRef<Set<string>>(new Set());
   const isInitialLoad = useRef(true);
 
-  // Request push notification permission on mount
+  // Auto-subscribe if permission already granted but not subscribed
   useEffect(() => {
-    if (isSupported && permission === "default") {
-      // Don't auto-request, wait for user interaction
+    if (isSupported && permission === "granted" && !isSubscribed && user) {
+      subscribe();
     }
-  }, [isSupported, permission]);
+  }, [isSupported, permission, isSubscribed, user, subscribe]);
 
   const handleNewNotification = useCallback((notification: Notification) => {
     // Show toast popup
@@ -182,11 +182,11 @@ export function NotificationBell() {
   };
 
   const handleEnablePush = async () => {
-    const granted = await requestPermission();
-    if (granted) {
-      toast.success("Notificações push ativadas!");
+    const success = await subscribe();
+    if (success) {
+      toast.success("Notificações push ativadas e registradas!");
     } else {
-      toast.error("Permissão para notificações negada");
+      toast.error("Erro ao ativar notificações push. Verifique a permissão do navegador.");
     }
   };
 
@@ -194,7 +194,29 @@ export function NotificationBell() {
     if (!user) return;
     
     try {
-      const { error } = await supabase.from("notifications").insert({
+      // Use the edge function to create notification AND send push
+      const { data, error } = await supabase.functions.invoke('send-push-notification', {
+        body: {
+          userId: user.id,
+          title: "🔔 Notificação de Teste",
+          body: "Esta é uma notificação de teste para verificar se o sistema está funcionando corretamente.",
+          type: "return_reminder",
+        },
+      });
+
+      if (error) throw error;
+      
+      console.log("Test notification result:", data);
+      
+      // Close popover to see the toast
+      setOpen(false);
+      toast.success("Notificação de teste enviada!", {
+        description: `Push enviado para ${data?.subscriptionsCount || 0} dispositivo(s)`,
+      });
+    } catch (error: any) {
+      console.error("Error sending test notification:", error);
+      // Fallback: insert directly
+      const { error: insertError } = await supabase.from("notifications").insert({
         user_id: user.id,
         type: "return_reminder",
         title: "🔔 Notificação de Teste",
@@ -202,14 +224,11 @@ export function NotificationBell() {
         read: false,
       });
 
-      if (error) throw error;
-      
-      // Close popover to see the toast
-      setOpen(false);
-    } catch (error: any) {
-      toast.error("Erro ao enviar notificação de teste", {
-        description: error.message,
-      });
+      if (insertError) {
+        toast.error("Erro ao enviar notificação de teste", { description: insertError.message });
+      } else {
+        setOpen(false);
+      }
     }
   };
 
@@ -268,7 +287,7 @@ export function NotificationBell() {
               </Tooltip>
 
               {/* Push notification toggle */}
-              {isSupported && permission !== "granted" && (
+              {isSupported && permission !== "granted" && !isSubscribed && (
                 <Button
                   variant="ghost"
                   size="sm"
