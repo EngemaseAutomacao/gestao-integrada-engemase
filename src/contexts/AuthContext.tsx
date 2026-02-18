@@ -33,61 +33,68 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
+
+    const fetchProfile = async (userId: string) => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (data && isMounted) {
+          const profileData = data as unknown as Profile;
+          setProfile({
+            ...profileData,
+            approved: (data as any).approved ?? true,
+          });
+        }
+      } catch {
+        // Profile fetch failed silently
+      }
+    };
+
+    // Listener for ONGOING auth changes (does NOT control loading)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setTimeout(async () => {
-            const { data } = await supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", session.user.id)
-              .maybeSingle();
-            
-            if (data) {
-              const profileData = data as unknown as Profile;
-              setProfile({
-                ...profileData,
-                approved: (data as any).approved ?? true // Handle existing users without approved field
-              });
-            }
-            setLoading(false);
+      (event, currentSession) => {
+        if (!isMounted) return;
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          setTimeout(() => {
+            if (isMounted) fetchProfile(currentSession.user.id);
           }, 0);
         } else {
           setProfile(null);
-          setLoading(false);
         }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .maybeSingle()
-          .then(({ data }) => {
-            if (data) {
-              const profileData = data as unknown as Profile;
-              setProfile({
-                ...profileData,
-                approved: (data as any).approved ?? true // Handle existing users without approved field
-              });
-            }
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    });
+    // INITIAL load (controls loading state)
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!isMounted) return;
 
-    return () => subscription.unsubscribe();
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          await fetchProfile(currentSession.user.id);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (username: string, password: string) => {
