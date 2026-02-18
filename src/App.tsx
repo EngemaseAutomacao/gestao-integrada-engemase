@@ -34,10 +34,17 @@ import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
 import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 
 const queryClient = new QueryClient();
 
+function VersionGate({ children }: { children: React.ReactNode }) {
+  useVersionCheck();
+  return <>{children}</>;
+}
+
 const App = () => (
+  <VersionGate>
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system">
       <TooltipProvider>
@@ -91,6 +98,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
+  </VersionGate>
 );
 
 export default App;
