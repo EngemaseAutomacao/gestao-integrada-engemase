@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 
 export default function VehicleCheckin() {
   const { user } = useAuth();
@@ -23,6 +24,16 @@ export default function VehicleCheckin() {
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null });
+  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null });
+
+  const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
+    setPhotos(prev => ({ ...prev, [key]: file }));
+    setPreviews(prev => ({ ...prev, [key]: preview }));
+  };
+
+  const allPhotos = Object.values(photos).every(Boolean);
+
   const { data: activeCheckouts, isLoading } = useQuery({
     queryKey: ["active-vehicle-checkouts"],
     queryFn: async () => {
@@ -33,7 +44,6 @@ export default function VehicleCheckin() {
           checkout_date,
           km_checkout,
           destination,
-          purpose,
           vehicles!inner(id, name, plate, brand, model),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
@@ -45,16 +55,33 @@ export default function VehicleCheckin() {
     }
   });
 
+  const uploadPhoto = async (file: File, prefix: string) => {
+    const fileExt = file.name.split(".").pop();
+    const filePath = `vehicles/${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const { error } = await supabase.storage.from("checkout-images").upload(filePath, file);
+    if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage.from("checkout-images").getPublicUrl(filePath);
+    return publicUrl;
+  };
+
   const checkinMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
       if (!kmCheckin) throw new Error("Informe a quilometragem de chegada");
+      if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
 
       const checkout = activeCheckouts?.find(c => c.id === selectedCheckout);
       if (checkout && parseInt(kmCheckin) < checkout.km_checkout) {
         throw new Error("A quilometragem de chegada não pode ser menor que a de saída");
       }
+
+      const [frontUrl, backUrl, leftUrl, rightUrl] = await Promise.all([
+        uploadPhoto(photos.front!, "front_in"),
+        uploadPhoto(photos.back!, "back_in"),
+        uploadPhoto(photos.left!, "left_in"),
+        uploadPhoto(photos.right!, "right_in"),
+      ]);
 
       const { error } = await supabase
         .from("vehicle_checkouts")
@@ -63,7 +90,11 @@ export default function VehicleCheckin() {
           checkin_date: new Date().toISOString(),
           km_checkin: parseInt(kmCheckin),
           checked_in_by: user.id,
-          notes: notes || undefined
+          notes: notes || undefined,
+          photo_front_checkin: frontUrl,
+          photo_back_checkin: backUrl,
+          photo_left_checkin: leftUrl,
+          photo_right_checkin: rightUrl,
         })
         .eq("id", selectedCheckout);
 
@@ -213,6 +244,12 @@ export default function VehicleCheckin() {
                   rows={3}
                 />
               </div>
+
+              <VehiclePhotoCapture
+                photos={photos}
+                previews={previews}
+                onPhotoChange={handlePhotoChange}
+              />
             </CardContent>
           </Card>
         )}
@@ -229,7 +266,7 @@ export default function VehicleCheckin() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedCheckout || !kmCheckin || checkinMutation.isPending}
+            disabled={!selectedCheckout || !kmCheckin || !allPhotos || checkinMutation.isPending}
             className="flex-1"
           >
             {checkinMutation.isPending ? "Registrando..." : "Registrar Chegada"}
