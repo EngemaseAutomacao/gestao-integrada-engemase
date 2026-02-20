@@ -1,5 +1,6 @@
-const CACHE_NAME = 'engemase-tools-v3';
-const DYNAMIC_CACHE = 'engemase-dynamic-v3';
+const CACHE_NAME = 'engemase-tools-v5';
+const DYNAMIC_CACHE = 'engemase-dynamic-v5';
+
 const urlsToCache = [
   '/',
   '/index.html',
@@ -55,7 +56,30 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle static assets (cache first)
+  // Handle static assets
+  // Use network-first for JS/CSS to prevent stale cached bundles
+  // Use cache-first only for images/fonts
+  const isJsOrCss = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
+  
+  if (isJsOrCss) {
+    // Network first for JS/CSS - always get fresh bundles
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache first for other static assets (images, fonts, etc.)
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -64,7 +88,6 @@ self.addEventListener('fetch', (event) => {
         }
         
         return fetch(event.request).then((response) => {
-          // Don't cache non-successful responses
           if (!response || response.status !== 200 || response.type === 'error') {
             return response;
           }
@@ -78,6 +101,7 @@ self.addEventListener('fetch', (event) => {
         });
       })
   );
+
 });
 
 // Clean up old caches on activate
