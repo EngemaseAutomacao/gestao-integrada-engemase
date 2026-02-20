@@ -34,14 +34,9 @@ import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
 import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
-import { useVersionCheck } from "@/hooks/useVersionCheck";
+
 
 const queryClient = new QueryClient();
-
-function VersionGate({ children }: { children: React.ReactNode }) {
-  useVersionCheck();
-  return <>{children}</>;
-}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -52,46 +47,44 @@ const App = () => (
         <BrowserRouter>
           <OfflineProvider>
             <AuthProvider>
-              <VersionGate>
-                <Routes>
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/change-password" element={<ChangePassword />} />
-                  <Route path="/" element={<Layout><Home /></Layout>} />
-                  {/* Ferramentas Routes */}
-                  <Route path="/ferramentas" element={<Layout><Dashboard /></Layout>} />
-                  <Route path="/ferramentas/lista" element={<Layout><Tools /></Layout>} />
-                  <Route path="/ferramentas/:id" element={<Layout><ToolDetail /></Layout>} />
-                  <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
-                  <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
-                  <Route path="/ferramentas/historico" element={<Layout><UserHistory /></Layout>} />
-                  {/* Veículos Routes */}
-                  <Route path="/veiculos" element={<Layout><VehicleDashboard /></Layout>} />
-                  <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
-                  <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
-                  <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
-                  {/* Legacy routes */}
-                  <Route path="/tools" element={<Layout><Tools /></Layout>} />
-                  <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
-                  <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
-                  <Route path="/checkin" element={<Layout><Checkin /></Layout>} />
-                  <Route path="/history" element={<Layout><UserHistory /></Layout>} />
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
-                  <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
-                  <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
-                  <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
-                  <Route path="/admin/logs" element={<Layout><AdminLogs /></Layout>} />
-                  <Route path="/admin/analytics" element={<Layout><AdminAnalytics /></Layout>} />
-                  <Route path="/admin/notifications" element={<Layout><AdminNotifications /></Layout>} />
-                  <Route path="/admin/maintenance" element={<Layout><AdminMaintenance /></Layout>} />
-                  <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
-                  <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
-                  <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
-                  <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </VersionGate>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/" element={<Layout><Home /></Layout>} />
+                {/* Ferramentas Routes */}
+                <Route path="/ferramentas" element={<Layout><Dashboard /></Layout>} />
+                <Route path="/ferramentas/lista" element={<Layout><Tools /></Layout>} />
+                <Route path="/ferramentas/:id" element={<Layout><ToolDetail /></Layout>} />
+                <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
+                <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
+                <Route path="/ferramentas/historico" element={<Layout><UserHistory /></Layout>} />
+                {/* Veículos Routes */}
+                <Route path="/veiculos" element={<Layout><VehicleDashboard /></Layout>} />
+                <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
+                <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
+                <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
+                {/* Legacy routes */}
+                <Route path="/tools" element={<Layout><Tools /></Layout>} />
+                <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
+                <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
+                <Route path="/checkin" element={<Layout><Checkin /></Layout>} />
+                <Route path="/history" element={<Layout><UserHistory /></Layout>} />
+                {/* Admin Routes */}
+                <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
+                <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
+                <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
+                <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
+                <Route path="/admin/logs" element={<Layout><AdminLogs /></Layout>} />
+                <Route path="/admin/analytics" element={<Layout><AdminAnalytics /></Layout>} />
+                <Route path="/admin/notifications" element={<Layout><AdminNotifications /></Layout>} />
+                <Route path="/admin/maintenance" element={<Layout><AdminMaintenance /></Layout>} />
+                <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
+                <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
+                <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
+                <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
             </AuthProvider>
           </OfflineProvider>
         </BrowserRouter>
@@ -101,3 +94,4 @@ const App = () => (
 );
 
 export default App;
+
