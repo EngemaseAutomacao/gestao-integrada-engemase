@@ -16,10 +16,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
-  cacheDir: "node_modules/.vite_v3",
+  cacheDir: "node_modules/.vite_cache",
   optimizeDeps: {
     include: ["react", "react-dom", "react-dom/client", "react/jsx-runtime"],
     force: true,
