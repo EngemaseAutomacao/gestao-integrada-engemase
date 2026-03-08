@@ -271,39 +271,8 @@ export default function Checkin() {
                 )}
               </div>
 
-              {/* Signature Pad */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Assinatura Digital *</Label>
-                  {signatureConfirmed && (
-                    <Badge variant="secondary" className="gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Confirmada
-                    </Badge>
-                  )}
-                </div>
-                {!signatureConfirmed ? (
-                  <SignaturePad onSave={handleSignatureSave} title="Assine para confirmar a devolução" />
-                ) : (
-                  <div className="relative">
-                    <div className="border rounded-lg p-2 bg-white">
-                      <img src={signatureDataUrl!} alt="Assinatura" className="w-full h-24 object-contain" />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => { setSignatureConfirmed(false); setSignatureDataUrl(null); }}
-                    >
-                      Refazer
-                    </Button>
-                  </div>
-                )}
-              </div>
-
               <div className="flex flex-col gap-3">
-                <Button type="submit" disabled={loading || !selectedCheckoutId || !signatureConfirmed} className="w-full">
+                <Button type="submit" disabled={loading || !selectedCheckoutId || !photoConfirmed} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
