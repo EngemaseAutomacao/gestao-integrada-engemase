@@ -122,17 +122,7 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center space-y-4">
-          <div className="relative">
-            <Wrench className="w-12 h-12 text-primary animate-pulse mx-auto" />
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-          </div>
-          <p className="text-muted-foreground">Carregando...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (!user || !profile) {
