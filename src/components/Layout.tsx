@@ -122,7 +122,22 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   if (loading) {
-    return null;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-8 text-center">
+        <img src="/icon.png" alt="Engemase" className="w-[72px] h-[56px] rounded-[14px] mb-5 shadow-lg object-contain" />
+        <h1 className="text-2xl font-bold text-foreground mb-1">Gestão de Ativos</h1>
+        <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-6">Engemase Engenharia</p>
+        <div className="mb-6">
+          <svg width="40" height="40" viewBox="0 0 40 40" className="animate-spin">
+            <circle cx="20" cy="20" r="16" fill="none" stroke="hsl(var(--border))" strokeWidth="3"/>
+            <circle cx="20" cy="20" r="16" fill="none" stroke="hsl(var(--primary))" strokeWidth="3" strokeDasharray="80" strokeDashoffset="60" strokeLinecap="round"/>
+          </svg>
+        </div>
+        <p className="text-sm text-muted-foreground max-w-[280px] leading-relaxed">
+          Controle inteligente de ferramentas e veículos para sua operação
+        </p>
+      </div>
+    );
   }
 
   if (!user || !profile) {
