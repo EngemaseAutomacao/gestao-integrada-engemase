@@ -121,7 +121,7 @@ export default function Tools() {
                       )}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{tool.name}</h3>
+                          <h3 className="font-semibold text-lg capitalize">{tool.name.toLowerCase()}</h3>
                           <div className="text-sm text-muted-foreground space-y-1">
                             {tool.tag && (
                               <p>TAG: {tool.tag}</p>
