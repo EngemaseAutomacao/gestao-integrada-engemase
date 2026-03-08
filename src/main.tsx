@@ -28,6 +28,19 @@ import { APP_VERSION } from "./version.ts";
     window.location.reload();
     return; // don't mount React if we're going to reload
   }
+
+  // Force SW update check on every page load
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.update().catch(() => {});
+    });
+
+    // Listen for new SW and auto-activate it
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      console.log("[SW] New version activated, reloading...");
+      window.location.reload();
+    });
+  }
 })();
 
 createRoot(document.getElementById("root")!).render(
