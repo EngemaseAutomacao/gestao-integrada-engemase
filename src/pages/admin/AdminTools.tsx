@@ -205,11 +205,11 @@ export default function AdminTools() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Gerenciar Ferramentas</h2>
-          <p className="text-muted-foreground">Administre o inventário de ferramentas</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Ferramentas</h2>
+          <p className="text-sm text-muted-foreground">Administre o inventário de ferramentas</p>
         </div>
         
         <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -364,86 +364,159 @@ export default function AdminTools() {
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Foto</TableHead>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>TAG</TableHead>
-                  <TableHead>Marca</TableHead>
-                  <TableHead>Condição</TableHead>
-                  <TableHead>Disponível/Total</TableHead>
-                  <TableHead>Restrição</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Foto</TableHead>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>TAG</TableHead>
+                      <TableHead>Marca</TableHead>
+                      <TableHead>Condição</TableHead>
+                      <TableHead>Disponível/Total</TableHead>
+                      <TableHead>Restrição</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tools.map((tool) => (
+                      <TableRow key={tool.id}>
+                        <TableCell>
+                          {tool.image_url ? (
+                            <img 
+                              src={tool.image_url} 
+                              alt={tool.name}
+                              className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => setEnlargedImage(tool.image_url)}
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                              <Package className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">{tool.name}</TableCell>
+                        <TableCell>{tool.tag || "-"}</TableCell>
+                        <TableCell>{tool.brand || "-"}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline" 
+                            className={
+                              tool.condition === 'excellent' ? 'bg-green-500 text-white' :
+                              tool.condition === 'good' ? 'bg-blue-500 text-white' :
+                              tool.condition === 'fair' ? 'bg-yellow-500 text-white' :
+                              tool.condition === 'poor' ? 'bg-orange-500 text-white' :
+                              'bg-red-500 text-white'
+                            }
+                          >
+                            {
+                              tool.condition === 'excellent' ? 'Excelente' :
+                              tool.condition === 'good' ? 'Bom' :
+                              tool.condition === 'fair' ? 'Regular' :
+                              tool.condition === 'poor' ? 'Ruim' :
+                              'Precisa Manutenção'
+                            }
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
+                            {tool.quantity_available}/{tool.quantity_total}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {tool.employee_only ? (
+                            <Badge variant="outline">Apenas Funcionários</Badge>
+                          ) : (
+                            <Badge variant="secondary">Todos</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right space-x-2">
+                          <Button variant="ghost" size="sm" onClick={() => navigate(`/tools/${tool.id}`)}>
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(tool.id)}>
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-3">
                 {tools.map((tool) => (
-                  <TableRow key={tool.id}>
-                    <TableCell>
-                      {tool.image_url ? (
-                        <img 
-                          src={tool.image_url} 
-                          alt={tool.name}
-                          className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => setEnlargedImage(tool.image_url)}
-                        />
-                      ) : (
-                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                          <Package className="w-6 h-6 text-muted-foreground" />
+                  <Card key={tool.id} className="overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        {tool.image_url ? (
+                          <img 
+                            src={tool.image_url} 
+                            alt={tool.name}
+                            className="w-14 h-14 object-cover rounded-lg shrink-0 cursor-pointer"
+                            onClick={() => setEnlargedImage(tool.image_url)}
+                          />
+                        ) : (
+                          <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center shrink-0">
+                            <Package className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm truncate">{tool.name}</h3>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            {tool.tag && <span className="text-xs text-muted-foreground">TAG: {tool.tag}</span>}
+                            {tool.brand && <span className="text-xs text-muted-foreground">• {tool.brand}</span>}
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs ${
+                                tool.condition === 'excellent' ? 'bg-green-500 text-white' :
+                                tool.condition === 'good' ? 'bg-blue-500 text-white' :
+                                tool.condition === 'fair' ? 'bg-yellow-500 text-white' :
+                                tool.condition === 'poor' ? 'bg-orange-500 text-white' :
+                                'bg-red-500 text-white'
+                              }`}
+                            >
+                              {
+                                tool.condition === 'excellent' ? 'Excelente' :
+                                tool.condition === 'good' ? 'Bom' :
+                                tool.condition === 'fair' ? 'Regular' :
+                                tool.condition === 'poor' ? 'Ruim' :
+                                'Manutenção'
+                              }
+                            </Badge>
+                            <span className={`text-xs font-medium ${tool.quantity_available > 0 ? "text-success" : "text-destructive"}`}>
+                              {tool.quantity_available}/{tool.quantity_total}
+                            </span>
+                            {tool.employee_only && (
+                              <Badge variant="outline" className="text-xs">Funcionários</Badge>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{tool.name}</TableCell>
-                    <TableCell>{tool.tag || "-"}</TableCell>
-                    <TableCell>{tool.brand || "-"}</TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant="outline" 
-                        className={
-                          tool.condition === 'excellent' ? 'bg-green-500 text-white' :
-                          tool.condition === 'good' ? 'bg-blue-500 text-white' :
-                          tool.condition === 'fair' ? 'bg-yellow-500 text-white' :
-                          tool.condition === 'poor' ? 'bg-orange-500 text-white' :
-                          'bg-red-500 text-white'
-                        }
-                      >
-                        {
-                          tool.condition === 'excellent' ? 'Excelente' :
-                          tool.condition === 'good' ? 'Bom' :
-                          tool.condition === 'fair' ? 'Regular' :
-                          tool.condition === 'poor' ? 'Ruim' :
-                          'Precisa Manutenção'
-                        }
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
-                        {tool.quantity_available}/{tool.quantity_total}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {tool.employee_only ? (
-                        <Badge variant="outline">Apenas Funcionários</Badge>
-                      ) : (
-                        <Badge variant="secondary">Todos</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="sm" onClick={() => navigate(`/tools/${tool.id}`)}>
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(tool.id)}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                      </div>
+                      <div className="flex justify-end gap-1 mt-3 pt-3 border-t">
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/tools/${tool.id}`)}>
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(tool.id)}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
