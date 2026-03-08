@@ -76,18 +76,18 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-6">
-      <div className="text-center mb-8">
-        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-48 h-auto mx-auto mb-4" />
-        <h1 className="text-3xl font-bold text-foreground mb-2">
+    <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="text-center mb-6 sm:mb-8">
+        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-32 sm:w-48 h-auto mx-auto mb-3 sm:mb-4" />
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
           Bem-vindo, {profile?.full_name?.split(' ')[0]}!
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm sm:text-base text-muted-foreground">
           Selecione o módulo que deseja acessar
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl w-full">
         <ModuleCard
           title="Controle de Ferramentas"
           description="Gerencie retiradas, devoluções e manutenções de ferramentas"

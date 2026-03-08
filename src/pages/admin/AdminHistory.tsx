@@ -132,10 +132,10 @@ export default function AdminHistory() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Histórico Completo</h2>
-        <p className="text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Completo</h2>
+        <p className="text-sm text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
       </div>
 
       <Card>
@@ -193,59 +193,209 @@ export default function AdminHistory() {
               Nenhuma movimentação encontrada
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Ferramenta</TableHead>
-                    <TableHead>Obra</TableHead>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Retirada</TableHead>
-                    <TableHead>Devolução</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Detalhes</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredHistory.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell className="font-medium">{entry.tools.name}</TableCell>
-                      <TableCell>{entry.construction_site || "-"}</TableCell>
-                      <TableCell>{entry.profiles.full_name}</TableCell>
-                      <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
-                      <TableCell>
-                        {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                      </TableCell>
-                      <TableCell>
-                        {entry.checkin_date
-                          ? format(new Date(entry.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                          : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Ferramenta</TableHead>
+                      <TableHead>Obra</TableHead>
+                      <TableHead>Usuário</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead>Retirada</TableHead>
+                      <TableHead>Devolução</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Detalhes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredHistory.map((entry) => (
+                      <TableRow key={entry.id}>
+                        <TableCell className="font-medium">{entry.tools.name}</TableCell>
+                        <TableCell>{entry.construction_site || "-"}</TableCell>
+                        <TableCell>{entry.profiles.full_name}</TableCell>
+                        <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
+                        <TableCell>
+                          {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell>
+                          {entry.checkin_date
+                            ? format(new Date(entry.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+                              {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                            </Badge>
+                            {isOverdue(entry.estimated_return_date, entry.status) && (
+                              <Badge variant="destructive">Atrasado</Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                                <Eye className="w-4 h-4 mr-1" />
+                                Ver
+                                {hasMedia(entry) && (
+                                  <span className="ml-1 flex gap-1">
+                                    {(entry.checkout_photo_url || entry.checkin_photo_url) && 
+                                      <Camera className="w-3 h-3" />}
+                                    {(entry.checkout_signature_url || entry.checkin_signature_url) && 
+                                      <FileSignature className="w-3 h-3" />}
+                                  </span>
+                                )}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Detalhes da Movimentação</DialogTitle>
+                              </DialogHeader>
+                              {selectedEntry && (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
+                                      <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Usuário</p>
+                                      <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Obra</p>
+                                      <p>{selectedEntry.construction_site || "Não informado"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                                      <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
+                                        {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
+                                      <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
+                                      <p>
+                                        {selectedEntry.checkin_date 
+                                          ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                          : "Não devolvida"}
+                                      </p>
+                                      {selectedEntry.checked_in_by_profile && (
+                                        <p className="text-xs text-muted-foreground">
+                                          Por: {selectedEntry.checked_in_by_profile.full_name}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {hasMedia(selectedEntry) && (
+                                    <div className="pt-4 border-t space-y-4">
+                                      <h4 className="font-semibold">Fotos e Assinaturas</h4>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <p className="text-sm font-medium">Retirada</p>
+                                          {selectedEntry.checkout_photo_url && (
+                                            <div>
+                                              <p className="text-xs text-muted-foreground mb-1">Foto:</p>
+                                              <img src={selectedEntry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
+                                            </div>
+                                          )}
+                                          {selectedEntry.checkout_signature_url && (
+                                            <div>
+                                              <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
+                                              <div className="border rounded-lg p-2 bg-white">
+                                                <img src={selectedEntry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
+                                              </div>
+                                            </div>
+                                          )}
+                                          {!selectedEntry.checkout_photo_url && !selectedEntry.checkout_signature_url && (
+                                            <p className="text-sm text-muted-foreground">Sem registros</p>
+                                          )}
+                                        </div>
+                                        <div className="space-y-2">
+                                          <p className="text-sm font-medium">Devolução</p>
+                                          {selectedEntry.checkin_photo_url && (
+                                            <div>
+                                              <p className="text-xs text-muted-foreground mb-1">Foto:</p>
+                                              <img src={selectedEntry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
+                                            </div>
+                                          )}
+                                          {selectedEntry.checkin_signature_url && (
+                                            <div>
+                                              <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
+                                              <div className="border rounded-lg p-2 bg-white">
+                                                <img src={selectedEntry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
+                                              </div>
+                                            </div>
+                                          )}
+                                          {!selectedEntry.checkin_photo_url && !selectedEntry.checkin_signature_url && (
+                                            <p className="text-sm text-muted-foreground">Sem registros</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {selectedEntry.notes && (
+                                    <div className="pt-4 border-t">
+                                      <p className="text-sm font-medium text-muted-foreground">Observações</p>
+                                      <p className="mt-1">{selectedEntry.notes}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-3">
+                {filteredHistory.map((entry) => (
+                  <Card key={entry.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-sm truncate">{entry.tools.name}</h3>
+                          <p className="text-xs text-muted-foreground">{entry.profiles.full_name}</p>
+                          {entry.construction_site && (
+                            <p className="text-xs text-muted-foreground">Obra: {entry.construction_site}</p>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <Badge variant={entry.status === "checked_out" ? "default" : "secondary"} className="text-xs">
                             {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
                           </Badge>
                           {isOverdue(entry.estimated_return_date, entry.status) && (
-                            <Badge variant="destructive">Atrasado</Badge>
+                            <Badge variant="destructive" className="text-xs">Atrasado</Badge>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell>
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <p>Retirada: {format(new Date(entry.checkout_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                          {entry.checkin_date && (
+                            <p>Devolução: {format(new Date(entry.checkin_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
+                          )}
+                        </div>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
                               <Eye className="w-4 h-4 mr-1" />
                               Ver
-                              {hasMedia(entry) && (
-                                <span className="ml-1 flex gap-1">
-                                  {(entry.checkout_photo_url || entry.checkin_photo_url) && 
-                                    <Camera className="w-3 h-3" />}
-                                  {(entry.checkout_signature_url || entry.checkin_signature_url) && 
-                                    <FileSignature className="w-3 h-3" />}
-                                </span>
-                              )}
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -254,8 +404,7 @@ export default function AdminHistory() {
                             </DialogHeader>
                             {selectedEntry && (
                               <div className="space-y-6">
-                                {/* Basic Info */}
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div>
                                     <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                     <p className="font-semibold">{selectedEntry.tools.name}</p>
@@ -275,15 +424,10 @@ export default function AdminHistory() {
                                     </Badge>
                                   </div>
                                 </div>
-
-                                {/* Dates */}
-                                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
                                   <div>
                                     <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
                                     <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                      Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
-                                    </p>
                                   </div>
                                   <div>
                                     <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
@@ -292,83 +436,8 @@ export default function AdminHistory() {
                                         ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
                                         : "Não devolvida"}
                                     </p>
-                                    {selectedEntry.checked_in_by_profile && (
-                                      <p className="text-xs text-muted-foreground">
-                                        Por: {selectedEntry.checked_in_by_profile.full_name}
-                                      </p>
-                                    )}
                                   </div>
                                 </div>
-
-                                {/* Photos and Signatures */}
-                                {hasMedia(selectedEntry) && (
-                                  <div className="pt-4 border-t space-y-4">
-                                    <h4 className="font-semibold">Fotos e Assinaturas</h4>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      {/* Checkout Media */}
-                                      <div className="space-y-2">
-                                        <p className="text-sm font-medium">Retirada</p>
-                                        {selectedEntry.checkout_photo_url && (
-                                          <div>
-                                            <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                            <img 
-                                              src={selectedEntry.checkout_photo_url} 
-                                              alt="Foto na retirada" 
-                                              className="w-full h-40 object-cover rounded-lg"
-                                            />
-                                          </div>
-                                        )}
-                                        {selectedEntry.checkout_signature_url && (
-                                          <div>
-                                            <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
-                                            <div className="border rounded-lg p-2 bg-white">
-                                              <img 
-                                                src={selectedEntry.checkout_signature_url} 
-                                                alt="Assinatura na retirada" 
-                                                className="w-full h-20 object-contain"
-                                              />
-                                            </div>
-                                          </div>
-                                        )}
-                                        {!selectedEntry.checkout_photo_url && !selectedEntry.checkout_signature_url && (
-                                          <p className="text-sm text-muted-foreground">Sem registros</p>
-                                        )}
-                                      </div>
-
-                                      {/* Checkin Media */}
-                                      <div className="space-y-2">
-                                        <p className="text-sm font-medium">Devolução</p>
-                                        {selectedEntry.checkin_photo_url && (
-                                          <div>
-                                            <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                            <img 
-                                              src={selectedEntry.checkin_photo_url} 
-                                              alt="Foto na devolução" 
-                                              className="w-full h-40 object-cover rounded-lg"
-                                            />
-                                          </div>
-                                        )}
-                                        {selectedEntry.checkin_signature_url && (
-                                          <div>
-                                            <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
-                                            <div className="border rounded-lg p-2 bg-white">
-                                              <img 
-                                                src={selectedEntry.checkin_signature_url} 
-                                                alt="Assinatura na devolução" 
-                                                className="w-full h-20 object-contain"
-                                              />
-                                            </div>
-                                          </div>
-                                        )}
-                                        {!selectedEntry.checkin_photo_url && !selectedEntry.checkin_signature_url && (
-                                          <p className="text-sm text-muted-foreground">Sem registros</p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Notes */}
                                 {selectedEntry.notes && (
                                   <div className="pt-4 border-t">
                                     <p className="text-sm font-medium text-muted-foreground">Observações</p>
@@ -379,12 +448,12 @@ export default function AdminHistory() {
                             )}
                           </DialogContent>
                         </Dialog>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

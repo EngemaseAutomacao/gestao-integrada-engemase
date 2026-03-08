@@ -270,11 +270,11 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Gerenciar Usuários</h2>
-          <p className="text-muted-foreground">Administre usuários e permissões</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Usuários</h2>
+          <p className="text-sm text-muted-foreground">Administre usuários e permissões</p>
         </div>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -399,81 +399,105 @@ export default function AdminUsers() {
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                   <TableHead>Nome</TableHead>
-                   <TableHead>Email</TableHead>
-                   <TableHead>Categoria</TableHead>
-                   <TableHead>Função</TableHead>
-                   <TableHead>Status</TableHead>
-                   <TableHead className="text-right">Ações</TableHead>
-                 </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                       <TableHead>Nome</TableHead>
+                       <TableHead>Email</TableHead>
+                       <TableHead>Categoria</TableHead>
+                       <TableHead>Função</TableHead>
+                       <TableHead>Status</TableHead>
+                       <TableHead className="text-right">Ações</TableHead>
+                     </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.full_name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{getCategoryBadge(user.category)}</TableCell>
+                         <TableCell>{getRoleBadge(user.role)}</TableCell>
+                         <TableCell>
+                           {user.approved ? (
+                             <Badge className="bg-green-500/10 text-green-600 gap-1">
+                               <CheckCircle className="w-3 h-3" />
+                               Aprovado
+                             </Badge>
+                           ) : (
+                             <Badge className="bg-yellow-500/10 text-yellow-600 gap-1">
+                               <Clock className="w-3 h-3" />
+                               Pendente
+                             </Badge>
+                           )}
+                         </TableCell>
+                         <TableCell className="text-right">
+                           <div className="flex justify-end gap-2">
+                             {!user.approved && (
+                               <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} title="Aprovar usuário" className="text-green-600 hover:text-green-700">
+                                 <CheckCircle className="w-4 h-4" />
+                               </Button>
+                             )}
+                            <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)} title="Editar usuário">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleOpenPasswordDialog(user)} title="Alterar senha">
+                              <Key className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)} disabled={user.id === profile.id} title="Excluir usuário">
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-3">
                 {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.full_name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{getCategoryBadge(user.category)}</TableCell>
-                     <TableCell>{getRoleBadge(user.role)}</TableCell>
-                     <TableCell>
-                       {user.approved ? (
-                         <Badge className="bg-green-500/10 text-green-600 gap-1">
-                           <CheckCircle className="w-3 h-3" />
-                           Aprovado
-                         </Badge>
-                       ) : (
-                         <Badge className="bg-yellow-500/10 text-yellow-600 gap-1">
-                           <Clock className="w-3 h-3" />
-                           Pendente
-                         </Badge>
-                       )}
-                     </TableCell>
-                     <TableCell className="text-right">
-                       <div className="flex justify-end gap-2">
-                         {!user.approved && (
-                           <Button
-                             variant="ghost"
-                             size="sm"
-                             onClick={() => handleApproveUser(user.id)}
-                             title="Aprovar usuário"
-                             className="text-green-600 hover:text-green-700"
-                           >
-                             <CheckCircle className="w-4 h-4" />
-                           </Button>
-                         )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenEditDialog(user)}
-                          title="Editar usuário"
-                        >
+                  <Card key={user.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-sm truncate">{user.full_name}</h3>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                        {user.approved ? (
+                          <Badge className="bg-green-500/10 text-green-600 text-xs shrink-0">Aprovado</Badge>
+                        ) : (
+                          <Badge className="bg-yellow-500/10 text-yellow-600 text-xs shrink-0">Pendente</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        {getCategoryBadge(user.category)}
+                        {getRoleBadge(user.role)}
+                      </div>
+                      <div className="flex justify-end gap-1 mt-3 pt-3 border-t">
+                        {!user.approved && (
+                          <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} className="text-green-600">
+                            <CheckCircle className="w-4 h-4" />
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenPasswordDialog(user)}
-                          title="Alterar senha"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleOpenPasswordDialog(user)}>
                           <Key className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteUser(user.id)}
-                          disabled={user.id === profile.id}
-                          title="Excluir usuário"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)} disabled={user.id === profile.id}>
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </CardContent>
+                  </Card>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

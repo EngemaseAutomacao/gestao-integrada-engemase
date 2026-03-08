@@ -78,10 +78,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -146,11 +146,11 @@ export default function Dashboard() {
             ) : (
               filteredTools.map((tool) => (
                 <Card key={tool.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{tool.name}</h3>
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-sm sm:text-base">{tool.name}</h3>
                           {tool.employee_only && (
                             <Badge variant="outline" className="text-xs">
                               Apenas Funcionários
@@ -158,19 +158,20 @@ export default function Dashboard() {
                           )}
                         </div>
                         {tool.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
                             {tool.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-4 mt-2 text-sm">
+                        <div className="flex items-center gap-4 mt-2 text-xs sm:text-sm">
                           <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
                             Disponível: {tool.quantity_available}/{tool.quantity_total}
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 self-end sm:self-start">
                         <Button
                           size="sm"
+                          className="text-xs sm:text-sm"
                           onClick={() => handleCheckout(tool.id)}
                           disabled={tool.quantity_available === 0}
                         >
@@ -179,6 +180,7 @@ export default function Dashboard() {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="text-xs sm:text-sm"
                           onClick={() => handleCheckin(tool.id)}
                         >
                           Devolver
