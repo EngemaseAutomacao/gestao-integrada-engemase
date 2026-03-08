@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 interface Tool {
   id: string;
   name: string;
+  tag: string | null;
   description: string | null;
   quantity_available: number;
   quantity_total: number;
@@ -58,7 +59,8 @@ export default function Dashboard() {
 
   const filteredTools = tools.filter((tool) =>
     tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    tool.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.tag?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleCheckout = (toolId: string) => {
@@ -151,6 +153,11 @@ export default function Dashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-semibold text-sm sm:text-base">{tool.name}</h3>
+                          {tool.tag && (
+                            <Badge variant="secondary" className="text-xs">
+                              {tool.tag}
+                            </Badge>
+                          )}
                           {tool.employee_only && (
                             <Badge variant="outline" className="text-xs">
                               Apenas Funcionários
