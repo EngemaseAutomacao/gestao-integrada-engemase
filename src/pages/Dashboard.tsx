@@ -152,6 +152,11 @@ export default function Dashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-semibold text-sm sm:text-base">{tool.name}</h3>
+                          {tool.tag && (
+                            <Badge variant="secondary" className="text-xs">
+                              {tool.tag}
+                            </Badge>
+                          )}
                           {tool.employee_only && (
                             <Badge variant="outline" className="text-xs">
                               Apenas Funcionários
