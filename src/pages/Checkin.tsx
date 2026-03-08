@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
-import { SignaturePad } from "@/components/SignaturePad";
+
+
 import { PhotoCapture } from "@/components/PhotoCapture";
 
 interface Checkout {
@@ -38,11 +39,9 @@ export default function Checkin() {
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
   const toolIdParam = searchParams.get("toolId");
 
-  // Photo and signature states
+  // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
-  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
-  const [signatureConfirmed, setSignatureConfirmed] = useState(false);
 
   useEffect(() => {
     loadCheckouts();
@@ -132,8 +131,8 @@ export default function Checkin() {
       return;
     }
 
-    if (!signatureConfirmed) {
-      toast.error("Por favor, assine para confirmar a devolução");
+    if (!photoConfirmed) {
+      toast.error("Por favor, tire uma foto da ferramenta");
       return;
     }
 
@@ -141,14 +140,9 @@ export default function Checkin() {
 
     try {
       let photoUrl: string | null = null;
-      let signatureUrl: string | null = null;
 
       if (photoDataUrl) {
         photoUrl = await uploadImage(photoDataUrl, "photo");
-      }
-
-      if (signatureDataUrl) {
-        signatureUrl = await uploadImage(signatureDataUrl, "signature");
       }
 
       const checkinData = {
@@ -159,7 +153,6 @@ export default function Checkin() {
           checked_in_by: profile!.id,
           notes: notes.trim() ? notes : null,
           checkin_photo_url: photoUrl,
-          checkin_signature_url: signatureUrl,
         },
       };
 
@@ -192,12 +185,6 @@ export default function Checkin() {
     setPhotoDataUrl(dataUrl);
     setPhotoConfirmed(true);
     toast.success("Foto confirmada!");
-  };
-
-  const handleSignatureSave = (dataUrl: string) => {
-    setSignatureDataUrl(dataUrl);
-    setSignatureConfirmed(true);
-    toast.success("Assinatura confirmada!");
   };
 
   return (
@@ -284,39 +271,8 @@ export default function Checkin() {
                 )}
               </div>
 
-              {/* Signature Pad */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Assinatura Digital *</Label>
-                  {signatureConfirmed && (
-                    <Badge variant="secondary" className="gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Confirmada
-                    </Badge>
-                  )}
-                </div>
-                {!signatureConfirmed ? (
-                  <SignaturePad onSave={handleSignatureSave} title="Assine para confirmar a devolução" />
-                ) : (
-                  <div className="relative">
-                    <div className="border rounded-lg p-2 bg-white">
-                      <img src={signatureDataUrl!} alt="Assinatura" className="w-full h-24 object-contain" />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => { setSignatureConfirmed(false); setSignatureDataUrl(null); }}
-                    >
-                      Refazer
-                    </Button>
-                  </div>
-                )}
-              </div>
-
               <div className="flex flex-col gap-3">
-                <Button type="submit" disabled={loading || !selectedCheckoutId || !signatureConfirmed} className="w-full">
+                <Button type="submit" disabled={loading || !selectedCheckoutId || !photoConfirmed} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
