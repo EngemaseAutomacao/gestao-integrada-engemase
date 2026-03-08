@@ -77,10 +77,10 @@ export default function Tools() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Catálogo de Ferramentas</h2>
-        <p className="text-muted-foreground">Visualize todas as ferramentas disponíveis</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Catálogo de Ferramentas</h2>
+        <p className="text-sm text-muted-foreground">Visualize todas as ferramentas disponíveis</p>
       </div>
 
       <Card>
@@ -106,7 +106,7 @@ export default function Tools() {
               Nenhuma ferramenta encontrada
             </p>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
               {filteredTools.map((tool) => (
                 <Card key={tool.id}>
                   <CardContent className="p-4">
