@@ -1,5 +1,5 @@
-const CACHE_NAME = 'engemase-tools-v5';
-const DYNAMIC_CACHE = 'engemase-dynamic-v5';
+const CACHE_NAME = 'engemase-tools-v6';
+const DYNAMIC_CACHE = 'engemase-dynamic-v6';
 
 const urlsToCache = [
   '/',
@@ -112,6 +112,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -122,6 +123,11 @@ self.addEventListener('activate', (event) => {
     })
   );
 });
+
+// Periodically check for SW updates (every 30 minutes)
+setInterval(() => {
+  self.registration.update().catch(() => {});
+}, 30 * 60 * 1000);
 
 // Handle push notifications
 self.addEventListener('push', (event) => {
