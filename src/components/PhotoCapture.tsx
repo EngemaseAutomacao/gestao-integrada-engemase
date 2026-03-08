@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, RotateCcw, Check, Upload } from "lucide-react";
+import { Camera, RotateCcw, Check } from "lucide-react";
 
 interface PhotoCaptureProps {
   onCapture: (photoDataUrl: string) => void;
@@ -11,7 +11,7 @@ interface PhotoCaptureProps {
 export function PhotoCapture({ onCapture, title = "Foto da Ferramenta" }: PhotoCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -34,7 +34,7 @@ export function PhotoCapture({ onCapture, title = "Foto da Ferramenta" }: PhotoC
       setIsCapturing(true);
     } catch (err) {
       console.error("Error accessing camera:", err);
-      setError("Não foi possível acessar a câmera. Use o botão de upload.");
+      setError("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
     }
   }, []);
 
@@ -63,16 +63,6 @@ export function PhotoCapture({ onCapture, title = "Foto da Ferramenta" }: PhotoC
     stopCamera();
   }, [stopCamera]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setCapturedPhoto(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
 
   const retake = () => {
     setCapturedPhoto(null);
@@ -115,18 +105,9 @@ export function PhotoCapture({ onCapture, title = "Foto da Ferramenta" }: PhotoC
         </div>
         
         <canvas ref={canvasRef} className="hidden" />
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileUpload}
-          className="hidden"
-        />
 
         <div className="flex gap-2">
           {!isCapturing && !capturedPhoto && (
-            <>
               <Button
                 type="button"
                 variant="outline"
@@ -135,19 +116,8 @@ export function PhotoCapture({ onCapture, title = "Foto da Ferramenta" }: PhotoC
                 className="flex-1"
               >
                 <Camera className="w-4 h-4 mr-2" />
-                Câmera
+                Abrir Câmera
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload
-              </Button>
-            </>
           )}
           
           {isCapturing && (
