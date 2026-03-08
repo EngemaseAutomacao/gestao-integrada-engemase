@@ -59,7 +59,8 @@ export default function Dashboard() {
 
   const filteredTools = tools.filter((tool) =>
     tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    tool.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.tag?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleCheckout = (toolId: string) => {
