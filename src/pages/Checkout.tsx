@@ -204,6 +204,7 @@ export default function Checkout() {
             <div className="space-y-2">
               <Label htmlFor="tool">Ferramenta *</Label>
               <Select
+                key={selectedToolId || "empty"}
                 value={selectedToolId}
                 onValueChange={setSelectedToolId}
                 disabled={loadingTools}
