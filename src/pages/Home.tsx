@@ -66,6 +66,15 @@ export default function Home() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
 
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    setIsIOS(/iPad|iPhone|iPod/.test(ua));
+    setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
+  }, []);
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-6">
       <div className="text-center mb-8">
@@ -103,6 +112,18 @@ export default function Home() {
           />
         )}
       </div>
+
+      {!isStandalone && (
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <InstallPWA />
+          {isIOS && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-3 max-w-sm text-center">
+              <Share className="w-4 h-4 shrink-0" />
+              <span>No iPhone, toque em <strong>Compartilhar</strong> e depois <strong>"Adicionar à Tela de Início"</strong></span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
