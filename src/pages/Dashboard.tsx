@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 interface Tool {
   id: string;
   name: string;
+  tag: string | null;
   description: string | null;
   quantity_available: number;
   quantity_total: number;
