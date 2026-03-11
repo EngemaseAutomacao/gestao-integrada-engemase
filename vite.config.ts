@@ -23,14 +23,8 @@ export default defineConfig(({ mode }) => ({
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
   optimizeDeps: {
-    include: [
-      "react",
-      "react-dom",
-      "react-dom/client",
-      "react/jsx-runtime",
-      "@tanstack/react-query",
-    ],
-    force: true,
+    // Avoid pre-bundling react-query to prevent duplicate React dispatcher in preview
+    exclude: ["@tanstack/react-query"],
   },
 }));
 
