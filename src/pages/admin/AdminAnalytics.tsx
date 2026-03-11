@@ -32,6 +32,12 @@ interface CategoryData {
   value: number;
 }
 
+interface UserRankingData {
+  name: string;
+  checkouts: number;
+  category: string;
+}
+
 interface AnalyticsMetrics {
   totalCheckouts: number;
   averageUsageDays: number;
