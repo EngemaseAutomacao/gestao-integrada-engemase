@@ -78,8 +78,8 @@
     </div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Register service worker for PWA
-      if ('serviceWorker' in navigator) {
+      // Register service worker for PWA — skip in editor preview to avoid stale cache issues
+      if ('serviceWorker' in navigator && !window.location.hostname.endsWith('lovableproject.com')) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
