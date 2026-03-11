@@ -19,6 +19,7 @@ import Checkin from "./pages/Checkin";
 import UserHistory from "./pages/UserHistory";
 import VehicleDashboard from "./pages/vehicles/VehicleDashboard";
 import VehicleCheckout from "./pages/vehicles/VehicleCheckout";
+import VehicleHistory from "./pages/vehicles/VehicleHistory";
 import VehicleCheckin from "./pages/vehicles/VehicleCheckin";
 import VehicleList from "./pages/vehicles/VehicleList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
