@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 // VAPID public key from environment - this is safe to expose in frontend
-const VAPID_PUBLIC_KEY = "BPWmnkrLExvOSYROSkyfPjumwQ5XK2jpJek7-A6z-IYDtCAXEVJNQ6i4-dd-DwJmaCIYk0GVRUmT_iITyo8pJB0";
+const VAPID_PUBLIC_KEY = "BPHD6GjIr_Uhqq4_kbQGbkQWrILtfsVUCjfhjiMHS8z7n7MeiFamCRRnHmYm6tqGIvXmKbptq3Ct3oM7OBLfeas";
 
 // Helper to access pushManager with proper typing
 const getPushManager = (reg: ServiceWorkerRegistration) => (reg as any).pushManager;
