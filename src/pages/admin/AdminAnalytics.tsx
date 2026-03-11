@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench } from "lucide-react";
+import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
@@ -30,6 +30,12 @@ interface MonthlyData {
 interface CategoryData {
   name: string;
   value: number;
+}
+
+interface UserRankingData {
+  name: string;
+  checkouts: number;
+  category: string;
 }
 
 interface AnalyticsMetrics {
@@ -61,7 +67,7 @@ export default function AdminAnalytics() {
   const [delaysByUser, setDelaysByUser] = useState<DelayRateData[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
-
+  const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
   useEffect(() => {
     loadAnalytics();
   }, []);
@@ -242,6 +248,22 @@ export default function AdminAnalytics() {
         { name: "Funcionários", value: employeeCheckouts },
         { name: "Terceirizados", value: thirdPartyCheckouts },
       ]);
+
+      // User ranking - top 10 users by checkouts
+      const userCounts: Record<string, { count: number; category: string }> = {};
+      checkouts?.forEach(c => {
+        const userName = c.profiles?.full_name || "Desconhecido";
+        const userCat = c.profiles?.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
+        if (!userCounts[userName]) {
+          userCounts[userName] = { count: 0, category: userCat };
+        }
+        userCounts[userName].count += 1;
+      });
+      const userRankingData = Object.entries(userCounts)
+        .map(([name, data]) => ({ name, checkouts: data.count, category: data.category }))
+        .sort((a, b) => b.checkouts - a.checkouts)
+        .slice(0, 10);
+      setUserRanking(userRankingData);
 
     } catch (error) {
       console.error("Error loading analytics:", error);
@@ -456,6 +478,78 @@ export default function AdminAnalytics() {
                 />
               </PieChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Ranking Section */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Top Tools Ranking */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              Ranking de Ferramentas
+            </CardTitle>
+            <CardDescription>Ferramentas mais retiradas do sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {topTools.slice(0, 10).map((tool, index) => (
+                <div key={tool.name} className="flex items-center gap-3">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                    index === 0 ? "bg-yellow-500/20 text-yellow-600" :
+                    index === 1 ? "bg-gray-300/30 text-gray-600" :
+                    index === 2 ? "bg-orange-400/20 text-orange-600" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate capitalize">{tool.name.toLowerCase()}</p>
+                  </div>
+                  <span className="text-sm font-bold text-primary">{tool.count} usos</span>
+                </div>
+              ))}
+              {topTools.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">Sem dados disponíveis</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Users Ranking */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+              Ranking de Usuários
+            </CardTitle>
+            <CardDescription>Usuários que mais utilizam o sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {userRanking.map((user, index) => (
+                <div key={user.name} className="flex items-center gap-3">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                    index === 0 ? "bg-yellow-500/20 text-yellow-600" :
+                    index === 1 ? "bg-gray-300/30 text-gray-600" :
+                    index === 2 ? "bg-orange-400/20 text-orange-600" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
+                    {index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{user.name}</p>
+                    <p className="text-xs text-muted-foreground">{user.category}</p>
+                  </div>
+                  <span className="text-sm font-bold text-primary">{user.checkouts} retiradas</span>
+                </div>
+              ))}
+              {userRanking.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">Sem dados disponíveis</p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
