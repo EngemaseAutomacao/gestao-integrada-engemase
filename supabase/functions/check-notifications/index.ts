@@ -52,6 +52,15 @@ Deno.serve(async (req) => {
       console.log('Return reminders check completed')
     }
 
+    // Check for maintenance reminders
+    console.log('Checking maintenance reminders...')
+    const { error: maintenanceError } = await supabaseClient.rpc('check_maintenance_reminders')
+    if (maintenanceError) {
+      console.error('Error checking maintenance reminders:', maintenanceError)
+    } else {
+      console.log('Maintenance reminders check completed')
+    }
+
     console.log('All notification checks completed successfully')
 
     return new Response(

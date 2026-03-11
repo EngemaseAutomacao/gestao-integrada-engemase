@@ -67,7 +67,7 @@ export default function AdminAnalytics() {
   const [delaysByUser, setDelaysByUser] = useState<DelayRateData[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
-
+  const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
   useEffect(() => {
     loadAnalytics();
   }, []);
