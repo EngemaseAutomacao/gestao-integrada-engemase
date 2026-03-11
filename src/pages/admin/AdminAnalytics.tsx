@@ -249,6 +249,22 @@ export default function AdminAnalytics() {
         { name: "Terceirizados", value: thirdPartyCheckouts },
       ]);
 
+      // User ranking - top 10 users by checkouts
+      const userCounts: Record<string, { count: number; category: string }> = {};
+      checkouts?.forEach(c => {
+        const userName = c.profiles?.full_name || "Desconhecido";
+        const userCat = c.profiles?.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
+        if (!userCounts[userName]) {
+          userCounts[userName] = { count: 0, category: userCat };
+        }
+        userCounts[userName].count += 1;
+      });
+      const userRankingData = Object.entries(userCounts)
+        .map(([name, data]) => ({ name, checkouts: data.count, category: data.category }))
+        .sort((a, b) => b.checkouts - a.checkouts)
+        .slice(0, 10);
+      setUserRanking(userRankingData);
+
     } catch (error) {
       console.error("Error loading analytics:", error);
     } finally {
