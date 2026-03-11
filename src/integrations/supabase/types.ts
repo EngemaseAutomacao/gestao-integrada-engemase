@@ -595,6 +595,7 @@ export type Database = {
     }
     Functions: {
       check_low_stock: { Args: never; Returns: undefined }
+      check_maintenance_reminders: { Args: never; Returns: undefined }
       check_overdue_tools: { Args: never; Returns: undefined }
       check_return_reminders: { Args: never; Returns: undefined }
       get_email_from_username: { Args: { _username: string }; Returns: string }

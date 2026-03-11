@@ -74,6 +74,7 @@ export default function Layout({ children }: LayoutProps) {
   const veiculosMenuItems = [
     { title: "Dashboard", url: "/veiculos", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
+    { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
   ];
 
   const adminMenuItems = [

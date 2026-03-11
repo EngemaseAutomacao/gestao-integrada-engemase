@@ -65,6 +65,7 @@ const App = () => (
                 <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
                 <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                 <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
+                <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
                 {/* Legacy routes */}
                 <Route path="/tools" element={<Layout><Tools /></Layout>} />
                 <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
