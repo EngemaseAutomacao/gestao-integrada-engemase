@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Package, Search, ExternalLink } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Package, Search, ExternalLink, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -16,11 +17,20 @@ interface Tool {
   description: string | null;
   tag: string | null;
   brand: string | null;
+  condition: string | null;
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
   image_url: string | null;
 }
+
+const conditionLabels: Record<string, string> = {
+  excellent: "Excelente",
+  good: "Bom",
+  fair: "Regular",
+  poor: "Ruim",
+  needs_maintenance: "Precisa Manutenção",
+};
 
 export default function Tools() {
   const { profile } = useAuth();
@@ -29,6 +39,11 @@ export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [brandFilter, setBrandFilter] = useState<string>("all");
+  const [conditionFilter, setConditionFilter] = useState<string>("all");
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     loadTools();
@@ -43,7 +58,6 @@ export default function Tools() {
 
       if (error) throw error;
 
-      // Filter out employee-only tools for third-party users
       const filteredTools = data?.filter(tool => {
         if (profile?.category === "third_party" && tool.employee_only) {
           return false;
@@ -61,12 +75,45 @@ export default function Tools() {
     }
   };
 
-  const filteredTools = tools.filter((tool) =>
-    tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.tag?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.brand?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const brands = useMemo(() => {
+    const uniqueBrands = [...new Set(tools.map(t => t.brand).filter(Boolean))] as string[];
+    return uniqueBrands.sort();
+  }, [tools]);
+
+  const conditions = useMemo(() => {
+    const uniqueConditions = [...new Set(tools.map(t => t.condition).filter(Boolean))] as string[];
+    return uniqueConditions.sort();
+  }, [tools]);
+
+  const hasActiveFilters = brandFilter !== "all" || conditionFilter !== "all" || availabilityFilter !== "all" || categoryFilter !== "all";
+
+  const clearFilters = () => {
+    setBrandFilter("all");
+    setConditionFilter("all");
+    setAvailabilityFilter("all");
+    setCategoryFilter("all");
+  };
+
+  const filteredTools = tools.filter((tool) => {
+    const matchesSearch =
+      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.tag?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.brand?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesBrand = brandFilter === "all" || tool.brand === brandFilter;
+    const matchesCondition = conditionFilter === "all" || tool.condition === conditionFilter;
+    const matchesAvailability =
+      availabilityFilter === "all" ||
+      (availabilityFilter === "available" && tool.quantity_available > 0) ||
+      (availabilityFilter === "unavailable" && tool.quantity_available === 0);
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (categoryFilter === "employee_only" && tool.employee_only) ||
+      (categoryFilter === "all_users" && !tool.employee_only);
+
+    return matchesSearch && matchesBrand && matchesCondition && matchesAvailability && matchesCategory;
+  });
 
   if (loading) {
     return (
@@ -87,19 +134,101 @@ export default function Tools() {
         <CardHeader>
           <CardTitle>Ferramentas Disponíveis</CardTitle>
           <CardDescription>
-            Total: {tools.length} ferramentas | Disponíveis: {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
+            Total: {tools.length} ferramentas | Mostrando: {filteredTools.length} | Disponíveis: {filteredTools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome, descrição, TAG ou marca..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome, descrição, TAG ou marca..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              variant={showFilters ? "default" : "outline"}
+              size="icon"
+              onClick={() => setShowFilters(!showFilters)}
+              className="relative"
+            >
+              <Filter className="w-4 h-4" />
+              {hasActiveFilters && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full" />
+              )}
+            </Button>
           </div>
+
+          {showFilters && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 p-4 bg-muted/50 rounded-lg border">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Marca</label>
+                <Select value={brandFilter} onValueChange={setBrandFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas as marcas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as marcas</SelectItem>
+                    {brands.map(brand => (
+                      <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Condição</label>
+                <Select value={conditionFilter} onValueChange={setConditionFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas as condições" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as condições</SelectItem>
+                    {conditions.map(condition => (
+                      <SelectItem key={condition} value={condition}>
+                        {conditionLabels[condition] || condition}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Disponibilidade</label>
+                <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="available">Disponível</SelectItem>
+                    <SelectItem value="unavailable">Indisponível</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-muted-foreground">Acesso</label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="employee_only">Apenas Funcionários</SelectItem>
+                    <SelectItem value="all_users">Todos os Usuários</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {hasActiveFilters && (
+                <div className="sm:col-span-2 lg:col-span-4">
+                  <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+                    <X className="w-3 h-3" />
+                    Limpar filtros
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           {filteredTools.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
@@ -128,6 +257,9 @@ export default function Tools() {
                             )}
                             {tool.brand && (
                               <p>Marca: {tool.brand}</p>
+                            )}
+                            {tool.condition && (
+                              <p>Condição: {conditionLabels[tool.condition] || tool.condition}</p>
                             )}
                           </div>
                         </div>
