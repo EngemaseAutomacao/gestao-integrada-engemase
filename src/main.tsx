@@ -9,6 +9,36 @@ import { APP_VERSION } from "./version.ts";
 (function checkVersionBeforeMount() {
   const VERSION_KEY = "engemase_app_version";
   const stored = localStorage.getItem(VERSION_KEY);
+  const isEditorPreview = window.location.hostname.endsWith("lovableproject.com");
+
+  const unregisterAllServiceWorkers = () => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+        .catch(() => {});
+    }
+  };
+
+  const clearAllCaches = () => {
+    if ("caches" in window) {
+      caches.keys().then((names) => names.forEach((n) => caches.delete(n))).catch(() => {});
+    }
+  };
+
+  // In editor preview, always disable SW/cache to avoid stale Vite chunks and duplicate React runtime
+  if (isEditorPreview) {
+    clearAllCaches();
+    unregisterAllServiceWorkers();
+    window.addEventListener(
+      "load",
+      () => {
+        unregisterAllServiceWorkers();
+        setTimeout(unregisterAllServiceWorkers, 500);
+      },
+      { once: true }
+    );
+  }
 
   if (!stored) {
     localStorage.setItem(VERSION_KEY, APP_VERSION);
@@ -16,26 +46,19 @@ import { APP_VERSION } from "./version.ts";
     console.log(`[Version] Update: ${stored} → ${APP_VERSION}`);
     localStorage.setItem(VERSION_KEY, APP_VERSION);
 
-    if ("caches" in window) {
-      caches.keys().then((names) => names.forEach((n) => caches.delete(n)));
-    }
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .getRegistrations()
-        .then((regs) => regs.forEach((r) => r.unregister()));
-    }
+    clearAllCaches();
+    unregisterAllServiceWorkers();
 
     window.location.reload();
     return; // don't mount React if we're going to reload
   }
 
-  // Force SW update check on every page load
-  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+  // Outside editor preview, keep SW auto-update behavior for PWA
+  if (!isEditorPreview && "serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.ready.then((reg) => {
       reg.update().catch(() => {});
     });
 
-    // Listen for new SW and auto-activate it
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       console.log("[SW] New version activated, reloading...");
       window.location.reload();
