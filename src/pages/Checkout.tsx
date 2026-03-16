@@ -22,6 +22,7 @@ interface Tool {
   description: string | null;
   quantity_available: number;
   employee_only: boolean;
+  tag: string | null;
 }
 
 export default function Checkout() {
