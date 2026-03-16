@@ -22,6 +22,7 @@ interface Tool {
   description: string | null;
   quantity_available: number;
   employee_only: boolean;
+  tag: string | null;
 }
 
 export default function Checkout() {
@@ -32,6 +33,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
+  const [selectedTag, setSelectedTag] = useState<string>("");
   const [constructionSite, setConstructionSite] = useState("");
   const [customConstructionSite, setCustomConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
@@ -42,6 +44,11 @@ export default function Checkout() {
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
+
+  // Get tags for selected tool
+  const selectedTool = tools.find(t => t.id === selectedToolId);
+  const toolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+  const hasMultipleTags = toolTags.length > 1;
 
   const { data: constructionSites } = useQuery({
     queryKey: ["construction-sites-active"],
@@ -137,6 +144,11 @@ export default function Checkout() {
       return;
     }
 
+    if (hasMultipleTags && !selectedTag) {
+      toast.error("Selecione qual TAG você está retirando");
+      return;
+    }
+
     const finalSite = constructionSite === "__custom__" ? customConstructionSite.trim() : constructionSite;
     if (!finalSite) {
       toast.error("Informe a obra de destino");
@@ -171,6 +183,7 @@ export default function Checkout() {
         estimated_return_date: new Date(estimatedReturnDate).toISOString(),
         notes: notes.trim() || null,
         checkout_photo_url: photoUrl,
+        selected_tag: hasMultipleTags ? selectedTag : (toolTags.length === 1 ? toolTags[0] : null),
       };
 
       if (!isOnline) {
@@ -222,7 +235,7 @@ export default function Checkout() {
               <Select
                 key={selectedToolId || "empty"}
                 value={selectedToolId}
-                onValueChange={setSelectedToolId}
+                onValueChange={(val) => { setSelectedToolId(val); setSelectedTag(""); }}
                 disabled={loadingTools}
               >
                 <SelectTrigger>
@@ -238,6 +251,24 @@ export default function Checkout() {
               </Select>
             </div>
 
+            {/* Tag Selection for tools with multiple tags */}
+            {selectedToolId && hasMultipleTags && (
+              <div className="space-y-2">
+                <Label>Selecione a TAG *</Label>
+                <Select value={selectedTag} onValueChange={setSelectedTag}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione qual TAG está retirando" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {toolTags.map((tag) => (
+                      <SelectItem key={tag} value={tag}>
+                        TAG {tag}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="construction_site">Obra de Destino *</Label>
               <Select value={constructionSite} onValueChange={setConstructionSite}>
@@ -319,7 +350,7 @@ export default function Checkout() {
             <div className="flex gap-3">
               <Button 
                 type="submit" 
-                disabled={loading || !selectedToolId || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate || !photoConfirmed} 
+                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate || !photoConfirmed} 
                 className="flex-1"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
