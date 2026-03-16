@@ -438,8 +438,9 @@ export default function AdminUsers() {
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.full_name}</TableCell>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{getCategoryBadge(user.category)}</TableCell>
-                         <TableCell>{getRoleBadge(user.role)}</TableCell>
+                         <TableCell>{getCategoryBadge(user.category)}</TableCell>
+                         <TableCell>{user.company || "—"}</TableCell>
+                          <TableCell>{getRoleBadge(user.role)}</TableCell>
                          <TableCell>
                            {user.approved ? (
                              <Badge className="bg-green-500/10 text-green-600 gap-1">
