@@ -1,0 +1,1 @@
+ALTER TABLE public.tool_checkouts ADD COLUMN selected_tag text NULL;

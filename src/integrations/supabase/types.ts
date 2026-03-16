@@ -317,6 +317,7 @@ export type Database = {
           estimated_return_date: string | null
           id: string
           notes: string | null
+          selected_tag: string | null
           status: Database["public"]["Enums"]["checkout_status"]
           tool_id: string
           updated_at: string
@@ -336,6 +337,7 @@ export type Database = {
           estimated_return_date?: string | null
           id?: string
           notes?: string | null
+          selected_tag?: string | null
           status?: Database["public"]["Enums"]["checkout_status"]
           tool_id: string
           updated_at?: string
@@ -355,6 +357,7 @@ export type Database = {
           estimated_return_date?: string | null
           id?: string
           notes?: string | null
+          selected_tag?: string | null
           status?: Database["public"]["Enums"]["checkout_status"]
           tool_id?: string
           updated_at?: string
