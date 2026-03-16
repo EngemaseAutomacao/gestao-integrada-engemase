@@ -13,6 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 function InstallPWACard({ isIOS }: { isIOS: boolean }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showManualInstructions, setShowManualInstructions] = useState(false);
 
   useEffect(() => {
     if (isIOS) return;
@@ -25,11 +26,18 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
   }, [isIOS]);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === "accepted") {
+        setDeferredPrompt(null);
+      }
+    } else {
+      setShowManualInstructions(true);
+    }
   };
+
+  const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|OPR/.test(navigator.userAgent);
 
   return (
     <Card
@@ -44,7 +52,11 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
         <CardDescription>
           {isIOS
             ? "Toque em Compartilhar e \"Adicionar à Tela de Início\""
-            : "Instale o app para acesso rápido pela tela inicial"}
+            : showManualInstructions
+              ? isChrome
+                ? "No menu do Chrome (⋮), toque em \"Instalar aplicativo\" ou \"Adicionar à tela inicial\""
+                : "No menu do navegador, toque em \"Adicionar à tela inicial\""
+              : "Instale o app para acesso rápido pela tela inicial"}
         </CardDescription>
       </CardHeader>
       <CardContent className="text-center">
@@ -52,6 +64,8 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
           <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
             <Share className="w-4 h-4" /> Compartilhar → Tela de Início
           </span>
+        ) : showManualInstructions ? (
+          <span className="text-sm text-muted-foreground">Use o menu do navegador ⋮</span>
         ) : (
           <span className="text-sm font-medium text-primary">Instalar →</span>
         )}
