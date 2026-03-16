@@ -125,6 +125,7 @@ export default function AdminUsers() {
       fullName: user.full_name,
       email: user.email,
       username: user.username || "",
+      company: user.company || "",
       category: user.category,
       role: user.role,
     });
