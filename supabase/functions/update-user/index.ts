@@ -10,6 +10,7 @@ interface UpdateUserRequest {
   fullName: string;
   email: string;
   username: string;
+  company?: string;
   category: 'engemase_employee' | 'third_party' | 'socios';
   role: 'admin' | 'employee' | 'third_party';
 }
@@ -88,6 +89,7 @@ Deno.serve(async (req) => {
         full_name: body.fullName,
         email: body.email,
         username: body.username,
+        company: body.company || null,
         category: body.category,
         role: body.role,
       })

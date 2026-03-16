@@ -24,6 +24,7 @@ interface Profile {
   role: "admin" | "employee" | "third_party";
   approved: boolean;
   first_login: boolean;
+  company: string | null;
 }
 
 export default function AdminUsers() {
@@ -48,6 +49,7 @@ export default function AdminUsers() {
     fullName: "",
     email: "",
     username: "",
+    company: "",
     category: "engemase_employee" as "engemase_employee" | "third_party" | "socios",
     role: "employee" as "admin" | "employee" | "third_party",
   });
@@ -123,6 +125,7 @@ export default function AdminUsers() {
       fullName: user.full_name,
       email: user.email,
       username: user.username || "",
+      company: user.company || "",
       category: user.category,
       role: user.role,
     });
@@ -143,6 +146,7 @@ export default function AdminUsers() {
           username: editFormData.username,
           category: editFormData.category,
           role: editFormData.role,
+          company: editFormData.company,
         },
       });
 
@@ -425,6 +429,7 @@ export default function AdminUsers() {
                        <TableHead>Nome</TableHead>
                        <TableHead>Email</TableHead>
                        <TableHead>Categoria</TableHead>
+                       <TableHead>Empresa</TableHead>
                        <TableHead>Função</TableHead>
                        <TableHead>Status</TableHead>
                        <TableHead>Troca de Senha</TableHead>
@@ -436,8 +441,9 @@ export default function AdminUsers() {
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.full_name}</TableCell>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{getCategoryBadge(user.category)}</TableCell>
-                         <TableCell>{getRoleBadge(user.role)}</TableCell>
+                         <TableCell>{getCategoryBadge(user.category)}</TableCell>
+                         <TableCell>{user.company || "—"}</TableCell>
+                          <TableCell>{getRoleBadge(user.role)}</TableCell>
                          <TableCell>
                            {user.approved ? (
                              <Badge className="bg-green-500/10 text-green-600 gap-1">
@@ -503,8 +509,9 @@ export default function AdminUsers() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        {getCategoryBadge(user.category)}
-                        {getRoleBadge(user.role)}
+                         {getCategoryBadge(user.category)}
+                         {user.company && <Badge variant="outline" className="text-xs">{user.company}</Badge>}
+                         {getRoleBadge(user.role)}
                        </div>
                        <div className="flex items-center justify-between mt-2 pt-2 border-t">
                          <div className="flex items-center gap-2">
@@ -580,6 +587,16 @@ export default function AdminUsers() {
                 value={editFormData.email}
                 onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editCompany">Empresa</Label>
+              <Input
+                id="editCompany"
+                value={editFormData.company}
+                onChange={(e) => setEditFormData({ ...editFormData, company: e.target.value })}
+                placeholder="Nome da empresa (terceirizados)"
               />
             </div>
 
