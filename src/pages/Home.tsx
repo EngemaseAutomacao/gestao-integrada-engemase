@@ -111,19 +111,11 @@ export default function Home() {
             variant="admin"
           />
         )}
-      </div>
 
-      {!isStandalone && (
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <InstallPWA />
-          {isIOS && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-3 max-w-sm text-center">
-              <Share className="w-4 h-4 shrink-0" />
-              <span>No iPhone, toque em <strong>Compartilhar</strong> e depois <strong>"Adicionar à Tela de Início"</strong></span>
-            </div>
-          )}
-        </div>
-      )}
+        {!isStandalone && (
+          <InstallPWACard isIOS={isIOS} />
+        )}
+      </div>
     </div>
   );
 }
