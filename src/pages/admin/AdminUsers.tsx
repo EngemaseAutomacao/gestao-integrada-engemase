@@ -427,6 +427,7 @@ export default function AdminUsers() {
                        <TableHead>Categoria</TableHead>
                        <TableHead>Função</TableHead>
                        <TableHead>Status</TableHead>
+                       <TableHead>Troca de Senha</TableHead>
                        <TableHead className="text-right">Ações</TableHead>
                      </TableRow>
                   </TableHeader>
