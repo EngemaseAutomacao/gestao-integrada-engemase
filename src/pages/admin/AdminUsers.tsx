@@ -49,6 +49,7 @@ export default function AdminUsers() {
     fullName: "",
     email: "",
     username: "",
+    company: "",
     category: "engemase_employee" as "engemase_employee" | "third_party" | "socios",
     role: "employee" as "admin" | "employee" | "third_party",
   });
