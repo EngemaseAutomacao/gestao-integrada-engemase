@@ -206,7 +206,7 @@ export function NotificationBell() {
 
       if (error) throw error;
       
-      console.log("Test notification result:", data);
+      
       
       // Close popover to see the toast
       setOpen(false);
