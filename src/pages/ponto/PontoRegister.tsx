@@ -32,7 +32,7 @@ function getToday() {
 export default function PontoRegister() {
   const { user } = useAuth();
   const { isOnline, addPendingOperation } = useOffline();
-  const { toast } = useToast();
+  
   const [todayEntries, setTodayEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
