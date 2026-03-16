@@ -272,7 +272,7 @@ export default function Checkin() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <Button type="submit" disabled={loading || !selectedCheckoutId || !photoConfirmed} className="w-full">
+                <Button type="submit" disabled={loading || !selectedCheckoutId} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
