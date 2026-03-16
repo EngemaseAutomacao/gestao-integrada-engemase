@@ -237,7 +237,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <OfflineIndicator />
-          <InstallPWA />
+          
           <ThemeToggle />
           <NotificationBell />
           
