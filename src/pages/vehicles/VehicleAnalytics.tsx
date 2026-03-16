@@ -1,36 +1,68 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Car, Fuel, TrendingUp, FileText, FileSpreadsheet } from "lucide-react";
+import { Loader2, Car, Fuel, TrendingUp, FileText, FileSpreadsheet, CalendarIcon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 export default function VehicleAnalytics() {
   const { profile } = useAuth();
+  const [periodFilter, setPeriodFilter] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
 
+  const getDateRange = (): { from: Date | null; to: Date | null } => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { from: subDays(now, 7), to: now };
+      case "30d": return { from: subDays(now, 30), to: now };
+      case "90d": return { from: subDays(now, 90), to: now };
+      case "6m": return { from: subMonths(now, 6), to: now };
+      case "1y": return { from: startOfYear(now), to: now };
+      case "custom": return { from: startDate || null, to: endDate || null };
+      default: return { from: null, to: null };
+    }
+  };
+
   const { data, isLoading } = useQuery({
-    queryKey: ["vehicle-analytics"],
+    queryKey: ["vehicle-analytics", periodFilter, startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const [checkoutsRes, vehiclesRes, fuelRes] = await Promise.all([
-        supabase.from("vehicle_checkouts").select(`
+      const range = getDateRange();
+      
+      let checkoutQuery = supabase.from("vehicle_checkouts").select(`
           id, checkout_date, checkin_date, km_checkout, km_checkin, status, destination, refueled,
           vehicles!inner(id, name, plate),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
-        `),
+        `);
+      
+      if (range.from) checkoutQuery = checkoutQuery.gte("checkout_date", range.from.toISOString());
+      if (range.to) checkoutQuery = checkoutQuery.lte("checkout_date", range.to.toISOString());
+
+      let fuelQuery = supabase.from("fuel_records").select(`*, vehicles(name, plate)`);
+      if (range.from) fuelQuery = fuelQuery.gte("refuel_date", range.from.toISOString());
+      if (range.to) fuelQuery = fuelQuery.lte("refuel_date", range.to.toISOString());
+
+      const [checkoutsRes, vehiclesRes, fuelRes] = await Promise.all([
+        checkoutQuery,
         supabase.from("vehicles").select("*"),
-        supabase.from("fuel_records").select(`*, vehicles(name, plate)`),
+        fuelQuery,
       ]);
 
       if (checkoutsRes.error) throw checkoutsRes.error;
@@ -142,6 +174,63 @@ export default function VehicleAnalytics() {
           <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
         </div>
       </div>
+
+      {/* Period Filter */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Período</p>
+              <Select value={periodFilter} onValueChange={setPeriodFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todo o período</SelectItem>
+                  <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                  <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                  <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                  <SelectItem value="6m">Últimos 6 meses</SelectItem>
+                  <SelectItem value="1y">Este ano</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {periodFilter === "custom" && (
+              <>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">De</p>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy") : "Início"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Até</p>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "dd/MM/yyyy") : "Fim"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>

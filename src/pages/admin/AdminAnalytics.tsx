@@ -2,11 +2,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from "recharts";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 interface ToolUsageData {
   name: string;
@@ -52,6 +57,9 @@ interface AnalyticsMetrics {
 export default function AdminAnalytics() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [periodFilter, setPeriodFilter] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [metrics, setMetrics] = useState<AnalyticsMetrics>({
     totalCheckouts: 0,
     averageUsageDays: 0,
@@ -68,9 +76,23 @@ export default function AdminAnalytics() {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
+
+  const getDateRange = (): { from: Date | null; to: Date | null } => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { from: subDays(now, 7), to: now };
+      case "30d": return { from: subDays(now, 30), to: now };
+      case "90d": return { from: subDays(now, 90), to: now };
+      case "6m": return { from: subMonths(now, 6), to: now };
+      case "1y": return { from: startOfYear(now), to: now };
+      case "custom": return { from: startDate || null, to: endDate || null };
+      default: return { from: null, to: null };
+    }
+  };
+
   useEffect(() => {
     loadAnalytics();
-  }, []);
+  }, [periodFilter, startDate, endDate]);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
@@ -79,7 +101,7 @@ export default function AdminAnalytics() {
   const loadAnalytics = async () => {
     try {
       // Fetch all checkouts
-      const { data: checkouts, error } = await supabase
+      let query = supabase
         .from("tool_checkouts")
         .select(`
           id,
@@ -93,6 +115,12 @@ export default function AdminAnalytics() {
           tools (name),
           profiles!tool_checkouts_user_id_fkey (full_name, category)
         `);
+
+      const range = getDateRange();
+      if (range.from) query = query.gte("checkout_date", range.from.toISOString());
+      if (range.to) query = query.lte("checkout_date", range.to.toISOString());
+
+      const { data: checkouts, error } = await query;
 
       if (error) throw error;
 
@@ -284,10 +312,69 @@ export default function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard Analítico</h2>
-        <p className="text-muted-foreground">Métricas e estatísticas de uso das ferramentas</p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard Analítico</h2>
+          <p className="text-muted-foreground">Métricas e estatísticas de uso das ferramentas</p>
+        </div>
       </div>
+
+      {/* Period Filter */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-1">
+              <p className="text-sm font-medium">Período</p>
+              <Select value={periodFilter} onValueChange={setPeriodFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todo o período</SelectItem>
+                  <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                  <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                  <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                  <SelectItem value="6m">Últimos 6 meses</SelectItem>
+                  <SelectItem value="1y">Este ano</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {periodFilter === "custom" && (
+              <>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">De</p>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy") : "Início"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Até</p>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "dd/MM/yyyy") : "Fim"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
