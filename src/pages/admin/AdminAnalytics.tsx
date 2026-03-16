@@ -101,7 +101,7 @@ export default function AdminAnalytics() {
   const loadAnalytics = async () => {
     try {
       // Fetch all checkouts
-      const { data: checkouts, error } = await supabase
+      let query = supabase
         .from("tool_checkouts")
         .select(`
           id,
@@ -115,6 +115,12 @@ export default function AdminAnalytics() {
           tools (name),
           profiles!tool_checkouts_user_id_fkey (full_name, category)
         `);
+
+      const range = getDateRange();
+      if (range.from) query = query.gte("checkout_date", range.from.toISOString());
+      if (range.to) query = query.lte("checkout_date", range.to.toISOString());
+
+      const { data: checkouts, error } = await query;
 
       if (error) throw error;
 
