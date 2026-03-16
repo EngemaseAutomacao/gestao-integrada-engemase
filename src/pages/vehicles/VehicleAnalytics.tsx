@@ -1,17 +1,22 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Car, Fuel, TrendingUp, FileText, FileSpreadsheet } from "lucide-react";
+import { Loader2, Car, Fuel, TrendingUp, FileText, FileSpreadsheet, CalendarIcon } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 export default function VehicleAnalytics() {
   const { profile } = useAuth();
