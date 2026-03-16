@@ -163,8 +163,7 @@ export default function PontoRegister() {
         }));
       }
 
-      toast({
-        title: "Entrada registrada!",
+      toast.success("Entrada registrada!", {
         description: `Ponto ${totalEntries + 1}/${MAX_ENTRIES_PER_DAY} registrado às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
       setNotes("");
