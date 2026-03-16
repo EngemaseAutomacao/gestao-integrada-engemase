@@ -137,9 +137,19 @@ export default function AdminHistory() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Completo</h2>
-        <p className="text-sm text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Completo</h2>
+          <p className="text-sm text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportHistoryPDF} className="gap-2">
+            <FileText className="w-4 h-4" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportHistoryExcel} className="gap-2">
+            <FileSpreadsheet className="w-4 h-4" /> Excel
+          </Button>
+        </div>
       </div>
 
       <Card>
