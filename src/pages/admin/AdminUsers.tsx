@@ -508,9 +508,9 @@ export default function AdminUsers() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-2">
-                        {getCategoryBadge(user.category)}
-                        {getRoleBadge(user.role)}
-                       </div>
+                         {getCategoryBadge(user.category)}
+                         {user.company && <Badge variant="outline" className="text-xs">{user.company}</Badge>}
+                         {getRoleBadge(user.role)}
                        <div className="flex items-center justify-between mt-2 pt-2 border-t">
                          <div className="flex items-center gap-2">
                            <Switch
