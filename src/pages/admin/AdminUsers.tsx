@@ -426,6 +426,7 @@ export default function AdminUsers() {
                        <TableHead>Nome</TableHead>
                        <TableHead>Email</TableHead>
                        <TableHead>Categoria</TableHead>
+                       <TableHead>Empresa</TableHead>
                        <TableHead>Função</TableHead>
                        <TableHead>Status</TableHead>
                        <TableHead>Troca de Senha</TableHead>
