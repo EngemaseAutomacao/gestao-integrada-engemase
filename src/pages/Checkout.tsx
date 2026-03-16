@@ -269,6 +269,7 @@ export default function Checkout() {
                 </Select>
               </div>
             )}
+            <div className="space-y-2">
               <Label htmlFor="construction_site">Obra de Destino *</Label>
               <Select value={constructionSite} onValueChange={setConstructionSite}>
                 <SelectTrigger>
