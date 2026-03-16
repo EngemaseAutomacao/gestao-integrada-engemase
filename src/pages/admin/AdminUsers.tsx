@@ -146,6 +146,7 @@ export default function AdminUsers() {
           username: editFormData.username,
           category: editFormData.category,
           role: editFormData.role,
+          company: editFormData.company,
         },
       });
 

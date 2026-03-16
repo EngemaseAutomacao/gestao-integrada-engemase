@@ -89,6 +89,7 @@ Deno.serve(async (req) => {
         full_name: body.fullName,
         email: body.email,
         username: body.username,
+        company: body.company || null,
         category: body.category,
         role: body.role,
       })
