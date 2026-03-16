@@ -15,7 +15,9 @@ import {
   AlertCircle, 
   Car, 
   ChevronDown,
-  ArrowLeft
+  ArrowLeft,
+  Fuel,
+  MapPin
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";

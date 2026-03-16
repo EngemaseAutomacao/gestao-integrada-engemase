@@ -69,6 +69,8 @@ const App = () => (
                 <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                 <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
                 <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
+                <Route path="/veiculos/combustivel" element={<Layout><FuelRecords /></Layout>} />
+                <Route path="/veiculos/analytics" element={<Layout><VehicleAnalytics /></Layout>} />
                 {/* Legacy routes */}
                 <Route path="/tools" element={<Layout><Tools /></Layout>} />
                 <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
@@ -87,6 +89,7 @@ const App = () => (
                 <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
                 <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
                 <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
+                <Route path="/admin/construction-sites" element={<Layout><AdminConstructionSites /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
