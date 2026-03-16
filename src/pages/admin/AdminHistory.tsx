@@ -127,7 +127,62 @@ export default function AdminHistory() {
            entry.checkout_signature_url || entry.checkin_signature_url;
   };
 
-  if (loading) {
+  const exportHistoryPDF = () => {
+    if (filteredHistory.length === 0) {
+      toast.error("Nenhum registro para exportar");
+      return;
+    }
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(18);
+    doc.text("Histórico de Ferramentas", 14, 20);
+    doc.setFontSize(11);
+    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
+    doc.text(`Total: ${filteredHistory.length} registros`, 14, 34);
+
+    autoTable(doc, {
+      head: [["Ferramenta", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Observações"]],
+      body: filteredHistory.map((e) => [
+        e.tools.name,
+        e.profiles.full_name,
+        e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+        e.construction_site || "-",
+        format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+        e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+        e.status === "checked_out" ? "Em Uso" : "Devolvida",
+        e.notes || "-",
+      ]),
+      startY: 40,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [79, 70, 229] },
+    });
+    doc.save(`historico-ferramentas-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    toast.success("PDF exportado!");
+  };
+
+  const exportHistoryExcel = () => {
+    if (filteredHistory.length === 0) {
+      toast.error("Nenhum registro para exportar");
+      return;
+    }
+    const rows = filteredHistory.map((e) => ({
+      Ferramenta: e.tools.name,
+      Usuário: e.profiles.full_name,
+      Categoria: e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      Obra: e.construction_site || "-",
+      Retirada: format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      Devolução: e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      Status: e.status === "checked_out" ? "Em Uso" : "Devolvida",
+      "Retirado por": e.checked_out_by_profile?.full_name || "-",
+      "Devolvido por": e.checked_in_by_profile?.full_name || "-",
+      Observações: e.notes || "-",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Histórico");
+    XLSX.writeFile(wb, `historico-ferramentas-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    toast.success("Excel exportado!");
+  };
+
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
