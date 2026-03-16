@@ -22,6 +22,8 @@ import VehicleCheckout from "./pages/vehicles/VehicleCheckout";
 import VehicleHistory from "./pages/vehicles/VehicleHistory";
 import VehicleCheckin from "./pages/vehicles/VehicleCheckin";
 import VehicleList from "./pages/vehicles/VehicleList";
+import VehicleAnalytics from "./pages/vehicles/VehicleAnalytics";
+import FuelRecords from "./pages/vehicles/FuelRecords";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTools from "./pages/admin/AdminTools";
@@ -33,6 +35,7 @@ import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminReports from "./pages/admin/AdminReports";
 import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
+import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
 
