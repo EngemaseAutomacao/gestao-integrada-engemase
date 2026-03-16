@@ -589,6 +589,16 @@ export default function AdminUsers() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="editCompany">Empresa</Label>
+              <Input
+                id="editCompany"
+                value={editFormData.company}
+                onChange={(e) => setEditFormData({ ...editFormData, company: e.target.value })}
+                placeholder="Nome da empresa (terceirizados)"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="editCategory">Categoria *</Label>
               <Select
                 value={editFormData.category}
