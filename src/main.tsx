@@ -63,6 +63,15 @@ import { APP_VERSION } from "./version.ts";
       console.log("[SW] New version activated, reloading...");
       window.location.reload();
     });
+
+    // Listen for version update messages from SW
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      if (event.data?.type === "VERSION_UPDATED") {
+        console.log("[SW] Version updated to:", event.data.version);
+        localStorage.setItem(VERSION_KEY, event.data.version);
+        window.location.reload();
+      }
+    });
   }
 })();
 
