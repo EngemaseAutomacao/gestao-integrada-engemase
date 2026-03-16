@@ -24,6 +24,7 @@ interface Profile {
   role: "admin" | "employee" | "third_party";
   approved: boolean;
   first_login: boolean;
+  company: string | null;
 }
 
 export default function AdminUsers() {
