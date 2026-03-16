@@ -38,9 +38,9 @@ export default function Register() {
     }
 
     // Check if username contains only valid characters
-    const usernameRegex = /^[a-z0-9_]+$/;
+    const usernameRegex = /^[a-z0-9.]+$/;
     if (!usernameRegex.test(username)) {
-      toast.error("O nome de usuário deve conter apenas letras minúsculas, números e underline");
+      toast.error("O nome de usuário deve conter apenas letras minúsculas, números e ponto");
       return;
     }
 
@@ -118,9 +118,9 @@ export default function Register() {
               <Input
                 id="username"
                 type="text"
-                placeholder="seu_usuario"
+                placeholder="nome.sobrenome"
                 value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, '_'))}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, '.'))}
                 required
               />
               <p className="text-xs text-muted-foreground">
