@@ -1,58 +1,96 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, LogIn, LogOut, Loader2 } from "lucide-react";
+import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-interface LocationState {
-  latitude: number | null;
-  longitude: number | null;
-  address: string | null;
-  loading: boolean;
-  error: string | null;
+const MAX_ENTRIES_PER_DAY = 3;
+const PONTO_CACHE_KEY = "engemase_ponto_today";
+
+interface TimeEntry {
+  id: string;
+  clock_in: string;
+  clock_out: string | null;
+  clock_in_address: string | null;
+  clock_out_address: string | null;
+  notes: string | null;
+  status: string;
+  is_offline?: boolean;
+}
+
+function getToday() {
+  return format(new Date(), "yyyy-MM-dd");
 }
 
 export default function PontoRegister() {
   const { user } = useAuth();
+  const { isOnline, addPendingOperation } = useOffline();
   const { toast } = useToast();
-  const [openEntry, setOpenEntry] = useState<any>(null);
+  const [todayEntries, setTodayEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState("");
-  const [location, setLocation] = useState<LocationState>({
-    latitude: null,
-    longitude: null,
-    address: null,
-    loading: false,
-    error: null,
-  });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Live clock
   useEffect(() => {
-    if (user) fetchOpenEntry();
-  }, [user]);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const fetchOpenEntry = async () => {
+  const openEntry = todayEntries.find((e) => e.status === "open");
+  const closedCount = todayEntries.filter((e) => e.status === "closed").length;
+  const canClockIn = !openEntry && todayEntries.length < MAX_ENTRIES_PER_DAY;
+  const totalEntries = todayEntries.length;
+
+  // Load from cache first, then from DB
+  const loadEntries = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("time_entries")
-      .select("*")
-      .eq("user_id", user!.id)
-      .eq("status", "open")
-      .maybeSingle();
 
-    if (!error && data) {
-      setOpenEntry(data);
-    } else {
-      setOpenEntry(null);
+    // Load from cache
+    try {
+      const cached = localStorage.getItem(PONTO_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.date === getToday() && parsed.userId === user.id) {
+          setTodayEntries(parsed.entries);
+        }
+      }
+    } catch {}
+
+    // If online, fetch from DB
+    if (isOnline) {
+      const today = getToday();
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("entry_date", today)
+        .order("clock_in", { ascending: true });
+
+      if (!error && data) {
+        setTodayEntries(data as TimeEntry[]);
+        localStorage.setItem(PONTO_CACHE_KEY, JSON.stringify({
+          date: today,
+          userId: user.id,
+          entries: data,
+        }));
+      }
     }
     setLoading(false);
-  };
+  }, [user, isOnline]);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
 
   const getLocation = (): Promise<{ latitude: number; longitude: number }> => {
     return new Promise((resolve, reject) => {
@@ -81,33 +119,63 @@ export default function PontoRegister() {
   };
 
   const handleClockIn = async () => {
-    if (!user) return;
+    if (!user || !canClockIn) return;
     setSubmitting(true);
-    setLocation(prev => ({ ...prev, loading: true, error: null }));
 
     try {
       const coords = await getLocation();
-      const address = await reverseGeocode(coords.latitude, coords.longitude);
+      let address: string | null = null;
+      try { address = await reverseGeocode(coords.latitude, coords.longitude); } catch {}
 
-      const { error } = await supabase.from("time_entries").insert({
+      const entryData = {
         user_id: user.id,
+        entry_date: getToday(),
+        clock_in: new Date().toISOString(),
         clock_in_latitude: coords.latitude,
         clock_in_longitude: coords.longitude,
         clock_in_address: address,
         notes: notes || null,
+        status: "open",
+      };
+
+      if (isOnline) {
+        const { error } = await supabase.from("time_entries").insert(entryData);
+        if (error) throw error;
+      } else {
+        // Save offline
+        addPendingOperation("ponto_in", entryData);
+        const offlineEntry: TimeEntry = {
+          id: crypto.randomUUID(),
+          clock_in: entryData.clock_in,
+          clock_out: null,
+          clock_in_address: address,
+          clock_out_address: null,
+          notes: entryData.notes,
+          status: "open",
+          is_offline: true,
+        };
+        const updated = [...todayEntries, offlineEntry];
+        setTodayEntries(updated);
+        localStorage.setItem(PONTO_CACHE_KEY, JSON.stringify({
+          date: getToday(),
+          userId: user.id,
+          entries: updated,
+        }));
+      }
+
+      toast({
+        title: "Entrada registrada!",
+        description: `Ponto ${totalEntries + 1}/${MAX_ENTRIES_PER_DAY} registrado às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
-
-      if (error) throw error;
-
-      toast({ title: "Entrada registrada!", description: `Ponto de entrada registrado às ${format(new Date(), "HH:mm")}` });
       setNotes("");
-      await fetchOpenEntry();
+      if (isOnline) await loadEntries();
     } catch (err: any) {
-      const msg = err?.code === 1 ? "Permissão de localização negada. Ative nas configurações do navegador." : err?.message || "Erro ao registrar entrada";
+      const msg = err?.code === 1
+        ? "Permissão de localização negada. Ative nas configurações do navegador."
+        : err?.message || "Erro ao registrar entrada";
       toast({ title: "Erro", description: msg, variant: "destructive" });
     } finally {
       setSubmitting(false);
-      setLocation(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -117,27 +185,51 @@ export default function PontoRegister() {
 
     try {
       const coords = await getLocation();
-      const address = await reverseGeocode(coords.latitude, coords.longitude);
+      let address: string | null = null;
+      try { address = await reverseGeocode(coords.latitude, coords.longitude); } catch {}
 
-      const { error } = await supabase
-        .from("time_entries")
-        .update({
-          clock_out: new Date().toISOString(),
-          clock_out_latitude: coords.latitude,
-          clock_out_longitude: coords.longitude,
-          clock_out_address: address,
-          status: "closed",
-          notes: notes || openEntry.notes,
-        })
-        .eq("id", openEntry.id);
+      const updateData = {
+        clock_out: new Date().toISOString(),
+        clock_out_latitude: coords.latitude,
+        clock_out_longitude: coords.longitude,
+        clock_out_address: address,
+        status: "closed",
+        notes: notes || openEntry.notes,
+      };
 
-      if (error) throw error;
+      if (isOnline && !openEntry.is_offline) {
+        const { error } = await supabase
+          .from("time_entries")
+          .update(updateData)
+          .eq("id", openEntry.id);
+        if (error) throw error;
+      } else {
+        addPendingOperation("ponto_out", {
+          entryId: openEntry.id,
+          updates: updateData,
+        });
+        // Update local cache
+        const updated = todayEntries.map((e) =>
+          e.id === openEntry.id ? { ...e, ...updateData } : e
+        );
+        setTodayEntries(updated);
+        localStorage.setItem(PONTO_CACHE_KEY, JSON.stringify({
+          date: getToday(),
+          userId: user.id,
+          entries: updated,
+        }));
+      }
 
-      toast({ title: "Saída registrada!", description: `Ponto de saída registrado às ${format(new Date(), "HH:mm")}` });
+      toast({
+        title: "Saída registrada!",
+        description: `Saída registrada às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
+      });
       setNotes("");
-      setOpenEntry(null);
+      if (isOnline) await loadEntries();
     } catch (err: any) {
-      const msg = err?.code === 1 ? "Permissão de localização negada." : err?.message || "Erro ao registrar saída";
+      const msg = err?.code === 1
+        ? "Permissão de localização negada."
+        : err?.message || "Erro ao registrar saída";
       toast({ title: "Erro", description: msg, variant: "destructive" });
     } finally {
       setSubmitting(false);
@@ -157,41 +249,87 @@ export default function PontoRegister() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">Registrar Ponto</h1>
         <p className="text-muted-foreground mt-1">
-          {format(new Date(), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+          {format(currentTime, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
         </p>
       </div>
 
-      {/* Current time */}
+      {/* Offline indicator */}
+      {!isOnline && (
+        <Card className="border-yellow-500/50 bg-yellow-500/10">
+          <CardContent className="pt-4 pb-4 flex items-center gap-3">
+            <WifiOff className="w-5 h-5 text-yellow-600" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Modo Offline</p>
+              <p className="text-xs text-muted-foreground">
+                Seus registros serão sincronizados quando a conexão for restaurada
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Live clock */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center justify-center gap-3">
             <Clock className="w-8 h-8 text-primary" />
             <span className="text-4xl font-bold text-foreground tabular-nums">
-              {format(new Date(), "HH:mm")}
+              {format(currentTime, "HH:mm:ss")}
             </span>
           </div>
+          <p className="text-center text-sm text-muted-foreground mt-2">
+            {closedCount}/{MAX_ENTRIES_PER_DAY} registros completos hoje
+          </p>
         </CardContent>
       </Card>
 
-      {/* Status */}
-      {openEntry && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Ponto Aberto</CardTitle>
-              <Badge variant="outline" className="border-primary text-primary">Entrada ativa</Badge>
-            </div>
-            <CardDescription>
-              Entrada registrada às {format(new Date(openEntry.clock_in), "HH:mm")}
-              {openEntry.clock_in_address && (
-                <span className="block mt-1 text-xs">
-                  <MapPin className="w-3 h-3 inline mr-1" />
-                  {openEntry.clock_in_address.split(",").slice(0, 3).join(",")}
-                </span>
-              )}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      {/* Today's entries */}
+      {todayEntries.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-medium text-muted-foreground">Registros de Hoje</h2>
+          {todayEntries.map((entry, idx) => (
+            <Card
+              key={entry.id}
+              className={`${entry.status === "open" ? "border-primary/50 bg-primary/5" : ""}`}
+            >
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-muted-foreground">
+                      #{idx + 1}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <LogIn className="w-3.5 h-3.5 text-green-600" />
+                      <span>{format(new Date(entry.clock_in), "HH:mm")}</span>
+                    </div>
+                    {entry.clock_out && (
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <LogOut className="w-3.5 h-3.5 text-red-600" />
+                        <span>{format(new Date(entry.clock_out), "HH:mm")}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {entry.is_offline && (
+                      <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-600">
+                        <WifiOff className="w-3 h-3 mr-1" />Offline
+                      </Badge>
+                    )}
+                    <Badge variant={entry.status === "open" ? "default" : "secondary"} className="text-xs">
+                      {entry.status === "open" ? "Aberto" : <><Check className="w-3 h-3 mr-1" />Fechado</>}
+                    </Badge>
+                  </div>
+                </div>
+                {entry.clock_in_address && (
+                  <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1">
+                    <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
+                    {entry.clock_in_address.split(",").slice(0, 3).join(",")}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* Notes */}
@@ -205,8 +343,8 @@ export default function PontoRegister() {
         />
       </div>
 
-      {/* Action button */}
-      {!openEntry ? (
+      {/* Action buttons */}
+      {canClockIn ? (
         <Button
           size="lg"
           className="w-full h-16 text-lg gap-3"
@@ -214,9 +352,9 @@ export default function PontoRegister() {
           disabled={submitting}
         >
           {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogIn className="w-5 h-5" />}
-          Registrar Entrada
+          Registrar Entrada ({totalEntries + 1}ª)
         </Button>
-      ) : (
+      ) : openEntry ? (
         <Button
           size="lg"
           variant="destructive"
@@ -227,6 +365,13 @@ export default function PontoRegister() {
           {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut className="w-5 h-5" />}
           Registrar Saída
         </Button>
+      ) : (
+        <Card className="border-muted">
+          <CardContent className="pt-6 text-center text-muted-foreground">
+            <Check className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">Limite de {MAX_ENTRIES_PER_DAY} registros atingido hoje.</p>
+          </CardContent>
+        </Card>
       )}
 
       <p className="text-xs text-muted-foreground text-center">
