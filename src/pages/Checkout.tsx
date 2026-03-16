@@ -144,6 +144,11 @@ export default function Checkout() {
       return;
     }
 
+    if (hasMultipleTags && !selectedTag) {
+      toast.error("Selecione qual TAG você está retirando");
+      return;
+    }
+
     const finalSite = constructionSite === "__custom__" ? customConstructionSite.trim() : constructionSite;
     if (!finalSite) {
       toast.error("Informe a obra de destino");
