@@ -228,7 +228,7 @@ export default function PontoRegister() {
       const msg = err?.code === 1
         ? "Permissão de localização negada."
         : err?.message || "Erro ao registrar saída";
-      toast({ title: "Erro", description: msg, variant: "destructive" });
+      toast.error("Erro", { description: msg });
     } finally {
       setSubmitting(false);
     }
