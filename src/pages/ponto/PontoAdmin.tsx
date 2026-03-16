@@ -39,13 +39,13 @@ export default function PontoAdmin() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
+  useEffect(() => {
+    if (profile?.role === "admin") fetchEntries();
+  }, [profile]);
+
   if (profile?.role !== "admin") {
     return <Navigate to="/" />;
   }
-
-  useEffect(() => {
-    fetchEntries();
-  }, []);
 
   const fetchEntries = async () => {
     const { data, error } = await supabase
