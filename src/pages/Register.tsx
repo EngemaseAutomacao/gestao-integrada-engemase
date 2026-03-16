@@ -118,9 +118,9 @@ export default function Register() {
               <Input
                 id="username"
                 type="text"
-                placeholder="seu_usuario"
+                placeholder="nome.sobrenome"
                 value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, '_'))}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, '.'))}
                 required
               />
               <p className="text-xs text-muted-foreground">
