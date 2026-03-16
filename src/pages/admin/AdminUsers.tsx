@@ -451,9 +451,18 @@ export default function AdminUsers() {
                              </Badge>
                            )}
                          </TableCell>
+                         <TableCell>
+                           <div className="flex items-center gap-2">
+                             <Switch
+                               checked={user.first_login}
+                               onCheckedChange={() => handleToggleFirstLogin(user.id, user.first_login)}
+                             />
+                             <span className="text-xs text-muted-foreground">
+                               {user.first_login ? "Ativa" : "Inativa"}
+                             </span>
+                           </div>
+                         </TableCell>
                          <TableCell className="text-right">
-                           <div className="flex justify-end gap-2">
-                             {!user.approved && (
                                <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} title="Aprovar usuário" className="text-green-600 hover:text-green-700">
                                  <CheckCircle className="w-4 h-4" />
                                </Button>
