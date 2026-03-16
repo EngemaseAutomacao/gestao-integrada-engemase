@@ -167,7 +167,7 @@ export default function Checkout() {
         user_id: profile!.id,
         checked_out_by: profile!.id,
         status: "checked_out" as const,
-        construction_site: constructionSite.trim(),
+        construction_site: finalSite,
         estimated_return_date: new Date(estimatedReturnDate).toISOString(),
         notes: notes.trim() || null,
         checkout_photo_url: photoUrl,
