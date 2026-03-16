@@ -145,7 +145,6 @@ export default function Layout({ children }: LayoutProps) {
           Controle inteligente de ferramentas, veículos e jornada
         </p>
       </div>
-      </div>
     );
   }
 
