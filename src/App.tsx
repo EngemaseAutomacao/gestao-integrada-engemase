@@ -52,6 +52,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <UpdatePrompt />
         <BrowserRouter>
           <OfflineProvider>
             <AuthProvider>
