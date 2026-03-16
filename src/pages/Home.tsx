@@ -169,6 +169,14 @@ export default function Home() {
           to="/veiculos"
         />
 
+        <ModuleCard
+          title="Ponto Online"
+          description="Registre seus pontos de entrada e saída em atividades externas"
+          icon={<Clock className="w-8 h-8 text-primary" />}
+          disabled
+          comingSoon
+        />
+
         {isAdmin && (
           <ModuleCard
             title="Painel Administrativo"
