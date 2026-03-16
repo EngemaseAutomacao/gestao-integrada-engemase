@@ -37,6 +37,10 @@ import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
 import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import ReportIssue from "./pages/ReportIssue";
+import PontoDashboard from "./pages/ponto/PontoDashboard";
+import PontoRegister from "./pages/ponto/PontoRegister";
+import PontoHistory from "./pages/ponto/PontoHistory";
+import PontoAdmin from "./pages/ponto/PontoAdmin";
 import NotFound from "./pages/NotFound";
 
 
