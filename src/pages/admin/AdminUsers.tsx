@@ -23,6 +23,7 @@ interface Profile {
   category: "engemase_employee" | "third_party" | "socios";
   role: "admin" | "employee" | "third_party";
   approved: boolean;
+  first_login: boolean;
 }
 
 export default function AdminUsers() {
