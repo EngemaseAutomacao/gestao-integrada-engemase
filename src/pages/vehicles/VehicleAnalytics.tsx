@@ -3,15 +3,15 @@ import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Car, Fuel, TrendingUp, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Car, Fuel, TrendingUp, FileText, FileSpreadsheet } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { Button } from "@/components/ui/button";
-import { FileText, FileSpreadsheet } from "lucide-react";
 
 export default function VehicleAnalytics() {
   const { profile } = useAuth();
@@ -52,9 +52,7 @@ export default function VehicleAnalytics() {
           kmByVehicle[key].trips += 1;
         }
       });
-      const kmData = Object.values(kmByVehicle)
-        .sort((a, b) => b.totalKm - a.totalKm)
-        .slice(0, 10);
+      const kmData = Object.values(kmByVehicle).sort((a, b) => b.totalKm - a.totalKm).slice(0, 10);
 
       // Monthly trend
       const monthlyData = [];
@@ -70,11 +68,7 @@ export default function VehicleAnalytics() {
           if (c.km_checkin && c.km_checkout) return sum + (c.km_checkin - c.km_checkout);
           return sum;
         }, 0);
-        monthlyData.push({
-          month: format(date, "MMM/yy", { locale: ptBR }),
-          viagens: monthCheckouts.length,
-          km: totalKm,
-        });
+        monthlyData.push({ month: format(date, "MMM/yy", { locale: ptBR }), viagens: monthCheckouts.length, km: totalKm });
       }
 
       // Destination ranking
@@ -83,76 +77,57 @@ export default function VehicleAnalytics() {
         const dest = c.destination || "Sem destino";
         destCounts[dest] = (destCounts[dest] || 0) + 1;
       });
-      const destData = Object.entries(destCounts)
-        .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 8);
+      const destData = Object.entries(destCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8);
 
       // Fuel stats per vehicle
       const fuelByVehicle: Record<string, { name: string; liters: number; cost: number }> = {};
       fuelRecords.forEach((f: any) => {
         const key = f.vehicle_id;
-        if (!fuelByVehicle[key]) {
-          fuelByVehicle[key] = { name: f.vehicles?.name || "?", liters: 0, cost: 0 };
-        }
+        if (!fuelByVehicle[key]) fuelByVehicle[key] = { name: f.vehicles?.name || "?", liters: 0, cost: 0 };
         fuelByVehicle[key].liters += parseFloat(f.liters);
         fuelByVehicle[key].cost += parseFloat(f.total_cost || 0);
       });
       const fuelData = Object.values(fuelByVehicle).sort((a, b) => b.cost - a.cost).slice(0, 10);
 
-      const totalTrips = checkouts.length;
-      const totalKmAll = Object.values(kmByVehicle).reduce((s, v) => s + v.totalKm, 0);
-      const refueledCount = checkouts.filter((c: any) => c.refueled === true).length;
-
-      return { kmData, monthlyData, destData, fuelData, totalTrips, totalKmAll, refueledCount, vehicleCount: vehicles.length, checkouts };
+      return {
+        kmData, monthlyData, destData, fuelData,
+        totalTrips: checkouts.length,
+        totalKmAll: Object.values(kmByVehicle).reduce((s, v) => s + v.totalKm, 0),
+        refueledCount: checkouts.filter((c: any) => c.refueled === true).length,
+        vehicleCount: vehicles.length,
+      };
     },
   });
 
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
-  const exportVehicleReportPDF = () => {
+  const exportPDF = () => {
     if (!data) return;
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("Relatório de Veículos - KM por Veículo", 14, 20);
     doc.setFontSize(11);
     doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
-
     autoTable(doc, {
       head: [["Veículo", "Placa", "KM Total", "Viagens", "Média KM/Viagem"]],
-      body: data.kmData.map(v => [
-        v.name, v.plate, v.totalKm.toLocaleString(), v.trips.toString(),
-        v.trips > 0 ? Math.round(v.totalKm / v.trips).toLocaleString() : "0",
-      ]),
-      startY: 34,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [79, 70, 229] },
+      body: data.kmData.map(v => [v.name, v.plate, v.totalKm.toLocaleString(), v.trips.toString(), v.trips > 0 ? Math.round(v.totalKm / v.trips).toLocaleString() : "0"]),
+      startY: 34, styles: { fontSize: 9 }, headStyles: { fillColor: [79, 70, 229] },
     });
-
-    doc.save(`relatorio-veiculos-km-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    doc.save(`relatorio-veiculos-${format(new Date(), "yyyy-MM-dd")}.pdf`);
     toast.success("PDF exportado!");
   };
 
-  const exportVehicleReportExcel = () => {
+  const exportExcel = () => {
     if (!data) return;
-    const rows = data.kmData.map(v => ({
-      Veículo: v.name,
-      Placa: v.plate,
-      "KM Total": v.totalKm,
-      Viagens: v.trips,
-      "Média KM/Viagem": v.trips > 0 ? Math.round(v.totalKm / v.trips) : 0,
-    }));
+    const rows = data.kmData.map(v => ({ Veículo: v.name, Placa: v.plate, "KM Total": v.totalKm, Viagens: v.trips, "Média KM": v.trips > 0 ? Math.round(v.totalKm / v.trips) : 0 }));
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "KM por Veículo");
-    XLSX.writeFile(wb, `relatorio-veiculos-km-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    XLSX.writeFile(wb, `relatorio-veiculos-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
     toast.success("Excel exportado!");
   };
 
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-  }
-
+  if (isLoading) return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!data) return null;
 
   return (
@@ -163,16 +138,11 @@ export default function VehicleAnalytics() {
           <p className="text-muted-foreground">Métricas e estatísticas da frota</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportVehicleReportPDF} className="gap-2">
-            <FileText className="w-4 h-4" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportVehicleReportExcel} className="gap-2">
-            <FileSpreadsheet className="w-4 h-4" /> Excel
-          </Button>
+          <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2"><FileText className="w-4 h-4" /> PDF</Button>
+          <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2"><FileSpreadsheet className="w-4 h-4" /> Excel</Button>
         </div>
       </div>
 
-      {/* Metrics */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -183,14 +153,14 @@ export default function VehicleAnalytics() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">KM Total Percorrido</CardTitle>
+            <CardTitle className="text-sm font-medium">KM Total</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent><div className="text-2xl font-bold">{data.totalKmAll.toLocaleString()} km</div></CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Veículos na Frota</CardTitle>
+            <CardTitle className="text-sm font-medium">Frota</CardTitle>
             <Car className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent><div className="text-2xl font-bold">{data.vehicleCount}</div></CardContent>
@@ -204,12 +174,11 @@ export default function VehicleAnalytics() {
         </Card>
       </div>
 
-      {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>KM por Veículo</CardTitle>
-            <CardDescription>Top 10 veículos com maior quilometragem</CardDescription>
+            <CardDescription>Top 10 veículos por quilometragem</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -233,9 +202,7 @@ export default function VehicleAnalytics() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie data={data.destData} cx="50%" cy="50%" outerRadius={100} dataKey="value" label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>
-                  {data.destData.map((_: any, i: number) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
+                  {data.destData.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -244,7 +211,6 @@ export default function VehicleAnalytics() {
         </Card>
       </div>
 
-      {/* Monthly Trend */}
       <Card>
         <CardHeader>
           <CardTitle>Tendência Mensal</CardTitle>
@@ -266,12 +232,11 @@ export default function VehicleAnalytics() {
         </CardContent>
       </Card>
 
-      {/* Fuel by vehicle */}
       {data.fuelData.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Custo de Combustível por Veículo</CardTitle>
-            <CardDescription>Top 10 veículos por gasto com combustível</CardDescription>
+            <CardDescription>Top 10 por gasto</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -289,6 +254,3 @@ export default function VehicleAnalytics() {
     </div>
   );
 }
-
-// Need toast import
-import { toast } from "sonner";
