@@ -180,7 +180,7 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon || '/icon-192.png',
-      tag: data.tag || 'default',
+      badge: '/mono-192.png',
       data: data.data || {},
       vibrate: [200, 100, 200],
       requireInteraction: false,
