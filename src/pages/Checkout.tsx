@@ -251,7 +251,24 @@ export default function Checkout() {
               </Select>
             </div>
 
-            <div className="space-y-2">
+            {/* Tag Selection for tools with multiple tags */}
+            {selectedToolId && hasMultipleTags && (
+              <div className="space-y-2">
+                <Label>Selecione a TAG *</Label>
+                <Select value={selectedTag} onValueChange={setSelectedTag}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione qual TAG está retirando" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {toolTags.map((tag) => (
+                      <SelectItem key={tag} value={tag}>
+                        TAG {tag}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
               <Label htmlFor="construction_site">Obra de Destino *</Label>
               <Select value={constructionSite} onValueChange={setConstructionSite}>
                 <SelectTrigger>
