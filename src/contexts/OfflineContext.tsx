@@ -92,6 +92,17 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
             .from("tool_issues")
             .insert(op.data);
           if (error) throw error;
+        } else if (op.type === "ponto_in") {
+          const { error } = await supabase
+            .from("time_entries")
+            .insert(op.data);
+          if (error) throw error;
+        } else if (op.type === "ponto_out") {
+          const { error } = await supabase
+            .from("time_entries")
+            .update(op.data.updates)
+            .eq("id", op.data.entryId);
+          if (error) throw error;
         }
         successCount++;
       } catch (error) {
