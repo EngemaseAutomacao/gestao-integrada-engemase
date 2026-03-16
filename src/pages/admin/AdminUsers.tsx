@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock } from "lucide-react";
+import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
 
