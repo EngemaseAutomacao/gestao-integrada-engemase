@@ -463,21 +463,23 @@ export default function AdminUsers() {
                            </div>
                          </TableCell>
                          <TableCell className="text-right">
-                               <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} title="Aprovar usuário" className="text-green-600 hover:text-green-700">
-                                 <CheckCircle className="w-4 h-4" />
-                               </Button>
-                             )}
-                            <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)} title="Editar usuário">
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleOpenPasswordDialog(user)} title="Alterar senha">
-                              <Key className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)} disabled={user.id === profile.id} title="Excluir usuário">
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                           <div className="flex justify-end gap-2">
+                              {!user.approved && (
+                                <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} title="Aprovar usuário" className="text-green-600 hover:text-green-700">
+                                  <CheckCircle className="w-4 h-4" />
+                                </Button>
+                              )}
+                             <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)} title="Editar usuário">
+                               <Pencil className="w-4 h-4" />
+                             </Button>
+                             <Button variant="ghost" size="sm" onClick={() => handleOpenPasswordDialog(user)} title="Alterar senha">
+                               <Key className="w-4 h-4" />
+                             </Button>
+                             <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)} disabled={user.id === profile.id} title="Excluir usuário">
+                               <Trash2 className="w-4 h-4 text-destructive" />
+                             </Button>
+                           </div>
+                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
