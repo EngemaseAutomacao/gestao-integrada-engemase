@@ -88,6 +88,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
+    { title: "Obras", url: "/admin/construction-sites", icon: MapPin },
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
