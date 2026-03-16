@@ -22,6 +22,8 @@ import VehicleCheckout from "./pages/vehicles/VehicleCheckout";
 import VehicleHistory from "./pages/vehicles/VehicleHistory";
 import VehicleCheckin from "./pages/vehicles/VehicleCheckin";
 import VehicleList from "./pages/vehicles/VehicleList";
+import VehicleAnalytics from "./pages/vehicles/VehicleAnalytics";
+import FuelRecords from "./pages/vehicles/FuelRecords";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTools from "./pages/admin/AdminTools";
@@ -33,6 +35,7 @@ import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminReports from "./pages/admin/AdminReports";
 import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
+import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
 
@@ -66,6 +69,8 @@ const App = () => (
                 <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                 <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
                 <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
+                <Route path="/veiculos/combustivel" element={<Layout><FuelRecords /></Layout>} />
+                <Route path="/veiculos/analytics" element={<Layout><VehicleAnalytics /></Layout>} />
                 {/* Legacy routes */}
                 <Route path="/tools" element={<Layout><Tools /></Layout>} />
                 <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
@@ -84,6 +89,7 @@ const App = () => (
                 <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
                 <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
                 <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
+                <Route path="/admin/construction-sites" element={<Layout><AdminConstructionSites /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -14,6 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
+      construction_sites: {
+        Row: {
+          active: boolean
+          address: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "construction_sites_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fuel_records: {
+        Row: {
+          cost_per_liter: number | null
+          created_at: string
+          fuel_type: string
+          gas_station: string | null
+          id: string
+          km_at_refuel: number
+          liters: number
+          notes: string | null
+          refuel_date: string
+          total_cost: number | null
+          user_id: string
+          vehicle_checkout_id: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          cost_per_liter?: number | null
+          created_at?: string
+          fuel_type?: string
+          gas_station?: string | null
+          id?: string
+          km_at_refuel: number
+          liters: number
+          notes?: string | null
+          refuel_date?: string
+          total_cost?: number | null
+          user_id: string
+          vehicle_checkout_id?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          cost_per_liter?: number | null
+          created_at?: string
+          fuel_type?: string
+          gas_station?: string | null
+          id?: string
+          km_at_refuel?: number
+          liters?: number
+          notes?: string | null
+          refuel_date?: string
+          total_cost?: number | null
+          user_id?: string
+          vehicle_checkout_id?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fuel_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_records_vehicle_checkout_id_fkey"
+            columns: ["vehicle_checkout_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_checkouts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_records: {
         Row: {
           condition_after: string | null

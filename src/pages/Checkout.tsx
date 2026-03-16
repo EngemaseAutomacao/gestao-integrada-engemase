@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ export default function Checkout() {
   const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
   const [constructionSite, setConstructionSite] = useState("");
+  const [customConstructionSite, setCustomConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,19 @@ export default function Checkout() {
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
+
+  const { data: constructionSites } = useQuery({
+    queryKey: ["construction-sites-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("construction_sites")
+        .select("id, name")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
     loadTools();
@@ -122,7 +137,8 @@ export default function Checkout() {
       return;
     }
 
-    if (!constructionSite.trim()) {
+    const finalSite = constructionSite === "__custom__" ? customConstructionSite.trim() : constructionSite;
+    if (!finalSite) {
       toast.error("Informe a obra de destino");
       return;
     }
@@ -151,7 +167,7 @@ export default function Checkout() {
         user_id: profile!.id,
         checked_out_by: profile!.id,
         status: "checked_out" as const,
-        construction_site: constructionSite.trim(),
+        construction_site: finalSite,
         estimated_return_date: new Date(estimatedReturnDate).toISOString(),
         notes: notes.trim() || null,
         checkout_photo_url: photoUrl,
@@ -224,13 +240,25 @@ export default function Checkout() {
 
             <div className="space-y-2">
               <Label htmlFor="construction_site">Obra de Destino *</Label>
-              <Input
-                id="construction_site"
-                placeholder="Ex: Obra Residencial Centro, Edifício Comercial..."
-                value={constructionSite}
-                onChange={(e) => setConstructionSite(e.target.value)}
-                required
-              />
+              <Select value={constructionSite} onValueChange={setConstructionSite}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a obra" />
+                </SelectTrigger>
+                <SelectContent>
+                  {constructionSites?.map((site) => (
+                    <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
+                  ))}
+                  <SelectItem value="__custom__">Outra (digitar)</SelectItem>
+                </SelectContent>
+              </Select>
+              {constructionSite === "__custom__" && (
+                <Input
+                  placeholder="Digite o nome da obra..."
+                  value={customConstructionSite}
+                  onChange={(e) => setCustomConstructionSite(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
 
             <div className="space-y-2">
@@ -291,7 +319,7 @@ export default function Checkout() {
             <div className="flex gap-3">
               <Button 
                 type="submit" 
-                disabled={loading || !selectedToolId || !constructionSite || !estimatedReturnDate || !photoConfirmed} 
+                disabled={loading || !selectedToolId || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate || !photoConfirmed} 
                 className="flex-1"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

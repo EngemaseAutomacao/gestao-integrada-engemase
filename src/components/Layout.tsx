@@ -15,7 +15,9 @@ import {
   AlertCircle, 
   Car, 
   ChevronDown,
-  ArrowLeft
+  ArrowLeft,
+  Fuel,
+  MapPin
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -74,7 +76,11 @@ export default function Layout({ children }: LayoutProps) {
   const veiculosMenuItems = [
     { title: "Dashboard", url: "/veiculos", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
+    { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
+    ...(isAdmin ? [
+      { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
+    ] : []),
   ];
 
   const adminMenuItems = [
@@ -82,6 +88,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
+    { title: "Obras", url: "/admin/construction-sites", icon: MapPin },
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
