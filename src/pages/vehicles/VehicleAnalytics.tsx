@@ -20,22 +20,49 @@ import { cn } from "@/lib/utils";
 
 export default function VehicleAnalytics() {
   const { profile } = useAuth();
+  const [periodFilter, setPeriodFilter] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
 
+  const getDateRange = (): { from: Date | null; to: Date | null } => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { from: subDays(now, 7), to: now };
+      case "30d": return { from: subDays(now, 30), to: now };
+      case "90d": return { from: subDays(now, 90), to: now };
+      case "6m": return { from: subMonths(now, 6), to: now };
+      case "1y": return { from: startOfYear(now), to: now };
+      case "custom": return { from: startDate || null, to: endDate || null };
+      default: return { from: null, to: null };
+    }
+  };
+
   const { data, isLoading } = useQuery({
-    queryKey: ["vehicle-analytics"],
+    queryKey: ["vehicle-analytics", periodFilter, startDate?.toISOString(), endDate?.toISOString()],
     queryFn: async () => {
-      const [checkoutsRes, vehiclesRes, fuelRes] = await Promise.all([
-        supabase.from("vehicle_checkouts").select(`
+      const range = getDateRange();
+      
+      let checkoutQuery = supabase.from("vehicle_checkouts").select(`
           id, checkout_date, checkin_date, km_checkout, km_checkin, status, destination, refueled,
           vehicles!inner(id, name, plate),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
-        `),
+        `);
+      
+      if (range.from) checkoutQuery = checkoutQuery.gte("checkout_date", range.from.toISOString());
+      if (range.to) checkoutQuery = checkoutQuery.lte("checkout_date", range.to.toISOString());
+
+      let fuelQuery = supabase.from("fuel_records").select(`*, vehicles(name, plate)`);
+      if (range.from) fuelQuery = fuelQuery.gte("refuel_date", range.from.toISOString());
+      if (range.to) fuelQuery = fuelQuery.lte("refuel_date", range.to.toISOString());
+
+      const [checkoutsRes, vehiclesRes, fuelRes] = await Promise.all([
+        checkoutQuery,
         supabase.from("vehicles").select("*"),
-        supabase.from("fuel_records").select(`*, vehicles(name, plate)`),
+        fuelQuery,
       ]);
 
       if (checkoutsRes.error) throw checkoutsRes.error;
