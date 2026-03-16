@@ -302,6 +302,60 @@ export type Database = {
         }
         Relationships: []
       }
+      time_entries: {
+        Row: {
+          clock_in: string
+          clock_in_address: string | null
+          clock_in_latitude: number | null
+          clock_in_longitude: number | null
+          clock_out: string | null
+          clock_out_address: string | null
+          clock_out_latitude: number | null
+          clock_out_longitude: number | null
+          created_at: string
+          entry_date: string
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clock_in?: string
+          clock_in_address?: string | null
+          clock_in_latitude?: number | null
+          clock_in_longitude?: number | null
+          clock_out?: string | null
+          clock_out_address?: string | null
+          clock_out_latitude?: number | null
+          clock_out_longitude?: number | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clock_in?: string
+          clock_in_address?: string | null
+          clock_in_latitude?: number | null
+          clock_in_longitude?: number | null
+          clock_out?: string | null
+          clock_out_address?: string | null
+          clock_out_latitude?: number | null
+          clock_out_longitude?: number | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tool_checkouts: {
         Row: {
           checked_in_by: string | null

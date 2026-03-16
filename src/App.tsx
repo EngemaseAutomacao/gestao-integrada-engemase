@@ -37,6 +37,10 @@ import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
 import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import ReportIssue from "./pages/ReportIssue";
+import PontoDashboard from "./pages/ponto/PontoDashboard";
+import PontoRegister from "./pages/ponto/PontoRegister";
+import PontoHistory from "./pages/ponto/PontoHistory";
+import PontoAdmin from "./pages/ponto/PontoAdmin";
 import NotFound from "./pages/NotFound";
 
 
@@ -90,6 +94,11 @@ const App = () => (
                 <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
                 <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
                 <Route path="/admin/construction-sites" element={<Layout><AdminConstructionSites /></Layout>} />
+                {/* Ponto Online Routes */}
+                <Route path="/ponto" element={<Layout><PontoDashboard /></Layout>} />
+                <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
+                <Route path="/ponto/historico" element={<Layout><PontoHistory /></Layout>} />
+                <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
