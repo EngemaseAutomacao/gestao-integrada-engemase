@@ -505,8 +505,19 @@ export default function AdminUsers() {
                       <div className="flex items-center gap-2 mt-2">
                         {getCategoryBadge(user.category)}
                         {getRoleBadge(user.role)}
-                      </div>
-                      <div className="flex justify-end gap-1 mt-3 pt-3 border-t">
+                       </div>
+                       <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                         <div className="flex items-center gap-2">
+                           <Switch
+                             checked={user.first_login}
+                             onCheckedChange={() => handleToggleFirstLogin(user.id, user.first_login)}
+                           />
+                           <span className="text-xs text-muted-foreground">
+                             Forçar troca de senha: {user.first_login ? "Ativa" : "Inativa"}
+                           </span>
+                         </div>
+                       </div>
+                       <div className="flex justify-end gap-1 mt-2 pt-2 border-t">
                         {!user.approved && (
                           <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} className="text-green-600">
                             <CheckCircle className="w-4 h-4" />
