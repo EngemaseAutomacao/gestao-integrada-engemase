@@ -3,9 +3,62 @@ import { Wrench, Car, Clock, Shield, Download, Share } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
-import { InstallPWA } from "@/components/InstallPWA";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+function InstallPWACard({ isIOS }: { isIOS: boolean }) {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    if (isIOS) return;
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, [isIOS]);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+  };
+
+  return (
+    <Card
+      className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary border-dashed border-2"
+      onClick={!isIOS ? handleInstall : undefined}
+    >
+      <CardHeader className="text-center pb-2">
+        <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-accent/20">
+          <Download className="w-8 h-8 text-accent-foreground" />
+        </div>
+        <CardTitle className="text-xl">Instalar Aplicativo</CardTitle>
+        <CardDescription>
+          {isIOS
+            ? "Toque em Compartilhar e \"Adicionar à Tela de Início\""
+            : "Instale o app para acesso rápido pela tela inicial"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="text-center">
+        {isIOS ? (
+          <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+            <Share className="w-4 h-4" /> Compartilhar → Tela de Início
+          </span>
+        ) : (
+          <span className="text-sm font-medium text-primary">Instalar →</span>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 interface ModuleCardProps {
   title: string;
@@ -111,19 +164,11 @@ export default function Home() {
             variant="admin"
           />
         )}
-      </div>
 
-      {!isStandalone && (
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <InstallPWA />
-          {isIOS && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-4 py-3 max-w-sm text-center">
-              <Share className="w-4 h-4 shrink-0" />
-              <span>No iPhone, toque em <strong>Compartilhar</strong> e depois <strong>"Adicionar à Tela de Início"</strong></span>
-            </div>
-          )}
-        </div>
-      )}
+        {!isStandalone && (
+          <InstallPWACard isIOS={isIOS} />
+        )}
+      </div>
     </div>
   );
 }
