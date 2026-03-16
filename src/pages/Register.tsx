@@ -38,9 +38,9 @@ export default function Register() {
     }
 
     // Check if username contains only valid characters
-    const usernameRegex = /^[a-z0-9_]+$/;
+    const usernameRegex = /^[a-z0-9.]+$/;
     if (!usernameRegex.test(username)) {
-      toast.error("O nome de usuário deve conter apenas letras minúsculas, números e underline");
+      toast.error("O nome de usuário deve conter apenas letras minúsculas, números e ponto");
       return;
     }
 
