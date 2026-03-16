@@ -43,6 +43,19 @@ export default function Checkout() {
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
 
+  const { data: constructionSites } = useQuery({
+    queryKey: ["construction-sites-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("construction_sites")
+        .select("id, name")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   useEffect(() => {
     loadTools();
   }, []);
