@@ -183,6 +183,7 @@ export default function Checkout() {
         estimated_return_date: new Date(estimatedReturnDate).toISOString(),
         notes: notes.trim() || null,
         checkout_photo_url: photoUrl,
+        selected_tag: hasMultipleTags ? selectedTag : (toolTags.length === 1 ? toolTags[0] : null),
       };
 
       if (!isOnline) {
