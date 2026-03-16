@@ -10,6 +10,7 @@ interface UpdateUserRequest {
   fullName: string;
   email: string;
   username: string;
+  company?: string;
   category: 'engemase_employee' | 'third_party' | 'socios';
   role: 'admin' | 'employee' | 'third_party';
 }
