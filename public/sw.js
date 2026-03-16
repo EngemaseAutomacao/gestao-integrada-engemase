@@ -181,7 +181,6 @@ self.addEventListener('push', (event) => {
     self.registration.showNotification(data.title, {
       body: data.body,
       icon: data.icon || '/icon-192.png',
-      badge: data.badge || '/icon-192.png',
       tag: data.tag || 'default',
       data: data.data || {},
       vibrate: [200, 100, 200],

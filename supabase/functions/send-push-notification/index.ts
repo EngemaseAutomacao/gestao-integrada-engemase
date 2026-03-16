@@ -300,7 +300,6 @@ Deno.serve(async (req) => {
         title,
         body: body || '',
         icon: '/icon-192.png',
-        badge: '/icon-192.png',
         tag: notification.id,
         data: {
           notificationId: notification.id,
