@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock } from "lucide-react";
+import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
 
@@ -22,6 +23,7 @@ interface Profile {
   category: "engemase_employee" | "third_party" | "socios";
   role: "admin" | "employee" | "third_party";
   approved: boolean;
+  first_login: boolean;
 }
 
 export default function AdminUsers() {
@@ -196,6 +198,21 @@ export default function AdminUsers() {
     }
   };
 
+  const handleToggleFirstLogin = async (userId: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ first_login: !currentValue } as any)
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      toast.success(!currentValue ? "Troca de senha ativada" : "Troca de senha desativada");
+      loadUsers();
+    } catch (error: any) {
+      toast.error("Erro ao atualizar", { description: error.message });
+    }
+  };
   const handleOpenPasswordDialog = (user: Profile) => {
     setSelectedUser(user);
     setNewPassword("");
@@ -410,6 +427,7 @@ export default function AdminUsers() {
                        <TableHead>Categoria</TableHead>
                        <TableHead>Função</TableHead>
                        <TableHead>Status</TableHead>
+                       <TableHead>Troca de Senha</TableHead>
                        <TableHead className="text-right">Ações</TableHead>
                      </TableRow>
                   </TableHeader>
@@ -433,24 +451,35 @@ export default function AdminUsers() {
                              </Badge>
                            )}
                          </TableCell>
+                         <TableCell>
+                           <div className="flex items-center gap-2">
+                             <Switch
+                               checked={user.first_login}
+                               onCheckedChange={() => handleToggleFirstLogin(user.id, user.first_login)}
+                             />
+                             <span className="text-xs text-muted-foreground">
+                               {user.first_login ? "Ativa" : "Inativa"}
+                             </span>
+                           </div>
+                         </TableCell>
                          <TableCell className="text-right">
                            <div className="flex justify-end gap-2">
-                             {!user.approved && (
-                               <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} title="Aprovar usuário" className="text-green-600 hover:text-green-700">
-                                 <CheckCircle className="w-4 h-4" />
-                               </Button>
-                             )}
-                            <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)} title="Editar usuário">
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleOpenPasswordDialog(user)} title="Alterar senha">
-                              <Key className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)} disabled={user.id === profile.id} title="Excluir usuário">
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
+                              {!user.approved && (
+                                <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} title="Aprovar usuário" className="text-green-600 hover:text-green-700">
+                                  <CheckCircle className="w-4 h-4" />
+                                </Button>
+                              )}
+                             <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)} title="Editar usuário">
+                               <Pencil className="w-4 h-4" />
+                             </Button>
+                             <Button variant="ghost" size="sm" onClick={() => handleOpenPasswordDialog(user)} title="Alterar senha">
+                               <Key className="w-4 h-4" />
+                             </Button>
+                             <Button variant="ghost" size="sm" onClick={() => handleDeleteUser(user.id)} disabled={user.id === profile.id} title="Excluir usuário">
+                               <Trash2 className="w-4 h-4 text-destructive" />
+                             </Button>
+                           </div>
+                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -476,8 +505,19 @@ export default function AdminUsers() {
                       <div className="flex items-center gap-2 mt-2">
                         {getCategoryBadge(user.category)}
                         {getRoleBadge(user.role)}
-                      </div>
-                      <div className="flex justify-end gap-1 mt-3 pt-3 border-t">
+                       </div>
+                       <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                         <div className="flex items-center gap-2">
+                           <Switch
+                             checked={user.first_login}
+                             onCheckedChange={() => handleToggleFirstLogin(user.id, user.first_login)}
+                           />
+                           <span className="text-xs text-muted-foreground">
+                             Forçar troca de senha: {user.first_login ? "Ativa" : "Inativa"}
+                           </span>
+                         </div>
+                       </div>
+                       <div className="flex justify-end gap-1 mt-2 pt-2 border-t">
                         {!user.approved && (
                           <Button variant="ghost" size="sm" onClick={() => handleApproveUser(user.id)} className="text-green-600">
                             <CheckCircle className="w-4 h-4" />
