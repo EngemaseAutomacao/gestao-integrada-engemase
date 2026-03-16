@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, Camera, FileSignature } from "lucide-react";
+import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
@@ -123,6 +127,62 @@ export default function AdminHistory() {
            entry.checkout_signature_url || entry.checkin_signature_url;
   };
 
+  const exportHistoryPDF = () => {
+    if (filteredHistory.length === 0) {
+      toast.error("Nenhum registro para exportar");
+      return;
+    }
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(18);
+    doc.text("Histórico de Ferramentas", 14, 20);
+    doc.setFontSize(11);
+    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
+    doc.text(`Total: ${filteredHistory.length} registros`, 14, 34);
+
+    autoTable(doc, {
+      head: [["Ferramenta", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Observações"]],
+      body: filteredHistory.map((e) => [
+        e.tools.name,
+        e.profiles.full_name,
+        e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+        e.construction_site || "-",
+        format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+        e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+        e.status === "checked_out" ? "Em Uso" : "Devolvida",
+        e.notes || "-",
+      ]),
+      startY: 40,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [79, 70, 229] },
+    });
+    doc.save(`historico-ferramentas-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    toast.success("PDF exportado!");
+  };
+
+  const exportHistoryExcel = () => {
+    if (filteredHistory.length === 0) {
+      toast.error("Nenhum registro para exportar");
+      return;
+    }
+    const rows = filteredHistory.map((e) => ({
+      Ferramenta: e.tools.name,
+      Usuário: e.profiles.full_name,
+      Categoria: e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      Obra: e.construction_site || "-",
+      Retirada: format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      Devolução: e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      Status: e.status === "checked_out" ? "Em Uso" : "Devolvida",
+      "Retirado por": e.checked_out_by_profile?.full_name || "-",
+      "Devolvido por": e.checked_in_by_profile?.full_name || "-",
+      Observações: e.notes || "-",
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Histórico");
+    XLSX.writeFile(wb, `historico-ferramentas-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    toast.success("Excel exportado!");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -133,9 +193,19 @@ export default function AdminHistory() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Completo</h2>
-        <p className="text-sm text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Completo</h2>
+          <p className="text-sm text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportHistoryPDF} className="gap-2">
+            <FileText className="w-4 h-4" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportHistoryExcel} className="gap-2">
+            <FileSpreadsheet className="w-4 h-4" /> Excel
+          </Button>
+        </div>
       </div>
 
       <Card>
