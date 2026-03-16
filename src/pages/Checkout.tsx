@@ -33,6 +33,7 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
+  const [selectedTag, setSelectedTag] = useState<string>("");
   const [constructionSite, setConstructionSite] = useState("");
   const [customConstructionSite, setCustomConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
@@ -43,6 +44,11 @@ export default function Checkout() {
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
+
+  // Get tags for selected tool
+  const selectedTool = tools.find(t => t.id === selectedToolId);
+  const toolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+  const hasMultipleTags = toolTags.length > 1;
 
   const { data: constructionSites } = useQuery({
     queryKey: ["construction-sites-active"],
