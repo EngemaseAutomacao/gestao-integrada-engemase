@@ -19,7 +19,7 @@ export default function AdminNotifications() {
   const runNotificationChecks = async () => {
     setLoading(true);
     try {
-      console.log("Triggering notification checks...");
+      
       
       const { data, error } = await supabase.functions.invoke('check-notifications', {
         body: {},
@@ -27,7 +27,7 @@ export default function AdminNotifications() {
 
       if (error) throw error;
 
-      console.log("Notification checks completed:", data);
+      
       toast.success("Verificação concluída!", {
         description: "As notificações foram verificadas e criadas com sucesso.",
       });
