@@ -7,7 +7,7 @@ import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check } from "lucide-re
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -32,7 +32,7 @@ function getToday() {
 export default function PontoRegister() {
   const { user } = useAuth();
   const { isOnline, addPendingOperation } = useOffline();
-  const { toast } = useToast();
+  
   const [todayEntries, setTodayEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -163,8 +163,7 @@ export default function PontoRegister() {
         }));
       }
 
-      toast({
-        title: "Entrada registrada!",
+      toast.success("Entrada registrada!", {
         description: `Ponto ${totalEntries + 1}/${MAX_ENTRIES_PER_DAY} registrado às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
       setNotes("");
@@ -173,7 +172,7 @@ export default function PontoRegister() {
       const msg = err?.code === 1
         ? "Permissão de localização negada. Ative nas configurações do navegador."
         : err?.message || "Erro ao registrar entrada";
-      toast({ title: "Erro", description: msg, variant: "destructive" });
+      toast.error("Erro", { description: msg });
     } finally {
       setSubmitting(false);
     }
@@ -220,8 +219,7 @@ export default function PontoRegister() {
         }));
       }
 
-      toast({
-        title: "Saída registrada!",
+      toast.success("Saída registrada!", {
         description: `Saída registrada às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
       setNotes("");
@@ -230,7 +228,7 @@ export default function PontoRegister() {
       const msg = err?.code === 1
         ? "Permissão de localização negada."
         : err?.message || "Erro ao registrar saída";
-      toast({ title: "Erro", description: msg, variant: "destructive" });
+      toast.error("Erro", { description: msg });
     } finally {
       setSubmitting(false);
     }
