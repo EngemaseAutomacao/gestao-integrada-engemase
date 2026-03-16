@@ -198,6 +198,21 @@ export default function AdminUsers() {
     }
   };
 
+  const handleToggleFirstLogin = async (userId: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ first_login: !currentValue } as any)
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      toast.success(!currentValue ? "Troca de senha ativada" : "Troca de senha desativada");
+      loadUsers();
+    } catch (error: any) {
+      toast.error("Erro ao atualizar", { description: error.message });
+    }
+
   const handleOpenPasswordDialog = (user: Profile) => {
     setSelectedUser(user);
     setNewPassword("");
