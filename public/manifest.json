@@ -1,7 +1,7 @@
 {
-  "name": "Sistema de Gestão de Ativos",
-  "short_name": "Gestão de Ativos",
-  "description": "Sistema de gestão de ativos, ferramentas e veículos para Engemase Engenharia",
+  "name": "Gestão Integrada Engemase",
+  "short_name": "Gestão Integrada",
+  "description": "Gestão integrada de ferramentas, veículos e jornada para Engemase Engenharia",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e2d40",
