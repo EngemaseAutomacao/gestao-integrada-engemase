@@ -57,6 +57,9 @@ interface AnalyticsMetrics {
 export default function AdminAnalytics() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [periodFilter, setPeriodFilter] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [metrics, setMetrics] = useState<AnalyticsMetrics>({
     totalCheckouts: 0,
     averageUsageDays: 0,
@@ -73,9 +76,23 @@ export default function AdminAnalytics() {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
+
+  const getDateRange = (): { from: Date | null; to: Date | null } => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { from: subDays(now, 7), to: now };
+      case "30d": return { from: subDays(now, 30), to: now };
+      case "90d": return { from: subDays(now, 90), to: now };
+      case "6m": return { from: subMonths(now, 6), to: now };
+      case "1y": return { from: startOfYear(now), to: now };
+      case "custom": return { from: startDate || null, to: endDate || null };
+      default: return { from: null, to: null };
+    }
+  };
+
   useEffect(() => {
     loadAnalytics();
-  }, []);
+  }, [periodFilter, startDate, endDate]);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
