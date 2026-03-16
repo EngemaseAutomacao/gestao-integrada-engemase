@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
-import { InstallPWA } from "@/components/InstallPWA";
+
 import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -237,7 +237,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <OfflineIndicator />
-          <InstallPWA />
+          
           <ThemeToggle />
           <NotificationBell />
           
