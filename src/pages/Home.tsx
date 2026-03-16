@@ -143,7 +143,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center p-4 sm:p-6">
+    <div className="flex flex-col items-center justify-center p-4 sm:p-6 flex-1">
       <div className="text-center mb-6 sm:mb-8">
         <img src={engemaseLogo} alt="Engemase Engenharia" className="w-32 sm:w-48 h-auto mx-auto mb-3 sm:mb-4" />
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
