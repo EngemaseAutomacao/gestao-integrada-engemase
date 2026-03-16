@@ -212,7 +212,7 @@ export default function AdminUsers() {
     } catch (error: any) {
       toast.error("Erro ao atualizar", { description: error.message });
     }
-
+  };
   const handleOpenPasswordDialog = (user: Profile) => {
     setSelectedUser(user);
     setNewPassword("");
