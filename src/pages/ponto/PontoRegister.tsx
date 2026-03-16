@@ -219,8 +219,7 @@ export default function PontoRegister() {
         }));
       }
 
-      toast({
-        title: "Saída registrada!",
+      toast.success("Saída registrada!", {
         description: `Saída registrada às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
       setNotes("");
