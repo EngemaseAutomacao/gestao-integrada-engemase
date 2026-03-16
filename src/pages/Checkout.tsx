@@ -137,7 +137,8 @@ export default function Checkout() {
       return;
     }
 
-    if (!constructionSite.trim()) {
+    const finalSite = constructionSite === "__custom__" ? customConstructionSite.trim() : constructionSite;
+    if (!finalSite) {
       toast.error("Informe a obra de destino");
       return;
     }
