@@ -1,5 +1,11 @@
-const CACHE_NAME = 'engemase-tools-v6';
-const DYNAMIC_CACHE = 'engemase-dynamic-v6';
+// ============================================================
+// Service Worker with version-aware cache invalidation
+// ============================================================
+
+const STATIC_CACHE = 'engemase-static-v7';
+const DYNAMIC_CACHE = 'engemase-dynamic-v7';
+const MAX_CACHE_SIZE = 50;
+const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 const urlsToCache = [
   '/',
@@ -8,69 +14,114 @@ const urlsToCache = [
   '/icon.png'
 ];
 
-// Max cache size for dynamic content
-const MAX_CACHE_SIZE = 50;
+// ---- Version checking ----
+let currentVersion = null;
 
-// Install service worker
+async function checkForUpdates() {
+  try {
+    const response = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!response.ok) return;
+    const data = await response.json();
+    const newVersion = data.version;
+
+    if (currentVersion === null) {
+      currentVersion = newVersion;
+      console.log('[SW] Initial version:', currentVersion);
+      return;
+    }
+
+    if (newVersion !== currentVersion) {
+      console.log('[SW] Version changed:', currentVersion, '→', newVersion);
+      currentVersion = newVersion;
+      await purgeAllCaches();
+      // Notify all clients to reload
+      const clients = await self.clients.matchAll({ type: 'window' });
+      clients.forEach(client => client.postMessage({ type: 'VERSION_UPDATED', version: newVersion }));
+    }
+  } catch (e) {
+    // Offline or network error — ignore
+  }
+}
+
+async function purgeAllCaches() {
+  const names = await caches.keys();
+  await Promise.all(names.map(name => caches.delete(name)));
+  console.log('[SW] All caches purged for new version');
+  // Re-populate static cache
+  const cache = await caches.open(STATIC_CACHE);
+  await cache.addAll(urlsToCache).catch(() => {});
+}
+
+// ---- Cache size limiter ----
+async function limitCacheSize(name, size) {
+  const cache = await caches.open(name);
+  const keys = await cache.keys();
+  if (keys.length > size) {
+    await cache.delete(keys[0]);
+    await limitCacheSize(name, size);
+  }
+}
+
+// ---- Install ----
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(urlsToCache))
       .then(() => self.skipWaiting())
   );
 });
 
-// Limit cache size
-const limitCacheSize = (name, size) => {
-  caches.open(name).then(cache => {
-    cache.keys().then(keys => {
-      if (keys.length > size) {
-        cache.delete(keys[0]).then(() => limitCacheSize(name, size));
-      }
-    });
-  });
-};
+// ---- Activate ----
+self.addEventListener('activate', (event) => {
+  const keep = [STATIC_CACHE, DYNAMIC_CACHE];
+  event.waitUntil(
+    caches.keys()
+      .then(names => Promise.all(
+        names.filter(n => !keep.includes(n)).map(n => {
+          console.log('[SW] Removing old cache:', n);
+          return caches.delete(n);
+        })
+      ))
+      .then(() => self.clients.claim())
+      .then(() => checkForUpdates())
+  );
+});
 
-// Network first strategy for API calls, cache first for static assets
+// ---- Fetch strategies ----
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
-  // Handle API requests (network first, cache fallback)
+
+  // Skip version.json — always network
+  if (url.pathname === '/version.json') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // API requests: network-first
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(
       fetch(event.request)
-        .then((response) => {
-          // Clone the response before caching
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(event.request, responseClone);
+        .then(response => {
+          const clone = response.clone();
+          caches.open(DYNAMIC_CACHE).then(cache => {
+            cache.put(event.request, clone);
             limitCacheSize(DYNAMIC_CACHE, MAX_CACHE_SIZE);
           });
           return response;
         })
-        .catch(() => {
-          // If network fails, try cache
-          return caches.match(event.request);
-        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
-  
-  // Handle static assets
-  // Use network-first for JS/CSS to prevent stale cached bundles
-  // Use cache-first only for images/fonts
-  const isJsOrCss = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
-  
-  if (isJsOrCss) {
-    // Network first for JS/CSS - always get fresh bundles
+
+  // JS/CSS: network-first (prevents stale bundles)
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
     event.respondWith(
       fetch(event.request)
-        .then((response) => {
+        .then(response => {
           if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
+            const clone = response.clone();
+            caches.open(DYNAMIC_CACHE).then(cache => cache.put(event.request, clone));
           }
           return response;
         })
@@ -82,57 +133,32 @@ self.addEventListener('fetch', (event) => {
   // Cache first for other static assets (images, fonts, etc.)
   event.respondWith(
     caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        
-        return fetch(event.request).then((response) => {
-          if (!response || response.status !== 200 || response.type === 'error') {
-            return response;
-          }
-          
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-          
+      .then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (!response || response.status !== 200 || response.type === 'error') return response;
+          const clone = response.clone();
+          caches.open(DYNAMIC_CACHE).then(cache => cache.put(event.request, clone));
           return response;
         });
       })
   );
-
 });
 
-// Clean up old caches on activate
-self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME, DYNAMIC_CACHE];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('[SW] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      // Claim all clients to use new service worker immediately
-      return self.clients.claim();
-    })
-  );
-});
-
-// Periodically check for SW updates (every 30 minutes)
+// ---- Periodic version check ----
 setInterval(() => {
-  self.registration.update().catch(() => {});
-}, 30 * 60 * 1000);
+  checkForUpdates();
+}, VERSION_CHECK_INTERVAL);
 
-// Handle push notifications
+// Also check on SW update
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CHECK_VERSION') {
+    checkForUpdates();
+  }
+});
+
+// ---- Push notifications ----
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push event received');
-  
   let data = {
     title: 'Notificação',
     body: 'Você tem uma nova notificação',
@@ -141,7 +167,7 @@ self.addEventListener('push', (event) => {
     tag: 'default',
     data: {}
   };
-  
+
   if (event.data) {
     try {
       const payload = event.data.json();
@@ -150,55 +176,40 @@ self.addEventListener('push', (event) => {
       data.body = event.data.text();
     }
   }
-  
-  const options = {
-    body: data.body,
-    icon: data.icon || '/icon-192.png',
-    badge: data.badge || '/icon-192.png',
-    tag: data.tag || 'default',
-    data: data.data || {},
-    vibrate: [200, 100, 200],
-    requireInteraction: false,
-    actions: [
-      { action: 'open', title: 'Abrir' },
-      { action: 'close', title: 'Fechar' }
-    ]
-  };
-  
+
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon || '/icon-192.png',
+      badge: data.badge || '/icon-192.png',
+      tag: data.tag || 'default',
+      data: data.data || {},
+      vibrate: [200, 100, 200],
+      requireInteraction: false,
+      actions: [
+        { action: 'open', title: 'Abrir' },
+        { action: 'close', title: 'Fechar' }
+      ]
+    })
   );
 });
 
-// Handle notification click
+// ---- Notification click ----
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification click:', event.action);
-  
   event.notification.close();
-  
-  if (event.action === 'close') {
-    return;
-  }
-  
-  // Open the app or focus existing window
+  if (event.action === 'close') return;
+
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        // If there's already a window open, focus it
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then(clientList => {
         for (const client of clientList) {
           if (client.url.includes(self.location.origin) && 'focus' in client) {
             return client.focus();
           }
         }
-        // Otherwise open a new window
-        if (clients.openWindow) {
-          return clients.openWindow('/');
-        }
+        if (self.clients.openWindow) return self.clients.openWindow('/');
       })
   );
 });
 
-// Handle notification close
-self.addEventListener('notificationclose', (event) => {
-  console.log('[SW] Notification closed');
-});
+self.addEventListener('notificationclose', () => {});
