@@ -21,14 +21,25 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    // Validate full name
+    if (!fullName.trim() || fullName.trim().length < 2 || fullName.length > 100) {
+      toast.error("O nome completo deve ter entre 2 e 100 caracteres");
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("As senhas não coincidem");
       return;
     }
 
-    if (password.length < 6) {
-      toast.error("A senha deve ter pelo menos 6 caracteres");
+    if (password.length < 8) {
+      toast.error("A senha deve ter pelo menos 8 caracteres");
+      return;
+    }
+
+    if (password.length > 128) {
+      toast.error("A senha deve ter no máximo 128 caracteres");
       return;
     }
 
@@ -37,10 +48,10 @@ export default function Register() {
       return;
     }
 
-    // Check if username contains only valid characters
-    const usernameRegex = /^[a-z0-9.]+$/;
+    // Check if username contains only valid characters and length
+    const usernameRegex = /^[a-z0-9.]{3,30}$/;
     if (!usernameRegex.test(username)) {
-      toast.error("O nome de usuário deve conter apenas letras minúsculas, números e ponto");
+      toast.error("O nome de usuário deve ter 3-30 caracteres (letras minúsculas, números e ponto)");
       return;
     }
 
