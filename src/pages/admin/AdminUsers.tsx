@@ -252,7 +252,7 @@ export default function AdminUsers() {
     e.preventDefault();
     setPasswordError("");
 
-    const passwordSchema = z.string().min(6, "A senha deve ter no mínimo 6 caracteres");
+    const passwordSchema = z.string().min(8, "A senha deve ter no mínimo 8 caracteres").max(128, "A senha deve ter no máximo 128 caracteres");
     const validation = passwordSchema.safeParse(newPassword);
 
     if (!validation.success) {
