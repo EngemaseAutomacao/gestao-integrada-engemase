@@ -112,11 +112,7 @@ export default function Checkin() {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("checkout-images")
-        .getPublicUrl(fileName);
-
-      return publicUrl;
+      return fileName;
     } catch (error) {
       console.error(`Error uploading ${type}:`, error);
       return null;

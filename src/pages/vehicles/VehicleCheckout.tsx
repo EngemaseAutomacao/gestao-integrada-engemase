@@ -52,8 +52,7 @@ export default function VehicleCheckout() {
     const filePath = `vehicles/${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
     const { error } = await supabase.storage.from("checkout-images").upload(filePath, file);
     if (error) throw error;
-    const { data: { publicUrl } } = supabase.storage.from("checkout-images").getPublicUrl(filePath);
-    return publicUrl;
+    return filePath;
   };
 
   const checkoutMutation = useMutation({
