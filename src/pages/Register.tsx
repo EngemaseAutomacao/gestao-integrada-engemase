@@ -174,7 +174,7 @@ export default function Register() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                minLength={6}
+                minLength={8}
               />
             </div>
 
