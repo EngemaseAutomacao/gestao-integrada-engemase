@@ -82,6 +82,30 @@ export default function AdminUsers() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (formData.fullName.trim().length < 2 || formData.fullName.length > 100) {
+      toast.error("Nome completo deve ter entre 2 e 100 caracteres");
+      return;
+    }
+
+    const usernameRegex = /^[a-z0-9.]{3,30}$/;
+    if (!usernameRegex.test(formData.username)) {
+      toast.error("Nome de usuário deve ter 3-30 caracteres (letras minúsculas, números e ponto)");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email) || formData.email.length > 255) {
+      toast.error("Formato de email inválido");
+      return;
+    }
+
+    if (formData.password.length < 8 || formData.password.length > 128) {
+      toast.error("A senha deve ter entre 8 e 128 caracteres");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -89,7 +113,7 @@ export default function AdminUsers() {
         body: {
           email: formData.email,
           password: formData.password,
-          fullName: formData.fullName,
+          fullName: formData.fullName.trim(),
           username: formData.username,
           category: formData.category,
           role: formData.role,
@@ -228,7 +252,7 @@ export default function AdminUsers() {
     e.preventDefault();
     setPasswordError("");
 
-    const passwordSchema = z.string().min(6, "A senha deve ter no mínimo 6 caracteres");
+    const passwordSchema = z.string().min(8, "A senha deve ter no mínimo 8 caracteres").max(128, "A senha deve ter no máximo 128 caracteres");
     const validation = passwordSchema.safeParse(newPassword);
 
     if (!validation.success) {
@@ -353,7 +377,7 @@ export default function AdminUsers() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  minLength={6}
+                  minLength={8}
                 />
               </div>
 

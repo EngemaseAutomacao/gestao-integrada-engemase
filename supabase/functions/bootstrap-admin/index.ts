@@ -10,16 +10,36 @@ interface BootstrapAdminRequest {
   password: string;
   fullName: string;
   username: string;
+  secretKey: string;
+}
+
+function sanitizeError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : '';
+  if (msg.includes('already registered')) return 'Este email já está registrado';
+  if (msg.includes('duplicate key')) return 'Este registro já existe';
+  return 'Ocorreu um erro interno. Tente novamente.';
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Create Supabase client with service role for admin operations
+    const body: BootstrapAdminRequest = await req.json();
+
+    // Validate bootstrap secret key
+    const expectedSecret = Deno.env.get('BOOTSTRAP_SECRET_KEY');
+    if (!expectedSecret || body.secretKey !== expectedSecret) {
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -45,7 +65,7 @@ Deno.serve(async (req) => {
 
     if (existingAdmins && existingAdmins.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'Bootstrap admin already exists. Use the admin panel to create more admins.' }),
+        JSON.stringify({ error: 'Administrador já existe no sistema.' }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400,
@@ -53,13 +73,50 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Parse request body
-    const body: BootstrapAdminRequest = await req.json();
-    console.log('Creating bootstrap admin:', body.email);
-
     // Validate required fields
     if (!body.email || !body.password || !body.fullName || !body.username) {
-      throw new Error('Missing required fields: email, password, fullName, username');
+      return new Response(
+        JSON.stringify({ error: 'Campos obrigatórios não preenchidos' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(body.email)) {
+      return new Response(
+        JSON.stringify({ error: 'Formato de email inválido' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    // Validate password length
+    if (body.password.length < 8) {
+      return new Response(
+        JSON.stringify({ error: 'A senha deve ter no mínimo 8 caracteres' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    // Validate username format
+    const usernameRegex = /^[a-z0-9.]{3,30}$/;
+    if (!usernameRegex.test(body.username)) {
+      return new Response(
+        JSON.stringify({ error: 'Nome de usuário deve ter 3-30 caracteres (letras minúsculas, números e ponto)' }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
     }
 
     // Create auth user
@@ -107,13 +164,10 @@ Deno.serve(async (req) => {
 
     if (roleError) {
       console.error('Error adding role:', roleError);
-      // Don't throw, profile is already set as admin
     }
 
-    console.log('Bootstrap admin created successfully:', authData.user.id);
-
     return new Response(
-      JSON.stringify({ success: true, user: { id: authData.user.id, email: authData.user.email } }),
+      JSON.stringify({ success: true }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -122,9 +176,8 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in bootstrap-admin function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: sanitizeError(error) }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet } from "lucide-react";
+import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -377,14 +378,14 @@ export default function AdminHistory() {
                                           {selectedEntry.checkout_photo_url && (
                                             <div>
                                               <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                              <img src={selectedEntry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
+                                              <SignedImage storagePath={selectedEntry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
                                             </div>
                                           )}
                                           {selectedEntry.checkout_signature_url && (
                                             <div>
                                               <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
                                               <div className="border rounded-lg p-2 bg-white">
-                                                <img src={selectedEntry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
+                                                <SignedImage storagePath={selectedEntry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
                                               </div>
                                             </div>
                                           )}
@@ -397,14 +398,14 @@ export default function AdminHistory() {
                                           {selectedEntry.checkin_photo_url && (
                                             <div>
                                               <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                              <img src={selectedEntry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
+                                              <SignedImage storagePath={selectedEntry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
                                             </div>
                                           )}
                                           {selectedEntry.checkin_signature_url && (
                                             <div>
                                               <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
                                               <div className="border rounded-lg p-2 bg-white">
-                                                <img src={selectedEntry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
+                                                <SignedImage storagePath={selectedEntry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
                                               </div>
                                             </div>
                                           )}
