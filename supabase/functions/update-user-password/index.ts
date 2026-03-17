@@ -5,19 +5,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface UpdatePasswordRequest {
-  userId: string;
-  newPassword: string;
+function sanitizeError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : '';
+  if (msg.includes('Unauthorized') || msg.includes('Admin')) return 'Não autorizado';
+  return 'Ocorreu um erro ao alterar a senha. Tente novamente.';
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Create Supabase client with service role for admin operations
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -29,21 +28,24 @@ Deno.serve(async (req) => {
       }
     );
 
-    // Verify the request has a valid JWT and user is admin
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
     }
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
     
     if (userError || !user) {
-      console.error('User verification failed:', userError);
-      throw new Error('Unauthorized');
+      return new Response(
+        JSON.stringify({ error: 'Não autorizado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
     }
 
-    // Check if user is admin
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('role')
@@ -51,25 +53,35 @@ Deno.serve(async (req) => {
       .single();
 
     if (profileError || profile?.role !== 'admin') {
-      console.error('Admin check failed:', profileError);
-      throw new Error('Unauthorized: Admin access required');
+      return new Response(
+        JSON.stringify({ error: 'Acesso restrito a administradores' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
     }
 
-    // Parse request body
-    const body: UpdatePasswordRequest = await req.json();
-    console.log('Updating password for user:', body.userId);
+    const body = await req.json();
 
-    // Validate required fields
-    if (!body.userId || !body.newPassword) {
-      throw new Error('Missing required fields: userId, newPassword');
+    if (!body.userId || typeof body.userId !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'ID do usuário inválido' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
 
-    // Validate password length
-    if (body.newPassword.length < 6) {
-      throw new Error('Password must be at least 6 characters long');
+    if (!body.newPassword || typeof body.newPassword !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Senha inválida' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
 
-    // Update user password
+    if (body.newPassword.length < 8 || body.newPassword.length > 128) {
+      return new Response(
+        JSON.stringify({ error: 'A senha deve ter entre 8 e 128 caracteres' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
       body.userId,
       { password: body.newPassword }
@@ -79,8 +91,6 @@ Deno.serve(async (req) => {
       console.error('Error updating password:', updateError);
       throw updateError;
     }
-
-    console.log('Password updated successfully for user:', body.userId);
 
     return new Response(
       JSON.stringify({ success: true }),
@@ -92,9 +102,8 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in update-user-password function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: sanitizeError(error) }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

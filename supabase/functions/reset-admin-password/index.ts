@@ -5,10 +5,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface ResetPasswordRequest {
-  email: string;
-  newPassword: string;
-  secretKey: string;
+function sanitizeError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : '';
+  if (msg.includes('not found')) return 'Usuário não encontrado';
+  return 'Ocorreu um erro ao redefinir a senha. Tente novamente.';
 }
 
 Deno.serve(async (req) => {
@@ -17,17 +17,31 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body: ResetPasswordRequest = await req.json();
+    const body = await req.json();
 
-    // Validate secret key from environment variable
+    // Validate secret key
     const expectedSecret = Deno.env.get('ADMIN_RESET_SECRET_KEY');
     if (!expectedSecret || body.secretKey !== expectedSecret) {
       return new Response(
-        JSON.stringify({ error: 'Invalid secret key' }),
+        JSON.stringify({ error: 'Não autorizado' }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 401,
         }
+      );
+    }
+
+    if (!body.email || !body.newPassword) {
+      return new Response(
+        JSON.stringify({ error: 'Campos obrigatórios não preenchidos' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    if (body.newPassword.length < 8 || body.newPassword.length > 128) {
+      return new Response(
+        JSON.stringify({ error: 'A senha deve ter entre 8 e 128 caracteres' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
 
@@ -42,8 +56,6 @@ Deno.serve(async (req) => {
       }
     );
 
-    console.log('Looking for user:', body.email);
-
     const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (listError) {
@@ -55,7 +67,7 @@ Deno.serve(async (req) => {
     
     if (!user) {
       return new Response(
-        JSON.stringify({ error: 'User not found' }),
+        JSON.stringify({ error: 'Usuário não encontrado' }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 404,
@@ -73,8 +85,6 @@ Deno.serve(async (req) => {
       throw updateError;
     }
 
-    console.log('Password updated successfully for:', body.email);
-
     return new Response(
       JSON.stringify({ success: true }),
       {
@@ -85,9 +95,8 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in reset-admin-password function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: sanitizeError(error) }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

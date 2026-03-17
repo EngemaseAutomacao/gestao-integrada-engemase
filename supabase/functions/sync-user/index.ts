@@ -5,10 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface SyncUserRequest {
-  profileId: string;
-  password: string;
-  secretKey: string;
+function sanitizeError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : '';
+  if (msg.includes('already registered') || msg.includes('duplicate key')) return 'Este email já está registrado';
+  if (msg.includes('not found')) return 'Perfil não encontrado';
+  return 'Ocorreu um erro ao sincronizar o usuário. Tente novamente.';
 }
 
 Deno.serve(async (req) => {
@@ -17,13 +18,13 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body: SyncUserRequest = await req.json();
+    const body = await req.json();
 
-    // Validate secret key from environment variable
+    // Validate secret key
     const expectedSecret = Deno.env.get('SYNC_USER_SECRET_KEY');
     if (!expectedSecret || body.secretKey !== expectedSecret) {
       return new Response(
-        JSON.stringify({ error: 'Invalid secret key' }),
+        JSON.stringify({ error: 'Não autorizado' }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 401,
@@ -31,7 +32,20 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create Supabase client with service role for admin operations
+    if (!body.profileId || !body.password) {
+      return new Response(
+        JSON.stringify({ error: 'Campos obrigatórios não preenchidos' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    if (body.password.length < 8 || body.password.length > 128) {
+      return new Response(
+        JSON.stringify({ error: 'A senha deve ter entre 8 e 128 caracteres' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -43,8 +57,6 @@ Deno.serve(async (req) => {
       }
     );
 
-    console.log('Looking for profile:', body.profileId);
-
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
@@ -53,7 +65,7 @@ Deno.serve(async (req) => {
 
     if (profileError || !profile) {
       return new Response(
-        JSON.stringify({ error: 'Profile not found' }),
+        JSON.stringify({ error: 'Perfil não encontrado' }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 404,
@@ -61,13 +73,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('Found profile:', profile.email);
-
     const { data: getUserData, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(body.profileId);
     const existingUser = getUserData?.user ?? null;
 
     if (existingUser && !getUserError) {
-      console.log('Auth user exists, updating password');
       const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
         existingUser.id,
         { password: body.password }
@@ -80,7 +89,6 @@ Deno.serve(async (req) => {
 
       const authEmail = existingUser.email ?? null;
       if (authEmail && profile.email !== authEmail) {
-        console.log('Syncing profile email to auth email:', { from: profile.email, to: authEmail });
         const { error: syncEmailError } = await supabaseAdmin
           .from('profiles')
           .update({ email: authEmail })
@@ -94,7 +102,6 @@ Deno.serve(async (req) => {
         JSON.stringify({
           success: true,
           action: 'password_updated',
-          authEmail,
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -103,8 +110,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('User does not exist in auth, creating...');
-    
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: profile.email,
       password: body.password,
@@ -121,8 +126,6 @@ Deno.serve(async (req) => {
       console.error('Error creating user:', authError);
       throw authError;
     }
-
-    console.log('Created auth user:', authData.user.id);
 
     await supabaseAdmin.from('tools').update({ created_by: authData.user.id }).eq('created_by', body.profileId);
     await supabaseAdmin.from('tool_checkouts').update({ user_id: authData.user.id }).eq('user_id', body.profileId);
@@ -160,8 +163,6 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         action: 'user_created',
-        newUserId: authData.user.id,
-        message: 'User created and data migrated'
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -171,9 +172,8 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in sync-user function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: sanitizeError(error) }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
