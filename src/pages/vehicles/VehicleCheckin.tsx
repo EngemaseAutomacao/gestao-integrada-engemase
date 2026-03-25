@@ -130,7 +130,7 @@ export default function VehicleCheckin() {
   const selectedCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <ArrowLeftCircle className="w-8 h-8 text-green-600" />

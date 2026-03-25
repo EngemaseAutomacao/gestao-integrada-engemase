@@ -110,7 +110,7 @@ export default function VehicleCheckout() {
   const selectedVehicleData = availableVehicles?.find(v => v.id === selectedVehicle);
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <ArrowRightCircle className="w-8 h-8 text-orange-600" />
