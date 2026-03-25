@@ -213,7 +213,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <Button variant="ghost" onClick={() => navigate("/ferramentas")} className="gap-2">
         <ArrowLeft className="w-4 h-4" />
         Voltar
@@ -225,84 +225,115 @@ export default function Checkout() {
           <CardDescription>Registre a retirada de uma ferramenta</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleCheckout} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="tool">Ferramenta *</Label>
-              <Select
-                key={selectedToolId || "empty"}
-                value={selectedToolId}
-                onValueChange={(val) => { setSelectedToolId(val); setSelectedTag(""); }}
-                disabled={loadingTools}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma ferramenta" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tools.map((tool) => (
-                    <SelectItem key={tool.id} value={tool.id}>
-                      {tool.name} (Disponível: {tool.quantity_available})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Tag Selection for tools with multiple tags */}
-            {selectedToolId && hasMultipleTags && (
+          <form onSubmit={handleCheckout} className="space-y-6">
+            {/* Two-column grid on desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
-                <Label>Selecione a TAG *</Label>
-                <Select value={selectedTag} onValueChange={setSelectedTag}>
+                <Label htmlFor="tool">Ferramenta *</Label>
+                <Select
+                  key={selectedToolId || "empty"}
+                  value={selectedToolId}
+                  onValueChange={(val) => { setSelectedToolId(val); setSelectedTag(""); }}
+                  disabled={loadingTools}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione qual TAG está retirando" />
+                    <SelectValue placeholder="Selecione uma ferramenta" />
                   </SelectTrigger>
                   <SelectContent>
-                    {toolTags.map((tag) => (
-                      <SelectItem key={tag} value={tag}>
-                        TAG {tag}
+                    {tools.map((tool) => (
+                      <SelectItem key={tool.id} value={tool.id}>
+                        {tool.name} (Disponível: {tool.quantity_available})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="construction_site">Obra de Destino *</Label>
-              <Select value={constructionSite} onValueChange={setConstructionSite}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a obra" />
-                </SelectTrigger>
-                <SelectContent>
-                  {constructionSites?.map((site) => (
-                    <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
-                  ))}
-                  <SelectItem value="__custom__">Outra (digitar)</SelectItem>
-                </SelectContent>
-              </Select>
-              {constructionSite === "__custom__" && (
-                <Input
-                  placeholder="Digite o nome da obra..."
-                  value={customConstructionSite}
-                  onChange={(e) => setCustomConstructionSite(e.target.value)}
-                  className="mt-2"
-                />
+
+              {/* Tag Selection for tools with multiple tags */}
+              {selectedToolId && hasMultipleTags ? (
+                <div className="space-y-2">
+                  <Label>Selecione a TAG *</Label>
+                  <Select value={selectedTag} onValueChange={setSelectedTag}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione qual TAG está retirando" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {toolTags.map((tag) => (
+                        <SelectItem key={tag} value={tag}>
+                          TAG {tag}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="construction_site">Obra de Destino *</Label>
+                  <Select value={constructionSite} onValueChange={setConstructionSite}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a obra" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {constructionSites?.map((site) => (
+                        <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
+                      ))}
+                      <SelectItem value="__custom__">Outra (digitar)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {constructionSite === "__custom__" && (
+                    <Input
+                      placeholder="Digite o nome da obra..."
+                      value={customConstructionSite}
+                      onChange={(e) => setCustomConstructionSite(e.target.value)}
+                      className="mt-2"
+                    />
+                  )}
+                </div>
               )}
+
+              {/* Show construction site in its own row if tag selection is visible */}
+              {selectedToolId && hasMultipleTags && (
+                <div className="space-y-2">
+                  <Label htmlFor="construction_site">Obra de Destino *</Label>
+                  <Select value={constructionSite} onValueChange={setConstructionSite}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a obra" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {constructionSites?.map((site) => (
+                        <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
+                      ))}
+                      <SelectItem value="__custom__">Outra (digitar)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {constructionSite === "__custom__" && (
+                    <Input
+                      placeholder="Digite o nome da obra..."
+                      value={customConstructionSite}
+                      onChange={(e) => setCustomConstructionSite(e.target.value)}
+                      className="mt-2"
+                    />
+                  )}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="estimated_return">Previsão de Devolução *</Label>
+                <input
+                  id="estimated_return"
+                  type="datetime-local"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={estimatedReturnDate}
+                  onChange={(e) => setEstimatedReturnDate(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  Informe até quando você planeja usar a ferramenta
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="estimated_return">Previsão de Devolução *</Label>
-              <input
-                id="estimated_return"
-                type="datetime-local"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                value={estimatedReturnDate}
-                onChange={(e) => setEstimatedReturnDate(e.target.value)}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Informe até quando você planeja usar a ferramenta
-              </p>
-            </div>
-
+            {/* Full-width fields */}
             <div className="space-y-2">
               <Label htmlFor="notes">Observações (opcional)</Label>
               <Textarea
@@ -343,7 +374,7 @@ export default function Checkout() {
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button 
                 type="submit" 
                 disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate || !photoConfirmed} 
