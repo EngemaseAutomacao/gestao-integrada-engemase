@@ -181,7 +181,7 @@ export default function Checkin() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <Button variant="ghost" onClick={() => navigate("/ferramentas")} className="gap-2">
         <ArrowLeft className="w-4 h-4" />
         Voltar

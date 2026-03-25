@@ -110,7 +110,7 @@ export default function VehicleCheckout() {
   const selectedVehicleData = availableVehicles?.find(v => v.id === selectedVehicle);
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <ArrowRightCircle className="w-8 h-8 text-orange-600" />
@@ -184,26 +184,28 @@ export default function VehicleCheckout() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="km_checkout">Quilometragem de Saída *</Label>
-                <Input
-                  id="km_checkout"
-                  type="number"
-                  placeholder="Ex: 45000"
-                  value={kmCheckout}
-                  onChange={(e) => setKmCheckout(e.target.value)}
-                  required
-                />
-              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="km_checkout">Quilometragem de Saída *</Label>
+                  <Input
+                    id="km_checkout"
+                    type="number"
+                    placeholder="Ex: 45000"
+                    value={kmCheckout}
+                    onChange={(e) => setKmCheckout(e.target.value)}
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="destination">Destino</Label>
-                <Input
-                  id="destination"
-                  placeholder="Ex: Obra Centro, Cliente ABC"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="destination">Destino</Label>
+                  <Input
+                    id="destination"
+                    placeholder="Ex: Obra Centro, Cliente ABC"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
