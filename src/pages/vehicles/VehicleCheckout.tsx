@@ -208,6 +208,7 @@ export default function VehicleCheckout() {
                 photos={photos}
                 previews={previews}
                 onPhotoChange={handlePhotoChange}
+                includeDashboard
               />
             </CardContent>
           </Card>
