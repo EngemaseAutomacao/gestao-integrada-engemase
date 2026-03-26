@@ -94,7 +94,7 @@ export default function VehicleDashboard() {
               Registrar Saída
             </CardTitle>
             <CardDescription>
-              Registre a saída de um veículo com quilometragem
+              Registre a saída de um veículo com fotos
             </CardDescription>
           </CardHeader>
           <CardContent>
