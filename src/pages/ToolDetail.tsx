@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ArrowLeft, Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
@@ -36,16 +37,19 @@ interface MaintenanceRecord {
   };
 }
 
-interface UsageHistory {
-  checkout_id: string;
-  user_name: string;
-  user_email: string;
-  user_category: string;
+interface CheckoutRecord {
+  id: string;
   checkout_date: string;
   checkin_date: string | null;
   status: string;
   construction_site: string | null;
-  days_used: number;
+  selected_tag: string | null;
+  notes: string | null;
+  user_profile: {
+    full_name: string;
+    email: string;
+    category: string;
+  };
 }
 
 interface ToolIssue {
@@ -90,9 +94,12 @@ export default function ToolDetail() {
   const navigate = useNavigate();
   const [tool, setTool] = useState<Tool | null>(null);
   const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
-  const [usageHistory, setUsageHistory] = useState<UsageHistory[]>([]);
+  const [checkouts, setCheckouts] = useState<CheckoutRecord[]>([]);
   const [issues, setIssues] = useState<ToolIssue[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const tags = tool?.tag ? tool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+  const hasMultipleTags = tags.length > 1;
 
   useEffect(() => {
     if (id) {
@@ -103,7 +110,6 @@ export default function ToolDetail() {
 
   const loadToolData = async () => {
     try {
-      // Load tool details
       const { data: toolData, error: toolError } = await supabase
         .from("tools")
         .select("*")
@@ -113,7 +119,6 @@ export default function ToolDetail() {
       if (toolError) throw toolError;
       setTool(toolData);
 
-      // Load maintenance records
       const { data: maintenanceData, error: maintenanceError } = await supabase
         .from("maintenance_records")
         .select(`
@@ -126,12 +131,23 @@ export default function ToolDetail() {
       if (maintenanceError) throw maintenanceError;
       setMaintenanceRecords(maintenanceData as any || []);
 
-      // Load usage history
-      const { data: usageData, error: usageError } = await supabase
-        .rpc("get_tool_usage_history", { tool_uuid: id });
+      const { data: checkoutData, error: checkoutError } = await supabase
+        .from("tool_checkouts")
+        .select(`
+          id,
+          checkout_date,
+          checkin_date,
+          status,
+          construction_site,
+          selected_tag,
+          notes,
+          user_profile:profiles!tool_checkouts_user_id_fkey (full_name, email, category)
+        `)
+        .eq("tool_id", id)
+        .order("checkout_date", { ascending: false });
 
-      if (usageError) throw usageError;
-      setUsageHistory(usageData || []);
+      if (checkoutError) throw checkoutError;
+      setCheckouts(checkoutData as any || []);
     } catch (error: any) {
       toast.error("Erro ao carregar dados", {
         description: error.message,
@@ -160,6 +176,74 @@ export default function ToolDetail() {
       console.error("Error loading issues:", error);
     }
   };
+
+  const getCheckoutsForTag = (tag: string) => {
+    return checkouts.filter(c => c.selected_tag === tag);
+  };
+
+  const getDaysUsed = (checkout: CheckoutRecord) => {
+    const start = new Date(checkout.checkout_date);
+    const end = checkout.checkin_date ? new Date(checkout.checkin_date) : new Date();
+    return Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+  };
+
+  const renderCheckoutCard = (checkout: CheckoutRecord, showTag = false) => (
+    <Card key={checkout.id}>
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold">{checkout.user_profile.full_name}</p>
+              <p className="text-sm text-muted-foreground">{checkout.user_profile.email}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {showTag && checkout.selected_tag && (
+                <Badge variant="outline" className="text-xs">
+                  TAG: {checkout.selected_tag}
+                </Badge>
+              )}
+              <Badge variant={checkout.status === "checked_out" ? "default" : "secondary"}>
+                {checkout.status === "checked_out" ? "Em Uso" : "Devolvida"}
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <div>
+                <p className="text-muted-foreground">Retirada</p>
+                <p>{format(new Date(checkout.checkout_date), "dd/MM/yyyy", { locale: ptBR })}</p>
+              </div>
+            </div>
+            
+            {checkout.checkin_date && (
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="text-muted-foreground">Devolução</p>
+                  <p>{format(new Date(checkout.checkin_date), "dd/MM/yyyy", { locale: ptBR })}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 text-sm">
+            {checkout.construction_site && (
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-muted-foreground" />
+                <span>{checkout.construction_site}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span>{getDaysUsed(checkout)} dias</span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   if (loading || !tool) {
     return (
@@ -201,7 +285,13 @@ export default function ToolDetail() {
             {tool.tag && (
               <div>
                 <p className="text-sm font-medium">TAG</p>
-                <p className="text-muted-foreground">{tool.tag}</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             )}
             {tool.brand && (
@@ -288,66 +378,44 @@ export default function ToolDetail() {
             Histórico de Uso
           </CardTitle>
           <CardDescription>
-            {usageHistory.length} registros de uso
+            {checkouts.length} registros de uso
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {usageHistory.length === 0 ? (
+          {checkouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhum uso registrado
             </p>
+          ) : hasMultipleTags ? (
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="w-full flex flex-wrap h-auto gap-1">
+                <TabsTrigger value="all">
+                  Todos ({checkouts.length})
+                </TabsTrigger>
+                {tags.map((tag) => (
+                  <TabsTrigger key={tag} value={tag}>
+                    TAG {tag} ({getCheckoutsForTag(tag).length})
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsContent value="all" className="space-y-4 mt-4">
+                {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
+              </TabsContent>
+              {tags.map((tag) => (
+                <TabsContent key={tag} value={tag} className="space-y-4 mt-4">
+                  {getCheckoutsForTag(tag).length === 0 ? (
+                    <p className="text-center text-muted-foreground py-8">
+                      Nenhum uso registrado para TAG {tag}
+                    </p>
+                  ) : (
+                    getCheckoutsForTag(tag).map((checkout) => renderCheckoutCard(checkout))
+                  )}
+                </TabsContent>
+              ))}
+            </Tabs>
           ) : (
             <div className="space-y-4">
-              {usageHistory.map((usage) => (
-                <Card key={usage.checkout_id}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">{usage.user_name}</p>
-                          <p className="text-sm text-muted-foreground">{usage.user_email}</p>
-                        </div>
-                        <Badge variant={usage.status === "checked_out" ? "default" : "secondary"}>
-                          {usage.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <div>
-                            <p className="text-muted-foreground">Retirada</p>
-                            <p>{format(new Date(usage.checkout_date), "dd/MM/yyyy", { locale: ptBR })}</p>
-                          </div>
-                        </div>
-                        
-                        {usage.checkin_date && (
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <div>
-                              <p className="text-muted-foreground">Devolução</p>
-                              <p>{format(new Date(usage.checkin_date), "dd/MM/yyyy", { locale: ptBR })}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm">
-                        {usage.construction_site && (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span>{usage.construction_site}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-muted-foreground" />
-                          <span>{usage.days_used} dias</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
             </div>
           )}
         </CardContent>
