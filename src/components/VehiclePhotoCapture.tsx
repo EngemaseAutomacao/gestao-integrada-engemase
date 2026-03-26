@@ -25,7 +25,8 @@ interface VehiclePhotoCaptureProps {
   includeDashboard?: boolean;
 }
 
-export default function VehiclePhotoCapture({ photos, previews, onPhotoChange }: VehiclePhotoCaptureProps) {
+export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false }: VehiclePhotoCaptureProps) {
+  const ANGLES = includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES;
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
