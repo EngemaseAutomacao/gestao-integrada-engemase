@@ -226,8 +226,7 @@ function RecentVehicleActivity() {
               {checkout.status === "checked_out" ? "Em uso" : "Devolvido"}
             </span>
             <p className="text-xs text-muted-foreground mt-1">
-              KM: {checkout.km_checkout.toLocaleString()}
-              {checkout.km_checkin && ` → ${checkout.km_checkin.toLocaleString()}`}
+              {new Date(checkout.checkout_date).toLocaleDateString("pt-BR")}
             </p>
           </div>
         </div>
