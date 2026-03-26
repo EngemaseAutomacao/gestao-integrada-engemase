@@ -58,21 +58,21 @@ export default function VehicleCheckout() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
-      if (!kmCheckout) throw new Error("Informe a quilometragem de saída");
-      if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
+      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
 
-      const [frontUrl, backUrl, leftUrl, rightUrl] = await Promise.all([
+      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
         uploadPhoto(photos.front!, "front_out"),
         uploadPhoto(photos.back!, "back_out"),
         uploadPhoto(photos.left!, "left_out"),
         uploadPhoto(photos.right!, "right_out"),
+        uploadPhoto(photos.dashboard!, "dashboard_out"),
       ]);
 
       const { error } = await supabase.from("vehicle_checkouts").insert({
         vehicle_id: selectedVehicle,
         user_id: user.id,
         checked_out_by: user.id,
-        km_checkout: parseInt(kmCheckout),
+        km_checkout: 0,
         destination,
         notes,
         status: "checked_out",
