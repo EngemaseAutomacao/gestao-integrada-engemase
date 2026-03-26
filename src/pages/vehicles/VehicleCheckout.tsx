@@ -18,13 +18,12 @@ export default function VehicleCheckout() {
   const queryClient = useQueryClient();
   
   const [selectedVehicle, setSelectedVehicle] = useState("");
-  const [kmCheckout, setKmCheckout] = useState("");
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null });
-  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null });
+  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
 
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
