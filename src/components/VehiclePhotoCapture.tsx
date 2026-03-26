@@ -22,6 +22,7 @@ interface VehiclePhotoCaptureProps {
   photos: Record<string, File | null>;
   previews: Record<string, string | null>;
   onPhotoChange: (key: string, file: File | null, preview: string | null) => void;
+  includeDashboard?: boolean;
 }
 
 export default function VehiclePhotoCapture({ photos, previews, onPhotoChange }: VehiclePhotoCaptureProps) {
