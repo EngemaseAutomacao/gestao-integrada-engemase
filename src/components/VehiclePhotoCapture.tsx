@@ -44,7 +44,7 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-semibold">Fotos do Veículo (4 ângulos) *</Label>
+        <Label className="text-base font-semibold">Fotos do Veículo ({includeDashboard ? "4 ângulos + painel" : "4 ângulos"}) *</Label>
         {allCaptured && (
           <span className="text-sm text-green-600 flex items-center gap-1">
             <Check className="w-4 h-4" /> Todas capturadas
