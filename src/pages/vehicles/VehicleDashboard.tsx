@@ -111,7 +111,7 @@ export default function VehicleDashboard() {
               Registrar Chegada
             </CardTitle>
             <CardDescription>
-              Registre a chegada de um veículo com quilometragem
+              Registre a chegada de um veículo com fotos
             </CardDescription>
           </CardHeader>
           <CardContent>
