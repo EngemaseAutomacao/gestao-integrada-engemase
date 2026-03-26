@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function VehicleDashboard() {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { data: stats } = useQuery({
     queryKey: ["vehicle-stats"],
     queryFn: async () => {
