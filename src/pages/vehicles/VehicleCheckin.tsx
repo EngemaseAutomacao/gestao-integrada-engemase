@@ -179,7 +179,8 @@ export default function VehicleCheckin() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">Saída: {format(new Date(checkout.checkout_date), "dd/MM/yyyy", { locale: ptBR })}</p>
+                        <p className="text-sm font-medium">Saída: {format(new Date(checkout.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                        {checkout.destination && (
                           <p className="text-xs text-muted-foreground mt-1">
                             Destino: {checkout.destination}
                           </p>
