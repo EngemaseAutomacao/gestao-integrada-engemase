@@ -114,4 +114,4 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
   );
 }
 
-export { ANGLES };
+export { BASE_ANGLES as ANGLES };
