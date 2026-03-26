@@ -9,12 +9,14 @@ interface PhotoAngle {
   label: string;
 }
 
-const ANGLES: PhotoAngle[] = [
+const BASE_ANGLES: PhotoAngle[] = [
   { key: "front", label: "Frente" },
   { key: "back", label: "Traseira" },
   { key: "left", label: "Lado Esquerdo" },
   { key: "right", label: "Lado Direito" },
 ];
+
+const DASHBOARD_ANGLE: PhotoAngle = { key: "dashboard", label: "Painel do Veículo" };
 
 interface VehiclePhotoCaptureProps {
   photos: Record<string, File | null>;
