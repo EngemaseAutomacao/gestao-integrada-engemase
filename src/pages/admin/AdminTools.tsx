@@ -467,7 +467,7 @@ export default function AdminTools() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
-                {tools.map((tool) => (
+                {filteredTools.map((tool) => (
                   <Card key={tool.id} className="overflow-hidden">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
