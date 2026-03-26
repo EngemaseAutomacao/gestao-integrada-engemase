@@ -397,7 +397,7 @@ export default function AdminTools() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tools.map((tool) => (
+                    {filteredTools.map((tool) => (
                       <TableRow key={tool.id}>
                         <TableCell>
                           {tool.image_url ? (
