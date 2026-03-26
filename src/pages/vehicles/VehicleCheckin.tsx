@@ -205,29 +205,9 @@ export default function VehicleCheckin() {
               <CardTitle>Detalhes da Chegada</CardTitle>
               <CardDescription>
                 Veículo: {selectedCheckoutData.vehicles.name} ({selectedCheckoutData.vehicles.plate})
-                <br />
-                KM de Saída: {selectedCheckoutData.km_checkout.toLocaleString()}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="km_checkin">Quilometragem de Chegada *</Label>
-                <Input
-                  id="km_checkin"
-                  type="number"
-                  placeholder={`Mínimo: ${selectedCheckoutData.km_checkout}`}
-                  value={kmCheckin}
-                  onChange={(e) => setKmCheckin(e.target.value)}
-                  min={selectedCheckoutData.km_checkout}
-                  required
-                />
-                {kmCheckin && parseInt(kmCheckin) >= selectedCheckoutData.km_checkout && (
-                  <p className="text-sm text-muted-foreground">
-                    Distância percorrida: {(parseInt(kmCheckin) - selectedCheckoutData.km_checkout).toLocaleString()} km
-                  </p>
-                )}
-              </div>
-
               <div className="space-y-3">
                 <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
                 <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
@@ -257,6 +237,7 @@ export default function VehicleCheckin() {
                 photos={photos}
                 previews={previews}
                 onPhotoChange={handlePhotoChange}
+                includeDashboard
               />
             </CardContent>
           </Card>
