@@ -61,6 +61,15 @@ Deno.serve(async (req) => {
       console.log('Maintenance reminders check completed')
     }
 
+    // Check for prolonged vehicle use
+    console.log('Checking prolonged vehicle use...')
+    const { error: vehicleError } = await supabaseClient.rpc('check_prolonged_vehicle_use')
+    if (vehicleError) {
+      console.error('Error checking prolonged vehicle use:', vehicleError)
+    } else {
+      console.log('Prolonged vehicle use check completed')
+    }
+
     console.log('All notification checks completed successfully')
 
     return new Response(

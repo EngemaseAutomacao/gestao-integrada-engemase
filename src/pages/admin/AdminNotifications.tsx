@@ -189,6 +189,80 @@ export default function AdminNotifications() {
             </ul>
           </CardContent>
         </Card>
+
+        <Card className="border-yellow-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-yellow-500" />
+              Ferramenta em Atraso (Usuário)
+            </CardTitle>
+            <CardDescription>
+              Lembrete diário ao usuário com ferramenta atrasada
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Notificação diária ao usuário</li>
+              <li>• Informa quantos dias de atraso</li>
+              <li>• Incentiva a devolução</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-emerald-500" />
+              Conta Aprovada
+            </CardTitle>
+            <CardDescription>
+              Usuário notificado quando sua conta é aprovada
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Notificação imediata (trigger)</li>
+              <li>• Informa que já pode usar o sistema</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-cyan-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-cyan-500" />
+              Problema Resolvido
+            </CardTitle>
+            <CardDescription>
+              Usuário notificado quando seu problema é resolvido
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Notificação imediata (trigger)</li>
+              <li>• Inclui notas de resolução</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-rose-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-rose-500" />
+              Veículo em Uso Prolongado
+            </CardTitle>
+            <CardDescription>
+              Lembrete ao usuário após 24h com veículo
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Após 24h sem devolução</li>
+              <li>• Lembrete diário ao usuário</li>
+              <li>• Informa horas de uso</li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
