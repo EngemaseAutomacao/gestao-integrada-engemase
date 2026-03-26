@@ -35,6 +35,7 @@ export default function AdminTools() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
