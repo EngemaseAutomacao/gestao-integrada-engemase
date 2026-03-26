@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 interface Tool {
@@ -35,6 +35,7 @@ export default function AdminTools() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -71,6 +72,12 @@ export default function AdminTools() {
       setLoading(false);
     }
   };
+
+  const filteredTools = tools.filter((tool) =>
+    tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.tag?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.brand?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -358,7 +365,16 @@ export default function AdminTools() {
           <CardTitle>Ferramentas Cadastradas</CardTitle>
           <CardDescription>Total: {tools.length} ferramentas</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome, TAG, marca..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -381,7 +397,7 @@ export default function AdminTools() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {tools.map((tool) => (
+                    {filteredTools.map((tool) => (
                       <TableRow key={tool.id}>
                         <TableCell>
                           {tool.image_url ? (
@@ -451,7 +467,7 @@ export default function AdminTools() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
-                {tools.map((tool) => (
+                {filteredTools.map((tool) => (
                   <Card key={tool.id} className="overflow-hidden">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
