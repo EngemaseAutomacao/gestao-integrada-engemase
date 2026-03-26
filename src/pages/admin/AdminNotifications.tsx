@@ -285,39 +285,24 @@ export default function AdminNotifications() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-green-500/20 bg-green-500/5">
         <CardHeader>
-          <CardTitle>Automatização (Opcional)</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-green-500" />
+            Automatização Ativa
+          </CardTitle>
           <CardDescription>
-            Para executar as verificações automaticamente a cada hora, você pode configurar um cron job
+            As verificações periódicas são executadas automaticamente a cada hora
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              <p className="font-semibold mb-2">Configuração via SQL (Supabase)</p>
-              <p className="text-sm mb-2">Execute este comando SQL no painel do Supabase para configurar verificações automáticas a cada hora:</p>
-              <pre className="bg-muted p-3 rounded-md text-xs overflow-x-auto">
-{`-- Habilitar extensões necessárias
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-CREATE EXTENSION IF NOT EXISTS pg_net;
-
--- Agendar verificação a cada hora
-SELECT cron.schedule(
-  'check-notifications-hourly',
-  '0 * * * *', -- A cada hora
-  $$
-  SELECT net.http_post(
-    url:='https://ivkqzjwzdaneylitrsgt.supabase.co/functions/v1/check-notifications',
-    headers:='{"Content-Type": "application/json"}'::jsonb,
-    body:='{}'::jsonb
-  ) as request_id;
-  $$
-);`}
-              </pre>
-            </AlertDescription>
-          </Alert>
+        <CardContent>
+          <ul className="text-sm space-y-1 text-muted-foreground">
+            <li>• Ferramentas atrasadas (admin + usuário)</li>
+            <li>• Estoque baixo (admin)</li>
+            <li>• Lembretes de devolução (usuário)</li>
+            <li>• Manutenção preventiva (admin)</li>
+            <li>• Veículos em uso prolongado (usuário)</li>
+          </ul>
         </CardContent>
       </Card>
     </div>
