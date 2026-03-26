@@ -68,20 +68,15 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (!kmCheckin) throw new Error("Informe a quilometragem de chegada");
-      if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
+      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
       if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
-      const checkout = activeCheckouts?.find(c => c.id === selectedCheckout);
-      if (checkout && parseInt(kmCheckin) < checkout.km_checkout) {
-        throw new Error("A quilometragem de chegada não pode ser menor que a de saída");
-      }
-
-      const [frontUrl, backUrl, leftUrl, rightUrl] = await Promise.all([
+      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
         uploadPhoto(photos.front!, "front_in"),
         uploadPhoto(photos.back!, "back_in"),
         uploadPhoto(photos.left!, "left_in"),
         uploadPhoto(photos.right!, "right_in"),
+        uploadPhoto(photos.dashboard!, "dashboard_in"),
       ]);
 
       const { error } = await supabase
@@ -89,7 +84,7 @@ export default function VehicleCheckin() {
         .update({
           status: "checked_in",
           checkin_date: new Date().toISOString(),
-          km_checkin: parseInt(kmCheckin),
+          km_checkin: 0,
           checked_in_by: user.id,
           notes: notes || undefined,
           refueled: refueled === "yes",
