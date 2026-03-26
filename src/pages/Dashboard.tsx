@@ -39,7 +39,6 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      // Filter out employee-only tools for third-party users
       const filteredTools = data?.filter(tool => {
         if (profile?.category === "third_party" && tool.employee_only) {
           return false;
@@ -80,57 +79,59 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+    <div className="flex flex-col h-full min-h-0">
+      <div className="shrink-0 space-y-4 sm:space-y-6 pb-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ferramentas Disponíveis</CardTitle>
+              <CheckCircle className="h-4 w-4 text-success" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total de Ferramentas</CardTitle>
+              <Package className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {tools.reduce((acc, tool) => acc + tool.quantity_total, 0)}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Em Uso</CardTitle>
+              <AlertCircle className="h-4 w-4 text-warning" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ferramentas Disponíveis</CardTitle>
-            <CheckCircle className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Ferramentas</CardTitle>
-            <Package className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {tools.reduce((acc, tool) => acc + tool.quantity_total, 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Em Uso</CardTitle>
-            <AlertCircle className="h-4 w-4 text-warning" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Ferramentas</CardTitle>
           <CardDescription>Lista de ferramentas disponíveis</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative">
+        <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
+          <div className="relative shrink-0">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar ferramenta..."
@@ -140,7 +141,7 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="space-y-3">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
             {filteredTools.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
                 Nenhuma ferramenta encontrada
