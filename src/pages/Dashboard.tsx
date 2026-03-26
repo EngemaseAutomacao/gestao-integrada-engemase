@@ -176,7 +176,7 @@ export default function Dashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2 self-end sm:self-start">
+                      <div className="flex gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
                         <Button
                           size="sm"
                           className="text-xs sm:text-sm"
