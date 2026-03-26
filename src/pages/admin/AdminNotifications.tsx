@@ -56,7 +56,7 @@ export default function AdminNotifications() {
         </AlertDescription>
       </Alert>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export default function AdminNotifications() {
           </CardHeader>
           <CardContent>
             <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Verifica a cada verificação</li>
+              <li>• Verifica a cada execução</li>
               <li>• Notifica apenas uma vez por dia</li>
               <li>• Baseado na data de devolução estimada</li>
             </ul>
@@ -110,6 +110,82 @@ export default function AdminNotifications() {
               <li>• 3 dias antes da devolução</li>
               <li>• Notifica apenas uma vez por dia</li>
               <li>• Ajuda a evitar atrasos</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-green-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-green-500" />
+              Checkout/Checkin Ferramentas
+            </CardTitle>
+            <CardDescription>
+              Notificação automática em tempo real via trigger
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Admins notificados em cada retirada</li>
+              <li>• Admins notificados em cada devolução</li>
+              <li>• Usuário recebe confirmação</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-blue-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-blue-500" />
+              Checkout/Checkin Veículos
+            </CardTitle>
+            <CardDescription>
+              Notificação automática em tempo real via trigger
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Admins notificados em cada retirada</li>
+              <li>• Admins notificados em cada devolução</li>
+              <li>• Usuário recebe confirmação</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-orange-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-orange-500" />
+              Problemas Reportados
+            </CardTitle>
+            <CardDescription>
+              Admins notificados quando problemas são reportados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Notificação imediata ao admin</li>
+              <li>• Inclui severidade do problema</li>
+              <li>• Link para a ferramenta afetada</li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-purple-500/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="w-5 h-5 text-purple-500" />
+              Novo Usuário
+            </CardTitle>
+            <CardDescription>
+              Admins notificados quando usuário se registra
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Notificação imediata ao admin</li>
+              <li>• Usuário aguardando aprovação</li>
+              <li>• Inclui nome do usuário</li>
             </ul>
           </CardContent>
         </Card>
