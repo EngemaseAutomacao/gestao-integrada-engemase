@@ -73,6 +73,12 @@ export default function AdminTools() {
     }
   };
 
+  const filteredTools = tools.filter((tool) =>
+    tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.tag?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.brand?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
