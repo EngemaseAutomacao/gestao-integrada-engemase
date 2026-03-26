@@ -18,13 +18,12 @@ export default function VehicleCheckout() {
   const queryClient = useQueryClient();
   
   const [selectedVehicle, setSelectedVehicle] = useState("");
-  const [kmCheckout, setKmCheckout] = useState("");
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null });
-  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null });
+  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
 
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
@@ -59,21 +58,21 @@ export default function VehicleCheckout() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
-      if (!kmCheckout) throw new Error("Informe a quilometragem de saída");
-      if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
+      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
 
-      const [frontUrl, backUrl, leftUrl, rightUrl] = await Promise.all([
+      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
         uploadPhoto(photos.front!, "front_out"),
         uploadPhoto(photos.back!, "back_out"),
         uploadPhoto(photos.left!, "left_out"),
         uploadPhoto(photos.right!, "right_out"),
+        uploadPhoto(photos.dashboard!, "dashboard_out"),
       ]);
 
       const { error } = await supabase.from("vehicle_checkouts").insert({
         vehicle_id: selectedVehicle,
         user_id: user.id,
         checked_out_by: user.id,
-        km_checkout: parseInt(kmCheckout),
+        km_checkout: 0,
         destination,
         notes,
         status: "checked_out",
@@ -184,28 +183,14 @@ export default function VehicleCheckout() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="km_checkout">Quilometragem de Saída *</Label>
-                  <Input
-                    id="km_checkout"
-                    type="number"
-                    placeholder="Ex: 45000"
-                    value={kmCheckout}
-                    onChange={(e) => setKmCheckout(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="destination">Destino</Label>
-                  <Input
-                    id="destination"
-                    placeholder="Ex: Obra Centro, Cliente ABC"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="destination">Destino</Label>
+                <Input
+                  id="destination"
+                  placeholder="Ex: Obra Centro, Cliente ABC"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
@@ -223,6 +208,7 @@ export default function VehicleCheckout() {
                 photos={photos}
                 previews={previews}
                 onPhotoChange={handlePhotoChange}
+                includeDashboard
               />
             </CardContent>
           </Card>
@@ -240,7 +226,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !kmCheckout || !allPhotos || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !allPhotos || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}

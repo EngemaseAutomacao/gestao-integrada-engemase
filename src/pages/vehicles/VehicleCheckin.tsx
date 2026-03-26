@@ -21,13 +21,12 @@ export default function VehicleCheckin() {
   const queryClient = useQueryClient();
   
   const [selectedCheckout, setSelectedCheckout] = useState("");
-  const [kmCheckin, setKmCheckin] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [refueled, setRefueled] = useState<string | null>(null);
 
-  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null });
-  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null });
+  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
 
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
@@ -69,20 +68,15 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (!kmCheckin) throw new Error("Informe a quilometragem de chegada");
-      if (!allPhotos) throw new Error("Tire as 4 fotos do veículo");
+      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
       if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
-      const checkout = activeCheckouts?.find(c => c.id === selectedCheckout);
-      if (checkout && parseInt(kmCheckin) < checkout.km_checkout) {
-        throw new Error("A quilometragem de chegada não pode ser menor que a de saída");
-      }
-
-      const [frontUrl, backUrl, leftUrl, rightUrl] = await Promise.all([
+      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
         uploadPhoto(photos.front!, "front_in"),
         uploadPhoto(photos.back!, "back_in"),
         uploadPhoto(photos.left!, "left_in"),
         uploadPhoto(photos.right!, "right_in"),
+        uploadPhoto(photos.dashboard!, "dashboard_in"),
       ]);
 
       const { error } = await supabase
@@ -90,7 +84,7 @@ export default function VehicleCheckin() {
         .update({
           status: "checked_in",
           checkin_date: new Date().toISOString(),
-          km_checkin: parseInt(kmCheckin),
+          km_checkin: 0,
           checked_in_by: user.id,
           notes: notes || undefined,
           refueled: refueled === "yes",
@@ -185,10 +179,7 @@ export default function VehicleCheckin() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium">KM Saída: {checkout.km_checkout.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(checkout.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                        </p>
+                        <p className="text-sm font-medium">Saída: {format(new Date(checkout.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
                         {checkout.destination && (
                           <p className="text-xs text-muted-foreground mt-1">
                             Destino: {checkout.destination}
@@ -214,29 +205,9 @@ export default function VehicleCheckin() {
               <CardTitle>Detalhes da Chegada</CardTitle>
               <CardDescription>
                 Veículo: {selectedCheckoutData.vehicles.name} ({selectedCheckoutData.vehicles.plate})
-                <br />
-                KM de Saída: {selectedCheckoutData.km_checkout.toLocaleString()}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="km_checkin">Quilometragem de Chegada *</Label>
-                <Input
-                  id="km_checkin"
-                  type="number"
-                  placeholder={`Mínimo: ${selectedCheckoutData.km_checkout}`}
-                  value={kmCheckin}
-                  onChange={(e) => setKmCheckin(e.target.value)}
-                  min={selectedCheckoutData.km_checkout}
-                  required
-                />
-                {kmCheckin && parseInt(kmCheckin) >= selectedCheckoutData.km_checkout && (
-                  <p className="text-sm text-muted-foreground">
-                    Distância percorrida: {(parseInt(kmCheckin) - selectedCheckoutData.km_checkout).toLocaleString()} km
-                  </p>
-                )}
-              </div>
-
               <div className="space-y-3">
                 <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
                 <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
@@ -266,6 +237,7 @@ export default function VehicleCheckin() {
                 photos={photos}
                 previews={previews}
                 onPhotoChange={handlePhotoChange}
+                includeDashboard
               />
             </CardContent>
           </Card>
@@ -283,7 +255,7 @@ export default function VehicleCheckin() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedCheckout || !kmCheckin || !allPhotos || refueled === null || checkinMutation.isPending}
+            disabled={!selectedCheckout || !allPhotos || refueled === null || checkinMutation.isPending}
             className="flex-1"
           >
             {checkinMutation.isPending ? "Registrando..." : "Registrar Chegada"}

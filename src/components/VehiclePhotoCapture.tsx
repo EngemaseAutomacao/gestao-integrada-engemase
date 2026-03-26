@@ -9,20 +9,24 @@ interface PhotoAngle {
   label: string;
 }
 
-const ANGLES: PhotoAngle[] = [
+const BASE_ANGLES: PhotoAngle[] = [
   { key: "front", label: "Frente" },
   { key: "back", label: "Traseira" },
   { key: "left", label: "Lado Esquerdo" },
   { key: "right", label: "Lado Direito" },
 ];
 
+const DASHBOARD_ANGLE: PhotoAngle = { key: "dashboard", label: "Painel do Veículo" };
+
 interface VehiclePhotoCaptureProps {
   photos: Record<string, File | null>;
   previews: Record<string, string | null>;
   onPhotoChange: (key: string, file: File | null, preview: string | null) => void;
+  includeDashboard?: boolean;
 }
 
-export default function VehiclePhotoCapture({ photos, previews, onPhotoChange }: VehiclePhotoCaptureProps) {
+export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false }: VehiclePhotoCaptureProps) {
+  const ANGLES = includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES;
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -40,7 +44,7 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange }:
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-semibold">Fotos do Veículo (4 ângulos) *</Label>
+        <Label className="text-base font-semibold">Fotos do Veículo ({includeDashboard ? "4 ângulos + painel" : "4 ângulos"}) *</Label>
         {allCaptured && (
           <span className="text-sm text-green-600 flex items-center gap-1">
             <Check className="w-4 h-4" /> Todas capturadas
@@ -110,4 +114,4 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange }:
   );
 }
 
-export { ANGLES };
+export { BASE_ANGLES as ANGLES };

@@ -1,11 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, ArrowRightCircle, ArrowLeftCircle, List, Clock } from "lucide-react";
+import { Car, ArrowRightCircle, ArrowLeftCircle, List, Clock, Fuel } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function VehicleDashboard() {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { data: stats } = useQuery({
     queryKey: ["vehicle-stats"],
     queryFn: async () => {
@@ -91,7 +94,7 @@ export default function VehicleDashboard() {
               Registrar Saída
             </CardTitle>
             <CardDescription>
-              Registre a saída de um veículo com quilometragem
+              Registre a saída de um veículo com fotos
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -108,7 +111,7 @@ export default function VehicleDashboard() {
               Registrar Chegada
             </CardTitle>
             <CardDescription>
-              Registre a chegada de um veículo com quilometragem
+              Registre a chegada de um veículo com fotos
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -134,6 +137,25 @@ export default function VehicleDashboard() {
             </Button>
           </CardContent>
         </Card>
+
+        {isAdmin && (
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Fuel className="w-5 h-5 text-amber-600" />
+                Combustível
+              </CardTitle>
+              <CardDescription>
+                Registros de abastecimento dos veículos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="secondary" className="w-full">
+                <Link to="/veiculos/combustivel">Ver Registros</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Recent Activity */}
@@ -204,8 +226,7 @@ function RecentVehicleActivity() {
               {checkout.status === "checked_out" ? "Em uso" : "Devolvido"}
             </span>
             <p className="text-xs text-muted-foreground mt-1">
-              KM: {checkout.km_checkout.toLocaleString()}
-              {checkout.km_checkin && ` → ${checkout.km_checkin.toLocaleString()}`}
+              {new Date(checkout.checkout_date).toLocaleDateString("pt-BR")}
             </p>
           </div>
         </div>

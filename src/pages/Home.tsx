@@ -154,7 +154,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-4xl w-full [&>*]:w-full [&>*]:sm:w-[calc(50%-0.75rem)] [&>*]:lg:w-[calc(33.333%-1rem)]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl w-full">
         <ModuleCard
           title="Controle de Ferramentas"
           description="Gerencie retiradas, devoluções e manutenções de ferramentas"
@@ -164,19 +164,19 @@ export default function Home() {
 
         <ModuleCard
           title="Controle de Veículos"
-          description="Registre entradas e saídas de veículos com quilometragem"
+          description="Registre entradas e saídas de veículos"
           icon={<Car className="w-8 h-8 text-primary" />}
           to="/veiculos"
         />
 
-        {isAdmin && (
-          <ModuleCard
-            title="Ponto Online"
-            description="Registre seus pontos de entrada e saída em atividades externas"
-            icon={<Clock className="w-8 h-8 text-primary" />}
-            to="/ponto"
-          />
-        )}
+        <ModuleCard
+          title="Ponto Online"
+          description={isAdmin ? "Registre seus pontos de entrada e saída em atividades externas" : "Módulo em desenvolvimento. Acessível apenas para admins em fase de testes e validação."}
+          icon={<Clock className="w-8 h-8 text-primary" />}
+          to={isAdmin ? "/ponto" : undefined}
+          disabled={!isAdmin}
+          comingSoon={!isAdmin}
+        />
 
         {isAdmin && (
           <ModuleCard
