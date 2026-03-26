@@ -137,6 +137,25 @@ export default function VehicleDashboard() {
             </Button>
           </CardContent>
         </Card>
+
+        {isAdmin && (
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Fuel className="w-5 h-5 text-amber-600" />
+                Combustível
+              </CardTitle>
+              <CardDescription>
+                Registros de abastecimento dos veículos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="secondary" className="w-full">
+                <Link to="/veiculos/combustivel">Ver Registros</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Recent Activity */}
