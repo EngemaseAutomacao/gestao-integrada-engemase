@@ -20,7 +20,7 @@ export default function UpdatePrompt() {
     // Try Service Worker notification (works in background too)
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.ready.then((registration) => {
-        registration.showNotification("Nova Atualização Disponível! 🚀", {
+        (registration as any).showNotification("Nova Atualização Disponível! 🚀", {
           body: `Versão ${newVersion} está disponível. Atualize para obter as últimas melhorias.`,
           icon: "/icon-192.png",
           badge: "/mono-192.png",
