@@ -1,12 +1,47 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { RefreshCw, X } from "lucide-react";
 import { APP_VERSION } from "@/version";
 
 const CHECK_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const NOTIFIED_VERSION_KEY = "engemase_notified_version";
 
 export default function UpdatePrompt() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const notifiedRef = useRef(false);
+
+  const showUpdateNotification = useCallback((newVersion: string) => {
+    // Only notify once per version
+    const alreadyNotified = localStorage.getItem(NOTIFIED_VERSION_KEY);
+    if (alreadyNotified === newVersion || notifiedRef.current) return;
+    notifiedRef.current = true;
+    localStorage.setItem(NOTIFIED_VERSION_KEY, newVersion);
+
+    // Try Service Worker notification (works in background too)
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then((registration) => {
+        (registration as any).showNotification("Nova Atualização Disponível! 🚀", {
+          body: `Versão ${newVersion} está disponível. Atualize para obter as últimas melhorias.`,
+          icon: "/icon-192.png",
+          badge: "/mono-192.png",
+          tag: "system-update",
+          vibrate: [200, 100, 200],
+          requireInteraction: true,
+          actions: [
+            { action: "update", title: "Atualizar Agora" },
+            { action: "close", title: "Depois" }
+          ]
+        });
+      }).catch(() => {});
+    } else if ("Notification" in window && Notification.permission === "granted") {
+      // Fallback to regular notification
+      new Notification("Nova Atualização Disponível! 🚀", {
+        body: `Versão ${newVersion} está disponível. Atualize para obter as últimas melhorias.`,
+        icon: "/icon-192.png",
+        tag: "system-update",
+      });
+    }
+  }, []);
 
   const checkForUpdate = useCallback(async () => {
     try {
@@ -16,11 +51,12 @@ export default function UpdatePrompt() {
       if (data.version && data.version !== APP_VERSION) {
         console.log(`[Update] Nova versão disponível: ${data.version} (atual: ${APP_VERSION})`);
         setUpdateAvailable(true);
+        showUpdateNotification(data.version);
       }
     } catch {
       // offline or error — ignore
     }
-  }, []);
+  }, [showUpdateNotification]);
 
   useEffect(() => {
     // Check immediately after mount
