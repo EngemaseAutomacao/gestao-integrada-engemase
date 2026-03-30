@@ -100,6 +100,49 @@ export default function Dashboard() {
     navigate(`/checkin?toolId=${toolId}`);
   };
 
+  const handleExtendDate = async () => {
+    if (!extendCheckoutId || !extendDate || !profile?.id) return;
+    setExtendLoading(true);
+    try {
+      const { error } = await supabase
+        .from("tool_checkouts")
+        .update({ estimated_return_date: extendDate.toISOString() })
+        .eq("id", extendCheckoutId);
+      if (error) throw error;
+
+      // Notify all admins
+      const { data: admins } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("role", "admin");
+
+      if (admins) {
+        const notifications = admins.map((admin) => ({
+          user_id: admin.id,
+          type: "return_extended",
+          title: "Devolução Prorrogada",
+          message: `O usuário "${profile.full_name}" prorrogou a devolução da ferramenta "${extendToolName}" para ${format(extendDate, "dd/MM/yyyy")}.`,
+        }));
+        await supabase.from("notifications").insert(notifications);
+      }
+
+      toast.success("Data de devolução prorrogada!");
+      queryClient.invalidateQueries({ queryKey: ["pending-tool-checkouts"] });
+      setExtendDialogOpen(false);
+    } catch (error: any) {
+      toast.error("Erro ao prorrogar", { description: error.message });
+    } finally {
+      setExtendLoading(false);
+    }
+  };
+
+  const openExtendDialog = (checkoutId: string, toolName: string) => {
+    setExtendCheckoutId(checkoutId);
+    setExtendToolName(toolName);
+    setExtendDate(addDays(new Date(), 3));
+    setExtendDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
