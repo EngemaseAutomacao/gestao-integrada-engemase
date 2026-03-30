@@ -75,23 +75,23 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
         : 'hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary'
     } ${isAdmin ? 'border-orange-500/50 bg-orange-500/5' : ''}`}>
       {comingSoon && (
-        <div className="absolute top-3 right-3 bg-muted text-muted-foreground text-xs px-2 py-1 rounded-full flex items-center gap-1">
-          <Clock className="w-3 h-3" />
+        <div className="absolute top-2 right-2 bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+          <Clock className="w-2.5 h-2.5" />
           Em Breve
         </div>
       )}
-      <CardHeader className="text-center pb-2">
-        <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+      <CardHeader className="text-center pb-1 px-3 pt-4">
+        <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
           isAdmin ? 'bg-orange-500/10' : 'bg-primary/10'
         }`}>
           {icon}
         </div>
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-sm sm:text-base leading-tight">{title}</CardTitle>
+        <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
       </CardHeader>
-      <CardContent className="text-center">
+      <CardContent className="text-center pb-3 px-3 pt-0">
         {!disabled && (
-          <span className={`text-sm font-medium ${isAdmin ? 'text-orange-500' : 'text-primary'}`}>
+          <span className={`text-xs font-medium ${isAdmin ? 'text-orange-500' : 'text-primary'}`}>
             Acessar →
           </span>
         )}
