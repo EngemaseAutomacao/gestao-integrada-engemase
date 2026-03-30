@@ -224,7 +224,7 @@ export default function AdminTools() {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={generateNextTag}>
               <Plus className="w-4 h-4" />
               Nova Ferramenta
             </Button>
