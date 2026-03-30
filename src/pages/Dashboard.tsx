@@ -115,7 +115,7 @@ export default function Dashboard() {
                 Devoluções Pendentes ({pendingCheckouts.length})
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 max-h-[140px] overflow-y-auto">
               {pendingCheckouts.map((checkout: any) => {
                 const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
                 return (
