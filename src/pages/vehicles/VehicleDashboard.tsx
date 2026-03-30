@@ -30,19 +30,19 @@ export default function VehicleDashboard() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Car className="w-8 h-8 text-primary" />
+        <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+          <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           Controle de Veículos
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-xs sm:text-base text-muted-foreground mt-1">
           Gerencie a entrada e saída de veículos
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -86,7 +86,7 @@ export default function VehicleDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

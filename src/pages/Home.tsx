@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Clock, Shield, Download, Share } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Wrench, Car, Clock, Shield, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,6 @@ interface BeforeInstallPromptEvent extends Event {
 
 function InstallPWACard({ isIOS }: { isIOS: boolean }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showManualInstructions, setShowManualInstructions] = useState(false);
 
   useEffect(() => {
     if (isIOS) return;
@@ -32,43 +31,25 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
       if (choice.outcome === "accepted") {
         setDeferredPrompt(null);
       }
-    } else {
-      setShowManualInstructions(true);
     }
   };
 
-  const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|OPR/.test(navigator.userAgent);
+  // On iOS or when no prompt available, don't show the card
+  if (isIOS || !deferredPrompt) return null;
 
   return (
     <Card
       className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary border-dashed border-2"
-      onClick={!isIOS ? handleInstall : undefined}
+      onClick={handleInstall}
     >
       <CardHeader className="text-center pb-2">
-        <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-accent/20">
-          <Download className="w-8 h-8 text-accent-foreground" />
+        <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3 bg-accent/20">
+          <Download className="w-6 h-6 text-accent-foreground" />
         </div>
-        <CardTitle className="text-xl">Instalar Aplicativo</CardTitle>
-        <CardDescription>
-          {isIOS
-            ? "Toque em Compartilhar e \"Adicionar à Tela de Início\""
-            : showManualInstructions
-              ? isChrome
-                ? "No menu do Chrome (⋮), toque em \"Instalar aplicativo\" ou \"Adicionar à tela inicial\""
-                : "No menu do navegador, toque em \"Adicionar à tela inicial\""
-              : "Instale o app para acesso rápido pela tela inicial"}
-        </CardDescription>
+        <CardTitle className="text-base">Instalar App</CardTitle>
       </CardHeader>
-      <CardContent className="text-center">
-        {isIOS ? (
-          <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-            <Share className="w-4 h-4" /> Compartilhar → Tela de Início
-          </span>
-        ) : showManualInstructions ? (
-          <span className="text-sm text-muted-foreground">Use o menu do navegador ⋮</span>
-        ) : (
-          <span className="text-sm font-medium text-primary">Instalar →</span>
-        )}
+      <CardContent className="text-center pt-0">
+        <span className="text-sm font-medium text-primary">Instalar →</span>
       </CardContent>
     </Card>
   );
@@ -94,23 +75,23 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
         : 'hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary'
     } ${isAdmin ? 'border-orange-500/50 bg-orange-500/5' : ''}`}>
       {comingSoon && (
-        <div className="absolute top-3 right-3 bg-muted text-muted-foreground text-xs px-2 py-1 rounded-full flex items-center gap-1">
-          <Clock className="w-3 h-3" />
+        <div className="absolute top-2 right-2 bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+          <Clock className="w-2.5 h-2.5" />
           Em Breve
         </div>
       )}
-      <CardHeader className="text-center pb-2">
-        <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
+      <CardHeader className="text-center pb-1 px-3 pt-4">
+        <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
           isAdmin ? 'bg-orange-500/10' : 'bg-primary/10'
         }`}>
           {icon}
         </div>
-        <CardTitle className="text-xl">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-sm sm:text-base leading-tight">{title}</CardTitle>
+        <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
       </CardHeader>
-      <CardContent className="text-center">
+      <CardContent className="text-center pb-3 px-3 pt-0">
         {!disabled && (
-          <span className={`text-sm font-medium ${isAdmin ? 'text-orange-500' : 'text-primary'}`}>
+          <span className={`text-xs font-medium ${isAdmin ? 'text-orange-500' : 'text-primary'}`}>
             Acessar →
           </span>
         )}
@@ -133,46 +114,43 @@ export default function Home() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
 
-  const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    setIsIOS(/iPad|iPhone|iPod/.test(ua));
     setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 sm:p-6 flex-1">
-      <div className="text-center mb-6 sm:mb-8">
-        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-32 sm:w-48 h-auto mx-auto mb-3 sm:mb-4" />
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
+    <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
+      <div className="text-center mb-4 sm:mb-8">
+        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-28 sm:w-48 h-auto mx-auto mb-2 sm:mb-4" />
+        <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-0.5 sm:mb-2">
           Bem-vindo, {profile?.full_name?.split(' ')[0]}!
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-xs sm:text-base text-muted-foreground">
           Selecione o módulo que deseja acessar
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl w-full">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-5xl w-full">
         <ModuleCard
-          title="Controle de Ferramentas"
-          description="Gerencie retiradas, devoluções e manutenções de ferramentas"
-          icon={<Wrench className="w-8 h-8 text-primary" />}
+          title="Ferramentas"
+          description="Retiradas, devoluções e manutenções"
+          icon={<Wrench className="w-6 h-6 text-primary" />}
           to="/ferramentas"
         />
 
         <ModuleCard
-          title="Controle de Veículos"
-          description="Registre entradas e saídas de veículos"
-          icon={<Car className="w-8 h-8 text-primary" />}
+          title="Veículos"
+          description="Entradas e saídas de veículos"
+          icon={<Car className="w-6 h-6 text-primary" />}
           to="/veiculos"
         />
 
         <ModuleCard
           title="Ponto Online"
-          description={isAdmin ? "Registre seus pontos de entrada e saída em atividades externas" : "Módulo em desenvolvimento. Acessível apenas para admins em fase de testes e validação."}
-          icon={<Clock className="w-8 h-8 text-primary" />}
+          description={isAdmin ? "Registre pontos em atividades externas" : "Em desenvolvimento. Acessível apenas para admins em fase de testes."}
+          icon={<Clock className="w-6 h-6 text-primary" />}
           to={isAdmin ? "/ponto" : undefined}
           disabled={!isAdmin}
           comingSoon={!isAdmin}
@@ -180,16 +158,16 @@ export default function Home() {
 
         {isAdmin && (
           <ModuleCard
-            title="Painel Administrativo"
-            description="Gerencie usuários, relatórios e configurações do sistema"
-            icon={<Shield className="w-8 h-8 text-orange-500" />}
+            title="Administração"
+            description="Usuários, relatórios e configurações"
+            icon={<Shield className="w-6 h-6 text-orange-500" />}
             to="/admin"
             variant="admin"
           />
         )}
 
         {!isStandalone && (
-          <InstallPWACard isIOS={isIOS} />
+          <InstallPWACard isIOS={false} />
         )}
       </div>
     </div>

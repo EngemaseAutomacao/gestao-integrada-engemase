@@ -80,13 +80,13 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="shrink-0 space-y-4 sm:space-y-6 pb-4">
+      <div className="shrink-0 space-y-3 sm:space-y-6 pb-3 sm:pb-4">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+          <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2 sm:gap-4 grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Ferramentas Disponíveis</CardTitle>
