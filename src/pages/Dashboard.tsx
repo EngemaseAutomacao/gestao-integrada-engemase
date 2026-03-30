@@ -211,7 +211,9 @@ export default function Dashboard() {
                 Nenhuma ferramenta encontrada
               </p>
             ) : (
-              filteredTools.map((tool) => (
+              filteredTools.map((tool) => {
+                const userHasTool = pendingCheckouts?.some((c: any) => c.tool_id === tool.id);
+                return (
                 <Card key={tool.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/tools/${tool.id}`)}>
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -241,27 +243,31 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          size="sm"
-                          className="text-xs sm:text-sm"
-                          onClick={() => handleCheckout(tool.id)}
-                          disabled={tool.quantity_available === 0}
-                        >
-                          Retirar
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs sm:text-sm"
-                          onClick={() => handleCheckin(tool.id)}
-                        >
-                          Devolver
-                        </Button>
+                        {userHasTool ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs sm:text-sm"
+                            onClick={() => handleCheckin(tool.id)}
+                          >
+                            Devolver
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="text-xs sm:text-sm"
+                            onClick={() => handleCheckout(tool.id)}
+                            disabled={tool.quantity_available === 0}
+                          >
+                            Retirar
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))
+                );
+              })
             )}
           </div>
         </CardContent>
