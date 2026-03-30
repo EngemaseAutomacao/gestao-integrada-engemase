@@ -371,7 +371,7 @@ export default function AdminTools() {
                   type="number"
                   min="1"
                   value={formData.quantity_total}
-                  onChange={(e) => setFormData({ ...formData, quantity_total: parseInt(e.target.value) })}
+                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
                   required
                 />
               </div>
