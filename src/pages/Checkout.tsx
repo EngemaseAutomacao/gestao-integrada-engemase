@@ -156,10 +156,7 @@ export default function Checkout() {
       return;
     }
 
-    if (!photoConfirmed) {
-      toast.error("Por favor, tire uma foto da ferramenta");
-      return;
-    }
+    // Photo is optional
 
     setLoading(true);
 
