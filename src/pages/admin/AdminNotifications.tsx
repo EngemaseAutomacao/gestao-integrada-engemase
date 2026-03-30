@@ -1,43 +1,83 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Bell, Loader2, AlertCircle, Package, Clock } from "lucide-react";
+import { Bell, Loader2, AlertCircle, Package, Clock, Send, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface Profile {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+}
 
 export default function AdminNotifications() {
   const { profile } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [sendLoading, setSendLoading] = useState(false);
+  const [notifTitle, setNotifTitle] = useState("");
+  const [notifMessage, setNotifMessage] = useState("");
+  const [notifTarget, setNotifTarget] = useState("all");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const { data } = await supabase.from("profiles").select("id, full_name, email, role").eq("approved", true);
+      if (data) setUsers(data);
+    };
+    fetchUsers();
+  }, []);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
 
-  const runNotificationChecks = async () => {
-    setLoading(true);
-    try {
-      
-      
-      const { data, error } = await supabase.functions.invoke('check-notifications', {
-        body: {},
-      });
+  const sendManualNotification = async () => {
+    if (!notifTitle.trim() || !notifMessage.trim()) {
+      toast.error("Preencha o título e a mensagem.");
+      return;
+    }
 
+    setSendLoading(true);
+    try {
+      let targetUsers: string[] = [];
+
+      if (notifTarget === "all") {
+        targetUsers = users.map((u) => u.id);
+      } else if (notifTarget === "admins") {
+        targetUsers = users.filter((u) => u.role === "admin").map((u) => u.id);
+      } else if (notifTarget === "employees") {
+        targetUsers = users.filter((u) => u.role !== "admin").map((u) => u.id);
+      } else {
+        targetUsers = [notifTarget];
+      }
+
+      const notifications = targetUsers.map((userId) => ({
+        user_id: userId,
+        type: "manual",
+        title: notifTitle.trim(),
+        message: notifMessage.trim(),
+      }));
+
+      const { error } = await supabase.from("notifications").insert(notifications);
       if (error) throw error;
 
-      
-      toast.success("Verificação concluída!", {
-        description: "As notificações foram verificadas e criadas com sucesso.",
-      });
+      toast.success(`Notificação enviada para ${targetUsers.length} usuário(s)!`);
+      setNotifTitle("");
+      setNotifMessage("");
+      setNotifTarget("all");
     } catch (error: any) {
-      console.error("Error running notification checks:", error);
-      toast.error("Erro ao verificar notificações", {
-        description: error.message,
-      });
+      console.error("Error sending notification:", error);
+      toast.error("Erro ao enviar notificação", { description: error.message });
     } finally {
-      setLoading(false);
+      setSendLoading(false);
     }
   };
 
@@ -45,16 +85,75 @@ export default function AdminNotifications() {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Sistema de Notificações</h2>
-        <p className="text-muted-foreground">Gerencie e teste o sistema de notificações automáticas</p>
+        <p className="text-muted-foreground">Gerencie e envie notificações do sistema</p>
       </div>
 
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           Este sistema verifica automaticamente ferramentas atrasadas, estoque baixo e envia lembretes de devolução.
-          As verificações são executadas automaticamente, mas você pode testá-las manualmente aqui.
+          Notificações com mais de 7 dias são removidas automaticamente.
         </AlertDescription>
       </Alert>
+
+      {/* Manual notification sender */}
+      <Card className="border-primary/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="w-5 h-5 text-primary" />
+            Enviar Notificação Manual
+          </CardTitle>
+          <CardDescription>
+            Envie uma notificação personalizada para usuários específicos ou para todos
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="notif-target">Destinatário</Label>
+              <Select value={notifTarget} onValueChange={setNotifTarget}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o destinatário" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Usuários</SelectItem>
+                  <SelectItem value="admins">Apenas Administradores</SelectItem>
+                  <SelectItem value="employees">Apenas Funcionários</SelectItem>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.full_name} ({u.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notif-title">Título</Label>
+              <Input
+                id="notif-title"
+                placeholder="Título da notificação"
+                value={notifTitle}
+                onChange={(e) => setNotifTitle(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="notif-message">Mensagem</Label>
+            <Textarea
+              id="notif-message"
+              placeholder="Escreva a mensagem da notificação..."
+              value={notifMessage}
+              onChange={(e) => setNotifMessage(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <Button onClick={sendManualNotification} disabled={sendLoading} className="w-full sm:w-auto">
+            {sendLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Send className="mr-2 h-4 w-4" />
+            {sendLoading ? "Enviando..." : "Enviar Notificação"}
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
@@ -265,26 +364,6 @@ export default function AdminNotifications() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Executar Verificação Manual</CardTitle>
-          <CardDescription>
-            Clique no botão abaixo para executar todas as verificações de notificações manualmente
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button 
-            onClick={runNotificationChecks} 
-            disabled={loading}
-            className="w-full sm:w-auto"
-          >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <Bell className="mr-2 h-4 w-4" />
-            {loading ? "Verificando..." : "Executar Verificações"}
-          </Button>
-        </CardContent>
-      </Card>
-
       <Card className="border-green-500/20 bg-green-500/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -302,6 +381,25 @@ export default function AdminNotifications() {
             <li>• Lembretes de devolução (usuário)</li>
             <li>• Manutenção preventiva (admin)</li>
             <li>• Veículos em uso prolongado (usuário)</li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      <Card className="border-red-500/20 bg-red-500/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trash2 className="w-5 h-5 text-red-500" />
+            Limpeza Automática
+          </CardTitle>
+          <CardDescription>
+            Notificações com mais de 7 dias são removidas automaticamente todos os dias às 03:00
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="text-sm space-y-1 text-muted-foreground">
+            <li>• Execução diária às 03:00 (horário do servidor)</li>
+            <li>• Remove notificações lidas e não lidas</li>
+            <li>• Mantém a caixa de notificações organizada</li>
           </ul>
         </CardContent>
       </Card>
