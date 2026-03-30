@@ -29,6 +29,23 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Fetch pending checkouts for the current user
+  const { data: pendingCheckouts } = useQuery({
+    queryKey: ["pending-tool-checkouts", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from("tool_checkouts")
+        .select(`id, tool_id, checkout_date, estimated_return_date, construction_site, tools (name, tag)`)
+        .eq("user_id", profile.id)
+        .eq("status", "checked_out")
+        .order("checkout_date", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id,
+  });
+
   useEffect(() => {
     loadTools();
   }, []);
