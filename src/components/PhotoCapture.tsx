@@ -20,23 +20,54 @@ export function PhotoCapture({ onCapture, title = "Foto da Ferramenta" }: PhotoC
   const startCamera = useCallback(async () => {
     try {
       setError(null);
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-        audio: false,
-      });
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
+      // Stop any existing stream first to avoid conflicts
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        setStream(null);
       }
-      
+
+      // Try rear camera first, fallback to any camera
+      let mediaStream: MediaStream;
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
+        });
+      } catch {
+        // Fallback: try without facingMode constraint
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+      }
+
+      // Set capturing state first so video element renders
       setStream(mediaStream);
       setIsCapturing(true);
+
+      // Wait for next render cycle so videoRef is available
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.setAttribute("playsinline", "true");
+        videoRef.current.setAttribute("autoplay", "true");
+        try {
+          await videoRef.current.play();
+        } catch {
+          // play() can fail on some browsers, autoplay attribute handles it
+        }
+      }
     } catch (err) {
       console.error("Error accessing camera:", err);
-      setError("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
+      const errorMsg = err instanceof DOMException && err.name === "NotAllowedError"
+        ? "Permissão da câmera negada. Vá nas configurações do navegador e permita o acesso à câmera."
+        : "Não foi possível acessar a câmera. Verifique as permissões do navegador.";
+      setError(errorMsg);
+      setIsCapturing(false);
     }
-  }, []);
+  }, [stream]);
 
   const stopCamera = useCallback(() => {
     if (stream) {
