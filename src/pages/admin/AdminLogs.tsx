@@ -4,44 +4,102 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Search, Wrench, Car, User, AlertTriangle, LogIn, LogOut, UserCheck, ShieldAlert } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
 
-interface LogEntry {
+interface SystemLog {
   id: string;
-  checkout_date: string;
-  checkin_date: string | null;
-  status: string;
-  construction_site: string | null;
-  estimated_return_date: string | null;
-  notes: string | null;
-  tools: {
-    name: string;
-    tag: string | null;
-  };
-  profiles: {
-    full_name: string;
-    category: "engemase_employee" | "third_party" | "socios";
-    email: string;
-  };
-  checked_out_by_profile: {
-    full_name: string;
-    email: string;
-  } | null;
-  checked_in_by_profile: {
-    full_name: string;
-    email: string;
-  } | null;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  user_id: string | null;
+  user_name: string | null;
+  details: Record<string, any>;
+  created_at: string;
+}
+
+const ACTION_LABELS: Record<string, string> = {
+  checkout: "Retirada",
+  checkin: "Devolução",
+  user_registered: "Novo Cadastro",
+  user_approved: "Usuário Aprovado",
+  issue_reported: "Problema Reportado",
+  issue_resolved: "Problema Resolvido",
+};
+
+const ENTITY_LABELS: Record<string, string> = {
+  tool: "Ferramenta",
+  vehicle: "Veículo",
+  user: "Usuário",
+  tool_issue: "Problema",
+};
+
+function getActionIcon(action: string, entityType: string) {
+  if (entityType === "vehicle") return <Car className="w-4 h-4" />;
+  if (entityType === "user") return <User className="w-4 h-4" />;
+  if (entityType === "tool_issue") return <AlertTriangle className="w-4 h-4" />;
+  if (action === "checkout") return <LogOut className="w-4 h-4" />;
+  if (action === "checkin") return <LogIn className="w-4 h-4" />;
+  return <Wrench className="w-4 h-4" />;
+}
+
+function getActionColor(action: string): string {
+  switch (action) {
+    case "checkout": return "border-l-orange-500";
+    case "checkin": return "border-l-green-500";
+    case "user_registered": return "border-l-blue-500";
+    case "user_approved": return "border-l-emerald-500";
+    case "issue_reported": return "border-l-red-500";
+    case "issue_resolved": return "border-l-teal-500";
+    default: return "border-l-primary";
+  }
+}
+
+function getActionBadgeVariant(action: string): "default" | "secondary" | "destructive" | "outline" {
+  switch (action) {
+    case "checkout": return "default";
+    case "checkin": return "secondary";
+    case "issue_reported": return "destructive";
+    default: return "outline";
+  }
+}
+
+function buildDescription(log: SystemLog): string {
+  const d = log.details;
+  switch (log.action) {
+    case "checkout":
+      if (log.entity_type === "tool")
+        return `Retirou a ferramenta "${d.tool_name || ""}"${d.construction_site ? ` para ${d.construction_site}` : ""}${d.selected_tag ? ` (TAG: ${d.selected_tag})` : ""}`;
+      if (log.entity_type === "vehicle")
+        return `Retirou o veículo "${d.vehicle_name || ""} (${d.plate || ""})"${d.destination ? ` - Destino: ${d.destination}` : ""}`;
+      return "";
+    case "checkin":
+      if (log.entity_type === "tool") return `Devolveu a ferramenta "${d.tool_name || ""}"`;
+      if (log.entity_type === "vehicle") return `Devolveu o veículo "${d.vehicle_name || ""} (${d.plate || ""})"`;
+      return "";
+    case "user_registered":
+      return `Novo usuário registrado: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
+    case "user_approved":
+      return `Aprovou o usuário "${d.approved_user || ""}" (${d.email || ""})`;
+    case "issue_reported":
+      return `Reportou problema "${d.title || ""}" na ferramenta "${d.tool_name || ""}" - Severidade: ${d.severity || ""}`;
+    case "issue_resolved":
+      return `Resolveu o problema "${d.title || ""}" na ferramenta "${d.tool_name || ""}"`;
+    default:
+      return JSON.stringify(d);
+  }
 }
 
 export default function AdminLogs() {
   const { profile } = useAuth();
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<SystemLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterAction, setFilterAction] = useState<string>("all");
+  const [filterEntity, setFilterEntity] = useState<string>("all");
 
   useEffect(() => {
     loadLogs();
@@ -54,24 +112,13 @@ export default function AdminLogs() {
   const loadLogs = async () => {
     try {
       const { data, error } = await supabase
-        .from("tool_checkouts")
-        .select(`
-          id,
-          checkout_date,
-          checkin_date,
-          status,
-          construction_site,
-          estimated_return_date,
-          notes,
-          tools (name, tag),
-          profiles!tool_checkouts_user_id_fkey (full_name, category, email),
-          checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name, email),
-          checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name, email)
-        `)
-        .order("checkout_date", { ascending: false });
+        .from("system_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(500);
 
       if (error) throw error;
-      setLogs(data || []);
+      setLogs((data as SystemLog[]) || []);
     } catch (error) {
       console.error("Error loading logs:", error);
     } finally {
@@ -79,32 +126,17 @@ export default function AdminLogs() {
     }
   };
 
-  const filteredLogs = logs.filter((entry) => {
-    const matchesSearch = 
-      entry.tools.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.checked_out_by_profile?.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.checked_in_by_profile?.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (entry.construction_site && entry.construction_site.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    return matchesSearch;
+  const filteredLogs = logs.filter((log) => {
+    if (filterAction !== "all" && log.action !== filterAction) return false;
+    if (filterEntity !== "all" && log.entity_type !== filterEntity) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const desc = buildDescription(log).toLowerCase();
+      const name = (log.user_name || "").toLowerCase();
+      return desc.includes(q) || name.includes(q);
+    }
+    return true;
   });
-
-  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
-    if (category === "engemase_employee") {
-      return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
-    }
-    if (category === "socios") {
-      return <Badge className="bg-primary text-primary-foreground">Sócio</Badge>;
-    }
-    return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
-  };
-
-  const isOverdue = (estimatedReturnDate: string | null, status: string) => {
-    if (!estimatedReturnDate || status !== "checked_out") return false;
-    return new Date(estimatedReturnDate) < new Date();
-  };
 
   if (loading) {
     return (
@@ -115,127 +147,94 @@ export default function AdminLogs() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Logs do Sistema</h2>
-        <p className="text-muted-foreground">Visualize todas as ações registradas no sistema</p>
+    <div className="flex flex-col h-full min-h-0 space-y-4">
+      <div className="shrink-0">
+        <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Logs do Sistema</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground">Histórico completo de ações no sistema</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Buscar nos Logs</CardTitle>
-          <CardDescription>Encontre registros por ferramenta, usuário, obra ou responsável</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="shrink-0">
+        <CardContent className="p-3 sm:p-4 space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar em todos os campos..."
+              placeholder="Buscar nos logs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
             />
           </div>
+          <div className="flex gap-2">
+            <Select value={filterAction} onValueChange={setFilterAction}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Ação" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as Ações</SelectItem>
+                <SelectItem value="checkout">Retiradas</SelectItem>
+                <SelectItem value="checkin">Devoluções</SelectItem>
+                <SelectItem value="user_registered">Cadastros</SelectItem>
+                <SelectItem value="user_approved">Aprovações</SelectItem>
+                <SelectItem value="issue_reported">Problemas</SelectItem>
+                <SelectItem value="issue_resolved">Resoluções</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterEntity} onValueChange={setFilterEntity}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Tipos</SelectItem>
+                <SelectItem value="tool">Ferramentas</SelectItem>
+                <SelectItem value="vehicle">Veículos</SelectItem>
+                <SelectItem value="user">Usuários</SelectItem>
+                <SelectItem value="tool_issue">Problemas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Registros de Atividade</CardTitle>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0 pb-2">
+          <CardTitle className="text-base">Registros de Atividade</CardTitle>
           <CardDescription>
             Mostrando {filteredLogs.length} de {logs.length} registros
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
           {filteredLogs.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhum registro encontrado
             </p>
           ) : (
-            <div className="space-y-4">
-              {filteredLogs.map((entry) => (
-                <Card key={entry.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-4">
-                      <div className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-lg">{entry.tools.name}</h3>
-                          {entry.tools.tag && (
-                            <p className="text-sm text-muted-foreground">TAG: {entry.tools.tag}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
-                            {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                          </Badge>
-                          {isOverdue(entry.estimated_return_date, entry.status) && (
-                            <Badge variant="destructive">Atrasado</Badge>
-                          )}
-                        </div>
+            filteredLogs.map((log) => (
+              <Card key={log.id} className={`border-l-4 ${getActionColor(log.action)}`}>
+                <CardContent className="p-3">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 text-muted-foreground">
+                      {getActionIcon(log.action, log.entity_type)}
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant={getActionBadgeVariant(log.action)} className="text-xs">
+                          {ACTION_LABELS[log.action] || log.action}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {ENTITY_LABELS[log.entity_type] || log.entity_type}
+                        </Badge>
                       </div>
-
-                      <div className="grid gap-2 text-sm">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <span className="font-medium text-foreground">Usuário:</span>
-                            <p className="text-muted-foreground">{entry.profiles.full_name}</p>
-                            <p className="text-xs text-muted-foreground">{entry.profiles.email}</p>
-                            {getCategoryBadge(entry.profiles.category)}
-                          </div>
-                          {entry.construction_site && (
-                            <div>
-                              <span className="font-medium text-foreground">Obra:</span>
-                              <p className="text-muted-foreground">{entry.construction_site}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                          <div>
-                            <span className="font-medium text-foreground">Retirada:</span>
-                            <p className="text-muted-foreground">
-                              {format(new Date(entry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Por: {entry.checked_out_by_profile?.full_name || "Sistema"}
-                            </p>
-                          </div>
-                          {entry.estimated_return_date && (
-                            <div>
-                              <span className="font-medium text-foreground">Previsão de Devolução:</span>
-                              <p className={isOverdue(entry.estimated_return_date, entry.status) ? "text-destructive font-medium" : "text-muted-foreground"}>
-                                {format(new Date(entry.estimated_return_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-
-                        {entry.checkin_date && (
-                          <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                            <div>
-                              <span className="font-medium text-foreground">Devolução:</span>
-                              <p className="text-muted-foreground">
-                                {format(new Date(entry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                Por: {entry.checked_in_by_profile?.full_name || "Sistema"}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {entry.notes && (
-                          <div className="pt-2 border-t">
-                            <span className="font-medium text-foreground">Observações:</span>
-                            <p className="text-muted-foreground">{entry.notes}</p>
-                          </div>
-                        )}
+                      <p className="text-sm">{buildDescription(log)}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{log.user_name || "Sistema"}</span>
+                        <span>•</span>
+                        <span>{format(new Date(log.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
           )}
         </CardContent>
       </Card>

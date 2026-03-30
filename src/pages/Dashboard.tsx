@@ -4,10 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search, QrCode, CheckCircle, AlertCircle } from "lucide-react";
+import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface Tool {
   id: string;
@@ -25,6 +28,23 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Fetch pending checkouts for the current user
+  const { data: pendingCheckouts } = useQuery({
+    queryKey: ["pending-tool-checkouts", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from("tool_checkouts")
+        .select(`id, tool_id, checkout_date, estimated_return_date, construction_site, tools (name, tag)`)
+        .eq("user_id", profile.id)
+        .eq("status", "checked_out")
+        .order("checkout_date", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id,
+  });
 
   useEffect(() => {
     loadTools();
@@ -80,11 +100,46 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="shrink-0 space-y-3 sm:space-y-6 pb-3 sm:pb-4">
+      <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
         <div>
           <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
         </div>
+
+        {/* Pending Returns Alert */}
+        {pendingCheckouts && pendingCheckouts.length > 0 && (
+          <Card className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                <Clock className="w-4 h-4" />
+                Devoluções Pendentes ({pendingCheckouts.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {pendingCheckouts.map((checkout: any) => {
+                const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                return (
+                  <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {checkout.construction_site && <span>{checkout.construction_site}</span>}
+                        {checkout.estimated_return_date && (
+                          <span className={isOverdue ? "text-destructive font-medium" : ""}>
+                            {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                      Devolver <ArrowRight className="w-3 h-3" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid gap-2 sm:gap-4 grid-cols-3">
           <Card>

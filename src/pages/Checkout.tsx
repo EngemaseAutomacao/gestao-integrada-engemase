@@ -156,10 +156,7 @@ export default function Checkout() {
       return;
     }
 
-    if (!photoConfirmed) {
-      toast.error("Por favor, tire uma foto da ferramenta");
-      return;
-    }
+    // Photo is optional
 
     setLoading(true);
 
@@ -348,7 +345,7 @@ export default function Checkout() {
             {/* Photo Capture */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Label>Foto da Ferramenta *</Label>
+                <Label>Foto da Ferramenta (opcional)</Label>
                 {photoConfirmed && (
                   <Badge variant="secondary" className="gap-1">
                     <CheckCircle className="w-3 h-3" />
@@ -377,7 +374,7 @@ export default function Checkout() {
             <div className="flex gap-3 pt-2">
               <Button 
                 type="submit" 
-                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate || !photoConfirmed} 
+                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate} 
                 className="flex-1"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
