@@ -199,6 +199,30 @@ export default function AdminTools() {
     setImagePreview(null);
   };
 
+  const generateNextTag = async () => {
+    try {
+      const { data } = await supabase
+        .from("tools")
+        .select("tag")
+        .not("tag", "is", null);
+
+      if (data) {
+        // Extract all individual numeric tags
+        const allNumbers = data.flatMap((t) => {
+          if (!t.tag) return [];
+          return t.tag.split(",").map((s: string) => parseInt(s.trim())).filter((n: number) => !isNaN(n));
+        });
+
+        const maxTag = allNumbers.length > 0 ? Math.max(...allNumbers) : 0;
+        const nextTag = maxTag + 1;
+
+        setFormData((prev) => ({ ...prev, tag: String(nextTag) }));
+      }
+    } catch (error) {
+      console.error("Error generating tag:", error);
+    }
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
