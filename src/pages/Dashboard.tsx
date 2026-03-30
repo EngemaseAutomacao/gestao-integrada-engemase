@@ -100,11 +100,46 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="shrink-0 space-y-3 sm:space-y-6 pb-3 sm:pb-4">
+      <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
         <div>
           <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
           <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
         </div>
+
+        {/* Pending Returns Alert */}
+        {pendingCheckouts && pendingCheckouts.length > 0 && (
+          <Card className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                <Clock className="w-4 h-4" />
+                Devoluções Pendentes ({pendingCheckouts.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {pendingCheckouts.map((checkout: any) => {
+                const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                return (
+                  <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {checkout.construction_site && <span>{checkout.construction_site}</span>}
+                        {checkout.estimated_return_date && (
+                          <span className={isOverdue ? "text-destructive font-medium" : ""}>
+                            {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                      Devolver <ArrowRight className="w-3 h-3" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid gap-2 sm:gap-4 grid-cols-3">
           <Card>
