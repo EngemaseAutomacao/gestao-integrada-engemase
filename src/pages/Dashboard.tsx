@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [pendingExpanded, setPendingExpanded] = useState(false);
   const navigate = useNavigate();
 
   // Fetch pending checkouts for the current user
