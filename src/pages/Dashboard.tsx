@@ -4,13 +4,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight, ChevronDown } from "lucide-react";
+import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight, ChevronDown, CalendarPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 interface Tool {
   id: string;
@@ -28,6 +31,12 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingExpanded, setPendingExpanded] = useState(false);
+  const [extendDialogOpen, setExtendDialogOpen] = useState(false);
+  const [extendCheckoutId, setExtendCheckoutId] = useState<string | null>(null);
+  const [extendToolName, setExtendToolName] = useState("");
+  const [extendDate, setExtendDate] = useState<Date | undefined>(undefined);
+  const [extendLoading, setExtendLoading] = useState(false);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   // Fetch pending checkouts for the current user
@@ -91,6 +100,49 @@ export default function Dashboard() {
     navigate(`/checkin?toolId=${toolId}`);
   };
 
+  const handleExtendDate = async () => {
+    if (!extendCheckoutId || !extendDate || !profile?.id) return;
+    setExtendLoading(true);
+    try {
+      const { error } = await supabase
+        .from("tool_checkouts")
+        .update({ estimated_return_date: extendDate.toISOString() })
+        .eq("id", extendCheckoutId);
+      if (error) throw error;
+
+      // Notify all admins
+      const { data: admins } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("role", "admin");
+
+      if (admins) {
+        const notifications = admins.map((admin) => ({
+          user_id: admin.id,
+          type: "return_extended",
+          title: "Devolução Prorrogada",
+          message: `O usuário "${profile.full_name}" prorrogou a devolução da ferramenta "${extendToolName}" para ${format(extendDate, "dd/MM/yyyy")}.`,
+        }));
+        await supabase.from("notifications").insert(notifications);
+      }
+
+      toast.success("Data de devolução prorrogada!");
+      queryClient.invalidateQueries({ queryKey: ["pending-tool-checkouts"] });
+      setExtendDialogOpen(false);
+    } catch (error: any) {
+      toast.error("Erro ao prorrogar", { description: error.message });
+    } finally {
+      setExtendLoading(false);
+    }
+  };
+
+  const openExtendDialog = (checkoutId: string, toolName: string) => {
+    setExtendCheckoutId(checkoutId);
+    setExtendToolName(toolName);
+    setExtendDate(addDays(new Date(), 3));
+    setExtendDialogOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -139,9 +191,16 @@ export default function Dashboard() {
                           )}
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
-                        Devolver <ArrowRight className="w-3 h-3" />
-                      </Button>
+                      <div className="flex gap-1 shrink-0">
+                        {isOverdue && (
+                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-orange-600 dark:text-orange-400 hover:text-orange-700" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
+                            <CalendarPlus className="w-3 h-3" /> Prorrogar
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                          Devolver <ArrowRight className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}
@@ -272,6 +331,34 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog para prorrogar data */}
+      <Dialog open={extendDialogOpen} onOpenChange={setExtendDialogOpen}>
+        <DialogContent className="sm:max-w-[360px]">
+          <DialogHeader>
+            <DialogTitle>Prorrogar Devolução</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Selecione a nova data de devolução para <strong>{extendToolName}</strong>:
+            </p>
+            <Calendar
+              mode="single"
+              selected={extendDate}
+              onSelect={setExtendDate}
+              disabled={(date) => date <= new Date()}
+              className={cn("p-3 pointer-events-auto mx-auto")}
+              locale={ptBR}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExtendDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleExtendDate} disabled={!extendDate || extendLoading}>
+              {extendLoading ? "Salvando..." : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
