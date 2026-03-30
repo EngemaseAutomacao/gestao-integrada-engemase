@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight } from "lucide-react";
+import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [pendingExpanded, setPendingExpanded] = useState(false);
   const navigate = useNavigate();
 
   // Fetch pending checkouts for the current user
@@ -106,38 +107,46 @@ export default function Dashboard() {
           <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
         </div>
 
-        {/* Pending Returns Alert */}
+        {/* Pending Returns Alert - Collapsible */}
         {pendingCheckouts && pendingCheckouts.length > 0 && (
-          <Card className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20">
+          <Card 
+            className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20 cursor-pointer"
+            onClick={() => setPendingExpanded(!pendingExpanded)}
+          >
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm sm:text-base flex items-center gap-2 text-orange-700 dark:text-orange-400">
-                <Clock className="w-4 h-4" />
-                Devoluções Pendentes ({pendingCheckouts.length})
+              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-orange-700 dark:text-orange-400">
+                <span className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Devoluções Pendentes ({pendingCheckouts.length})
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${pendingExpanded ? "rotate-180" : ""}`} />
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 max-h-[140px] overflow-y-auto">
-              {pendingCheckouts.map((checkout: any) => {
-                const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                return (
-                  <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {checkout.construction_site && <span>{checkout.construction_site}</span>}
-                        {checkout.estimated_return_date && (
-                          <span className={isOverdue ? "text-destructive font-medium" : ""}>
-                            {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
-                          </span>
-                        )}
+            {pendingExpanded && (
+              <CardContent className="space-y-2 max-h-[200px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
+                {pendingCheckouts.map((checkout: any) => {
+                  const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                  return (
+                    <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          {checkout.construction_site && <span>{checkout.construction_site}</span>}
+                          {checkout.estimated_return_date && (
+                            <span className={isOverdue ? "text-destructive font-medium" : ""}>
+                              {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                        Devolver <ArrowRight className="w-3 h-3" />
+                      </Button>
                     </div>
-                    <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
-                      Devolver <ArrowRight className="w-3 h-3" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </CardContent>
+                  );
+                })}
+              </CardContent>
+            )}
           </Card>
         )}
 
