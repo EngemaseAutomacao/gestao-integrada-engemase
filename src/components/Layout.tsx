@@ -26,6 +26,7 @@ import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { Footer } from "@/components/Footer";
+import { PermissionsRequest } from "@/components/PermissionsRequest";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
