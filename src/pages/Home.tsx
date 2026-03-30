@@ -114,46 +114,43 @@ export default function Home() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
 
-  const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    const ua = navigator.userAgent;
-    setIsIOS(/iPad|iPhone|iPod/.test(ua));
     setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 sm:p-6 flex-1">
-      <div className="text-center mb-6 sm:mb-8">
-        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-32 sm:w-48 h-auto mx-auto mb-3 sm:mb-4" />
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
+    <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
+      <div className="text-center mb-4 sm:mb-8">
+        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-28 sm:w-48 h-auto mx-auto mb-2 sm:mb-4" />
+        <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-0.5 sm:mb-2">
           Bem-vindo, {profile?.full_name?.split(' ')[0]}!
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground">
+        <p className="text-xs sm:text-base text-muted-foreground">
           Selecione o módulo que deseja acessar
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-5xl w-full">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-5xl w-full">
         <ModuleCard
-          title="Controle de Ferramentas"
-          description="Gerencie retiradas, devoluções e manutenções de ferramentas"
-          icon={<Wrench className="w-8 h-8 text-primary" />}
+          title="Ferramentas"
+          description="Retiradas, devoluções e manutenções"
+          icon={<Wrench className="w-6 h-6 text-primary" />}
           to="/ferramentas"
         />
 
         <ModuleCard
-          title="Controle de Veículos"
-          description="Registre entradas e saídas de veículos"
-          icon={<Car className="w-8 h-8 text-primary" />}
+          title="Veículos"
+          description="Entradas e saídas de veículos"
+          icon={<Car className="w-6 h-6 text-primary" />}
           to="/veiculos"
         />
 
         <ModuleCard
           title="Ponto Online"
-          description={isAdmin ? "Registre seus pontos de entrada e saída em atividades externas" : "Módulo em desenvolvimento. Acessível apenas para admins em fase de testes e validação."}
-          icon={<Clock className="w-8 h-8 text-primary" />}
+          description={isAdmin ? "Registre pontos em atividades externas" : "Em desenvolvimento. Acessível apenas para admins em fase de testes."}
+          icon={<Clock className="w-6 h-6 text-primary" />}
           to={isAdmin ? "/ponto" : undefined}
           disabled={!isAdmin}
           comingSoon={!isAdmin}
@@ -161,16 +158,16 @@ export default function Home() {
 
         {isAdmin && (
           <ModuleCard
-            title="Painel Administrativo"
-            description="Gerencie usuários, relatórios e configurações do sistema"
-            icon={<Shield className="w-8 h-8 text-orange-500" />}
+            title="Administração"
+            description="Usuários, relatórios e configurações"
+            icon={<Shield className="w-6 h-6 text-orange-500" />}
             to="/admin"
             variant="admin"
           />
         )}
 
         {!isStandalone && (
-          <InstallPWACard isIOS={isIOS} />
+          <InstallPWACard isIOS={false} />
         )}
       </div>
     </div>
