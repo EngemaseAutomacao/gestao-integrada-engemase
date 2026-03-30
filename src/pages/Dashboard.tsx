@@ -331,6 +331,34 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog para prorrogar data */}
+      <Dialog open={extendDialogOpen} onOpenChange={setExtendDialogOpen}>
+        <DialogContent className="sm:max-w-[360px]">
+          <DialogHeader>
+            <DialogTitle>Prorrogar Devolução</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Selecione a nova data de devolução para <strong>{extendToolName}</strong>:
+            </p>
+            <Calendar
+              mode="single"
+              selected={extendDate}
+              onSelect={setExtendDate}
+              disabled={(date) => date <= new Date()}
+              className={cn("p-3 pointer-events-auto mx-auto")}
+              locale={ptBR}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExtendDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleExtendDate} disabled={!extendDate || extendLoading}>
+              {extendLoading ? "Salvando..." : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
