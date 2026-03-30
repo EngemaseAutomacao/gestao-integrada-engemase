@@ -191,9 +191,16 @@ export default function Dashboard() {
                           )}
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
-                        Devolver <ArrowRight className="w-3 h-3" />
-                      </Button>
+                      <div className="flex gap-1 shrink-0">
+                        {isOverdue && (
+                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-orange-600 dark:text-orange-400 hover:text-orange-700" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
+                            <CalendarPlus className="w-3 h-3" /> Prorrogar
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                          Devolver <ArrowRight className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}
