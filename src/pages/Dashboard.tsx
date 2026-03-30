@@ -31,6 +31,12 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingExpanded, setPendingExpanded] = useState(false);
+  const [extendDialogOpen, setExtendDialogOpen] = useState(false);
+  const [extendCheckoutId, setExtendCheckoutId] = useState<string | null>(null);
+  const [extendToolName, setExtendToolName] = useState("");
+  const [extendDate, setExtendDate] = useState<Date | undefined>(undefined);
+  const [extendLoading, setExtendLoading] = useState(false);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   // Fetch pending checkouts for the current user
