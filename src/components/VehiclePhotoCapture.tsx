@@ -90,7 +90,13 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
                 type="button"
                 variant="outline"
                 className="w-full h-28 flex flex-col gap-1 border-dashed"
-                onClick={() => inputRefs.current[angle.key]?.click()}
+                onClick={() => {
+                  // Reset input value to allow re-selecting same file
+                  if (inputRefs.current[angle.key]) {
+                    inputRefs.current[angle.key]!.value = "";
+                  }
+                  inputRefs.current[angle.key]?.click();
+                }}
               >
                 <Camera className="h-6 w-6 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">Tirar foto</span>
