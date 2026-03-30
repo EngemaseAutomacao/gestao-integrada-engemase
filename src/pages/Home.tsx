@@ -13,7 +13,6 @@ interface BeforeInstallPromptEvent extends Event {
 
 function InstallPWACard({ isIOS }: { isIOS: boolean }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showManualInstructions, setShowManualInstructions] = useState(false);
 
   useEffect(() => {
     if (isIOS) return;
@@ -32,43 +31,25 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
       if (choice.outcome === "accepted") {
         setDeferredPrompt(null);
       }
-    } else {
-      setShowManualInstructions(true);
     }
   };
 
-  const isChrome = /Chrome/.test(navigator.userAgent) && !/Edge|OPR/.test(navigator.userAgent);
+  // On iOS or when no prompt available, don't show the card
+  if (isIOS || !deferredPrompt) return null;
 
   return (
     <Card
       className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary border-dashed border-2"
-      onClick={!isIOS ? handleInstall : undefined}
+      onClick={handleInstall}
     >
       <CardHeader className="text-center pb-2">
-        <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-accent/20">
-          <Download className="w-8 h-8 text-accent-foreground" />
+        <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3 bg-accent/20">
+          <Download className="w-6 h-6 text-accent-foreground" />
         </div>
-        <CardTitle className="text-xl">Instalar Aplicativo</CardTitle>
-        <CardDescription>
-          {isIOS
-            ? "Toque em Compartilhar e \"Adicionar à Tela de Início\""
-            : showManualInstructions
-              ? isChrome
-                ? "No menu do Chrome (⋮), toque em \"Instalar aplicativo\" ou \"Adicionar à tela inicial\""
-                : "No menu do navegador, toque em \"Adicionar à tela inicial\""
-              : "Instale o app para acesso rápido pela tela inicial"}
-        </CardDescription>
+        <CardTitle className="text-base">Instalar App</CardTitle>
       </CardHeader>
-      <CardContent className="text-center">
-        {isIOS ? (
-          <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-            <Share className="w-4 h-4" /> Compartilhar → Tela de Início
-          </span>
-        ) : showManualInstructions ? (
-          <span className="text-sm text-muted-foreground">Use o menu do navegador ⋮</span>
-        ) : (
-          <span className="text-sm font-medium text-primary">Instalar →</span>
-        )}
+      <CardContent className="text-center pt-0">
+        <span className="text-sm font-medium text-primary">Instalar →</span>
       </CardContent>
     </Card>
   );
