@@ -290,12 +290,13 @@ export default function AdminTools() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="tag">TAG {!editingTool && <span className="text-xs text-muted-foreground">(gerada automaticamente)</span>}</Label>
+                  <Label htmlFor="tag">TAG <span className="text-xs text-muted-foreground">(gerada automaticamente)</span></Label>
                   <Input
                     id="tag"
                     value={formData.tag}
-                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                    placeholder={editingTool ? "" : "Gerada ao abrir o formulário"}
+                    readOnly
+                    className="bg-muted cursor-default"
+                    placeholder="Gerada automaticamente"
                   />
                 </div>
                 <div className="space-y-2">
