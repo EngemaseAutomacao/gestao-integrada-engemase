@@ -199,6 +199,47 @@ export default function AdminTools() {
     setImagePreview(null);
   };
 
+  const getMaxExistingTag = async (): Promise<number> => {
+    const { data } = await supabase
+      .from("tools")
+      .select("tag")
+      .not("tag", "is", null);
+
+    if (!data) return 0;
+
+    const allNumbers = data.flatMap((t) => {
+      if (!t.tag) return [];
+      return t.tag.split(",").map((s: string) => parseInt(s.trim())).filter((n: number) => !isNaN(n));
+    });
+
+    return allNumbers.length > 0 ? Math.max(...allNumbers) : 0;
+  };
+
+  const generateNextTag = async () => {
+    try {
+      const maxTag = await getMaxExistingTag();
+      const qty = formData.quantity_total || 1;
+      const tags = Array.from({ length: qty }, (_, i) => String(maxTag + 1 + i));
+      setFormData((prev) => ({ ...prev, tag: tags.join(", ") }));
+    } catch (error) {
+      console.error("Error generating tag:", error);
+    }
+  };
+
+  const handleQuantityChange = async (newQty: number) => {
+    setFormData((prev) => ({ ...prev, quantity_total: newQty }));
+    // Only auto-update tag for new tools (not editing)
+    if (!editingTool && newQty >= 1) {
+      try {
+        const maxTag = await getMaxExistingTag();
+        const tags = Array.from({ length: newQty }, (_, i) => String(maxTag + 1 + i));
+        setFormData((prev) => ({ ...prev, quantity_total: newQty, tag: tags.join(", ") }));
+      } catch (error) {
+        console.error("Error generating tags:", error);
+      }
+    }
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -224,7 +265,7 @@ export default function AdminTools() {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={generateNextTag}>
               <Plus className="w-4 h-4" />
               Nova Ferramenta
             </Button>
@@ -249,11 +290,12 @@ export default function AdminTools() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="tag">TAG</Label>
+                  <Label htmlFor="tag">TAG {!editingTool && <span className="text-xs text-muted-foreground">(gerada automaticamente)</span>}</Label>
                   <Input
                     id="tag"
                     value={formData.tag}
                     onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                    placeholder={editingTool ? "" : "Gerada ao abrir o formulário"}
                   />
                 </div>
                 <div className="space-y-2">
@@ -330,7 +372,7 @@ export default function AdminTools() {
                   type="number"
                   min="1"
                   value={formData.quantity_total}
-                  onChange={(e) => setFormData({ ...formData, quantity_total: parseInt(e.target.value) })}
+                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
                   required
                 />
               </div>
