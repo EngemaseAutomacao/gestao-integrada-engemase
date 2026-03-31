@@ -94,6 +94,7 @@ export default function VehicleCheckout() {
         photo_back_checkout: backUrl,
         photo_left_checkout: leftUrl,
         photo_right_checkout: rightUrl,
+        photo_dashboard_checkout: dashboardUrl,
       });
 
       if (error) throw error;
