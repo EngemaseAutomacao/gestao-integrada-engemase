@@ -247,7 +247,7 @@ export default function Dashboard() {
               <CardTitle className="text-xs sm:text-sm font-medium">Disponíveis</CardTitle>
             </CardHeader>
             <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-green-600">
+              <div className="text-xl sm:text-2xl font-bold text-success">
                 {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
               </div>
             </CardContent>
