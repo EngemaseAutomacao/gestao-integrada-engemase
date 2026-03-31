@@ -1,4 +1,5 @@
 import { Wrench } from "lucide-react";
+import { Link } from "react-router-dom";
 import { APP_VERSION, BUILD_DATE } from "@/version";
 
 export function Footer() {
@@ -15,7 +16,7 @@ export function Footer() {
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
           <span>© {currentYear} Engemase Engenharia</span>
           <span>•</span>
-          <span>v{APP_VERSION}</span>
+          <Link to="/changelog" className="hover:text-primary transition-colors">v{APP_VERSION}</Link>
           <span className="hidden sm:inline">•</span>
           <span className="hidden sm:inline">Build: {buildDate}</span>
         </div>

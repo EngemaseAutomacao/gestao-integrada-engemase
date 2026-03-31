@@ -43,7 +43,9 @@ import PontoRegister from "./pages/ponto/PontoRegister";
 import PontoHistory from "./pages/ponto/PontoHistory";
 import PontoAdmin from "./pages/ponto/PontoAdmin";
 import NotFound from "./pages/NotFound";
+import Changelog from "./pages/Changelog";
 import UpdatePrompt from "./components/UpdatePrompt";
+import { ChangelogModal } from "./components/ChangelogModal";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +56,7 @@ const App = () => (
         
         <Sonner />
         <UpdatePrompt />
+        <ChangelogModal />
         <BrowserRouter>
           <OfflineProvider>
             <AuthProvider>
@@ -103,6 +106,7 @@ const App = () => (
                 <Route path="/ponto/historico" element={<Layout><PontoHistory /></Layout>} />
                 <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
+                <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>
