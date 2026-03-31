@@ -46,7 +46,6 @@ export function GlobalSearch() {
 
       // Search tools
       promises.push(
-        (async (): Promise<SearchResult[]> => {
         supabase
           .from("tools")
           .select("id, name, brand, tag")
@@ -60,7 +59,7 @@ export function GlobalSearch() {
               type: "tool" as const,
               url: `/ferramentas/${t.id}`,
             }))
-          )
+          ) as Promise<SearchResult[]>
       );
 
       // Search vehicles
@@ -78,7 +77,7 @@ export function GlobalSearch() {
               type: "vehicle" as const,
               url: `/veiculos/lista`,
             }))
-          )
+          ) as Promise<SearchResult[]>
       );
 
       // Search users (admin only)
@@ -97,7 +96,7 @@ export function GlobalSearch() {
                 type: "user" as const,
                 url: `/admin/users`,
               }))
-            )
+            ) as Promise<SearchResult[]>
         );
       }
 
