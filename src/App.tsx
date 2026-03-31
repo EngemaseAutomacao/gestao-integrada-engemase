@@ -44,6 +44,7 @@ import PontoHistory from "./pages/ponto/PontoHistory";
 import PontoAdmin from "./pages/ponto/PontoAdmin";
 import NotFound from "./pages/NotFound";
 import Changelog from "./pages/Changelog";
+import MobileNavSettings from "./pages/MobileNavSettings";
 import UpdatePrompt from "./components/UpdatePrompt";
 import { ChangelogModal } from "./components/ChangelogModal";
 
@@ -107,6 +108,8 @@ const App = () => (
                 <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                 <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
+                <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />
+                <Route path="*" element={<NotFound />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>
