@@ -31,7 +31,7 @@ export default function VehicleDashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <div>
+      <div className="shrink-0">
         <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
           <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           Controle de Veículos
