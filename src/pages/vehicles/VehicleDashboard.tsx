@@ -104,7 +104,7 @@ export default function VehicleDashboard() {
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Disponíveis</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats?.available || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-success">{stats?.available || 0}</div>
           </CardContent>
         </Card>
         <Card>
