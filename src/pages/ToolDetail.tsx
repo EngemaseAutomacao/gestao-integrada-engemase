@@ -190,28 +190,28 @@ export default function ToolDetail() {
 
   const renderCheckoutCard = (checkout: CheckoutRecord, showTag = false) => (
     <Card key={checkout.id}>
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold">{checkout.user_profile.full_name}</p>
-              <p className="text-sm text-muted-foreground">{checkout.user_profile.email}</p>
+      <CardContent className="p-3 md:p-4">
+        <div className="space-y-2 md:space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-semibold text-sm md:text-base truncate">{checkout.user_profile.full_name}</p>
+              <p className="text-xs text-muted-foreground truncate">{checkout.user_profile.email}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 shrink-0">
               {showTag && checkout.selected_tag && (
                 <Badge variant="outline" className="text-xs">
-                  TAG: {checkout.selected_tag}
+                  {checkout.selected_tag}
                 </Badge>
               )}
-              <Badge variant={checkout.status === "checked_out" ? "default" : "secondary"}>
+              <Badge variant={checkout.status === "checked_out" ? "default" : "secondary"} className="text-xs">
                 {checkout.status === "checked_out" ? "Em Uso" : "Devolvida"}
               </Badge>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
+          <div className="grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <div>
                 <p className="text-muted-foreground">Retirada</p>
                 <p>{format(new Date(checkout.checkout_date), "dd/MM/yyyy", { locale: ptBR })}</p>
@@ -219,8 +219,8 @@ export default function ToolDetail() {
             </div>
             
             {checkout.checkin_date && (
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <div>
                   <p className="text-muted-foreground">Devolução</p>
                   <p>{format(new Date(checkout.checkin_date), "dd/MM/yyyy", { locale: ptBR })}</p>
@@ -229,15 +229,15 @@ export default function ToolDetail() {
             )}
           </div>
 
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm">
             {checkout.construction_site && (
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span>{checkout.construction_site}</span>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">{checkout.construction_site}</span>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span>{getDaysUsed(checkout)} dias</span>
             </div>
           </div>
