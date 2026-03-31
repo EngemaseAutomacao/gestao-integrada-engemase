@@ -88,7 +88,7 @@ export default function UserHistory() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full min-h-0 gap-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Meu Histórico</h2>
         <p className="text-muted-foreground">Histórico de retiradas e devoluções</p>
