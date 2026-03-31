@@ -233,6 +233,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2">
+          <GlobalSearch />
           <OfflineIndicator />
           
           <ThemeToggle />
