@@ -51,7 +51,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="hidden sm:block">
         <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
         <p className="text-muted-foreground mt-1">
           Gerencie todos os aspectos do sistema

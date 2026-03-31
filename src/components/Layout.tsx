@@ -99,6 +99,51 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
 
+  // Route-to-title mapping for mobile header
+  const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
+    '/ferramentas': { title: 'Ferramentas', icon: Wrench },
+    '/ferramentas/lista': { title: 'Catálogo', icon: Package },
+    '/ferramentas/retirada': { title: 'Retirada', icon: Wrench },
+    '/ferramentas/devolucao': { title: 'Devolução', icon: Wrench },
+    '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
+    '/checkout': { title: 'Retirada', icon: Wrench },
+    '/checkin': { title: 'Devolução', icon: Wrench },
+    '/history': { title: 'Meu Histórico', icon: History },
+    '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
+    '/veiculos': { title: 'Veículos', icon: Car },
+    '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
+    '/veiculos/saida': { title: 'Registrar Saída', icon: Car },
+    '/veiculos/chegada': { title: 'Registrar Chegada', icon: Car },
+    '/veiculos/historico': { title: 'Meu Histórico', icon: History },
+    '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
+    '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
+    '/ponto': { title: 'Ponto Online', icon: MapPin },
+    '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
+    '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
+    '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
+    '/admin': { title: 'Administração', icon: Settings },
+    '/admin/users': { title: 'Usuários', icon: Users },
+    '/admin/tools': { title: 'Gerenciar Ferramentas', icon: Settings },
+    '/admin/maintenance': { title: 'Manutenções', icon: Wrench },
+    '/admin/issues': { title: 'Problemas', icon: AlertCircle },
+    '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
+    '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
+    '/admin/reports': { title: 'Relatórios', icon: FileText },
+    '/admin/construction-sites': { title: 'Obras', icon: MapPin },
+    '/admin/notifications': { title: 'Notificações', icon: Bell },
+    '/admin/logs': { title: 'Logs', icon: ClipboardList },
+    '/admin/manual': { title: 'Entrada Manual', icon: Settings },
+    '/admin/gallery': { title: 'Galeria', icon: Package },
+  };
+
+  const getMobilePageTitle = () => {
+    // Try exact match first
+    const exact = routeTitleMap[location.pathname];
+    if (exact) return exact;
+    // Fallback to module title
+    return null;
+  };
+
   const getCurrentModuleInfo = () => {
     if (isFerramentasModule) {
       return { 
@@ -122,6 +167,18 @@ export default function Layout({ children }: LayoutProps) {
         icon: Settings, 
         items: adminMenuItems,
         color: "text-orange-500"
+      };
+    }
+    if (location.pathname.startsWith('/ponto')) {
+      return {
+        title: "Ponto",
+        icon: MapPin,
+        items: [
+          { title: "Registrar Ponto", url: "/ponto/registrar", icon: MapPin },
+          { title: "Meu Histórico", url: "/ponto/historico", icon: History },
+          ...(isAdmin ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }] : []),
+        ],
+        color: "text-primary"
       };
     }
     return null;
@@ -242,13 +299,19 @@ export default function Layout({ children }: LayoutProps) {
           )}
         </div>
 
-        {/* Mobile: Centered module title */}
-        {isMobile && !isHomePage && currentModule && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-            <currentModule.icon className={cn("w-4 h-4", currentModule.color)} />
-            <span className="text-sm font-semibold text-foreground">{currentModule.title}</span>
-          </div>
-        )}
+        {/* Mobile: Centered page title */}
+        {isMobile && !isHomePage && (currentModule || getMobilePageTitle()) && (() => {
+          const pageTitle = getMobilePageTitle();
+          const icon = pageTitle?.icon || currentModule?.icon;
+          const title = pageTitle?.title || currentModule?.title;
+          const IconComponent = icon;
+          return (
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+              {IconComponent && <IconComponent className="w-4 h-4 text-primary" />}
+              <span className="text-sm font-semibold text-foreground">{title}</span>
+            </div>
+          );
+        })()}
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2">

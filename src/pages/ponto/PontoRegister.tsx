@@ -244,7 +244,7 @@ export default function PontoRegister() {
 
   return (
     <div className="space-y-6 max-w-lg mx-auto">
-      <div>
+      <div className="hidden sm:block">
         <h1 className="text-3xl font-bold text-foreground">Registrar Ponto</h1>
         <p className="text-muted-foreground mt-1">
           {format(currentTime, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}

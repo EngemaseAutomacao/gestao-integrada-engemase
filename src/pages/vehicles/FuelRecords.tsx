@@ -117,7 +117,7 @@ export default function FuelRecords() {
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
       <div className="shrink-0 flex items-center justify-between flex-wrap gap-4">
-        <div>
+        <div className="hidden sm:block">
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Fuel className="w-8 h-8 text-primary" />
             Controle de Combustível

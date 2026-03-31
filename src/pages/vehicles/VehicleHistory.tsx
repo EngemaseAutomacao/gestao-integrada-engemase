@@ -95,7 +95,7 @@ export default function VehicleHistory() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
-      <div className="shrink-0">
+      <div className="shrink-0 hidden sm:block">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Meu Histórico de Veículos</h2>
         <p className="text-sm text-muted-foreground">Histórico de saídas e chegadas de veículos</p>
       </div>
