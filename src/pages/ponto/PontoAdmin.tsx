@@ -78,7 +78,7 @@ export default function PontoAdmin() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
-      <div className="shrink-0">
+      <div className="shrink-0 hidden sm:block">
         <h1 className="text-3xl font-bold text-foreground">Gerenciar Pontos</h1>
         <p className="text-muted-foreground mt-1">Visualize os registros de ponto de todos os funcionários</p>
       </div>
