@@ -23,6 +23,7 @@ export const changelog: ChangelogEntry[] = [
     ],
   },
   {
+    version: "1.10.2",
     date: "2026-03-31",
     title: "Detalhes da Ferramenta - Layout Mobile",
     description: "Melhoria do layout da página de detalhes das ferramentas para dispositivos móveis.",
