@@ -45,14 +45,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .maybeSingle();
 
       if (data) {
-        setProfile({
+        const profileData = {
           ...(data as unknown as Profile),
           approved: (data as any).approved ?? true,
           first_login: (data as any).first_login ?? false,
-        });
+        };
+        setProfile(profileData);
+        try {
+          localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profileData));
+        } catch {}
       }
     } catch {
-      // Profile fetch failed silently
+      // Offline fallback: load from cache
+      try {
+        const cached = localStorage.getItem(PROFILE_CACHE_KEY);
+        if (cached) {
+          const cachedProfile = JSON.parse(cached) as Profile;
+          if (cachedProfile.id === userId) {
+            setProfile(cachedProfile);
+          }
+        }
+      } catch {}
     }
   }, []);
 
