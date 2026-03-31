@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Car, Search, Plus, Loader2, Pencil, Trash2, Upload, X } from "lucide-react";
+import { SignedImage } from "@/components/SignedImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -114,10 +115,9 @@ export default function VehicleList() {
       if (imageFile) {
         const fileExt = imageFile.name.split(".").pop();
         const filePath = `${Math.random()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from("tool-images").upload(filePath, imageFile);
+        const { error: uploadError } = await supabase.storage.from("imagens").upload(`veiculos/${filePath}`, imageFile);
         if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from("tool-images").getPublicUrl(filePath);
-        imageUrl = publicUrl;
+        imageUrl = `veiculos/${filePath}`;
       }
 
       // If image was removed
@@ -214,12 +214,20 @@ export default function VehicleList() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     {vehicle.image_url ? (
-                      <img 
-                        src={vehicle.image_url} 
-                        alt={vehicle.name}
-                        className="w-12 h-12 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => setEnlargedImage(vehicle.image_url)}
-                      />
+                      vehicle.image_url.startsWith("http") ? (
+                        <img 
+                          src={vehicle.image_url} 
+                          alt={vehicle.name}
+                          className="w-12 h-12 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => setEnlargedImage(vehicle.image_url)}
+                        />
+                      ) : (
+                        <SignedImage
+                          storagePath={vehicle.image_url}
+                          alt={vehicle.name}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                      )
                     ) : (
                       <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                         <Car className="w-6 h-6 text-muted-foreground" />

@@ -117,10 +117,10 @@ export default function Checkout() {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: type === "photo" ? "image/jpeg" : "image/png" });
 
-      const fileName = `checkout_${type}_${Date.now()}_${Math.random().toString(36).substring(7)}.${type === "photo" ? "jpg" : "png"}`;
+      const fileName = `ferramentas/checkout_${type}_${Date.now()}_${Math.random().toString(36).substring(7)}.${type === "photo" ? "jpg" : "png"}`;
       
       const { error: uploadError } = await supabase.storage
-        .from("checkout-images")
+        .from("imagens")
         .upload(fileName, blob);
 
       if (uploadError) throw uploadError;

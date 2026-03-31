@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { SignedImage } from "@/components/SignedImage";
 
 interface Tool {
   id: string;
@@ -92,17 +93,15 @@ export default function AdminTools() {
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
 
+        const newFilePath = `ferramentas/${filePath}`;
         const { error: uploadError } = await supabase.storage
-          .from('tool-images')
-          .upload(filePath, imageFile);
+          .from('imagens')
+          .upload(newFilePath, imageFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('tool-images')
-          .getPublicUrl(filePath);
-
-        imageUrl = publicUrl;
+        // Store the path (not public URL since bucket is private)
+        imageUrl = newFilePath;
       }
 
       if (editingTool) {
@@ -444,12 +443,20 @@ export default function AdminTools() {
                       <TableRow key={tool.id}>
                         <TableCell>
                           {tool.image_url ? (
-                            <img 
-                              src={tool.image_url} 
-                              alt={tool.name}
-                              className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
-                              onClick={() => setEnlargedImage(tool.image_url)}
-                            />
+                            tool.image_url.startsWith("http") ? (
+                              <img 
+                                src={tool.image_url} 
+                                alt={tool.name}
+                                className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => setEnlargedImage(tool.image_url)}
+                              />
+                            ) : (
+                              <SignedImage
+                                storagePath={tool.image_url}
+                                alt={tool.name}
+                                className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                              />
+                            )
                           ) : (
                             <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
                               <Package className="w-6 h-6 text-muted-foreground" />
@@ -515,12 +522,20 @@ export default function AdminTools() {
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         {tool.image_url ? (
-                          <img 
-                            src={tool.image_url} 
-                            alt={tool.name}
-                            className="w-14 h-14 object-cover rounded-lg shrink-0 cursor-pointer"
-                            onClick={() => setEnlargedImage(tool.image_url)}
-                          />
+                          tool.image_url.startsWith("http") ? (
+                            <img 
+                              src={tool.image_url} 
+                              alt={tool.name}
+                              className="w-14 h-14 object-cover rounded-lg shrink-0 cursor-pointer"
+                              onClick={() => setEnlargedImage(tool.image_url)}
+                            />
+                          ) : (
+                            <SignedImage
+                              storagePath={tool.image_url}
+                              alt={tool.name}
+                              className="w-14 h-14 object-cover rounded-lg shrink-0"
+                            />
+                          )
                         ) : (
                           <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center shrink-0">
                             <Package className="w-6 h-6 text-muted-foreground" />
