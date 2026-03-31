@@ -160,13 +160,13 @@ export default function VehicleDashboard() {
 
       {/* Recent Activity */}
       <Card className="flex-1 min-h-0 flex flex-col">
-        <CardHeader>
+        <CardHeader className="shrink-0">
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
             Atividade Recente
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           <RecentVehicleActivity />
         </CardContent>
       </Card>
