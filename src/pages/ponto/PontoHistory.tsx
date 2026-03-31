@@ -70,7 +70,7 @@ export default function PontoHistory() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
           {entries.map((entry) => {
             const duration = entry.clock_out
               ? differenceInMinutes(new Date(entry.clock_out), new Date(entry.clock_in))
