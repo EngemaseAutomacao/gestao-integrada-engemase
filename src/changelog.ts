@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.1",
+    date: "2026-03-31",
+    title: "Padronização Mobile e Página de Ajuda",
+    description: "Layout mobile padronizado em todos os módulos, botão de ajuda no cabeçalho e página de FAQ.",
+    changes: [
+      { type: "feature", text: "Página de Ajuda (FAQ) acessível pelo ícone no cabeçalho" },
+      { type: "improvement", text: "Layout mobile padronizado em todos os dashboards (Ferramentas, Veículos, Admin)" },
+      { type: "fix", text: "Botões de salvar/padrão fixos na página de personalização do menu mobile" },
+      { type: "improvement", text: "Cards de estatísticas compactos e responsivos em todos os módulos" },
+      { type: "improvement", text: "Cards do painel Admin com layout centralizado igual ao módulo Ponto" },
+    ],
+  },
+  {
     version: "1.10.0",
     date: "2026-03-31",
     title: "Relatórios, Exclusão com Motivo e Dashboard do Usuário",

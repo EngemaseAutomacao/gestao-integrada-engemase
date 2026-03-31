@@ -242,38 +242,34 @@ export default function Dashboard() {
           </Card>
         )}
 
+        {/* Stats Cards */}
         <div className="grid gap-2 sm:gap-4 grid-cols-3">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ferramentas Disponíveis</CardTitle>
-              <CheckCircle className="h-4 w-4 text-success" />
+            <CardHeader className="pb-2 px-3 sm:px-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Disponíveis</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="px-3 sm:px-6">
+              <div className="text-xl sm:text-2xl font-bold text-green-600">
                 {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
               </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Ferramentas</CardTitle>
-              <Package className="h-4 w-4 text-primary" />
+            <CardHeader className="pb-2 px-3 sm:px-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="px-3 sm:px-6">
+              <div className="text-xl sm:text-2xl font-bold">
                 {tools.reduce((acc, tool) => acc + tool.quantity_total, 0)}
               </div>
             </CardContent>
           </Card>
-
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Em Uso</CardTitle>
-              <AlertCircle className="h-4 w-4 text-warning" />
+            <CardHeader className="pb-2 px-3 sm:px-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Em Uso</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="px-3 sm:px-6">
+              <div className="text-xl sm:text-2xl font-bold text-orange-600">
                 {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
               </div>
             </CardContent>
