@@ -46,6 +46,7 @@ export function GlobalSearch() {
 
       // Search tools
       promises.push(
+        (async (): Promise<SearchResult[]> => {
         supabase
           .from("tools")
           .select("id, name, brand, tag")
