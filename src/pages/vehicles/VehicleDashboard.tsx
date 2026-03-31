@@ -35,6 +35,23 @@ export default function VehicleDashboard() {
     }
   });
 
+  // Fetch user's active vehicle checkouts
+  const { data: myVehicleCheckouts } = useQuery({
+    queryKey: ["my-vehicle-checkouts", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from("vehicle_checkouts")
+        .select(`id, vehicle_id, checkout_date, destination, km_checkout, vehicles!inner(name, plate)`)
+        .eq("user_id", profile.id)
+        .eq("status", "checked_out")
+        .order("checkout_date", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id,
+  });
+
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
       <div className="shrink-0">
