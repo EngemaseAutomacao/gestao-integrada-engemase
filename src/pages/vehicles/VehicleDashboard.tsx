@@ -112,7 +112,7 @@ export default function VehicleDashboard() {
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Em Uso</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-orange-600">{stats?.inUse || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-warning">{stats?.inUse || 0}</div>
           </CardContent>
         </Card>
         <Card>
