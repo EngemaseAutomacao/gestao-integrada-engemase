@@ -174,7 +174,7 @@ export default function AdminIssues() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 p-4">
-      <Card>
+      <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader>
           <CardTitle>Gerenciar Problemas Reportados</CardTitle>
         </CardHeader>
