@@ -271,6 +271,38 @@ export default function AdminReports() {
             (usage.totalDays / usage.count).toFixed(1),
           ]);
           break;
+
+        case "vehicle_checkouts":
+          data = await fetchVehicleCheckoutsData();
+          title = "Relatório de Movimentação de Veículos";
+          columns = ["Veículo", "Placa", "Usuário", "Saída", "Chegada", "KM Saída", "KM Chegada", "Destino"];
+          rows = data.map((item: any) => [
+            item.vehicles?.name || "-",
+            item.vehicles?.plate || "-",
+            item.profiles?.full_name || "-",
+            format(new Date(item.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            item.checkin_date ? format(new Date(item.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+            item.km_checkout?.toString() || "-",
+            item.km_checkin?.toString() || "-",
+            item.destination || "-",
+          ]);
+          break;
+
+        case "fuel_records":
+          data = await fetchFuelData();
+          title = "Relatório de Abastecimento";
+          columns = ["Veículo", "Placa", "Litros", "Custo/L", "Total", "KM", "Posto", "Data"];
+          rows = data.map((item: any) => [
+            item.vehicles?.name || "-",
+            item.vehicles?.plate || "-",
+            item.liters?.toString() || "-",
+            item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
+            item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
+            item.km_at_refuel?.toString() || "-",
+            item.gas_station || "-",
+            format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
+          ]);
+          break;
       }
 
       const doc = new jsPDF();
