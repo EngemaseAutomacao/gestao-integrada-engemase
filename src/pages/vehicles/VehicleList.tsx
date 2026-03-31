@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Car, Search, Plus, Loader2, Pencil, Trash2, Upload, X } from "lucide-react";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 import { SignedImage } from "@/components/SignedImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
