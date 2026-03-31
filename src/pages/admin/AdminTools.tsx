@@ -251,7 +251,7 @@ export default function AdminTools() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Ferramentas</h2>
