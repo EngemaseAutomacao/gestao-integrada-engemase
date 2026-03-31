@@ -91,6 +91,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // Only cache GET requests — Cache API doesn't support other methods
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // Skip version.json — always network
   if (url.pathname === '/version.json') {
     event.respondWith(fetch(event.request));

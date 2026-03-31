@@ -166,7 +166,7 @@ export default function ToolDetail() {
         .from("tool_issues")
         .select(`
           *,
-          reporter:profiles!reported_by(full_name)
+          reporter:profiles!tool_issues_reported_by_fkey(full_name)
         `)
         .eq("tool_id", id)
         .order("created_at", { ascending: false });
