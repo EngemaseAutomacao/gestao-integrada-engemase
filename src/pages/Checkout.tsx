@@ -118,7 +118,8 @@ export default function Checkout() {
       const blob = new Blob([byteArray], { type: type === "photo" ? "image/jpeg" : "image/png" });
 
       const seq = String(Date.now()).slice(-6);
-      const fileName = `ferramentas/saidas/saida_${type}_${new Date().toISOString().slice(0,10)}_${seq}.${type === "photo" ? "jpg" : "png"}`;
+      const dateFolder = new Date().toISOString().slice(0, 10);
+      const fileName = `ferramentas/saidas/${dateFolder}/saida_${type}_${seq}.${type === "photo" ? "jpg" : "png"}`;
       
       const { error: uploadError } = await supabase.storage
         .from("imagens")
