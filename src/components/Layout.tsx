@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, useLocation, NavLink } from "react-router-dom";
+import { Navigate, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { 
   Home, 
   Package, 
@@ -51,6 +51,7 @@ export default function Layout({ children }: LayoutProps) {
   const { user, profile, loading, signOut } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   
   const isHomePage = location.pathname === '/';
   const adminToolRoutes = ['/admin/tools', '/admin/maintenance', '/admin/issues', '/admin/history'];
@@ -135,6 +136,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/logs': { title: 'Logs', icon: ClipboardList },
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
+    '/ajuda': { title: 'Ajuda', icon: HelpCircle },
   };
 
   const getMobilePageTitle = () => {
@@ -320,7 +322,7 @@ export default function Layout({ children }: LayoutProps) {
           <OfflineIndicator />
           
           <ThemeToggle />
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => window.open('/ajuda', '_self')}>
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate('/ajuda')}>
             <HelpCircle className="h-4 w-4" />
             <span className="sr-only">Ajuda</span>
           </Button>
