@@ -125,7 +125,7 @@ export default function MobileNavSettings() {
         })}
       </div>
 
-      <div className="flex gap-2 sticky bottom-16 bg-background py-3">
+      <div className="flex gap-2 pt-4 pb-2">
         <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5">
           <RotateCcw className="w-3.5 h-3.5" />
           Padrão
