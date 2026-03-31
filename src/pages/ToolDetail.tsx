@@ -274,26 +274,28 @@ export default function ToolDetail() {
             Informações da Ferramenta
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-4 md:p-6">
           {tool.image_url && (
-            tool.image_url.startsWith("http") ? (
-              <img 
-                src={tool.image_url} 
-                alt={tool.name}
-                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
-              />
-            ) : (
-              <SignedImage
-                storagePath={tool.image_url}
-                alt={tool.name}
-                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
-              />
-            )
+            <div className="w-full max-w-xs md:max-w-md mx-auto">
+              {tool.image_url.startsWith("http") ? (
+                <img 
+                  src={tool.image_url} 
+                  alt={tool.name}
+                  className="w-full h-48 md:h-64 object-cover rounded-lg"
+                />
+              ) : (
+                <SignedImage
+                  storagePath={tool.image_url}
+                  alt={tool.name}
+                  className="w-full h-48 md:h-64 object-cover rounded-lg"
+                />
+              )}
+            </div>
           )}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {tool.tag && (
               <div>
-                <p className="text-sm font-medium">TAG</p>
+                <p className="text-xs md:text-sm font-medium">TAG</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
@@ -305,18 +307,18 @@ export default function ToolDetail() {
             )}
             {tool.brand && (
               <div>
-                <p className="text-sm font-medium">Marca</p>
-                <p className="text-muted-foreground">{tool.brand}</p>
+                <p className="text-xs md:text-sm font-medium">Marca</p>
+                <p className="text-sm text-muted-foreground">{tool.brand}</p>
               </div>
             )}
             <div>
-              <p className="text-sm font-medium">Disponível/Total</p>
-              <p className="text-muted-foreground">
+              <p className="text-xs md:text-sm font-medium">Disponível/Total</p>
+              <p className="text-sm text-muted-foreground">
                 {tool.quantity_available}/{tool.quantity_total}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium">Condição</p>
+              <p className="text-xs md:text-sm font-medium">Condição</p>
               <Badge className={conditionColors[tool.condition]}>
                 {conditionLabels[tool.condition]}
               </Badge>
@@ -326,8 +328,8 @@ export default function ToolDetail() {
             <>
               <Separator />
               <div>
-                <p className="text-sm font-medium mb-2">Descrição</p>
-                <p className="text-muted-foreground">{tool.description}</p>
+                <p className="text-xs md:text-sm font-medium mb-1">Descrição</p>
+                <p className="text-sm text-muted-foreground">{tool.description}</p>
               </div>
             </>
           )}
