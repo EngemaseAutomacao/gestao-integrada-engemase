@@ -56,15 +56,17 @@ export default function VehicleDashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <div className="shrink-0">
-        <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
-          <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-          Controle de Veículos
-        </h1>
-        <p className="text-xs sm:text-base text-muted-foreground mt-1">
-          Gerencie a entrada e saída de veículos
-        </p>
-      </div>
+      {!isMobile && (
+        <div className="shrink-0">
+          <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+            <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            Controle de Veículos
+          </h1>
+          <p className="text-xs sm:text-base text-muted-foreground mt-1">
+            Gerencie a entrada e saída de veículos
+          </p>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
