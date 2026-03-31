@@ -179,19 +179,29 @@ export default function Layout({ children }: LayoutProps) {
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <PermissionsRequest />
       {/* Header */}
-      <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40">
+      <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
         <div className="flex items-center gap-1.5 sm:gap-3">
-          {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-2 shrink-0">
-            <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
-          </NavLink>
+          {/* Mobile: Back button when inside a module */}
+          {isMobile && !isHomePage && currentModule && (
+            <NavLink to="/">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground">
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            </NavLink>
+          )}
 
-          {/* Back button + Module Dropdown (only on non-home pages, hidden on mobile) */}
+          {/* Logo - hidden on mobile when inside module (title takes center) */}
+          {(!isMobile || isHomePage || !currentModule) && (
+            <NavLink to="/" className="flex items-center gap-2 shrink-0">
+              <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
+            </NavLink>
+          )}
+
+          {/* Desktop: Back button + Module Dropdown */}
           {!isHomePage && currentModule && !isMobile && (
             <>
               <div className="h-5 w-px bg-border hidden sm:block" />
               
-              {/* Back to Home */}
               <NavLink to="/">
                 <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2">
                   <ArrowLeft className="w-4 h-4" />
@@ -199,7 +209,6 @@ export default function Layout({ children }: LayoutProps) {
                 </Button>
               </NavLink>
 
-              {/* Module Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className={cn("gap-1.5 h-8 px-2 sm:px-3 text-xs", currentModule.color)}>
@@ -231,14 +240,15 @@ export default function Layout({ children }: LayoutProps) {
               </DropdownMenu>
             </>
           )}
-
-          {/* Mobile: show current page title */}
-          {isMobile && !isHomePage && currentModule && (
-            <span className="text-sm font-medium text-foreground truncate max-w-[140px]">
-              {currentModule.title}
-            </span>
-          )}
         </div>
+
+        {/* Mobile: Centered module title */}
+        {isMobile && !isHomePage && currentModule && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+            <currentModule.icon className={cn("w-4 h-4", currentModule.color)} />
+            <span className="text-sm font-semibold text-foreground">{currentModule.title}</span>
+          </div>
+        )}
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2">

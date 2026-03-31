@@ -9,13 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight, ChevronDown, CalendarPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Tool {
   id: string;
@@ -28,6 +29,7 @@ interface Tool {
 }
 
 export default function Dashboard() {
+  const isMobile = useIsMobile();
   const { profile } = useAuth();
   const { isOnline } = useOffline();
   const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("dashboard_tools", []);
@@ -183,10 +185,12 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
-        <div>
-          <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
-        </div>
+        {!isMobile && (
+          <div>
+            <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+          </div>
+        )}
 
         {/* Pending Returns Alert - Collapsible */}
         {pendingCheckouts && pendingCheckouts.length > 0 && (

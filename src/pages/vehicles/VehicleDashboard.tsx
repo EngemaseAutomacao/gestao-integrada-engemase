@@ -9,10 +9,12 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function VehicleDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const isAdmin = profile?.role === "admin";
   const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(true);
   const { data: stats } = useQuery({
@@ -54,15 +56,17 @@ export default function VehicleDashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <div className="shrink-0">
-        <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
-          <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-          Controle de Veículos
-        </h1>
-        <p className="text-xs sm:text-base text-muted-foreground mt-1">
-          Gerencie a entrada e saída de veículos
-        </p>
-      </div>
+      {!isMobile && (
+        <div className="shrink-0">
+          <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
+            <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+            Controle de Veículos
+          </h1>
+          <p className="text-xs sm:text-base text-muted-foreground mt-1">
+            Gerencie a entrada e saída de veículos
+          </p>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
@@ -153,74 +157,118 @@ export default function VehicleDashboard() {
       )}
 
       <div className="shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ArrowRightCircle className="w-5 h-5 text-orange-600" />
-              Registrar Saída
-            </CardTitle>
-            <CardDescription>
-              Registre a saída de um veículo com fotos
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-              <Link to="/veiculos/saida">Registrar Saída</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ArrowLeftCircle className="w-5 h-5 text-green-600" />
-              Registrar Chegada
-            </CardTitle>
-            <CardDescription>
-              Registre a chegada de um veículo com fotos
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/veiculos/chegada">Registrar Chegada</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <List className="w-5 h-5 text-blue-600" />
-              Lista de Veículos
-            </CardTitle>
-            <CardDescription>
-              Veja todos os veículos cadastrados
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild variant="secondary" className="w-full">
-              <Link to="/veiculos/lista">Ver Veículos</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {isAdmin && (
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Fuel className="w-5 h-5 text-amber-600" />
-                Combustível
+        <Link to="/veiculos/saida" className="block">
+          <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
+            <CardHeader className={isMobile ? "text-center pb-2" : ""}>
+              {isMobile ? (
+                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <ArrowRightCircle className="w-7 h-7 text-primary" />
+                </div>
+              ) : null}
+              <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
+                {!isMobile && <ArrowRightCircle className="w-5 h-5 text-primary" />}
+                Registrar Saída
               </CardTitle>
-              <CardDescription>
-                Registros de abastecimento dos veículos
+              <CardDescription className={isMobile ? "text-xs" : ""}>
+                Registre a saída de um veículo
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button asChild variant="secondary" className="w-full">
-                <Link to="/veiculos/combustivel">Ver Registros</Link>
-              </Button>
-            </CardContent>
+            {isMobile ? (
+              <CardContent className="text-center pt-0">
+                <span className="text-sm font-medium text-primary">Acessar →</span>
+              </CardContent>
+            ) : (
+              <CardContent>
+                <Button className="w-full">Registrar Saída</Button>
+              </CardContent>
+            )}
           </Card>
+        </Link>
+
+        <Link to="/veiculos/chegada" className="block">
+          <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
+            <CardHeader className={isMobile ? "text-center pb-2" : ""}>
+              {isMobile ? (
+                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <ArrowLeftCircle className="w-7 h-7 text-primary" />
+                </div>
+              ) : null}
+              <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
+                {!isMobile && <ArrowLeftCircle className="w-5 h-5 text-primary" />}
+                Registrar Chegada
+              </CardTitle>
+              <CardDescription className={isMobile ? "text-xs" : ""}>
+                Registre a chegada de um veículo
+              </CardDescription>
+            </CardHeader>
+            {isMobile ? (
+              <CardContent className="text-center pt-0">
+                <span className="text-sm font-medium text-primary">Acessar →</span>
+              </CardContent>
+            ) : (
+              <CardContent>
+                <Button variant="outline" className="w-full">Registrar Chegada</Button>
+              </CardContent>
+            )}
+          </Card>
+        </Link>
+
+        <Link to="/veiculos/lista" className="block">
+          <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
+            <CardHeader className={isMobile ? "text-center pb-2" : ""}>
+              {isMobile ? (
+                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <List className="w-7 h-7 text-primary" />
+                </div>
+              ) : null}
+              <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
+                {!isMobile && <List className="w-5 h-5 text-primary" />}
+                Lista de Veículos
+              </CardTitle>
+              <CardDescription className={isMobile ? "text-xs" : ""}>
+                Veja todos os veículos cadastrados
+              </CardDescription>
+            </CardHeader>
+            {isMobile ? (
+              <CardContent className="text-center pt-0">
+                <span className="text-sm font-medium text-primary">Acessar →</span>
+              </CardContent>
+            ) : (
+              <CardContent>
+                <Button variant="secondary" className="w-full">Ver Veículos</Button>
+              </CardContent>
+            )}
+          </Card>
+        </Link>
+
+        {isAdmin && (
+          <Link to="/veiculos/combustivel" className="block">
+            <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
+              <CardHeader className={isMobile ? "text-center pb-2" : ""}>
+                {isMobile ? (
+                  <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Fuel className="w-7 h-7 text-primary" />
+                  </div>
+                ) : null}
+                <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
+                  {!isMobile && <Fuel className="w-5 h-5 text-primary" />}
+                  Combustível
+                </CardTitle>
+                <CardDescription className={isMobile ? "text-xs" : ""}>
+                  Registros de abastecimento
+                </CardDescription>
+              </CardHeader>
+              {isMobile ? (
+                <CardContent className="text-center pt-0">
+                  <span className="text-sm font-medium text-primary">Acessar →</span>
+                </CardContent>
+              ) : (
+                <CardContent>
+                  <Button variant="secondary" className="w-full">Ver Registros</Button>
+                </CardContent>
+              )}
+            </Card>
+          </Link>
         )}
       </div>
 
