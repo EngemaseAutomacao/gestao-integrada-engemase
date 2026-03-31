@@ -242,7 +242,7 @@ export default function Layout({ children }: LayoutProps) {
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
         <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Mobile: Back button when inside a module */}
-          {isMobile && !isHomePage && currentModule && (
+          {isMobile && !isHomePage && (
             <NavLink to="/">
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground">
                 <ArrowLeft className="w-4 h-4" />
@@ -250,8 +250,8 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           )}
 
-          {/* Logo - hidden on mobile when inside module (title takes center) */}
-          {(!isMobile || isHomePage || !currentModule) && (
+          {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
+          {!isMobile && (
             <NavLink to="/" className="flex items-center gap-2 shrink-0">
               <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
             </NavLink>
