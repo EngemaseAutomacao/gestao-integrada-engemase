@@ -15,17 +15,16 @@ function AdminCard({ title, description, icon, to }: AdminCardProps) {
   return (
     <Link to={to} className="block">
       <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-orange-500 border-orange-500/20">
-        <CardHeader className="pb-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-              {icon}
-            </div>
-            <div>
-              <CardTitle className="text-lg">{title}</CardTitle>
-              <CardDescription className="text-sm">{description}</CardDescription>
-            </div>
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center mb-3">
+            {icon}
           </div>
+          <CardTitle className="text-base sm:text-lg">{title}</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">{description}</CardDescription>
         </CardHeader>
+        <CardContent className="text-center pt-0">
+          <span className="text-sm font-medium text-orange-500">Acessar →</span>
+        </CardContent>
       </Card>
     </Link>
   );
