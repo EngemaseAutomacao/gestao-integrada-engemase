@@ -224,7 +224,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex gap-1 shrink-0">
                         {isOverdue && (
-                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-orange-600 dark:text-orange-400 hover:text-orange-700" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
+                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
                             <CalendarPlus className="w-3 h-3" /> Prorrogar
                           </Button>
                         )}
