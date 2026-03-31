@@ -20,6 +20,7 @@ export function MobileBottomNav() {
   const isAdmin = profile?.role === "admin";
   const { getSelectedTabs } = useMobileNavConfig();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const tabs = getSelectedTabs(isAdmin);
 
