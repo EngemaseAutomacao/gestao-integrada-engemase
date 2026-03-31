@@ -146,6 +146,14 @@ export default function AdminAnalytics() {
       // Fetch maintenance count
       const { data: maintenances } = await supabase.from("maintenance_records").select("id");
 
+      // Fetch vehicle checkouts
+      let vQuery = supabase
+        .from("vehicle_checkouts")
+        .select("id, checkout_date, checkin_date, km_checkout, km_checkin, status");
+      if (range.from) vQuery = vQuery.gte("checkout_date", range.from.toISOString());
+      if (range.to) vQuery = vQuery.lte("checkout_date", range.to.toISOString());
+      const { data: vehicleCheckouts } = await vQuery;
+
       // Calculate metrics
       const totalCheckouts = checkouts?.length || 0;
       const activeCheckouts = checkouts?.filter(c => c.status === "checked_out").length || 0;
@@ -153,6 +161,12 @@ export default function AdminAnalytics() {
       const toolsInUse = tools?.filter(t => t.quantity_available < t.quantity_total).length || 0;
       const totalUsers = users?.length || 0;
       const maintenanceCount = maintenances?.length || 0;
+      const totalVehicleCheckouts = vehicleCheckouts?.length || 0;
+      const activeVehicles = vehicleCheckouts?.filter(v => v.status === "checked_out").length || 0;
+      const totalKmDriven = vehicleCheckouts?.reduce((sum, v) => {
+        if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+        return sum;
+      }, 0) || 0;
       
       // Calculate average usage time
       const completedCheckouts = checkouts?.filter(c => c.checkin_date) || [];
@@ -182,7 +196,32 @@ export default function AdminAnalytics() {
         toolsInUse,
         totalUsers,
         maintenanceCount,
+        totalVehicleCheckouts,
+        totalKmDriven,
+        activeVehicles,
       });
+
+      // Vehicle monthly trend
+      const vMonthlyStats: VehicleMonthlyData[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const date = subMonths(new Date(), i);
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(date);
+        const monthVCheckouts = vehicleCheckouts?.filter(v => {
+          const d = new Date(v.checkout_date);
+          return d >= monthStart && d <= monthEnd;
+        }) || [];
+        const monthKm = monthVCheckouts.reduce((sum, v) => {
+          if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+          return sum;
+        }, 0);
+        vMonthlyStats.push({
+          month: format(date, "MMM/yy", { locale: ptBR }),
+          checkouts: monthVCheckouts.length,
+          km: monthKm,
+        });
+      }
+      setVehicleMonthlyData(vMonthlyStats);
 
       // Top 10 most requested tools
       const toolCounts: Record<string, number> = {};
