@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNavConfig } from "@/hooks/useMobileNavConfig";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import {
   Sheet,
   SheetContent,
