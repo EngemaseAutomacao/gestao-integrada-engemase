@@ -92,17 +92,15 @@ export default function AdminTools() {
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${fileName}`;
 
+        const newFilePath = `ferramentas/${filePath}`;
         const { error: uploadError } = await supabase.storage
-          .from('tool-images')
-          .upload(filePath, imageFile);
+          .from('imagens')
+          .upload(newFilePath, imageFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('tool-images')
-          .getPublicUrl(filePath);
-
-        imageUrl = publicUrl;
+        // Store the path (not public URL since bucket is private)
+        imageUrl = newFilePath;
       }
 
       if (editingTool) {
