@@ -115,7 +115,8 @@ export default function VehicleList() {
       if (imageFile) {
         const fileExt = imageFile.name.split(".").pop();
         const seq = String(Date.now()).slice(-6);
-        const filePath = `veiculos/catalogo/veiculo_${new Date().toISOString().slice(0,10)}_${seq}.${fileExt}`;
+        const dateFolder = new Date().toISOString().slice(0, 10);
+        const filePath = `veiculos/catalogo/${dateFolder}/veiculo_${seq}.${fileExt}`;
         const { error: uploadError } = await supabase.storage.from("imagens").upload(filePath, imageFile);
         if (uploadError) throw uploadError;
         imageUrl = filePath;
