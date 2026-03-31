@@ -255,14 +255,14 @@ export default function ToolDetail() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+    <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{tool.name}</h2>
-          <p className="text-muted-foreground">Detalhes e histórico completo</p>
+        <div className="min-w-0">
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight truncate">{tool.name}</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">Detalhes e histórico completo</p>
         </div>
       </div>
 
