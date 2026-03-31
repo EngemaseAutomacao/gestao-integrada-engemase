@@ -416,6 +416,7 @@ export default function AdminTools() {
               className="pl-10"
             />
           </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
