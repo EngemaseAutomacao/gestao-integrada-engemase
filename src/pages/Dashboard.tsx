@@ -17,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { UserUsageChart } from "@/components/UserUsageChart";
+import { DashboardSkeleton } from "@/components/PageSkeleton";
 
 interface Tool {
   id: string;
