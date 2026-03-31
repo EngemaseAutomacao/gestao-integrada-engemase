@@ -43,6 +43,7 @@ import PontoRegister from "./pages/ponto/PontoRegister";
 import PontoHistory from "./pages/ponto/PontoHistory";
 import PontoAdmin from "./pages/ponto/PontoAdmin";
 import NotFound from "./pages/NotFound";
+import Help from "./pages/Help";
 import Changelog from "./pages/Changelog";
 import MobileNavSettings from "./pages/MobileNavSettings";
 import UpdatePrompt from "./components/UpdatePrompt";
