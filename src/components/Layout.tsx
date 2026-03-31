@@ -18,7 +18,8 @@ import {
   ArrowLeft,
   Fuel,
   MapPin,
-  HelpCircle
+  HelpCircle,
+  KeyRound
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -369,6 +370,13 @@ export default function Layout({ children }: LayoutProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => navigate('/change-password')}
+                  className="cursor-pointer"
+                >
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  Alterar Senha
+                </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={signOut}
                   className="text-destructive focus:text-destructive cursor-pointer"

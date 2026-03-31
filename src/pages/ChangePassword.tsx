@@ -14,8 +14,9 @@ export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const isFirstLogin = profile?.first_login === true;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +72,10 @@ export default function ChangePassword() {
           </div>
           <CardTitle className="text-2xl">Alterar Senha</CardTitle>
           <CardDescription>
-            Este é seu primeiro acesso. Por segurança, crie uma nova senha para continuar.
+            {isFirstLogin 
+              ? "Este é seu primeiro acesso. Por segurança, crie uma nova senha para continuar."
+              : "Digite sua nova senha abaixo."
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -102,10 +106,17 @@ export default function ChangePassword() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salvar Nova Senha
-            </Button>
+            <div className="flex gap-2">
+              {!isFirstLogin && (
+                <Button type="button" variant="outline" className="flex-1" onClick={() => navigate(-1)}>
+                  Voltar
+                </Button>
+              )}
+              <Button type="submit" className={isFirstLogin ? "w-full" : "flex-1"} disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Salvar Nova Senha
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
