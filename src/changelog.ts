@@ -23,6 +23,7 @@ export const changelog: ChangelogEntry[] = [
     ],
   },
   {
+    version: "1.10.1",
     date: "2026-03-31",
     title: "Padronização Mobile e Página de Ajuda",
     description: "Layout mobile padronizado em todos os módulos, botão de ajuda no cabeçalho e página de FAQ.",
