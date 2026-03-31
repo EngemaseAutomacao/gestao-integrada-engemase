@@ -57,7 +57,7 @@ export default function PontoHistory() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
-      <div>
+      <div className="shrink-0">
         <h1 className="text-3xl font-bold text-foreground">Meu Histórico de Ponto</h1>
         <p className="text-muted-foreground mt-1">Seus registros de entrada e saída</p>
       </div>
