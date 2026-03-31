@@ -104,7 +104,8 @@ export default function Checkin() {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: type === "photo" ? "image/jpeg" : "image/png" });
 
-      const fileName = `ferramentas/checkin_${type}_${Date.now()}_${Math.random().toString(36).substring(7)}.${type === "photo" ? "jpg" : "png"}`;
+      const seq = String(Date.now()).slice(-6);
+      const fileName = `ferramentas/entradas/entrada_${type}_${new Date().toISOString().slice(0,10)}_${seq}.${type === "photo" ? "jpg" : "png"}`;
       
       const { error: uploadError } = await supabase.storage
         .from("imagens")
