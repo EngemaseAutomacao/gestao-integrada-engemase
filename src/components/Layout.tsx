@@ -136,6 +136,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/logs': { title: 'Logs', icon: ClipboardList },
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
+    '/ajuda': { title: 'Ajuda', icon: HelpCircle },
   };
 
   const getMobilePageTitle = () => {
