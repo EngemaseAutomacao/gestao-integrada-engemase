@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ArrowLeft, Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { SignedImage } from "@/components/SignedImage";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
