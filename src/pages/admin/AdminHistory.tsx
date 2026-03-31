@@ -209,7 +209,7 @@ export default function AdminHistory() {
         </div>
       </div>
 
-      <Card>
+      <Card className="shrink-0">
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
           <CardDescription>Filtre o histórico por diferentes critérios</CardDescription>
