@@ -266,8 +266,8 @@ function RecentVehicleActivity() {
           <div className="text-right">
             <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
               checkout.status === "checked_out" 
-                ? "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-400" 
-                : "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-400"
+                ? "bg-warning/10 text-warning" 
+                : "bg-success/10 text-success"
             }`}>
               {checkout.status === "checked_out" ? "Em uso" : "Devolvido"}
             </span>
