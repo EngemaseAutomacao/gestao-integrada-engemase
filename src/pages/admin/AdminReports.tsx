@@ -574,6 +574,22 @@ export default function AdminReports() {
             </div>
           </div>
 
+          {/* Quick Period Presets */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1">
+              <Calendar className="w-4 h-4" />
+              Período Rápido
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("7d")}>Últimos 7 dias</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("30d")}>Últimos 30 dias</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("this_month")}>Este mês</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("last_month")}>Mês passado</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("this_year")}>Este ano</Button>
+              <Button size="sm" variant="ghost" onClick={() => setFilters({ ...filters, startDate: "", endDate: "" })}>Limpar</Button>
+            </div>
+          </div>
+
           <div className="flex gap-4 pt-4 border-t">
             <Button onClick={exportToPDF} disabled={loading} className="flex-1">
               {loading ? (
