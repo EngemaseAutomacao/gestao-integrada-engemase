@@ -9,14 +9,40 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { History } from "lucide-react";
+
+interface VehicleCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  to: string;
+}
+
+function VehicleCard({ title, description, icon, to }: VehicleCardProps) {
+  return (
+    <Link to={to} className="block">
+      <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+            {icon}
+          </div>
+          <CardTitle className="text-lg">{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent className="text-center">
+          <span className="text-sm font-medium text-primary">Acessar →</span>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
 
 export default function VehicleDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const isAdmin = profile?.role === "admin";
   const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(true);
+
   const { data: stats } = useQuery({
     queryKey: ["vehicle-stats"],
     queryFn: async () => {
@@ -24,10 +50,8 @@ export default function VehicleDashboard() {
         supabase.from("vehicles").select("id, status"),
         supabase.from("vehicle_checkouts").select("id, status").eq("status", "checked_out")
       ]);
-
       const vehicles = vehiclesRes.data || [];
       const activeCheckouts = checkoutsRes.data || [];
-
       return {
         totalVehicles: vehicles.length,
         available: vehicles.filter(v => v.status === "available").length,
@@ -37,7 +61,6 @@ export default function VehicleDashboard() {
     }
   });
 
-  // Fetch user's active vehicle checkouts
   const { data: myVehicleCheckouts } = useQuery({
     queryKey: ["my-vehicle-checkouts", profile?.id],
     queryFn: async () => {
@@ -55,21 +78,19 @@ export default function VehicleDashboard() {
   });
 
   return (
-    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      {!isMobile && (
-        <div className="shrink-0">
-          <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
-            <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-            Controle de Veículos
-          </h1>
-          <p className="text-xs sm:text-base text-muted-foreground mt-1">
-            Gerencie a entrada e saída de veículos
-          </p>
-        </div>
-      )}
+    <div className="space-y-6">
+      <div className="hidden sm:block">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Car className="w-8 h-8 text-primary" />
+          Controle de Veículos
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Gerencie a entrada e saída de veículos
+        </p>
+      </div>
 
       {/* Stats Cards */}
-      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card>
           <CardHeader className="pb-2 px-3 sm:px-6">
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Total</CardTitle>
@@ -107,7 +128,7 @@ export default function VehicleDashboard() {
       {/* My Active Vehicles */}
       {myVehicleCheckouts && myVehicleCheckouts.length > 0 && (
         <Card 
-          className="shrink-0 border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 cursor-pointer"
+          className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 cursor-pointer"
           onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
         >
           <CardHeader className="pb-2">
@@ -148,131 +169,57 @@ export default function VehicleDashboard() {
         </Card>
       )}
 
-      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <Link to="/veiculos/saida" className="block">
-          <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
-            <CardHeader className={isMobile ? "text-center pb-2" : ""}>
-              {isMobile ? (
-                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <ArrowRightCircle className="w-7 h-7 text-primary" />
-                </div>
-              ) : null}
-              <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
-                {!isMobile && <ArrowRightCircle className="w-5 h-5 text-primary" />}
-                Registrar Saída
-              </CardTitle>
-              <CardDescription className={isMobile ? "text-xs" : ""}>
-                Registre a saída de um veículo
-              </CardDescription>
-            </CardHeader>
-            {isMobile ? (
-              <CardContent className="text-center pt-0">
-                <span className="text-sm font-medium text-primary">Acessar →</span>
-              </CardContent>
-            ) : (
-              <CardContent>
-                <Button className="w-full">Registrar Saída</Button>
-              </CardContent>
-            )}
-          </Card>
-        </Link>
-
-        <Link to="/veiculos/chegada" className="block">
-          <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
-            <CardHeader className={isMobile ? "text-center pb-2" : ""}>
-              {isMobile ? (
-                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <ArrowLeftCircle className="w-7 h-7 text-primary" />
-                </div>
-              ) : null}
-              <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
-                {!isMobile && <ArrowLeftCircle className="w-5 h-5 text-primary" />}
-                Registrar Chegada
-              </CardTitle>
-              <CardDescription className={isMobile ? "text-xs" : ""}>
-                Registre a chegada de um veículo
-              </CardDescription>
-            </CardHeader>
-            {isMobile ? (
-              <CardContent className="text-center pt-0">
-                <span className="text-sm font-medium text-primary">Acessar →</span>
-              </CardContent>
-            ) : (
-              <CardContent>
-                <Button variant="outline" className="w-full">Registrar Chegada</Button>
-              </CardContent>
-            )}
-          </Card>
-        </Link>
-
-        <Link to="/veiculos/lista" className="block">
-          <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
-            <CardHeader className={isMobile ? "text-center pb-2" : ""}>
-              {isMobile ? (
-                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <List className="w-7 h-7 text-primary" />
-                </div>
-              ) : null}
-              <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
-                {!isMobile && <List className="w-5 h-5 text-primary" />}
-                Lista de Veículos
-              </CardTitle>
-              <CardDescription className={isMobile ? "text-xs" : ""}>
-                Veja todos os veículos cadastrados
-              </CardDescription>
-            </CardHeader>
-            {isMobile ? (
-              <CardContent className="text-center pt-0">
-                <span className="text-sm font-medium text-primary">Acessar →</span>
-              </CardContent>
-            ) : (
-              <CardContent>
-                <Button variant="secondary" className="w-full">Ver Veículos</Button>
-              </CardContent>
-            )}
-          </Card>
-        </Link>
-
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <VehicleCard
+          title="Registrar Saída"
+          description="Registre a saída de um veículo"
+          icon={<ArrowRightCircle className="w-7 h-7 text-primary" />}
+          to="/veiculos/saida"
+        />
+        <VehicleCard
+          title="Registrar Chegada"
+          description="Registre a chegada de um veículo"
+          icon={<ArrowLeftCircle className="w-7 h-7 text-primary" />}
+          to="/veiculos/chegada"
+        />
+        <VehicleCard
+          title="Lista de Veículos"
+          description="Veja todos os veículos cadastrados"
+          icon={<List className="w-7 h-7 text-primary" />}
+          to="/veiculos/lista"
+        />
+        <VehicleCard
+          title="Combustível"
+          description="Registros de abastecimento"
+          icon={<Fuel className="w-7 h-7 text-primary" />}
+          to="/veiculos/combustivel"
+        />
+        <VehicleCard
+          title="Meu Histórico"
+          description="Veja seu histórico de uso"
+          icon={<History className="w-7 h-7 text-primary" />}
+          to="/veiculos/historico"
+        />
         {isAdmin && (
-          <Link to="/veiculos/combustivel" className="block">
-            <Card className="hover:shadow-lg transition-all hover:scale-[1.02] hover:border-primary h-full">
-              <CardHeader className={isMobile ? "text-center pb-2" : ""}>
-                {isMobile ? (
-                  <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                    <Fuel className="w-7 h-7 text-primary" />
-                  </div>
-                ) : null}
-                <CardTitle className={isMobile ? "text-lg" : "flex items-center gap-2"}>
-                  {!isMobile && <Fuel className="w-5 h-5 text-primary" />}
-                  Combustível
-                </CardTitle>
-                <CardDescription className={isMobile ? "text-xs" : ""}>
-                  Registros de abastecimento
-                </CardDescription>
-              </CardHeader>
-              {isMobile ? (
-                <CardContent className="text-center pt-0">
-                  <span className="text-sm font-medium text-primary">Acessar →</span>
-                </CardContent>
-              ) : (
-                <CardContent>
-                  <Button variant="secondary" className="w-full">Ver Registros</Button>
-                </CardContent>
-              )}
-            </Card>
-          </Link>
+          <VehicleCard
+            title="Analytics"
+            description="Análise detalhada de veículos"
+            icon={<BarChart3 className="w-7 h-7 text-primary" />}
+            to="/veiculos/analytics"
+          />
         )}
       </div>
 
       {/* Recent Activity */}
-      <Card className="flex-1 min-h-0 flex flex-col">
-        <CardHeader className="shrink-0">
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
             Atividade Recente
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 min-h-0 overflow-y-auto">
+        <CardContent>
           <RecentVehicleActivity />
         </CardContent>
       </Card>
@@ -287,19 +234,12 @@ function RecentVehicleActivity() {
       const { data, error } = await supabase
         .from("vehicle_checkouts")
         .select(`
-          id,
-          checkout_date,
-          checkin_date,
-          km_checkout,
-          km_checkin,
-          status,
-          destination,
+          id, checkout_date, checkin_date, km_checkout, km_checkin, status, destination,
           vehicles!inner(name, plate),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
         .order("checkout_date", { ascending: false })
         .limit(5);
-
       if (error) throw error;
       return data;
     }
@@ -318,16 +258,16 @@ function RecentVehicleActivity() {
       {recentCheckouts.map((checkout: any) => (
         <div key={checkout.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
           <div>
-            <p className="font-medium">{checkout.vehicles.name} - {checkout.vehicles.plate}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="font-medium text-sm">{checkout.vehicles.name} - {checkout.vehicles.plate}</p>
+            <p className="text-xs text-muted-foreground">
               {checkout.profiles?.full_name} • {checkout.destination || "Sem destino"}
             </p>
           </div>
           <div className="text-right">
             <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
               checkout.status === "checked_out" 
-                ? "bg-orange-100 text-orange-800" 
-                : "bg-green-100 text-green-800"
+                ? "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-400" 
+                : "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-400"
             }`}>
               {checkout.status === "checked_out" ? "Em uso" : "Devolvido"}
             </span>
