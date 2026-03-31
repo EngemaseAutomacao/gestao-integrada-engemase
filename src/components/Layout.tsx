@@ -43,6 +43,8 @@ import { cn } from "@/lib/utils";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
+import { useState } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;
