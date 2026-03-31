@@ -44,6 +44,7 @@ import PontoHistory from "./pages/ponto/PontoHistory";
 import PontoAdmin from "./pages/ponto/PontoAdmin";
 import NotFound from "./pages/NotFound";
 import Changelog from "./pages/Changelog";
+import MobileNavSettings from "./pages/MobileNavSettings";
 import UpdatePrompt from "./components/UpdatePrompt";
 import { ChangelogModal } from "./components/ChangelogModal";
 
