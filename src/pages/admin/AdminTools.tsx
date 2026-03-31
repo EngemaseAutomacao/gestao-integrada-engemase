@@ -522,7 +522,7 @@ export default function AdminTools() {
                           <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDelete(tool.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(tool)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </TableCell>
