@@ -110,26 +110,31 @@ Deno.serve(async (req) => {
     }
 
     // ===== 3. checkout-images/vehicles/ → veiculos/saidas/ or veiculos/entradas/ =====
-    const { data: vehicleFiles } = await supabase.storage.from("checkout-images").list("vehicles", { limit: 1000 });
-    if (vehicleFiles) {
-      for (const file of vehicleFiles) {
-        if (!file.name || file.name === ".emptyFolderPlaceholder" || !file.id) continue;
-        const oldPath = `vehicles/${file.name}`;
-        const isCheckin = file.name.includes("_in_") || file.name.includes("_in.");
-        const folder = isCheckin ? "veiculos/entradas" : "veiculos/saidas";
-        const prefix = isCheckin ? "entrada_foto" : "saida_foto";
+    const vehicleFolders = ["vehicles", "veiculos/saidas", "veiculos/entradas"];
+    for (const vFolder of vehicleFolders) {
+      const { data: vehicleFiles } = await supabase.storage.from("checkout-images").list(vFolder, { limit: 1000 });
+      if (vehicleFiles) {
+        for (const file of vehicleFiles) {
+          if (!file.name || file.name === ".emptyFolderPlaceholder" || !file.id) continue;
+          const oldPath = `${vFolder}/${file.name}`;
 
-        const photoCols = [
-          "photo_front_checkout", "photo_back_checkout", "photo_left_checkout", "photo_right_checkout",
-          "photo_front_checkin", "photo_back_checkin", "photo_left_checkin", "photo_right_checkin",
-        ];
-        const dbUpdates = photoCols.map(col => ({
-          table: "vehicle_checkouts",
-          column: col,
-          oldValue: oldPath,
-        }));
+          // Check if already exists in imagens
+          const isCheckin = file.name.includes("_in_") || file.name.includes("_in.") || file.name.startsWith("entrada_") || vFolder.includes("entradas");
+          const folder = isCheckin ? "veiculos/entradas" : "veiculos/saidas";
+          const prefix = isCheckin ? "entrada_foto" : "saida_foto";
 
-        await moveFile("checkout-images", oldPath, folder, prefix, dbUpdates);
+          const photoCols = [
+            "photo_front_checkout", "photo_back_checkout", "photo_left_checkout", "photo_right_checkout",
+            "photo_front_checkin", "photo_back_checkin", "photo_left_checkin", "photo_right_checkin",
+          ];
+          const dbUpdates = photoCols.map(col => ({
+            table: "vehicle_checkouts",
+            column: col,
+            oldValue: oldPath,
+          }));
+
+          await moveFile("checkout-images", oldPath, folder, prefix, dbUpdates);
+        }
       }
     }
 
