@@ -299,13 +299,19 @@ export default function Layout({ children }: LayoutProps) {
           )}
         </div>
 
-        {/* Mobile: Centered module title */}
-        {isMobile && !isHomePage && currentModule && (
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-            <currentModule.icon className={cn("w-4 h-4", currentModule.color)} />
-            <span className="text-sm font-semibold text-foreground">{currentModule.title}</span>
-          </div>
-        )}
+        {/* Mobile: Centered page title */}
+        {isMobile && !isHomePage && (currentModule || getMobilePageTitle()) && (() => {
+          const pageTitle = getMobilePageTitle();
+          const icon = pageTitle?.icon || currentModule?.icon;
+          const title = pageTitle?.title || currentModule?.title;
+          const IconComponent = icon;
+          return (
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+              {IconComponent && <IconComponent className="w-4 h-4 text-primary" />}
+              <span className="text-sm font-semibold text-foreground">{title}</span>
+            </div>
+          );
+        })()}
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2">
