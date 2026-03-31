@@ -51,6 +51,7 @@ export default function Layout({ children }: LayoutProps) {
   const { user, profile, loading, signOut } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   
   const isHomePage = location.pathname === '/';
   const adminToolRoutes = ['/admin/tools', '/admin/maintenance', '/admin/issues', '/admin/history'];
