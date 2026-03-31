@@ -18,7 +18,8 @@ import {
   ArrowLeft,
   Fuel,
   MapPin,
-  HelpCircle
+  HelpCircle,
+  KeyRound
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
