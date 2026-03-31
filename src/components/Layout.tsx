@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, useLocation, NavLink } from "react-router-dom";
+import { Navigate, useLocation, NavLink, useNavigate } from "react-router-dom";
 import { 
   Home, 
   Package, 
