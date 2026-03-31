@@ -192,7 +192,7 @@ export default function VehicleList() {
       </div>
 
       {/* Search */}
-      <div className="relative max-w-md">
+      <div className="shrink-0 relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Buscar por nome, placa, marca ou modelo..."
