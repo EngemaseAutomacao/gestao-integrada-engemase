@@ -212,6 +212,7 @@ function SummaryCards({ userId }: { userId: string }) {
 export default function Home() {
   const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
+  const isMobile = useIsMobile();
 
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -219,6 +220,55 @@ export default function Home() {
     setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
   }, []);
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="flex flex-col items-center p-3 flex-1 gap-4">
+        <div className="text-center">
+          <h1 className="text-lg font-bold text-foreground">
+            Olá, {profile?.full_name?.split(' ')[0]}!
+          </h1>
+        </div>
+
+        {/* Summary */}
+        {user && <SummaryCards userId={user.id} />}
+
+        {/* Quick Actions */}
+        <MobileHomeActions />
+
+        {/* Module Navigation */}
+        <div className="w-full space-y-2">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider px-1">
+            Módulos
+          </h2>
+          <div className="grid grid-cols-2 gap-2.5">
+            <Link to="/ferramentas" className="flex items-center gap-3 p-3.5 rounded-xl border bg-card active:scale-95 transition-all">
+              <Wrench className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium">Ferramentas</span>
+            </Link>
+            <Link to="/veiculos" className="flex items-center gap-3 p-3.5 rounded-xl border bg-card active:scale-95 transition-all">
+              <Car className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium">Veículos</span>
+            </Link>
+            {isAdmin && (
+              <>
+                <Link to="/ponto" className="flex items-center gap-3 p-3.5 rounded-xl border bg-card active:scale-95 transition-all">
+                  <Clock className="w-5 h-5 text-primary" />
+                  <span className="text-sm font-medium">Ponto</span>
+                </Link>
+                <Link to="/admin" className="flex items-center gap-3 p-3.5 rounded-xl border border-orange-500/30 bg-orange-500/5 active:scale-95 transition-all">
+                  <Shield className="w-5 h-5 text-orange-500" />
+                  <span className="text-sm font-medium text-orange-600">Admin</span>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
       <div className="text-center mb-4 sm:mb-6">
