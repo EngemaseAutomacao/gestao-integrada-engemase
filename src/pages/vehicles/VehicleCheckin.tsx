@@ -106,6 +106,7 @@ export default function VehicleCheckin() {
           photo_back_checkin: backUrl,
           photo_left_checkin: leftUrl,
           photo_right_checkin: rightUrl,
+          photo_dashboard_checkin: dashboardUrl,
         })
         .eq("id", selectedCheckout);
 
