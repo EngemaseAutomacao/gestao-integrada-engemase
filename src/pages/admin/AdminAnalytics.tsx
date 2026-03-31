@@ -78,6 +78,9 @@ export default function AdminAnalytics() {
     toolsInUse: 0,
     totalUsers: 0,
     maintenanceCount: 0,
+    totalVehicleCheckouts: 0,
+    totalKmDriven: 0,
+    activeVehicles: 0,
   });
   const [topTools, setTopTools] = useState<ToolUsageData[]>([]);
   const [delaysBySite, setDelaysBySite] = useState<DelayRateData[]>([]);
@@ -85,6 +88,7 @@ export default function AdminAnalytics() {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
+  const [vehicleMonthlyData, setVehicleMonthlyData] = useState<VehicleMonthlyData[]>([]);
 
   const getDateRange = (): { from: Date | null; to: Date | null } => {
     const now = new Date();
