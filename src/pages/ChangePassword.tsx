@@ -14,8 +14,9 @@ export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const isFirstLogin = profile?.first_login === true;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
