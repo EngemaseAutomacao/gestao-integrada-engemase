@@ -185,8 +185,8 @@ function SummaryCards({ userId }: { userId: string }) {
       label: "Ponto",
       value: summary.pontoOpen ? "Aberto" : "Fechado",
       icon: <Clock className="w-4 h-4" />,
-      color: summary.pontoOpen ? "text-green-600" : "text-muted-foreground",
-      bgColor: summary.pontoOpen ? "bg-green-500/10" : "bg-muted",
+      color: summary.pontoOpen ? "text-success" : "text-muted-foreground",
+      bgColor: summary.pontoOpen ? "bg-success/10" : "bg-muted",
     },
   ];
 

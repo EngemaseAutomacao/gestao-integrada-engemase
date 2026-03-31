@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNavConfig } from "@/hooks/useMobileNavConfig";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import {
   Sheet,
   SheetContent,
@@ -19,6 +20,7 @@ export function MobileBottomNav() {
   const isAdmin = profile?.role === "admin";
   const { getSelectedTabs } = useMobileNavConfig();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const tabs = getSelectedTabs(isAdmin);
 
@@ -92,7 +94,7 @@ export function MobileBottomNav() {
               <Button
                 variant="ghost"
                 className="w-full justify-start text-destructive gap-3 px-3"
-                onClick={() => { setMenuOpen(false); signOut(); }}
+                onClick={() => { setMenuOpen(false); setLogoutDialogOpen(true); }}
               >
                 <LogOut className="w-5 h-5" />
                 <span className="text-sm font-medium">Sair</span>
@@ -101,6 +103,12 @@ export function MobileBottomNav() {
           </SheetContent>
         </Sheet>
       </div>
+
+      <LogoutConfirmDialog 
+        open={logoutDialogOpen} 
+        onOpenChange={setLogoutDialogOpen} 
+        onConfirm={signOut} 
+      />
     </nav>
   );
 }

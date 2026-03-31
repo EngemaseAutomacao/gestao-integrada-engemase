@@ -43,6 +43,8 @@ import { cn } from "@/lib/utils";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
+import { useState } from "react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -53,6 +55,7 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   
   const isHomePage = location.pathname === '/';
   const adminToolRoutes = ['/admin/tools', '/admin/maintenance', '/admin/issues', '/admin/history'];
@@ -378,7 +381,7 @@ export default function Layout({ children }: LayoutProps) {
                   Alterar Senha
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={signOut}
+                  onClick={() => setLogoutDialogOpen(true)}
                   className="text-destructive focus:text-destructive cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
@@ -400,6 +403,13 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Mobile Bottom Nav */}
       {isMobile && <MobileBottomNav />}
+
+      {/* Logout Confirmation */}
+      <LogoutConfirmDialog 
+        open={logoutDialogOpen} 
+        onOpenChange={setLogoutDialogOpen} 
+        onConfirm={signOut} 
+      />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { Package, Search, ExternalLink, Filter, X } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { ListSkeleton } from "@/components/PageSkeleton";
 
 interface Tool {
   id: string;
@@ -142,11 +143,7 @@ export default function Tools() {
   });
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Package className="w-8 h-8 animate-pulse text-primary" />
-      </div>
-    );
+    return <ListSkeleton />;
   }
 
   return (

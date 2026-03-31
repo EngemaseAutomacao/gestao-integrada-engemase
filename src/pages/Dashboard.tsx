@@ -17,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { UserUsageChart } from "@/components/UserUsageChart";
+import { DashboardSkeleton } from "@/components/PageSkeleton";
 
 interface Tool {
   id: string;
@@ -175,11 +177,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Package className="w-8 h-8 animate-pulse text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -193,11 +191,11 @@ export default function Dashboard() {
         {/* Pending Returns Alert - Collapsible */}
         {pendingCheckouts && pendingCheckouts.length > 0 && (
           <Card 
-            className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20 cursor-pointer"
+            className="border-warning/50 bg-warning/5 cursor-pointer"
             onClick={() => setPendingExpanded(!pendingExpanded)}
           >
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-orange-700 dark:text-orange-400">
+              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-warning">
                 <span className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Devoluções Pendentes ({pendingCheckouts.length})
@@ -224,7 +222,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex gap-1 shrink-0">
                         {isOverdue && (
-                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-orange-600 dark:text-orange-400 hover:text-orange-700" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
+                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
                             <CalendarPlus className="w-3 h-3" /> Prorrogar
                           </Button>
                         )}
@@ -247,7 +245,7 @@ export default function Dashboard() {
               <CardTitle className="text-xs sm:text-sm font-medium">Disponíveis</CardTitle>
             </CardHeader>
             <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-green-600">
+              <div className="text-xl sm:text-2xl font-bold text-success">
                 {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
               </div>
             </CardContent>
@@ -267,12 +265,15 @@ export default function Dashboard() {
               <CardTitle className="text-xs sm:text-sm font-medium">Em Uso</CardTitle>
             </CardHeader>
             <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-orange-600">
+              <div className="text-xl sm:text-2xl font-bold text-warning">
                 {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Usage Chart */}
+        {profile?.id && <UserUsageChart userId={profile.id} />}
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">

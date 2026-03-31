@@ -104,7 +104,7 @@ export default function VehicleDashboard() {
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Disponíveis</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-green-600">{stats?.available || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-success">{stats?.available || 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -112,7 +112,7 @@ export default function VehicleDashboard() {
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Em Uso</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-orange-600">{stats?.inUse || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-warning">{stats?.inUse || 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -120,7 +120,7 @@ export default function VehicleDashboard() {
             <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">Saídas Ativas</CardTitle>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
-            <div className="text-xl sm:text-2xl font-bold text-blue-600">{stats?.activeCheckouts || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold text-primary">{stats?.activeCheckouts || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -128,11 +128,11 @@ export default function VehicleDashboard() {
       {/* My Active Vehicles */}
       {myVehicleCheckouts && myVehicleCheckouts.length > 0 && (
         <Card 
-          className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 cursor-pointer"
+          className="border-primary/50 bg-primary/5 cursor-pointer"
           onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
         >
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm sm:text-base flex items-center justify-between text-blue-700 dark:text-blue-400">
+            <CardTitle className="text-sm sm:text-base flex items-center justify-between text-primary">
               <span className="flex items-center gap-2">
                 <Car className="w-4 h-4" />
                 Meus Veículos em Uso ({myVehicleCheckouts.length})
@@ -266,8 +266,8 @@ function RecentVehicleActivity() {
           <div className="text-right">
             <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
               checkout.status === "checked_out" 
-                ? "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-400" 
-                : "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-400"
+                ? "bg-warning/10 text-warning" 
+                : "bg-success/10 text-success"
             }`}>
               {checkout.status === "checked_out" ? "Em uso" : "Devolvido"}
             </span>
