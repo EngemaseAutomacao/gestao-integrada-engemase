@@ -592,6 +592,7 @@ export default function AdminTools() {
               </div>
             </>
           )}
+          </div>
         </CardContent>
       </Card>
 
