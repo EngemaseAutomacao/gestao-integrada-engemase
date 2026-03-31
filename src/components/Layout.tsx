@@ -403,6 +403,13 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Mobile Bottom Nav */}
       {isMobile && <MobileBottomNav />}
+
+      {/* Logout Confirmation */}
+      <LogoutConfirmDialog 
+        open={logoutDialogOpen} 
+        onOpenChange={setLogoutDialogOpen} 
+        onConfirm={signOut} 
+      />
     </div>
   );
 }
