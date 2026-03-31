@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon } from "lucide-react";
+import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon, Car } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from "recharts";
 import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
@@ -52,6 +52,15 @@ interface AnalyticsMetrics {
   toolsInUse: number;
   totalUsers: number;
   maintenanceCount: number;
+  totalVehicleCheckouts: number;
+  totalKmDriven: number;
+  activeVehicles: number;
+}
+
+interface VehicleMonthlyData {
+  month: string;
+  checkouts: number;
+  km: number;
 }
 
 export default function AdminAnalytics() {
@@ -69,6 +78,9 @@ export default function AdminAnalytics() {
     toolsInUse: 0,
     totalUsers: 0,
     maintenanceCount: 0,
+    totalVehicleCheckouts: 0,
+    totalKmDriven: 0,
+    activeVehicles: 0,
   });
   const [topTools, setTopTools] = useState<ToolUsageData[]>([]);
   const [delaysBySite, setDelaysBySite] = useState<DelayRateData[]>([]);
@@ -76,6 +88,7 @@ export default function AdminAnalytics() {
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
+  const [vehicleMonthlyData, setVehicleMonthlyData] = useState<VehicleMonthlyData[]>([]);
 
   const getDateRange = (): { from: Date | null; to: Date | null } => {
     const now = new Date();
@@ -133,6 +146,14 @@ export default function AdminAnalytics() {
       // Fetch maintenance count
       const { data: maintenances } = await supabase.from("maintenance_records").select("id");
 
+      // Fetch vehicle checkouts
+      let vQuery = supabase
+        .from("vehicle_checkouts")
+        .select("id, checkout_date, checkin_date, km_checkout, km_checkin, status");
+      if (range.from) vQuery = vQuery.gte("checkout_date", range.from.toISOString());
+      if (range.to) vQuery = vQuery.lte("checkout_date", range.to.toISOString());
+      const { data: vehicleCheckouts } = await vQuery;
+
       // Calculate metrics
       const totalCheckouts = checkouts?.length || 0;
       const activeCheckouts = checkouts?.filter(c => c.status === "checked_out").length || 0;
@@ -140,6 +161,12 @@ export default function AdminAnalytics() {
       const toolsInUse = tools?.filter(t => t.quantity_available < t.quantity_total).length || 0;
       const totalUsers = users?.length || 0;
       const maintenanceCount = maintenances?.length || 0;
+      const totalVehicleCheckouts = vehicleCheckouts?.length || 0;
+      const activeVehicles = vehicleCheckouts?.filter(v => v.status === "checked_out").length || 0;
+      const totalKmDriven = vehicleCheckouts?.reduce((sum, v) => {
+        if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+        return sum;
+      }, 0) || 0;
       
       // Calculate average usage time
       const completedCheckouts = checkouts?.filter(c => c.checkin_date) || [];
@@ -169,7 +196,32 @@ export default function AdminAnalytics() {
         toolsInUse,
         totalUsers,
         maintenanceCount,
+        totalVehicleCheckouts,
+        totalKmDriven,
+        activeVehicles,
       });
+
+      // Vehicle monthly trend
+      const vMonthlyStats: VehicleMonthlyData[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const date = subMonths(new Date(), i);
+        const monthStart = startOfMonth(date);
+        const monthEnd = endOfMonth(date);
+        const monthVCheckouts = vehicleCheckouts?.filter(v => {
+          const d = new Date(v.checkout_date);
+          return d >= monthStart && d <= monthEnd;
+        }) || [];
+        const monthKm = monthVCheckouts.reduce((sum, v) => {
+          if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+          return sum;
+        }, 0);
+        vMonthlyStats.push({
+          month: format(date, "MMM/yy", { locale: ptBR }),
+          checkouts: monthVCheckouts.length,
+          km: monthKm,
+        });
+      }
+      setVehicleMonthlyData(vMonthlyStats);
 
       // Top 10 most requested tools
       const toolCounts: Record<string, number> = {};
@@ -478,6 +530,45 @@ export default function AdminAnalytics() {
         </Card>
       </div>
 
+      {/* Vehicle Metrics */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Saídas de Veículos</CardTitle>
+            <Car className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalVehicleCheckouts}</div>
+            <p className="text-xs text-muted-foreground">{metrics.activeVehicles} em uso agora</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">KM Total Rodado</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalKmDriven.toLocaleString("pt-BR")} km</div>
+            <p className="text-xs text-muted-foreground">Todas as viagens</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">KM Médio por Viagem</CardTitle>
+            <Car className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {metrics.totalVehicleCheckouts > 0 
+                ? Math.round(metrics.totalKmDriven / metrics.totalVehicleCheckouts).toLocaleString("pt-BR")
+                : 0} km
+            </div>
+            <p className="text-xs text-muted-foreground">Média geral</p>
+          </CardContent>
+        </Card>
+      </div>
       {/* Monthly Trend Chart */}
       <Card>
         <CardHeader>
@@ -506,7 +597,34 @@ export default function AdminAnalytics() {
         </CardContent>
       </Card>
 
-      {/* Charts Row 1 */}
+      {/* Vehicle Monthly Trend */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tendência Mensal - Veículos</CardTitle>
+          <CardDescription>Saídas e quilometragem nos últimos 6 meses</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={vehicleMonthlyData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="month" className="text-xs" />
+              <YAxis yAxisId="left" className="text-xs" />
+              <YAxis yAxisId="right" orientation="right" className="text-xs" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px'
+                }}
+              />
+              <Legend />
+              <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill="hsl(var(--chart-2))" />
+              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke="hsl(var(--primary))" strokeWidth={2} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2">
         {/* Top Tools Chart */}
         <Card>
