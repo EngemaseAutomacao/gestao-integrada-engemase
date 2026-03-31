@@ -173,7 +173,7 @@ export default function VehicleList() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Car className="w-8 h-8 text-primary" />
