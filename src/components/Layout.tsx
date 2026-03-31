@@ -371,6 +371,13 @@ export default function Layout({ children }: LayoutProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
+                  onClick={() => navigate('/change-password')}
+                  className="cursor-pointer"
+                >
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  Alterar Senha
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={signOut}
                   className="text-destructive focus:text-destructive cursor-pointer"
                 >
