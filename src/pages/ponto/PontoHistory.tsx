@@ -56,8 +56,8 @@ export default function PontoHistory() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col h-full min-h-0 gap-6">
+      <div className="shrink-0">
         <h1 className="text-3xl font-bold text-foreground">Meu Histórico de Ponto</h1>
         <p className="text-muted-foreground mt-1">Seus registros de entrada e saída</p>
       </div>
@@ -70,7 +70,7 @@ export default function PontoHistory() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
           {entries.map((entry) => {
             const duration = entry.clock_out
               ? differenceInMinutes(new Date(entry.clock_out), new Date(entry.clock_in))

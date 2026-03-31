@@ -407,7 +407,7 @@ export default function AdminTools() {
           <CardDescription>Total: {tools.length} ferramentas</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
-          <div className="relative">
+          <div className="relative shrink-0">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por nome, TAG, marca..."
@@ -416,6 +416,7 @@ export default function AdminTools() {
               className="pl-10"
             />
           </div>
+          <div className="flex-1 min-h-0 overflow-y-auto">
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -591,6 +592,7 @@ export default function AdminTools() {
               </div>
             </>
           )}
+          </div>
         </CardContent>
       </Card>
 

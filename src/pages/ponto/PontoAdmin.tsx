@@ -77,14 +77,14 @@ export default function PontoAdmin() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col h-full min-h-0 gap-6">
+      <div className="shrink-0">
         <h1 className="text-3xl font-bold text-foreground">Gerenciar Pontos</h1>
         <p className="text-muted-foreground mt-1">Visualize os registros de ponto de todos os funcionários</p>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="shrink-0 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -137,7 +137,7 @@ export default function PontoAdmin() {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3">
           {filtered.map((entry) => {
             const duration = entry.clock_out
               ? differenceInMinutes(new Date(entry.clock_out), new Date(entry.clock_in))

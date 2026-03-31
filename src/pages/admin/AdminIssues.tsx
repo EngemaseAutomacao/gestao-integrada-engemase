@@ -173,13 +173,13 @@ export default function AdminIssues() {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-4">
-      <Card>
-        <CardHeader>
+    <div className="flex flex-col h-full min-h-0 gap-4 p-4">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Gerenciar Problemas Reportados</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
+          <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Buscar</Label>
               <Input
@@ -220,7 +220,7 @@ export default function AdminIssues() {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
             {filteredIssues.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
                 Nenhum problema encontrado

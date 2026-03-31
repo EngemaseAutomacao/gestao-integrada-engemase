@@ -201,8 +201,8 @@ export default function AdminMaintenance() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-full min-h-0 gap-6">
+      <div className="shrink-0 flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Manutenções</h2>
           <p className="text-muted-foreground">Registre e acompanhe manutenções das ferramentas</p>
@@ -374,12 +374,12 @@ export default function AdminMaintenance() {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Histórico de Manutenções</CardTitle>
           <CardDescription>Total: {records.length} registros</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
