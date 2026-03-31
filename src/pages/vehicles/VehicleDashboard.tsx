@@ -14,6 +14,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 export default function VehicleDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const isAdmin = profile?.role === "admin";
   const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(true);
   const { data: stats } = useQuery({
