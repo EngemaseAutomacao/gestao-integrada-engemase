@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import engemaseLogo from "@/assets/engemase-logo.png";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -47,6 +49,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { user, profile, loading, signOut } = useAuth();
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   const isHomePage = location.pathname === '/';
   const adminToolRoutes = ['/admin/tools', '/admin/maintenance', '/admin/issues', '/admin/history'];
@@ -183,8 +186,8 @@ export default function Layout({ children }: LayoutProps) {
             <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
           </NavLink>
 
-          {/* Back button + Module Dropdown (only on non-home pages) */}
-          {!isHomePage && currentModule && (
+          {/* Back button + Module Dropdown (only on non-home pages, hidden on mobile) */}
+          {!isHomePage && currentModule && !isMobile && (
             <>
               <div className="h-5 w-px bg-border hidden sm:block" />
               
@@ -226,67 +229,78 @@ export default function Layout({ children }: LayoutProps) {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </>
+          )}
+
+          {/* Mobile: show current page title */}
+          {isMobile && !isHomePage && currentModule && (
+            <span className="text-sm font-medium text-foreground truncate max-w-[140px]">
+              {currentModule.title}
+            </span>
           )}
         </div>
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2">
-          <GlobalSearch />
+          {!isMobile && <GlobalSearch />}
           <OfflineIndicator />
           
           <ThemeToggle />
           <NotificationBell />
           
-          {/* User dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-1 max-w-[140px] sm:max-w-[180px] h-8 px-2">
-                <span className="text-xs font-medium truncate hidden sm:inline">
-                  {profile?.full_name?.split(' ')[0]}
-                </span>
-                <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-popover border shadow-lg z-50">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">{profile?.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{profile?.email}</p>
-                  <Badge 
-                    variant="secondary" 
-                    className={cn(
-                      "w-fit text-xs mt-1",
-                      profile?.category === "engemase_employee" 
-                        ? "bg-primary/10 text-primary" 
-                        : "bg-orange-500/10 text-orange-500"
-                    )}
-                  >
-                    {profile?.category === "engemase_employee" ? "Funcionário" : "Terceirizado"}
-                  </Badge>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={signOut}
-                className="text-destructive focus:text-destructive cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* User dropdown - hidden on mobile (signout is in bottom nav menu) */}
+          {!isMobile && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-1 max-w-[140px] sm:max-w-[180px] h-8 px-2">
+                  <span className="text-xs font-medium truncate hidden sm:inline">
+                    {profile?.full_name?.split(' ')[0]}
+                  </span>
+                  <ChevronDown className="w-3 h-3 opacity-50 shrink-0" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-popover border shadow-lg z-50">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{profile?.full_name}</p>
+                    <p className="text-xs text-muted-foreground">{profile?.email}</p>
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "w-fit text-xs mt-1",
+                        profile?.category === "engemase_employee" 
+                          ? "bg-primary/10 text-primary" 
+                          : "bg-orange-500/10 text-orange-500"
+                      )}
+                    >
+                      {profile?.category === "engemase_employee" ? "Funcionário" : "Terceirizado"}
+                    </Badge>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={signOut}
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 min-h-0 overflow-auto p-3 sm:p-4 md:p-6">
+      <main className={cn("flex-1 min-h-0 overflow-auto p-3 sm:p-4 md:p-6", isMobile && "pb-20")}>
         {children}
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer - hidden on mobile */}
+      {!isMobile && <Footer />}
+
+      {/* Mobile Bottom Nav */}
+      {isMobile && <MobileBottomNav />}
     </div>
   );
 }
