@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Settings, Menu, LogOut } from "lucide-react";
+import { Settings, Menu, LogOut, HelpCircle, FileText, KeyRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNavConfig } from "@/hooks/useMobileNavConfig";
 import { cn } from "@/lib/utils";
