@@ -52,6 +52,15 @@ interface AnalyticsMetrics {
   toolsInUse: number;
   totalUsers: number;
   maintenanceCount: number;
+  totalVehicleCheckouts: number;
+  totalKmDriven: number;
+  activeVehicles: number;
+}
+
+interface VehicleMonthlyData {
+  month: string;
+  checkouts: number;
+  km: number;
 }
 
 export default function AdminAnalytics() {
