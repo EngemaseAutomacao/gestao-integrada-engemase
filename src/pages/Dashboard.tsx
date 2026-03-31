@@ -143,13 +143,16 @@ export default function Dashboard() {
         .eq("role", "admin");
 
       if (admins) {
-        const notifications = admins.map((admin) => ({
-          user_id: admin.id,
-          type: "return_extended",
-          title: "Devolução Prorrogada",
-          message: `O usuário "${profile.full_name}" prorrogou a devolução da ferramenta "${extendToolName}" para ${format(extendDate, "dd/MM/yyyy")}.`,
-        }));
-        await supabase.from("notifications").insert(notifications);
+        for (const admin of admins) {
+          await supabase.functions.invoke("send-push-notification", {
+            body: {
+              userId: admin.id,
+              type: "return_extended",
+              title: "Devolução Prorrogada",
+              body: `O usuário "${profile.full_name}" prorrogou a devolução da ferramenta "${extendToolName}" para ${format(extendDate, "dd/MM/yyyy")}.`,
+            },
+          });
+        }
       }
 
       toast.success("Data de devolução prorrogada!");
