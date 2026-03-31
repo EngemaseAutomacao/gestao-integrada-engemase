@@ -202,7 +202,7 @@ export default function AdminMaintenance() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
-      <div className="flex items-center justify-between">
+      <div className="shrink-0 flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Manutenções</h2>
           <p className="text-muted-foreground">Registre e acompanhe manutenções das ferramentas</p>
