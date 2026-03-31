@@ -94,7 +94,7 @@ export default function UserHistory() {
         <p className="text-muted-foreground">Histórico de retiradas e devoluções</p>
       </div>
 
-      <Card>
+      <Card className="shrink-0">
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
           <CardDescription>Filtre suas movimentações</CardDescription>
