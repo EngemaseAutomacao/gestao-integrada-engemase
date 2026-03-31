@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { FileText, Download, Loader2, FileSpreadsheet } from "lucide-react";
-import { format } from "date-fns";
+import { FileText, Download, Loader2, FileSpreadsheet, Calendar } from "lucide-react";
+import { format, subDays, subMonths, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -20,7 +20,7 @@ interface ReportFilters {
   endDate: string;
   toolId: string;
   constructionSite: string;
-  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary";
+  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary" | "vehicle_checkouts" | "fuel_records";
 }
 
 interface Tool {
@@ -132,6 +132,67 @@ export default function AdminReports() {
     return data;
   };
 
+  const fetchVehicleCheckoutsData = async () => {
+    let query = supabase.from("vehicle_checkouts").select(`
+      *,
+      vehicles!inner(name, plate, brand),
+      profiles!vehicle_checkouts_user_id_fkey(full_name, email, category)
+    `);
+
+    if (filters.startDate) query = query.gte("checkout_date", filters.startDate);
+    if (filters.endDate) query = query.lte("checkout_date", filters.endDate);
+
+    query = query.order("checkout_date", { ascending: false });
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  };
+
+  const fetchFuelData = async () => {
+    let query = supabase.from("fuel_records").select(`
+      *,
+      vehicles!inner(name, plate),
+      profiles!fuel_records_user_id_fkey(full_name)
+    `);
+
+    if (filters.startDate) query = query.gte("refuel_date", filters.startDate);
+    if (filters.endDate) query = query.lte("refuel_date", filters.endDate);
+
+    query = query.order("refuel_date", { ascending: false });
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  };
+
+  const setQuickPeriod = (period: string) => {
+    const today = new Date();
+    let start = "";
+    let end = format(today, "yyyy-MM-dd");
+
+    switch (period) {
+      case "7d":
+        start = format(subDays(today, 7), "yyyy-MM-dd");
+        break;
+      case "30d":
+        start = format(subDays(today, 30), "yyyy-MM-dd");
+        break;
+      case "this_month":
+        start = format(startOfMonth(today), "yyyy-MM-dd");
+        end = format(endOfMonth(today), "yyyy-MM-dd");
+        break;
+      case "last_month":
+        const lastMonth = subMonths(today, 1);
+        start = format(startOfMonth(lastMonth), "yyyy-MM-dd");
+        end = format(endOfMonth(lastMonth), "yyyy-MM-dd");
+        break;
+      case "this_year":
+        start = format(startOfYear(today), "yyyy-MM-dd");
+        break;
+    }
+
+    setFilters({ ...filters, startDate: start, endDate: end });
+  };
+
   const exportToPDF = async () => {
     setLoading(true);
     try {
@@ -208,6 +269,38 @@ export default function AdminReports() {
             usage.count.toString(),
             usage.totalDays.toString(),
             (usage.totalDays / usage.count).toFixed(1),
+          ]);
+          break;
+
+        case "vehicle_checkouts":
+          data = await fetchVehicleCheckoutsData();
+          title = "Relatório de Movimentação de Veículos";
+          columns = ["Veículo", "Placa", "Usuário", "Saída", "Chegada", "KM Saída", "KM Chegada", "Destino"];
+          rows = data.map((item: any) => [
+            item.vehicles?.name || "-",
+            item.vehicles?.plate || "-",
+            item.profiles?.full_name || "-",
+            format(new Date(item.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            item.checkin_date ? format(new Date(item.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+            item.km_checkout?.toString() || "-",
+            item.km_checkin?.toString() || "-",
+            item.destination || "-",
+          ]);
+          break;
+
+        case "fuel_records":
+          data = await fetchFuelData();
+          title = "Relatório de Abastecimento";
+          columns = ["Veículo", "Placa", "Litros", "Custo/L", "Total", "KM", "Posto", "Data"];
+          rows = data.map((item: any) => [
+            item.vehicles?.name || "-",
+            item.vehicles?.plate || "-",
+            item.liters?.toString() || "-",
+            item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
+            item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
+            item.km_at_refuel?.toString() || "-",
+            item.gas_station || "-",
+            format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
           ]);
           break;
       }
@@ -336,6 +429,42 @@ export default function AdminReports() {
             "Média de Dias por Uso": (usage.totalDays / usage.count).toFixed(1),
           }));
           break;
+
+        case "vehicle_checkouts":
+          data = await fetchVehicleCheckoutsData();
+          sheetName = "Veículos";
+          data = data.map((item: any) => ({
+            Veículo: item.vehicles?.name || "-",
+            Placa: item.vehicles?.plate || "-",
+            Usuário: item.profiles?.full_name || "-",
+            Categoria: item.profiles?.category === "engemase_employee" ? "Funcionário" : item.profiles?.category === "third_party" ? "Terceiro" : item.profiles?.category === "socios" ? "Sócio" : item.profiles?.category || "-",
+            Saída: format(new Date(item.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            Chegada: item.checkin_date ? format(new Date(item.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+            "KM Saída": item.km_checkout,
+            "KM Chegada": item.km_checkin || "-",
+            "KM Rodado": item.km_checkin ? item.km_checkin - item.km_checkout : "-",
+            Destino: item.destination || "-",
+            Finalidade: item.purpose || "-",
+            Status: item.status === "checked_out" ? "Em Uso" : "Devolvido",
+          }));
+          break;
+
+        case "fuel_records":
+          data = await fetchFuelData();
+          sheetName = "Combustível";
+          data = data.map((item: any) => ({
+            Veículo: item.vehicles?.name || "-",
+            Placa: item.vehicles?.plate || "-",
+            Responsável: item.profiles?.full_name || "-",
+            Litros: item.liters,
+            "Custo/Litro": item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
+            "Custo Total": item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
+            "KM no Abastecimento": item.km_at_refuel,
+            Combustível: item.fuel_type === "gasoline" ? "Gasolina" : item.fuel_type === "ethanol" ? "Etanol" : item.fuel_type === "diesel" ? "Diesel" : item.fuel_type,
+            Posto: item.gas_station || "-",
+            Data: format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
+          }));
+          break;
       }
 
       const worksheet = XLSX.utils.json_to_sheet(data);
@@ -385,10 +514,12 @@ export default function AdminReports() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="checkouts">Retiradas/Devoluções</SelectItem>
+                  <SelectItem value="checkouts">Retiradas/Devoluções (Ferramentas)</SelectItem>
                   <SelectItem value="maintenance">Manutenções</SelectItem>
                   <SelectItem value="inventory">Inventário Atual</SelectItem>
-                  <SelectItem value="usage_summary">Resumo de Uso</SelectItem>
+                  <SelectItem value="usage_summary">Resumo de Uso (Ferramentas)</SelectItem>
+                  <SelectItem value="vehicle_checkouts">Movimentação de Veículos</SelectItem>
+                  <SelectItem value="fuel_records">Abastecimento</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -440,6 +571,22 @@ export default function AdminReports() {
                 value={filters.endDate}
                 onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
               />
+            </div>
+          </div>
+
+          {/* Quick Period Presets */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-1">
+              <Calendar className="w-4 h-4" />
+              Período Rápido
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("7d")}>Últimos 7 dias</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("30d")}>Últimos 30 dias</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("this_month")}>Este mês</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("last_month")}>Mês passado</Button>
+              <Button size="sm" variant="outline" onClick={() => setQuickPeriod("this_year")}>Este ano</Button>
+              <Button size="sm" variant="ghost" onClick={() => setFilters({ ...filters, startDate: "", endDate: "" })}>Limpar</Button>
             </div>
           </div>
 

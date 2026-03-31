@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Car, Search, Plus, Loader2, Pencil, Trash2, Upload, X } from "lucide-react";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 import { SignedImage } from "@/components/SignedImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,8 @@ export default function VehicleList() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
   const isAdmin = profile?.role === "admin";
 
   const { data: vehicles, isLoading } = useQuery({
@@ -158,10 +161,24 @@ export default function VehicleList() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este veículo?")) return;
+  const handleDeleteClick = (vehicle: any) => {
+    setDeletingVehicle(vehicle);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async (reason: string) => {
+    if (!deletingVehicle) return;
     try {
-      const { error } = await supabase.from("vehicles").delete().eq("id", id);
+      await supabase.from("system_logs").insert({
+        action: "delete_reason",
+        entity_type: "vehicle",
+        entity_id: deletingVehicle.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: { vehicle_name: deletingVehicle.name, plate: deletingVehicle.plate, reason },
+      });
+
+      const { error } = await supabase.from("vehicles").delete().eq("id", deletingVehicle.id);
       if (error) throw error;
       toast.success("Veículo excluído!");
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
@@ -256,7 +273,7 @@ export default function VehicleList() {
                     <Button variant="ghost" size="sm" onClick={() => openEdit(vehicle)}>
                       <Pencil className="w-4 h-4 mr-1" /> Editar
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(vehicle.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(vehicle)}>
                       <Trash2 className="w-4 h-4 mr-1 text-destructive" /> Excluir
                     </Button>
                   </div>
@@ -358,6 +375,15 @@ export default function VehicleList() {
           )}
         </DialogContent>
       </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Excluir Veículo"
+        description="Esta ação não pode ser desfeita. Informe o motivo da exclusão para registro de auditoria."
+        itemName={deletingVehicle ? `${deletingVehicle.name} (${deletingVehicle.plate})` : ""}
+      />
     </div>
   );
 }

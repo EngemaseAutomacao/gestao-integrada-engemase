@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SignedImage } from "@/components/SignedImage";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface Tool {
   id: string;
@@ -47,6 +48,8 @@ export default function AdminTools() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingTool, setDeletingTool] = useState<Tool | null>(null);
 
   useEffect(() => {
     loadTools();
@@ -164,14 +167,28 @@ export default function AdminTools() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (toolId: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta ferramenta?")) return;
+  const handleDeleteClick = (tool: Tool) => {
+    setDeletingTool(tool);
+    setDeleteDialogOpen(true);
+  };
 
+  const handleDeleteConfirm = async (reason: string) => {
+    if (!deletingTool) return;
     try {
+      // Log the reason before deleting (the trigger logs the deletion itself)
+      await supabase.from("system_logs").insert({
+        action: "delete_reason",
+        entity_type: "tool",
+        entity_id: deletingTool.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: { tool_name: deletingTool.name, reason },
+      });
+
       const { error } = await supabase
         .from("tools")
         .delete()
-        .eq("id", toolId);
+        .eq("id", deletingTool.id);
 
       if (error) throw error;
       toast.success("Ferramenta excluída com sucesso!");
@@ -505,7 +522,7 @@ export default function AdminTools() {
                           <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
                             <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDelete(tool.id)}>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(tool)}>
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </TableCell>
@@ -582,7 +599,7 @@ export default function AdminTools() {
                         <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(tool.id)}>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(tool)}>
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
@@ -610,6 +627,15 @@ export default function AdminTools() {
           )}
         </DialogContent>
       </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Excluir Ferramenta"
+        description="Esta ação não pode ser desfeita. Informe o motivo da exclusão para registro de auditoria."
+        itemName={deletingTool?.name || ""}
+      />
     </div>
   );
 }

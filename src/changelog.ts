@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.0",
+    date: "2026-03-31",
+    title: "Relatórios, Exclusão com Motivo e Dashboard do Usuário",
+    description: "Exportação de relatórios aprimorada, confirmação de exclusão com motivo para auditoria e dashboard com itens em uso do usuário.",
+    changes: [
+      { type: "feature", text: "Relatórios de veículos e combustível com exportação PDF/Excel" },
+      { type: "feature", text: "Filtros rápidos de período nos relatórios (7 dias, 30 dias, este mês, mês passado, este ano)" },
+      { type: "feature", text: "Confirmação de exclusão com campo de motivo obrigatório (ferramentas e veículos)" },
+      { type: "improvement", text: "Motivo da exclusão registrado nos logs de auditoria" },
+      { type: "feature", text: "Seção 'Meus Veículos em Uso' no dashboard de veículos com botão de devolução rápida" },
+    ],
+  },
+  {
     version: "1.9.1",
     date: "2026-03-31",
     title: "Notas de Atualização",

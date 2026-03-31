@@ -1,14 +1,20 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, ArrowRightCircle, ArrowLeftCircle, List, Clock, Fuel } from "lucide-react";
+import { Car, ArrowRightCircle, ArrowLeftCircle, List, Clock, Fuel, ArrowRight, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 export default function VehicleDashboard() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = profile?.role === "admin";
+  const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(true);
   const { data: stats } = useQuery({
     queryKey: ["vehicle-stats"],
     queryFn: async () => {
@@ -27,6 +33,23 @@ export default function VehicleDashboard() {
         activeCheckouts: activeCheckouts.length
       };
     }
+  });
+
+  // Fetch user's active vehicle checkouts
+  const { data: myVehicleCheckouts } = useQuery({
+    queryKey: ["my-vehicle-checkouts", profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from("vehicle_checkouts")
+        .select(`id, vehicle_id, checkout_date, destination, km_checkout, vehicles!inner(name, plate)`)
+        .eq("user_id", profile.id)
+        .eq("status", "checked_out")
+        .order("checkout_date", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!profile?.id,
   });
 
   return (
@@ -85,7 +108,50 @@ export default function VehicleDashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* My Active Vehicles */}
+      {myVehicleCheckouts && myVehicleCheckouts.length > 0 && (
+        <Card 
+          className="shrink-0 border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 cursor-pointer"
+          onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
+        >
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm sm:text-base flex items-center justify-between text-blue-700 dark:text-blue-400">
+              <span className="flex items-center gap-2">
+                <Car className="w-4 h-4" />
+                Meus Veículos em Uso ({myVehicleCheckouts.length})
+              </span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${myVehiclesExpanded ? "rotate-180" : ""}`} />
+            </CardTitle>
+          </CardHeader>
+          {myVehiclesExpanded && (
+            <CardContent className="space-y-2 max-h-[250px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
+              {myVehicleCheckouts.map((checkout: any) => (
+                <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {checkout.vehicles?.name} - {checkout.vehicles?.plate}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {checkout.destination && <span>{checkout.destination}</span>}
+                      <span>KM: {checkout.km_checkout}</span>
+                      <span>Saída: {format(new Date(checkout.checkout_date), "dd/MM HH:mm", { locale: ptBR })}</span>
+                    </div>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs gap-1 shrink-0"
+                    onClick={() => navigate(`/veiculos/chegada`)}
+                  >
+                    Devolver <ArrowRight className="w-3 h-3" />
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          )}
+        </Card>
+      )}
+
       <div className="shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
