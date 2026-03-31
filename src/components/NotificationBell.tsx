@@ -192,9 +192,8 @@ export function NotificationBell() {
 
   const sendTestNotification = async () => {
     if (!user) return;
-    
+
     try {
-      // Use the edge function to create notification AND send push
       const { data, error } = await supabase.functions.invoke('send-push-notification', {
         body: {
           userId: user.id,
@@ -205,30 +204,34 @@ export function NotificationBell() {
       });
 
       if (error) throw error;
-      
-      
-      
-      // Close popover to see the toast
+
       setOpen(false);
+
+      const sentCount = data?.sentCount || 0;
+      const subscriptionsCount = data?.subscriptionsCount || 0;
+
+      if (subscriptionsCount === 0) {
+        toast.error("Nenhum dispositivo inscrito para push", {
+          description: "Ative as notificações push neste aparelho para validar o envio.",
+        });
+        return;
+      }
+
+      if (sentCount === 0) {
+        toast.error("Push não foi entregue", {
+          description: "A notificação foi salva, mas o push falhou em todos os dispositivos inscritos.",
+        });
+        return;
+      }
+
       toast.success("Notificação de teste enviada!", {
-        description: `Push enviado para ${data?.subscriptionsCount || 0} dispositivo(s)`,
+        description: `Push entregue em ${sentCount} de ${subscriptionsCount} dispositivo(s).`,
       });
     } catch (error: any) {
       console.error("Error sending test notification:", error);
-      // Fallback: insert directly
-      const { error: insertError } = await supabase.from("notifications").insert({
-        user_id: user.id,
-        type: "return_reminder",
-        title: "🔔 Notificação de Teste",
-        message: "Esta é uma notificação de teste para verificar se o sistema está funcionando corretamente.",
-        read: false,
+      toast.error("Erro ao enviar notificação de teste", {
+        description: error.message || "Não foi possível validar o push agora.",
       });
-
-      if (insertError) {
-        toast.error("Erro ao enviar notificação de teste", { description: insertError.message });
-      } else {
-        setOpen(false);
-      }
     }
   };
 

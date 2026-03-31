@@ -59,17 +59,25 @@ export default function AdminNotifications() {
         targetUsers = [notifTarget];
       }
 
-      const notifications = targetUsers.map((userId) => ({
-        user_id: userId,
-        type: "manual",
-        title: notifTitle.trim(),
-        message: notifMessage.trim(),
-      }));
+      let deliveredCount = 0;
 
-      const { error } = await supabase.from("notifications").insert(notifications);
-      if (error) throw error;
+      for (const userId of targetUsers) {
+        const { data, error } = await supabase.functions.invoke("send-push-notification", {
+          body: {
+            userId,
+            type: "manual",
+            title: notifTitle.trim(),
+            body: notifMessage.trim(),
+          },
+        });
 
-      toast.success(`Notificação enviada para ${targetUsers.length} usuário(s)!`);
+        if (error) throw error;
+        deliveredCount += data?.sentCount || 0;
+      }
+
+      toast.success(`Notificação enviada para ${targetUsers.length} usuário(s)!`, {
+        description: `Push entregue em ${deliveredCount} dispositivo(s).`,
+      });
       setNotifTitle("");
       setNotifMessage("");
       setNotifTarget("all");
