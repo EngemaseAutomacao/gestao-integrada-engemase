@@ -375,6 +375,15 @@ export default function VehicleList() {
           )}
         </DialogContent>
       </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Excluir Veículo"
+        description="Esta ação não pode ser desfeita. Informe o motivo da exclusão para registro de auditoria."
+        itemName={deletingVehicle ? `${deletingVehicle.name} (${deletingVehicle.plate})` : ""}
+      />
     </div>
   );
 }
