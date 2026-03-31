@@ -597,7 +597,34 @@ export default function AdminAnalytics() {
         </CardContent>
       </Card>
 
-      {/* Charts Row 1 */}
+      {/* Vehicle Monthly Trend */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tendência Mensal - Veículos</CardTitle>
+          <CardDescription>Saídas e quilometragem nos últimos 6 meses</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={vehicleMonthlyData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis dataKey="month" className="text-xs" />
+              <YAxis yAxisId="left" className="text-xs" />
+              <YAxis yAxisId="right" orientation="right" className="text-xs" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px'
+                }}
+              />
+              <Legend />
+              <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill="hsl(var(--chart-2))" />
+              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke="hsl(var(--primary))" strokeWidth={2} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2">
         {/* Top Tools Chart */}
         <Card>
