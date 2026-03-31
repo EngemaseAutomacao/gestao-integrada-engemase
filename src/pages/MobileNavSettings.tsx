@@ -48,8 +48,8 @@ export default function MobileNavSettings() {
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-lg mx-auto">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col h-full min-h-0 max-w-lg mx-auto">
+      <div className="shrink-0 hidden sm:flex items-center gap-2 mb-4">
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="h-8 px-2">
           <ArrowLeft className="w-4 h-4" />
         </Button>
@@ -61,71 +61,73 @@ export default function MobileNavSettings() {
         </div>
       </div>
 
-      <div className="bg-card rounded-xl border p-1">
-        <div className="flex items-center justify-center gap-2 py-3 border-b mb-2">
-          {draft.map((id) => {
-            const tab = ALL_TAB_OPTIONS.find((t) => t.id === id);
-            if (!tab) return null;
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pb-2">
+        <div className="bg-card rounded-xl border p-1">
+          <div className="flex items-center justify-center gap-2 py-3 border-b mb-2">
+            {draft.map((id) => {
+              const tab = ALL_TAB_OPTIONS.find((t) => t.id === id);
+              if (!tab) return null;
+              return (
+                <div key={id} className="flex flex-col items-center gap-0.5 px-3">
+                  <tab.icon className="w-5 h-5 text-primary" />
+                  <span className="text-[9px] text-primary font-medium">{tab.label}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-center text-muted-foreground pb-2">
+            Prévia do menu
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
+          {availableOptions.map((tab) => {
+            const isSelected = draft.includes(tab.id);
             return (
-              <div key={id} className="flex flex-col items-center gap-0.5 px-3">
-                <tab.icon className="w-5 h-5 text-primary" />
-                <span className="text-[9px] text-primary font-medium">{tab.label}</span>
-              </div>
+              <button
+                key={tab.id}
+                onClick={() => toggleTab(tab.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 p-3 rounded-xl border transition-all active:scale-[0.98]",
+                  isSelected
+                    ? "bg-primary/10 border-primary/30"
+                    : "bg-card border-border"
+                )}
+              >
+                <div
+                  className={cn(
+                    "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
+                    isSelected ? "bg-primary/20" : "bg-muted"
+                  )}
+                >
+                  <tab.icon
+                    className={cn(
+                      "w-4.5 h-4.5",
+                      isSelected ? "text-primary" : "text-muted-foreground"
+                    )}
+                  />
+                </div>
+                <div className="flex-1 text-left">
+                  <span
+                    className={cn(
+                      "text-sm font-medium",
+                      isSelected ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  >
+                    {tab.label}
+                  </span>
+                  <p className="text-[10px] text-muted-foreground">{tab.path}</p>
+                </div>
+                {isSelected && (
+                  <Check className="w-4 h-4 text-primary shrink-0" />
+                )}
+              </button>
             );
           })}
         </div>
-        <p className="text-[10px] text-center text-muted-foreground pb-2">
-          Prévia do menu
-        </p>
       </div>
 
-      <div className="space-y-1.5">
-        {availableOptions.map((tab) => {
-          const isSelected = draft.includes(tab.id);
-          return (
-            <button
-              key={tab.id}
-              onClick={() => toggleTab(tab.id)}
-              className={cn(
-                "w-full flex items-center gap-3 p-3 rounded-xl border transition-all active:scale-[0.98]",
-                isSelected
-                  ? "bg-primary/10 border-primary/30"
-                  : "bg-card border-border"
-              )}
-            >
-              <div
-                className={cn(
-                  "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
-                  isSelected ? "bg-primary/20" : "bg-muted"
-                )}
-              >
-                <tab.icon
-                  className={cn(
-                    "w-4.5 h-4.5",
-                    isSelected ? "text-primary" : "text-muted-foreground"
-                  )}
-                />
-              </div>
-              <div className="flex-1 text-left">
-                <span
-                  className={cn(
-                    "text-sm font-medium",
-                    isSelected ? "text-foreground" : "text-muted-foreground"
-                  )}
-                >
-                  {tab.label}
-                </span>
-                <p className="text-[10px] text-muted-foreground">{tab.path}</p>
-              </div>
-              {isSelected && (
-                <Check className="w-4 h-4 text-primary shrink-0" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="flex gap-2 pt-4 pb-2">
+      <div className="shrink-0 flex gap-2 pt-3 pb-1 border-t bg-background">
         <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5">
           <RotateCcw className="w-3.5 h-3.5" />
           Padrão
