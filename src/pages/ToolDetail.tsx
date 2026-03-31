@@ -275,11 +275,19 @@ export default function ToolDetail() {
         </CardHeader>
         <CardContent className="space-y-4">
           {tool.image_url && (
-            <img 
-              src={tool.image_url} 
-              alt={tool.name}
-              className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
-            />
+            tool.image_url.startsWith("http") ? (
+              <img 
+                src={tool.image_url} 
+                alt={tool.name}
+                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
+              />
+            ) : (
+              <SignedImage
+                storagePath={tool.image_url}
+                alt={tool.name}
+                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
+              />
+            )
           )}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {tool.tag && (

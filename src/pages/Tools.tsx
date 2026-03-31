@@ -266,12 +266,20 @@ export default function Tools() {
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       {tool.image_url && (
-                        <img 
-                          src={tool.image_url} 
-                          alt={tool.name}
-                          className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => setEnlargedImage(tool.image_url)}
-                        />
+                        tool.image_url.startsWith("http") ? (
+                          <img 
+                            src={tool.image_url} 
+                            alt={tool.name}
+                            className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => setEnlargedImage(tool.image_url)}
+                          />
+                        ) : (
+                          <SignedImage
+                            storagePath={tool.image_url}
+                            alt={tool.name}
+                            className="w-full h-48 object-cover rounded-lg"
+                          />
+                        )
                       )}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
