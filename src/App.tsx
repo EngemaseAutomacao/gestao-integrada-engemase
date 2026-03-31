@@ -56,6 +56,7 @@ const App = () => (
         
         <Sonner />
         <UpdatePrompt />
+        <ChangelogModal />
         <BrowserRouter>
           <OfflineProvider>
             <AuthProvider>
