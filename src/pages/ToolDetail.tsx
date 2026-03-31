@@ -436,44 +436,44 @@ export default function ToolDetail() {
 
       {/* Issues History */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
               Histórico de Problemas
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               {issues.length} problemas reportados
             </CardDescription>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="w-full sm:w-auto">
             <Link to={`/report-issue?toolId=${id}`}>
               <AlertCircle className="h-4 w-4 mr-2" />
               Reportar Problema
             </Link>
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
           {issues.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
+            <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhum problema reportado
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {issues.map((issue) => (
                 <Card key={issue.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
                           {issue.status === "resolved" || issue.status === "closed" ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />
                           ) : (
-                            <AlertCircle className="h-4 w-4 text-yellow-500" />
+                            <AlertCircle className="h-3.5 w-3.5 text-yellow-500 shrink-0" />
                           )}
-                          <h4 className="font-semibold">{issue.title}</h4>
+                          <h4 className="font-semibold text-sm truncate">{issue.title}</h4>
                         </div>
-                        <Badge variant={
+                        <Badge className="shrink-0 text-xs" variant={
                           issue.severity === "critical" ? "destructive" :
                           issue.severity === "high" ? "destructive" :
                           issue.severity === "medium" ? "default" : "secondary"
@@ -483,14 +483,14 @@ export default function ToolDetail() {
                            issue.severity === "high" ? "Alta" : "Crítica"}
                         </Badge>
                       </div>
-                      <p className="text-sm">{issue.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          {issue.reporter.full_name}
+                      <p className="text-xs md:text-sm">{issue.description}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <User className="w-3.5 h-3.5" />
+                          <span>{issue.reporter.full_name}</span>
                         </div>
                         <span>{format(new Date(issue.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-xs">
                           {issue.status === "open" ? "Aberto" :
                            issue.status === "in_progress" ? "Em Progresso" :
                            issue.status === "resolved" ? "Resolvido" : "Fechado"}
