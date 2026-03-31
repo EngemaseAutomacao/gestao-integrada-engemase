@@ -193,7 +193,7 @@ export default function Dashboard() {
         {/* Pending Returns Alert - Collapsible */}
         {pendingCheckouts && pendingCheckouts.length > 0 && (
           <Card 
-            className="border-orange-500/50 bg-orange-50 dark:bg-orange-950/20 cursor-pointer"
+            className="border-warning/50 bg-warning/5 cursor-pointer"
             onClick={() => setPendingExpanded(!pendingExpanded)}
           >
             <CardHeader className="pb-2">
