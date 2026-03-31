@@ -9,6 +9,8 @@ import { ArrowLeftCircle, Car, Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOffline } from "@/contexts/OfflineContext";
+import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -17,6 +19,8 @@ import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 
 export default function VehicleCheckin() {
   const { user } = useAuth();
+  const { isOnline } = useOffline();
+  const { data: cachedCheckouts, saveToCache: saveCheckoutsCache } = useOfflineStorage<any[]>("active-vehicle-checkouts", []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
@@ -38,6 +42,13 @@ export default function VehicleCheckin() {
   const { data: activeCheckouts, isLoading } = useQuery({
     queryKey: ["active-vehicle-checkouts"],
     queryFn: async () => {
+      if (!isOnline) {
+        if (cachedCheckouts && cachedCheckouts.length > 0) {
+          toast.info("Modo offline - usando dados em cache");
+          return cachedCheckouts;
+        }
+        return [];
+      }
       const { data, error } = await supabase
         .from("vehicle_checkouts")
         .select(`
@@ -52,6 +63,7 @@ export default function VehicleCheckin() {
         .order("checkout_date", { ascending: false });
 
       if (error) throw error;
+      if (data) saveCheckoutsCache(data);
       return data;
     }
   });

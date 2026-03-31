@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOffline } from "@/contexts/OfflineContext";
+import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +29,9 @@ interface Tool {
 
 export default function Dashboard() {
   const { profile } = useAuth();
-  const [tools, setTools] = useState<Tool[]>([]);
+  const { isOnline } = useOffline();
+  const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("dashboard_tools", []);
+  const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingExpanded, setPendingExpanded] = useState(false);
@@ -61,6 +65,19 @@ export default function Dashboard() {
   }, []);
 
   const loadTools = async () => {
+    if (!isOnline) {
+      if (cachedTools && cachedTools.length > 0) {
+        const filteredTools = cachedTools.filter(tool => {
+          if (profile?.category === "third_party" && tool.employee_only) return false;
+          return true;
+        });
+        setTools(filteredTools);
+        toast.info("Modo offline - usando dados em cache");
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("tools")
@@ -77,10 +94,19 @@ export default function Dashboard() {
       }) || [];
 
       setTools(filteredTools);
+      saveToCache(data || []);
     } catch (error: any) {
-      toast.error("Erro ao carregar ferramentas", {
-        description: error.message,
-      });
+      // Fallback to cache on error
+      if (cachedTools && cachedTools.length > 0) {
+        const filteredTools = cachedTools.filter(tool => {
+          if (profile?.category === "third_party" && tool.employee_only) return false;
+          return true;
+        });
+        setTools(filteredTools);
+        toast.info("Usando dados em cache");
+      } else {
+        toast.error("Erro ao carregar ferramentas", { description: error.message });
+      }
     } finally {
       setLoading(false);
     }
