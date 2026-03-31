@@ -78,6 +78,7 @@ export default function AdminGallery() {
       veiculos: "Veículos",
       entradas: "Entradas",
       saidas: "Saídas",
+      catalogo: "Catálogo",
     };
 
     let accumulated = "";
