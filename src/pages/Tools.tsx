@@ -156,14 +156,14 @@ export default function Tools() {
         <p className="text-sm text-muted-foreground">Visualize todas as ferramentas disponíveis</p>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Ferramentas Disponíveis</CardTitle>
           <CardDescription>
             Total: {tools.length} ferramentas | Mostrando: {filteredTools.length} | Disponíveis: {filteredTools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
