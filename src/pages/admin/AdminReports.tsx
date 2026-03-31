@@ -20,7 +20,7 @@ interface ReportFilters {
   endDate: string;
   toolId: string;
   constructionSite: string;
-  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary";
+  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary" | "vehicle_checkouts" | "fuel_records";
 }
 
 interface Tool {
