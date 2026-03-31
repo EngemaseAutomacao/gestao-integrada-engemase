@@ -530,6 +530,45 @@ export default function AdminAnalytics() {
         </Card>
       </div>
 
+      {/* Vehicle Metrics */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Saídas de Veículos</CardTitle>
+            <Car className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalVehicleCheckouts}</div>
+            <p className="text-xs text-muted-foreground">{metrics.activeVehicles} em uso agora</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">KM Total Rodado</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.totalKmDriven.toLocaleString("pt-BR")} km</div>
+            <p className="text-xs text-muted-foreground">Todas as viagens</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">KM Médio por Viagem</CardTitle>
+            <Car className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {metrics.totalVehicleCheckouts > 0 
+                ? Math.round(metrics.totalKmDriven / metrics.totalVehicleCheckouts).toLocaleString("pt-BR")
+                : 0} km
+            </div>
+            <p className="text-xs text-muted-foreground">Média geral</p>
+          </CardContent>
+        </Card>
+      </div>
       {/* Monthly Trend Chart */}
       <Card>
         <CardHeader>
