@@ -46,6 +46,7 @@ export default function AdminDashboard() {
     { title: "Notificações", description: "Configurar alertas", icon: <Bell className="w-5 h-5 text-orange-500" />, to: "/admin/notifications" },
     { title: "Logs", description: "Histórico do sistema", icon: <ClipboardList className="w-5 h-5 text-orange-500" />, to: "/admin/logs" },
     { title: "Entrada Manual", description: "Registros manuais", icon: <Settings className="w-5 h-5 text-orange-500" />, to: "/admin/manual" },
+    { title: "Galeria de Imagens", description: "Visualizar fotos do sistema", icon: <Images className="w-5 h-5 text-orange-500" />, to: "/admin/gallery" },
   ];
 
   return (

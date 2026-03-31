@@ -96,6 +96,7 @@ const App = () => (
                 <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
                 <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
                 <Route path="/admin/construction-sites" element={<Layout><AdminConstructionSites /></Layout>} />
+                <Route path="/admin/gallery" element={<Layout><AdminGallery /></Layout>} />
                 {/* Ponto Online Routes */}
                 <Route path="/ponto" element={<Layout><PontoDashboard /></Layout>} />
                 <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />

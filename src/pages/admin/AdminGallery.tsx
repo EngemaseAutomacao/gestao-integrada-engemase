@@ -49,10 +49,6 @@ export default function AdminGallery() {
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ label: string; path: string }[]>([]);
 
-  if (!profile || profile.role !== "admin") {
-    return <Navigate to="/" />;
-  }
-
   useEffect(() => {
     if (currentPath) {
       loadFiles(currentPath);
@@ -62,6 +58,10 @@ export default function AdminGallery() {
       setBreadcrumbs([]);
     }
   }, [currentPath]);
+
+  if (!profile || profile.role !== "admin") {
+    return <Navigate to="/" />;
+  }
 
   const updateBreadcrumbs = (path: string) => {
     const parts = path.split("/");
