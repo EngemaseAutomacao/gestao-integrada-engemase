@@ -315,8 +315,8 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
+      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Usuários</h2>
           <p className="text-sm text-muted-foreground">Administre usuários e permissões</p>
@@ -433,12 +433,12 @@ export default function AdminUsers() {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Usuários Cadastrados</CardTitle>
           <CardDescription>Total: {users.length} usuários</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />

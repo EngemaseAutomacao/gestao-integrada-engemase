@@ -88,13 +88,13 @@ export default function UserHistory() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col h-full min-h-0 gap-6">
+      <div className="shrink-0">
         <h2 className="text-3xl font-bold tracking-tight">Meu Histórico</h2>
         <p className="text-muted-foreground">Histórico de retiradas e devoluções</p>
       </div>
 
-      <Card>
+      <Card className="shrink-0">
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
           <CardDescription>Filtre suas movimentações</CardDescription>
@@ -125,14 +125,14 @@ export default function UserHistory() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Histórico de Movimentações</CardTitle>
           <CardDescription>
             Mostrando {filteredHistory.length} de {history.length} registros
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           {filteredHistory.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhuma movimentação encontrada

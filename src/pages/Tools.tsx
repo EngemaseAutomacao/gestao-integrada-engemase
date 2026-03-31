@@ -150,20 +150,20 @@ export default function Tools() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
+    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
+      <div className="shrink-0">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Catálogo de Ferramentas</h2>
         <p className="text-sm text-muted-foreground">Visualize todas as ferramentas disponíveis</p>
       </div>
 
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Ferramentas Disponíveis</CardTitle>
           <CardDescription>
             Total: {tools.length} ferramentas | Mostrando: {filteredTools.length} | Disponíveis: {filteredTools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -261,7 +261,7 @@ export default function Tools() {
               Nenhuma ferramenta encontrada
             </p>
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+            <div className="flex-1 min-h-0 overflow-y-auto grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 content-start pr-1">
               {filteredTools.map((tool) => (
                 <Card key={tool.id}>
                   <CardContent className="p-4">

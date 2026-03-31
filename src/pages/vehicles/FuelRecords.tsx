@@ -115,8 +115,8 @@ export default function FuelRecords() {
   const totalCost = records?.reduce((sum: number, r: any) => sum + (parseFloat(r.total_cost) || 0), 0) || 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="flex flex-col h-full min-h-0 gap-6">
+      <div className="shrink-0 flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Fuel className="w-8 h-8 text-primary" />
@@ -203,7 +203,7 @@ export default function FuelRecords() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total de Registros</CardTitle>
@@ -231,12 +231,12 @@ export default function FuelRecords() {
       </div>
 
       {/* Records Table */}
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Histórico de Abastecimentos</CardTitle>
           <CardDescription>Todos os registros de abastecimento</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar por veículo ou posto..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
@@ -247,7 +247,7 @@ export default function FuelRecords() {
           ) : !filteredRecords || filteredRecords.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhum registro encontrado</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="flex-1 min-h-0 overflow-auto">
               <Table>
                 <TableHeader>
                   <TableRow>

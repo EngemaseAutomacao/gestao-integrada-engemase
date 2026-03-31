@@ -30,8 +30,8 @@ export default function VehicleDashboard() {
   });
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
+    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
+      <div className="shrink-0">
         <h1 className="text-xl sm:text-3xl font-bold flex items-center gap-2 sm:gap-3">
           <Car className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
           Controle de Veículos
@@ -42,7 +42,7 @@ export default function VehicleDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -86,7 +86,7 @@ export default function VehicleDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -159,14 +159,14 @@ export default function VehicleDashboard() {
       </div>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle className="flex items-center gap-2">
             <Clock className="w-5 h-5" />
             Atividade Recente
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           <RecentVehicleActivity />
         </CardContent>
       </Card>
