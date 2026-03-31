@@ -167,14 +167,28 @@ export default function AdminTools() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (toolId: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta ferramenta?")) return;
+  const handleDeleteClick = (tool: Tool) => {
+    setDeletingTool(tool);
+    setDeleteDialogOpen(true);
+  };
 
+  const handleDeleteConfirm = async (reason: string) => {
+    if (!deletingTool) return;
     try {
+      // Log the reason before deleting (the trigger logs the deletion itself)
+      await supabase.from("system_logs").insert({
+        action: "delete_reason",
+        entity_type: "tool",
+        entity_id: deletingTool.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: { tool_name: deletingTool.name, reason },
+      });
+
       const { error } = await supabase
         .from("tools")
         .delete()
-        .eq("id", toolId);
+        .eq("id", deletingTool.id);
 
       if (error) throw error;
       toast.success("Ferramenta excluída com sucesso!");
