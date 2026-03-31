@@ -4,11 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { History as HistoryIcon, Search } from "lucide-react";
-import { format } from "date-fns";
+import { History as HistoryIcon, Search, X } from "lucide-react";
+import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { HistorySkeleton } from "@/components/PageSkeleton";
 
 interface HistoryEntry {
   id: string;
@@ -35,6 +37,7 @@ export default function UserHistory() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [periodFilter, setPeriodFilter] = useState<string>("all");
 
   useEffect(() => {
     loadHistory();
@@ -62,9 +65,20 @@ export default function UserHistory() {
       if (error) throw error;
       setHistory(data || []);
     } catch (error) {
-      console.error("Error loading history:", error);
+      console.error("Erro ao carregar histórico:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getDateRange = () => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { start: subDays(now, 7), end: now };
+      case "30d": return { start: subDays(now, 30), end: now };
+      case "90d": return { start: subDays(now, 90), end: now };
+      case "6m": return { start: subMonths(now, 6), end: now };
+      default: return null;
     }
   };
 
@@ -76,15 +90,25 @@ export default function UserHistory() {
     const matchesStatus = 
       statusFilter === "all" || entry.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const dateRange = getDateRange();
+    const matchesPeriod = !dateRange || (
+      isAfter(new Date(entry.checkout_date), startOfDay(dateRange.start)) &&
+      isBefore(new Date(entry.checkout_date), endOfDay(dateRange.end))
+    );
+
+    return matchesSearch && matchesStatus && matchesPeriod;
   });
 
+  const hasActiveFilters = searchQuery || statusFilter !== "all" || periodFilter !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setPeriodFilter("all");
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <HistoryIcon className="w-8 h-8 animate-pulse text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (
@@ -100,7 +124,7 @@ export default function UserHistory() {
           <CardDescription>Filtre suas movimentações</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -121,7 +145,27 @@ export default function UserHistory() {
                 <SelectItem value="checked_in">Devolvida</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={periodFilter} onValueChange={setPeriodFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todo o período</SelectItem>
+                <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                <SelectItem value="6m">Últimos 6 meses</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+              <X className="w-3 h-3" />
+              Limpar filtros
+            </Button>
+          )}
         </CardContent>
       </Card>
 
