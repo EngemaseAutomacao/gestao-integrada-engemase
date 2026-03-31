@@ -33,6 +33,7 @@ interface Tool {
 }
 
 export default function Dashboard() {
+  const isMobile = useIsMobile();
   const { profile } = useAuth();
   const { isOnline } = useOffline();
   const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("dashboard_tools", []);
