@@ -179,7 +179,7 @@ export default function AdminIssues() {
           <CardTitle>Gerenciar Problemas Reportados</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Buscar</Label>
               <Input
