@@ -381,7 +381,7 @@ export default function Layout({ children }: LayoutProps) {
                   Alterar Senha
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={signOut}
+                  onClick={() => setLogoutDialogOpen(true)}
                   className="text-destructive focus:text-destructive cursor-pointer"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
