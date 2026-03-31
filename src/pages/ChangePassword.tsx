@@ -72,7 +72,10 @@ export default function ChangePassword() {
           </div>
           <CardTitle className="text-2xl">Alterar Senha</CardTitle>
           <CardDescription>
-            Este é seu primeiro acesso. Por segurança, crie uma nova senha para continuar.
+            {isFirstLogin 
+              ? "Este é seu primeiro acesso. Por segurança, crie uma nova senha para continuar."
+              : "Digite sua nova senha abaixo."
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
