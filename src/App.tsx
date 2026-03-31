@@ -2,7 +2,7 @@
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OfflineProvider } from "@/contexts/OfflineContext";
@@ -82,12 +82,12 @@ const App = () => (
                 <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
                 <Route path="/veiculos/combustivel" element={<Layout><FuelRecords /></Layout>} />
                 <Route path="/veiculos/analytics" element={<Layout><VehicleAnalytics /></Layout>} />
-                {/* Legacy routes */}
-                <Route path="/tools" element={<Layout><Tools /></Layout>} />
+                {/* Legacy routes - redirect to new paths */}
+                <Route path="/tools" element={<Navigate to="/ferramentas/lista" replace />} />
                 <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />
-                <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
-                <Route path="/checkin" element={<Layout><Checkin /></Layout>} />
-                <Route path="/history" element={<Layout><UserHistory /></Layout>} />
+                <Route path="/checkout" element={<Navigate to="/ferramentas/retirada" replace />} />
+                <Route path="/checkin" element={<Navigate to="/ferramentas/devolucao" replace />} />
+                <Route path="/history" element={<Navigate to="/ferramentas/historico" replace />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
                 <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
@@ -111,7 +111,6 @@ const App = () => (
                 <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                 <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />
                 <Route path="/ajuda" element={<Layout><Help /></Layout>} />
-                <Route path="*" element={<NotFound />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>

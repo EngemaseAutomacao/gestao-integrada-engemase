@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.4",
+    date: "2026-03-31",
+    title: "Menu mobile e correções",
+    description: "Melhorias no menu rápido do celular e organização interna.",
+    changes: [
+      { type: "feature", text: "Ajuda, Notas de Atualização e Alterar Senha acessíveis pelo menu 'Mais'" },
+      { type: "fix", text: "Correção de rota duplicada que podia causar erro" },
+      { type: "improvement", text: "Links antigos agora redirecionam automaticamente para os novos" },
+    ],
+  },
+  {
     version: "1.10.3",
     date: "2026-03-31",
     title: "Visual mais uniforme",

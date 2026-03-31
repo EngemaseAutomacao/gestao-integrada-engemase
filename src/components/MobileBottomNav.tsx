@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Settings, Menu, LogOut } from "lucide-react";
+import { Settings, Menu, LogOut, HelpCircle, FileText, KeyRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMobileNavConfig } from "@/hooks/useMobileNavConfig";
 import { cn } from "@/lib/utils";
@@ -57,6 +57,30 @@ export function MobileBottomNav() {
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-2 mt-4">
+              <NavLink
+                to="/ajuda"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 active:scale-[0.98] transition-all"
+              >
+                <HelpCircle className="w-5 h-5 text-muted-foreground" />
+                <span className="text-sm font-medium">Ajuda</span>
+              </NavLink>
+              <NavLink
+                to="/changelog"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 active:scale-[0.98] transition-all"
+              >
+                <FileText className="w-5 h-5 text-muted-foreground" />
+                <span className="text-sm font-medium">Notas de Atualização</span>
+              </NavLink>
+              <NavLink
+                to="/change-password"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 active:scale-[0.98] transition-all"
+              >
+                <KeyRound className="w-5 h-5 text-muted-foreground" />
+                <span className="text-sm font-medium">Alterar Senha</span>
+              </NavLink>
               <NavLink
                 to="/mobile-settings"
                 onClick={() => setMenuOpen(false)}
