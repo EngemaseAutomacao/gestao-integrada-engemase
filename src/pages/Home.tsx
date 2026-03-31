@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileHomeActions } from "@/components/MobileHomeActions";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
