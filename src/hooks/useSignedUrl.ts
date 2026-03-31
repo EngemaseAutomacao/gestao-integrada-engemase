@@ -2,21 +2,51 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Extracts the storage path from a full Supabase public URL or returns the path as-is.
+ * Extracts the storage path from a full Supabase URL or returns the path as-is.
+ * Supports both old bucket names and new "imagens" bucket.
  */
-function extractStoragePath(url: string): string {
-  // If it's a full URL, extract the path after /checkout-images/
-  const match = url.match(/\/checkout-images\/(.+)$/);
-  if (match) return match[1];
-  // Already a path
+function extractStoragePath(url: string, bucket: string): string {
+  // Try to extract path from full URL for common bucket patterns
+  const patterns = [
+    new RegExp(`/${bucket}/(.+?)(?:\\?.*)?$`),
+    new RegExp(`/object/public/${bucket}/(.+?)(?:\\?.*)?$`),
+    /\/checkout-images\/(.+?)(\?.*)?$/,
+    /\/object\/public\/checkout-images\/(.+?)(\?.*)?$/,
+    /\/tool-images\/(.+?)(\?.*)?$/,
+    /\/object\/public\/tool-images\/(.+?)(\?.*)?$/,
+    /\/imagens\/(.+?)(\?.*)?$/,
+    /\/object\/public\/imagens\/(.+?)(\?.*)?$/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+
   return url;
 }
 
 /**
- * Hook to get a signed URL for a checkout image.
- * Returns a signed URL that expires in 1 hour.
+ * Determines the correct bucket for a given path.
+ * New paths start with ferramentas/ or veiculos/ → "imagens" bucket.
+ * Old paths → "checkout-images" bucket (legacy).
  */
-export function useSignedUrl(publicUrl: string | null | undefined) {
+function detectBucket(path: string): string {
+  if (path.startsWith("ferramentas/") || path.startsWith("veiculos/")) {
+    return "imagens";
+  }
+  // If it's a full URL with imagens bucket
+  if (path.includes("/imagens/")) return "imagens";
+  if (path.includes("/tool-images/")) return "tool-images";
+  // Default to checkout-images for legacy paths
+  return "checkout-images";
+}
+
+/**
+ * Hook to get a signed URL for a storage image.
+ * Auto-detects the correct bucket based on path.
+ */
+export function useSignedUrl(publicUrl: string | null | undefined, overrideBucket?: string) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,11 +55,12 @@ export function useSignedUrl(publicUrl: string | null | undefined) {
       return;
     }
 
-    const path = extractStoragePath(publicUrl);
+    const bucket = overrideBucket || detectBucket(publicUrl);
+    const path = extractStoragePath(publicUrl, bucket);
     
     supabase.storage
-      .from("checkout-images")
-      .createSignedUrl(path, 3600) // 1 hour
+      .from(bucket)
+      .createSignedUrl(path, 3600)
       .then(({ data, error }) => {
         if (error) {
           console.error("Error creating signed URL:", error);
@@ -38,7 +69,7 @@ export function useSignedUrl(publicUrl: string | null | undefined) {
           setSignedUrl(data.signedUrl);
         }
       });
-  }, [publicUrl]);
+  }, [publicUrl, overrideBucket]);
 
   return signedUrl;
 }
@@ -46,7 +77,7 @@ export function useSignedUrl(publicUrl: string | null | undefined) {
 /**
  * Hook to get multiple signed URLs at once.
  */
-export function useSignedUrls(urls: (string | null | undefined)[]) {
+export function useSignedUrls(urls: (string | null | undefined)[], overrideBucket?: string) {
   const [signedUrls, setSignedUrls] = useState<(string | null)[]>([]);
 
   useEffect(() => {
@@ -54,9 +85,10 @@ export function useSignedUrls(urls: (string | null | undefined)[]) {
       const results = await Promise.all(
         urls.map(async (url) => {
           if (!url) return null;
-          const path = extractStoragePath(url);
+          const bucket = overrideBucket || detectBucket(url);
+          const path = extractStoragePath(url, bucket);
           const { data, error } = await supabase.storage
-            .from("checkout-images")
+            .from(bucket)
             .createSignedUrl(path, 3600);
           if (error) {
             console.error("Error creating signed URL:", error);
@@ -69,7 +101,7 @@ export function useSignedUrls(urls: (string | null | undefined)[]) {
     };
 
     fetchUrls();
-  }, [JSON.stringify(urls)]);
+  }, [JSON.stringify(urls), overrideBucket]);
 
   return signedUrls;
 }
