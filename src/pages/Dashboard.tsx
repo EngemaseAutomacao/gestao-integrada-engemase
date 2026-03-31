@@ -197,7 +197,7 @@ export default function Dashboard() {
             onClick={() => setPendingExpanded(!pendingExpanded)}
           >
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-orange-700 dark:text-orange-400">
+              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-warning">
                 <span className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
                   Devoluções Pendentes ({pendingCheckouts.length})
