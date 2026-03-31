@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.2",
+    date: "2026-03-31",
+    title: "Detalhes da Ferramenta - Layout Mobile",
+    description: "Melhoria do layout da página de detalhes das ferramentas para dispositivos móveis.",
+    changes: [
+      { type: "improvement", text: "Layout responsivo otimizado na página de detalhes da ferramenta" },
+      { type: "improvement", text: "Cards de histórico de uso, manutenções e problemas compactos no mobile" },
+      { type: "improvement", text: "Botão 'Reportar Problema' em largura total no mobile" },
+      { type: "improvement", text: "Tipografia e espaçamentos ajustados para telas pequenas" },
+    ],
+  },
+  {
     version: "1.10.1",
     date: "2026-03-31",
     title: "Padronização Mobile e Página de Ajuda",

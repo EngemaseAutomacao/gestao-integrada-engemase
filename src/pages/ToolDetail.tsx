@@ -190,28 +190,28 @@ export default function ToolDetail() {
 
   const renderCheckoutCard = (checkout: CheckoutRecord, showTag = false) => (
     <Card key={checkout.id}>
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold">{checkout.user_profile.full_name}</p>
-              <p className="text-sm text-muted-foreground">{checkout.user_profile.email}</p>
+      <CardContent className="p-3 md:p-4">
+        <div className="space-y-2 md:space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-semibold text-sm md:text-base truncate">{checkout.user_profile.full_name}</p>
+              <p className="text-xs text-muted-foreground truncate">{checkout.user_profile.email}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 shrink-0">
               {showTag && checkout.selected_tag && (
                 <Badge variant="outline" className="text-xs">
-                  TAG: {checkout.selected_tag}
+                  {checkout.selected_tag}
                 </Badge>
               )}
-              <Badge variant={checkout.status === "checked_out" ? "default" : "secondary"}>
+              <Badge variant={checkout.status === "checked_out" ? "default" : "secondary"} className="text-xs">
                 {checkout.status === "checked_out" ? "Em Uso" : "Devolvida"}
               </Badge>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
+          <div className="grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <div>
                 <p className="text-muted-foreground">Retirada</p>
                 <p>{format(new Date(checkout.checkout_date), "dd/MM/yyyy", { locale: ptBR })}</p>
@@ -219,8 +219,8 @@ export default function ToolDetail() {
             </div>
             
             {checkout.checkin_date && (
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <div>
                   <p className="text-muted-foreground">Devolução</p>
                   <p>{format(new Date(checkout.checkin_date), "dd/MM/yyyy", { locale: ptBR })}</p>
@@ -229,15 +229,15 @@ export default function ToolDetail() {
             )}
           </div>
 
-          <div className="flex items-center gap-4 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm">
             {checkout.construction_site && (
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span>{checkout.construction_site}</span>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">{checkout.construction_site}</span>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span>{getDaysUsed(checkout)} dias</span>
             </div>
           </div>
@@ -255,14 +255,14 @@ export default function ToolDetail() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+    <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">{tool.name}</h2>
-          <p className="text-muted-foreground">Detalhes e histórico completo</p>
+        <div className="min-w-0">
+          <h2 className="text-xl md:text-3xl font-bold tracking-tight truncate">{tool.name}</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">Detalhes e histórico completo</p>
         </div>
       </div>
 
@@ -274,26 +274,28 @@ export default function ToolDetail() {
             Informações da Ferramenta
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-4 md:p-6">
           {tool.image_url && (
-            tool.image_url.startsWith("http") ? (
-              <img 
-                src={tool.image_url} 
-                alt={tool.name}
-                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
-              />
-            ) : (
-              <SignedImage
-                storagePath={tool.image_url}
-                alt={tool.name}
-                className="w-full max-w-md h-64 object-cover rounded-lg mx-auto"
-              />
-            )
+            <div className="w-full max-w-xs md:max-w-md mx-auto">
+              {tool.image_url.startsWith("http") ? (
+                <img 
+                  src={tool.image_url} 
+                  alt={tool.name}
+                  className="w-full h-48 md:h-64 object-cover rounded-lg"
+                />
+              ) : (
+                <SignedImage
+                  storagePath={tool.image_url}
+                  alt={tool.name}
+                  className="w-full h-48 md:h-64 object-cover rounded-lg"
+                />
+              )}
+            </div>
           )}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
             {tool.tag && (
               <div>
-                <p className="text-sm font-medium">TAG</p>
+                <p className="text-xs md:text-sm font-medium">TAG</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
@@ -305,18 +307,18 @@ export default function ToolDetail() {
             )}
             {tool.brand && (
               <div>
-                <p className="text-sm font-medium">Marca</p>
-                <p className="text-muted-foreground">{tool.brand}</p>
+                <p className="text-xs md:text-sm font-medium">Marca</p>
+                <p className="text-sm text-muted-foreground">{tool.brand}</p>
               </div>
             )}
             <div>
-              <p className="text-sm font-medium">Disponível/Total</p>
-              <p className="text-muted-foreground">
+              <p className="text-xs md:text-sm font-medium">Disponível/Total</p>
+              <p className="text-sm text-muted-foreground">
                 {tool.quantity_available}/{tool.quantity_total}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium">Condição</p>
+              <p className="text-xs md:text-sm font-medium">Condição</p>
               <Badge className={conditionColors[tool.condition]}>
                 {conditionLabels[tool.condition]}
               </Badge>
@@ -326,8 +328,8 @@ export default function ToolDetail() {
             <>
               <Separator />
               <div>
-                <p className="text-sm font-medium mb-2">Descrição</p>
-                <p className="text-muted-foreground">{tool.description}</p>
+                <p className="text-xs md:text-sm font-medium mb-1">Descrição</p>
+                <p className="text-sm text-muted-foreground">{tool.description}</p>
               </div>
             </>
           )}
@@ -336,39 +338,41 @@ export default function ToolDetail() {
 
       {/* Maintenance History */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="w-5 h-5" />
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+            <Wrench className="w-4 h-4 md:w-5 md:h-5" />
             Histórico de Manutenções
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs md:text-sm">
             {maintenanceRecords.length} manutenções registradas
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
           {maintenanceRecords.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
+            <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhuma manutenção registrada
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {maintenanceRecords.map((record) => (
                 <Card key={record.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-xs">
                           {maintenanceTypes[record.maintenance_type]}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {format(new Date(record.created_at), "dd/MM/yyyy", { locale: ptBR })}
                         </span>
                       </div>
-                      <p className="text-sm">{record.description}</p>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <User className="w-4 h-4" />
-                        {record.profiles.full_name}
-                        {record.cost && <span className="ml-4">• Custo: R$ {record.cost.toFixed(2)}</span>}
+                      <p className="text-xs md:text-sm">{record.description}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <User className="w-3.5 h-3.5" />
+                          <span>{record.profiles.full_name}</span>
+                        </div>
+                        {record.cost && <span>• R$ {record.cost.toFixed(2)}</span>}
                       </div>
                     </div>
                   </CardContent>
@@ -381,39 +385,39 @@ export default function ToolDetail() {
 
       {/* Usage History */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <History className="w-5 h-5" />
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+            <History className="w-4 h-4 md:w-5 md:h-5" />
             Histórico de Uso
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs md:text-sm">
             {checkouts.length} registros de uso
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
           {checkouts.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
+            <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhum uso registrado
             </p>
           ) : hasMultipleTags ? (
             <Tabs defaultValue="all" className="w-full">
               <TabsList className="w-full flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="all">
+                <TabsTrigger value="all" className="text-xs">
                   Todos ({checkouts.length})
                 </TabsTrigger>
                 {tags.map((tag) => (
-                  <TabsTrigger key={tag} value={tag}>
+                  <TabsTrigger key={tag} value={tag} className="text-xs">
                     TAG {tag} ({getCheckoutsForTag(tag).length})
                   </TabsTrigger>
                 ))}
               </TabsList>
-              <TabsContent value="all" className="space-y-4 mt-4">
+              <TabsContent value="all" className="space-y-3 mt-3">
                 {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
               </TabsContent>
               {tags.map((tag) => (
-                <TabsContent key={tag} value={tag} className="space-y-4 mt-4">
+                <TabsContent key={tag} value={tag} className="space-y-3 mt-3">
                   {getCheckoutsForTag(tag).length === 0 ? (
-                    <p className="text-center text-muted-foreground py-8">
+                    <p className="text-center text-muted-foreground py-6 text-sm">
                       Nenhum uso registrado para TAG {tag}
                     </p>
                   ) : (
@@ -423,7 +427,7 @@ export default function ToolDetail() {
               ))}
             </Tabs>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
             </div>
           )}
@@ -432,44 +436,44 @@ export default function ToolDetail() {
 
       {/* Issues History */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
               Histórico de Problemas
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs md:text-sm">
               {issues.length} problemas reportados
             </CardDescription>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="w-full sm:w-auto">
             <Link to={`/report-issue?toolId=${id}`}>
               <AlertCircle className="h-4 w-4 mr-2" />
               Reportar Problema
             </Link>
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
           {issues.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
+            <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhum problema reportado
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {issues.map((issue) => (
                 <Card key={issue.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-4">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
                           {issue.status === "resolved" || issue.status === "closed" ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />
                           ) : (
-                            <AlertCircle className="h-4 w-4 text-yellow-500" />
+                            <AlertCircle className="h-3.5 w-3.5 text-yellow-500 shrink-0" />
                           )}
-                          <h4 className="font-semibold">{issue.title}</h4>
+                          <h4 className="font-semibold text-sm truncate">{issue.title}</h4>
                         </div>
-                        <Badge variant={
+                        <Badge className="shrink-0 text-xs" variant={
                           issue.severity === "critical" ? "destructive" :
                           issue.severity === "high" ? "destructive" :
                           issue.severity === "medium" ? "default" : "secondary"
@@ -479,14 +483,14 @@ export default function ToolDetail() {
                            issue.severity === "high" ? "Alta" : "Crítica"}
                         </Badge>
                       </div>
-                      <p className="text-sm">{issue.description}</p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          {issue.reporter.full_name}
+                      <p className="text-xs md:text-sm">{issue.description}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <User className="w-3.5 h-3.5" />
+                          <span>{issue.reporter.full_name}</span>
                         </div>
                         <span>{format(new Date(issue.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-xs">
                           {issue.status === "open" ? "Aberto" :
                            issue.status === "in_progress" ? "Em Progresso" :
                            issue.status === "resolved" ? "Resolvido" : "Fechado"}
