@@ -429,6 +429,42 @@ export default function AdminReports() {
             "Média de Dias por Uso": (usage.totalDays / usage.count).toFixed(1),
           }));
           break;
+
+        case "vehicle_checkouts":
+          data = await fetchVehicleCheckoutsData();
+          sheetName = "Veículos";
+          data = data.map((item: any) => ({
+            Veículo: item.vehicles?.name || "-",
+            Placa: item.vehicles?.plate || "-",
+            Usuário: item.profiles?.full_name || "-",
+            Categoria: item.profiles?.category === "engemase_employee" ? "Funcionário" : item.profiles?.category === "third_party" ? "Terceiro" : item.profiles?.category === "socios" ? "Sócio" : item.profiles?.category || "-",
+            Saída: format(new Date(item.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+            Chegada: item.checkin_date ? format(new Date(item.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+            "KM Saída": item.km_checkout,
+            "KM Chegada": item.km_checkin || "-",
+            "KM Rodado": item.km_checkin ? item.km_checkin - item.km_checkout : "-",
+            Destino: item.destination || "-",
+            Finalidade: item.purpose || "-",
+            Status: item.status === "checked_out" ? "Em Uso" : "Devolvido",
+          }));
+          break;
+
+        case "fuel_records":
+          data = await fetchFuelData();
+          sheetName = "Combustível";
+          data = data.map((item: any) => ({
+            Veículo: item.vehicles?.name || "-",
+            Placa: item.vehicles?.plate || "-",
+            Responsável: item.profiles?.full_name || "-",
+            Litros: item.liters,
+            "Custo/Litro": item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
+            "Custo Total": item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
+            "KM no Abastecimento": item.km_at_refuel,
+            Combustível: item.fuel_type === "gasoline" ? "Gasolina" : item.fuel_type === "ethanol" ? "Etanol" : item.fuel_type === "diesel" ? "Diesel" : item.fuel_type,
+            Posto: item.gas_station || "-",
+            Data: format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
+          }));
+          break;
       }
 
       const worksheet = XLSX.utils.json_to_sheet(data);
