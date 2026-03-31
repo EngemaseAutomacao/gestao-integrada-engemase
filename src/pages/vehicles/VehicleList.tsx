@@ -62,11 +62,11 @@ export default function VehicleList() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "available":
-        return <Badge className="bg-green-100 text-green-800">Disponível</Badge>;
+        return <Badge className="bg-success/10 text-success border-success/20">Disponível</Badge>;
       case "in_use":
-        return <Badge className="bg-orange-100 text-orange-800">Em Uso</Badge>;
+        return <Badge className="bg-warning/10 text-warning border-warning/20">Em Uso</Badge>;
       case "maintenance":
-        return <Badge className="bg-red-100 text-red-800">Manutenção</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive border-destructive/20">Manutenção</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
