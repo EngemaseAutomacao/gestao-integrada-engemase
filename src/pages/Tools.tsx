@@ -261,7 +261,7 @@ export default function Tools() {
               Nenhuma ferramenta encontrada
             </p>
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+            <div className="flex-1 min-h-0 overflow-y-auto grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 content-start pr-1">
               {filteredTools.map((tool) => (
                 <Card key={tool.id}>
                   <CardContent className="p-4">

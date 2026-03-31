@@ -247,7 +247,7 @@ export default function FuelRecords() {
           ) : !filteredRecords || filteredRecords.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">Nenhum registro encontrado</p>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="flex-1 min-h-0 overflow-auto">
               <Table>
                 <TableHeader>
                   <TableRow>

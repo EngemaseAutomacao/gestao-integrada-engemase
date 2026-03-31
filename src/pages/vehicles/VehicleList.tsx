@@ -209,7 +209,7 @@ export default function VehicleList() {
           <p className="text-muted-foreground mt-2">Carregando veículos...</p>
         </div>
       ) : filteredVehicles && filteredVehicles.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-start pr-1">
           {filteredVehicles.map((vehicle) => (
             <Card key={vehicle.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">

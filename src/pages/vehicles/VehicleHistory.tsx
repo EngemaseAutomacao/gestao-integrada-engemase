@@ -131,14 +131,14 @@ export default function VehicleHistory() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Histórico de Movimentações</CardTitle>
           <CardDescription>
             Mostrando {filteredHistory.length} de {history.length} registros
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 min-h-0 overflow-y-auto">
           {filteredHistory.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhuma movimentação encontrada
