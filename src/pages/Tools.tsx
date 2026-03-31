@@ -151,7 +151,7 @@ export default function Tools() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <div>
+      <div className="shrink-0">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Catálogo de Ferramentas</h2>
         <p className="text-sm text-muted-foreground">Visualize todas as ferramentas disponíveis</p>
       </div>
