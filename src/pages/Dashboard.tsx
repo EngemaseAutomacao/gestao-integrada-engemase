@@ -29,7 +29,9 @@ interface Tool {
 
 export default function Dashboard() {
   const { profile } = useAuth();
-  const [tools, setTools] = useState<Tool[]>([]);
+  const { isOnline } = useOffline();
+  const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("dashboard_tools", []);
+  const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [pendingExpanded, setPendingExpanded] = useState(false);
