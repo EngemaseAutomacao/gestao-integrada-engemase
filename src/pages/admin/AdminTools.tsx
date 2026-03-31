@@ -48,6 +48,8 @@ export default function AdminTools() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingTool, setDeletingTool] = useState<Tool | null>(null);
 
   useEffect(() => {
     loadTools();
