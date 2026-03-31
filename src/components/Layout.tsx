@@ -137,6 +137,9 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
     '/ajuda': { title: 'Ajuda', icon: HelpCircle },
+    '/changelog': { title: 'Notas de Atualização', icon: FileText },
+    '/change-password': { title: 'Alterar Senha', icon: Settings },
+    '/mobile-settings': { title: 'Menu Mobile', icon: Settings },
   };
 
   const getMobilePageTitle = () => {
@@ -242,7 +245,7 @@ export default function Layout({ children }: LayoutProps) {
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
         <div className="flex items-center gap-1.5 sm:gap-3">
           {/* Mobile: Back button when inside a module */}
-          {isMobile && !isHomePage && currentModule && (
+          {isMobile && !isHomePage && (
             <NavLink to="/">
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground">
                 <ArrowLeft className="w-4 h-4" />
@@ -250,8 +253,8 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           )}
 
-          {/* Logo - hidden on mobile when inside module (title takes center) */}
-          {(!isMobile || isHomePage || !currentModule) && (
+          {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
+          {!isMobile && (
             <NavLink to="/" className="flex items-center gap-2 shrink-0">
               <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
             </NavLink>
@@ -303,11 +306,19 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Mobile: Centered page title */}
-        {isMobile && !isHomePage && (currentModule || getMobilePageTitle()) && (() => {
+        {isMobile && (() => {
+          if (isHomePage) {
+            return (
+              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+                <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto" />
+              </div>
+            );
+          }
           const pageTitle = getMobilePageTitle();
           const icon = pageTitle?.icon || currentModule?.icon;
           const title = pageTitle?.title || currentModule?.title;
           const IconComponent = icon;
+          if (!title) return null;
           return (
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
               {IconComponent && <IconComponent className="w-4 h-4 text-primary" />}
