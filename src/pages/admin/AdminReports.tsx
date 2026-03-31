@@ -132,7 +132,68 @@ export default function AdminReports() {
     return data;
   };
 
-  const exportToPDF = async () => {
+  const fetchVehicleCheckoutsData = async () => {
+    let query = supabase.from("vehicle_checkouts").select(`
+      *,
+      vehicles!inner(name, plate, brand),
+      profiles!vehicle_checkouts_user_id_fkey(full_name, email, category)
+    `);
+
+    if (filters.startDate) query = query.gte("checkout_date", filters.startDate);
+    if (filters.endDate) query = query.lte("checkout_date", filters.endDate);
+
+    query = query.order("checkout_date", { ascending: false });
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  };
+
+  const fetchFuelData = async () => {
+    let query = supabase.from("fuel_records").select(`
+      *,
+      vehicles!inner(name, plate),
+      profiles!fuel_records_user_id_fkey(full_name)
+    `);
+
+    if (filters.startDate) query = query.gte("refuel_date", filters.startDate);
+    if (filters.endDate) query = query.lte("refuel_date", filters.endDate);
+
+    query = query.order("refuel_date", { ascending: false });
+    const { data, error } = await query;
+    if (error) throw error;
+    return data;
+  };
+
+  const setQuickPeriod = (period: string) => {
+    const today = new Date();
+    let start = "";
+    let end = format(today, "yyyy-MM-dd");
+
+    switch (period) {
+      case "7d":
+        start = format(subDays(today, 7), "yyyy-MM-dd");
+        break;
+      case "30d":
+        start = format(subDays(today, 30), "yyyy-MM-dd");
+        break;
+      case "this_month":
+        start = format(startOfMonth(today), "yyyy-MM-dd");
+        end = format(endOfMonth(today), "yyyy-MM-dd");
+        break;
+      case "last_month":
+        const lastMonth = subMonths(today, 1);
+        start = format(startOfMonth(lastMonth), "yyyy-MM-dd");
+        end = format(endOfMonth(lastMonth), "yyyy-MM-dd");
+        break;
+      case "this_year":
+        start = format(startOfYear(today), "yyyy-MM-dd");
+        break;
+    }
+
+    setFilters({ ...filters, startDate: start, endDate: end });
+  };
+
+
     setLoading(true);
     try {
       let data: any[] = [];
