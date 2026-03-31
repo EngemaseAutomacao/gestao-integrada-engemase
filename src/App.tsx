@@ -106,6 +106,7 @@ const App = () => (
                 <Route path="/ponto/historico" element={<Layout><PontoHistory /></Layout>} />
                 <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
+                <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AuthProvider>
