@@ -193,7 +193,7 @@ export default function AdminReports() {
     setFilters({ ...filters, startDate: start, endDate: end });
   };
 
-
+  const exportToPDF = async () => {
     setLoading(true);
     try {
       let data: any[] = [];
