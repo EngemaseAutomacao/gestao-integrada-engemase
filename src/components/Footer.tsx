@@ -1,4 +1,5 @@
 import { Wrench } from "lucide-react";
+import { Link } from "react-router-dom";
 import { APP_VERSION, BUILD_DATE } from "@/version";
 
 export function Footer() {
