@@ -106,10 +106,17 @@ export default function ChangePassword() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salvar Nova Senha
-            </Button>
+            <div className="flex gap-2">
+              {!isFirstLogin && (
+                <Button type="button" variant="outline" className="flex-1" onClick={() => navigate(-1)}>
+                  Voltar
+                </Button>
+              )}
+              <Button type="submit" className={isFirstLogin ? "w-full" : "flex-1"} disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Salvar Nova Senha
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
