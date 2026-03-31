@@ -31,7 +31,6 @@ function PontoCard({ title, description, icon, to }: PontoCardProps) {
 
 export default function PontoDashboard() {
   const { profile } = useAuth();
-  const isMobile = useIsMobile();
   const isAdmin = profile?.role === "admin";
 
   return (
