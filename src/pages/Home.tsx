@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Clock, Shield, Download } from "lucide-react";
+import { Wrench, Car, Clock, Shield, Download, Package, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -34,7 +35,6 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
     }
   };
 
-  // On iOS or when no prompt available, don't show the card
   if (isIOS || !deferredPrompt) return null;
 
   return (
@@ -110,8 +110,105 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
   );
 }
 
+interface HomeSummary {
+  toolsInUse: number;
+  vehiclesOut: number;
+  pontoOpen: boolean;
+}
+
+function SummaryCards({ userId }: { userId: string }) {
+  const [summary, setSummary] = useState<HomeSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
+          supabase
+            .from("tool_checkouts")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", userId)
+            .eq("status", "checked_out"),
+          supabase
+            .from("vehicle_checkouts")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", userId)
+            .eq("status", "checked_out"),
+          supabase
+            .from("time_entries")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("status", "open")
+            .limit(1),
+        ]);
+
+        setSummary({
+          toolsInUse: toolsRes.count || 0,
+          vehiclesOut: vehiclesRes.count || 0,
+          pontoOpen: (pontoRes.data?.length || 0) > 0,
+        });
+      } catch (e) {
+        console.error("Error loading summary:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-2">
+        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!summary) return null;
+
+  const items = [
+    {
+      label: "Ferramentas em uso",
+      value: summary.toolsInUse,
+      icon: <Wrench className="w-4 h-4" />,
+      color: summary.toolsInUse > 0 ? "text-primary" : "text-muted-foreground",
+      bgColor: summary.toolsInUse > 0 ? "bg-primary/10" : "bg-muted",
+    },
+    {
+      label: "Veículos em uso",
+      value: summary.vehiclesOut,
+      icon: <Car className="w-4 h-4" />,
+      color: summary.vehiclesOut > 0 ? "text-primary" : "text-muted-foreground",
+      bgColor: summary.vehiclesOut > 0 ? "bg-primary/10" : "bg-muted",
+    },
+    {
+      label: "Ponto",
+      value: summary.pontoOpen ? "Aberto" : "Fechado",
+      icon: <Clock className="w-4 h-4" />,
+      color: summary.pontoOpen ? "text-green-600" : "text-muted-foreground",
+      bgColor: summary.pontoOpen ? "bg-green-500/10" : "bg-muted",
+    },
+  ];
+
+  return (
+    <div className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-lg w-full">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${item.bgColor}`}
+        >
+          <span className={item.color}>{item.icon}</span>
+          <span className={`text-xs font-medium ${item.color}`}>
+            {typeof item.value === "number" ? `${item.value} ${item.label.toLowerCase()}` : `${item.label}: ${item.value}`}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
 
   const [isStandalone, setIsStandalone] = useState(false);
@@ -122,7 +219,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
-      <div className="text-center mb-4 sm:mb-8">
+      <div className="text-center mb-4 sm:mb-6">
         <img src={engemaseLogo} alt="Engemase Engenharia" className="w-28 sm:w-48 h-auto mx-auto mb-2 sm:mb-4" />
         <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-0.5 sm:mb-2">
           Bem-vindo, {profile?.full_name?.split(' ')[0]}!
@@ -131,6 +228,13 @@ export default function Home() {
           Selecione o módulo que deseja acessar
         </p>
       </div>
+
+      {/* Summary Cards */}
+      {user && (
+        <div className="mb-4 sm:mb-6">
+          <SummaryCards userId={user.id} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-5xl w-full">
         <ModuleCard
