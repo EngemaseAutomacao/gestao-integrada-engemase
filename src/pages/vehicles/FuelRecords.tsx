@@ -231,12 +231,12 @@ export default function FuelRecords() {
       </div>
 
       {/* Records Table */}
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="shrink-0">
           <CardTitle>Histórico de Abastecimentos</CardTitle>
           <CardDescription>Todos os registros de abastecimento</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar por veículo ou posto..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
