@@ -185,12 +185,10 @@ export default function Dashboard() {
   return (
     <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
-        {!isMobile && (
-          <div>
-            <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
-          </div>
-        )}
+        <div className="hidden sm:block">
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-sm text-muted-foreground">Gerencie retiradas e devoluções de ferramentas</p>
+        </div>
 
         {/* Pending Returns Alert - Collapsible */}
         {pendingCheckouts && pendingCheckouts.length > 0 && (

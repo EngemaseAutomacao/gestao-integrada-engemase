@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Clock, History, MapPin, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PontoCardProps {
   title: string;
@@ -32,19 +31,16 @@ function PontoCard({ title, description, icon, to }: PontoCardProps) {
 
 export default function PontoDashboard() {
   const { profile } = useAuth();
-  const isMobile = useIsMobile();
   const isAdmin = profile?.role === "admin";
 
   return (
     <div className="space-y-6">
-      {!isMobile && (
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Ponto Online</h1>
-          <p className="text-muted-foreground mt-1">
-            Registre e acompanhe seus pontos de atividades externas
-          </p>
-        </div>
-      )}
+      <div className="hidden sm:block">
+        <h1 className="text-3xl font-bold text-foreground">Ponto Online</h1>
+        <p className="text-muted-foreground mt-1">
+          Registre e acompanhe seus pontos de atividades externas
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <PontoCard

@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.3",
+    date: "2026-03-31",
+    title: "Padronização de Layout dos Módulos",
+    description: "Todos os dashboards de módulos agora seguem o mesmo padrão visual uniforme.",
+    changes: [
+      { type: "improvement", text: "VehicleDashboard padronizado com cards centralizados (mesmo padrão do Ponto)" },
+      { type: "improvement", text: "Títulos H1 ocultados no mobile via CSS (hidden sm:block) em todos os módulos" },
+      { type: "improvement", text: "Cards de ação dos veículos simplificados e uniformes" },
+      { type: "improvement", text: "Badges de status com suporte a dark mode na atividade recente" },
+    ],
+  },
+  {
     version: "1.10.2",
     date: "2026-03-31",
     title: "Detalhes da Ferramenta - Layout Mobile",
