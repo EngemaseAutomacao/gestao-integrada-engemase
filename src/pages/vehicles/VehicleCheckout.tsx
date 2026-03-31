@@ -16,6 +16,8 @@ import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 
 export default function VehicleCheckout() {
   const { user } = useAuth();
+  const { isOnline } = useOffline();
+  const { data: cachedVehicles, saveToCache: saveVehiclesCache } = useOfflineStorage<any[]>("available-vehicles", []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
@@ -37,6 +39,13 @@ export default function VehicleCheckout() {
   const { data: availableVehicles, isLoading } = useQuery({
     queryKey: ["available-vehicles"],
     queryFn: async () => {
+      if (!isOnline) {
+        if (cachedVehicles && cachedVehicles.length > 0) {
+          toast.info("Modo offline - usando dados em cache");
+          return cachedVehicles;
+        }
+        return [];
+      }
       const { data, error } = await supabase
         .from("vehicles")
         .select("*")
@@ -44,6 +53,7 @@ export default function VehicleCheckout() {
         .order("name");
 
       if (error) throw error;
+      if (data) saveVehiclesCache(data);
       return data;
     }
   });

@@ -65,6 +65,19 @@ export default function Dashboard() {
   }, []);
 
   const loadTools = async () => {
+    if (!isOnline) {
+      if (cachedTools && cachedTools.length > 0) {
+        const filteredTools = cachedTools.filter(tool => {
+          if (profile?.category === "third_party" && tool.employee_only) return false;
+          return true;
+        });
+        setTools(filteredTools);
+        toast.info("Modo offline - usando dados em cache");
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from("tools")
@@ -81,10 +94,19 @@ export default function Dashboard() {
       }) || [];
 
       setTools(filteredTools);
+      saveToCache(data || []);
     } catch (error: any) {
-      toast.error("Erro ao carregar ferramentas", {
-        description: error.message,
-      });
+      // Fallback to cache on error
+      if (cachedTools && cachedTools.length > 0) {
+        const filteredTools = cachedTools.filter(tool => {
+          if (profile?.category === "third_party" && tool.employee_only) return false;
+          return true;
+        });
+        setTools(filteredTools);
+        toast.info("Usando dados em cache");
+      } else {
+        toast.error("Erro ao carregar ferramentas", { description: error.message });
+      }
     } finally {
       setLoading(false);
     }
