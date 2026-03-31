@@ -627,6 +627,15 @@ export default function AdminTools() {
           )}
         </DialogContent>
       </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        title="Excluir Ferramenta"
+        description="Esta ação não pode ser desfeita. Informe o motivo da exclusão para registro de auditoria."
+        itemName={deletingTool?.name || ""}
+      />
     </div>
   );
 }
