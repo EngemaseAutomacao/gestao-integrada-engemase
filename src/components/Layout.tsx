@@ -137,6 +137,9 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
     '/ajuda': { title: 'Ajuda', icon: HelpCircle },
+    '/changelog': { title: 'Notas de Atualização', icon: FileText },
+    '/change-password': { title: 'Alterar Senha', icon: Settings },
+    '/mobile-settings': { title: 'Menu Mobile', icon: Settings },
   };
 
   const getMobilePageTitle = () => {
