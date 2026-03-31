@@ -132,7 +132,7 @@ export default function VehicleDashboard() {
           onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
         >
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm sm:text-base flex items-center justify-between text-blue-700 dark:text-blue-400">
+            <CardTitle className="text-sm sm:text-base flex items-center justify-between text-primary">
               <span className="flex items-center gap-2">
                 <Car className="w-4 h-4" />
                 Meus Veículos em Uso ({myVehicleCheckouts.length})
