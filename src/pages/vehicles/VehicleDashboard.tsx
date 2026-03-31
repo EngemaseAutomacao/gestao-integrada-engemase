@@ -12,7 +12,9 @@ import { useNavigate } from "react-router-dom";
 
 export default function VehicleDashboard() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = profile?.role === "admin";
+  const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(true);
   const { data: stats } = useQuery({
     queryKey: ["vehicle-stats"],
     queryFn: async () => {
