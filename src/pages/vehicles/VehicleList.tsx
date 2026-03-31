@@ -273,7 +273,7 @@ export default function VehicleList() {
                     <Button variant="ghost" size="sm" onClick={() => openEdit(vehicle)}>
                       <Pencil className="w-4 h-4 mr-1" /> Editar
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(vehicle.id)}>
+                    <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(vehicle)}>
                       <Trash2 className="w-4 h-4 mr-1 text-destructive" /> Excluir
                     </Button>
                   </div>
