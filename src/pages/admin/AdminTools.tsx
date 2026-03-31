@@ -90,10 +90,8 @@ export default function AdminTools() {
       // Upload image if a new one was selected
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-
-        const newFilePath = `ferramentas/${filePath}`;
+        const seq = String(Date.now()).slice(-6);
+        const newFilePath = `ferramentas/catalogo/ferramenta_${new Date().toISOString().slice(0,10)}_${seq}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
           .from('imagens')
           .upload(newFilePath, imageFile);

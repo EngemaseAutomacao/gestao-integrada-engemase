@@ -29,11 +29,17 @@ const FOLDER_TREE: FolderStructure[] = [
   {
     label: "Ferramentas",
     path: "ferramentas",
+    children: [
+      { label: "Catálogo", path: "ferramentas/catalogo" },
+      { label: "Entradas", path: "ferramentas/entradas" },
+      { label: "Saídas", path: "ferramentas/saidas" },
+    ],
   },
   {
     label: "Veículos",
     path: "veiculos",
     children: [
+      { label: "Catálogo", path: "veiculos/catalogo" },
       { label: "Entradas", path: "veiculos/entradas" },
       { label: "Saídas", path: "veiculos/saidas" },
     ],

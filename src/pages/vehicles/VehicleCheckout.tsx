@@ -60,7 +60,8 @@ export default function VehicleCheckout() {
 
   const uploadPhoto = async (file: File, prefix: string) => {
     const fileExt = file.name.split(".").pop();
-    const filePath = `veiculos/saidas/${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const seq = String(Date.now()).slice(-6);
+    const filePath = `veiculos/saidas/saida_${prefix}_${new Date().toISOString().slice(0,10)}_${seq}.${fileExt}`;
     const { error } = await supabase.storage.from("imagens").upload(filePath, file);
     if (error) throw error;
     return filePath;
