@@ -36,8 +36,10 @@ const conditionLabels: Record<string, string> = {
 
 export default function Tools() {
   const { profile } = useAuth();
+  const { isOnline } = useOffline();
+  const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("catalog_tools", []);
   const navigate = useNavigate();
-  const [tools, setTools] = useState<Tool[]>([]);
+  const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
