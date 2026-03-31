@@ -35,6 +35,8 @@ export default function VehicleList() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
   const isAdmin = profile?.role === "admin";
 
   const { data: vehicles, isLoading } = useQuery({
