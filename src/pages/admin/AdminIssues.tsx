@@ -59,7 +59,9 @@ export default function AdminIssues() {
         .from("tool_issues")
         .select(`
           *,
-          tool:tools(name)
+          tool:tools!tool_issues_tool_id_fkey(name),
+          reporter:profiles!tool_issues_reported_by_fkey(full_name),
+          resolver:profiles!tool_issues_resolved_by_fkey(full_name)
         `)
         .order("created_at", { ascending: false });
 
