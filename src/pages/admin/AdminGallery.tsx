@@ -9,10 +9,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Images, Folder, ArrowLeft, Loader2, Download, Trash2, ChevronRight } from "lucide-react";
 
-interface StorageFile {
+interface StorageItem {
   name: string;
-  id: string;
-  created_at: string;
+  id?: string | null;
+  created_at?: string;
   metadata?: {
     size?: number;
     mimetype?: string;
@@ -49,7 +49,8 @@ const FOLDER_TREE: FolderStructure[] = [
 export default function AdminGallery() {
   const { profile } = useAuth();
   const [currentPath, setCurrentPath] = useState<string>("");
-  const [files, setFiles] = useState<StorageFile[]>([]);
+  const [folders, setFolders] = useState<StorageItem[]>([]);
+  const [files, setFiles] = useState<StorageItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
@@ -60,7 +61,9 @@ export default function AdminGallery() {
       loadFiles(currentPath);
       updateBreadcrumbs(currentPath);
     } else {
+      setFolders([]);
       setFiles([]);
+      setSignedUrls({});
       setBreadcrumbs([]);
     }
   }, [currentPath]);
@@ -72,7 +75,7 @@ export default function AdminGallery() {
   const updateBreadcrumbs = (path: string) => {
     const parts = path.split("/");
     const crumbs: { label: string; path: string }[] = [];
-    
+
     const labelMap: Record<string, string> = {
       ferramentas: "Ferramentas",
       veiculos: "Veículos",
@@ -98,10 +101,13 @@ export default function AdminGallery() {
 
       if (error) throw error;
 
-      const imageFiles = (data || []).filter(f => f.name !== ".emptyFolderPlaceholder" && f.id);
+      const visibleItems = (data || []).filter((item) => item.name !== ".emptyFolderPlaceholder");
+      const folderItems = visibleItems.filter((item) => !item.id);
+      const imageFiles = visibleItems.filter((item) => !!item.id);
+
+      setFolders(folderItems);
       setFiles(imageFiles);
 
-      // Generate signed URLs for all files
       const urls: Record<string, string> = {};
       await Promise.all(
         imageFiles.map(async (file) => {
@@ -109,6 +115,7 @@ export default function AdminGallery() {
           const { data: urlData, error: urlError } = await supabase.storage
             .from("imagens")
             .createSignedUrl(fullPath, 3600);
+
           if (!urlError && urlData) {
             urls[file.name] = urlData.signedUrl;
           }
@@ -139,7 +146,7 @@ export default function AdminGallery() {
   const handleDownload = async (fileName: string) => {
     const url = signedUrls[fileName];
     if (!url) return;
-    
+
     const a = document.createElement("a");
     a.href = url;
     a.download = fileName;
@@ -149,6 +156,10 @@ export default function AdminGallery() {
     document.body.removeChild(a);
   };
 
+  const openFolder = (folderName: string) => {
+    setCurrentPath(`${currentPath}/${folderName}`);
+  };
+
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "—";
     if (bytes < 1024) return `${bytes} B`;
@@ -156,7 +167,9 @@ export default function AdminGallery() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "—";
+
     return new Date(dateStr).toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
@@ -223,7 +236,6 @@ export default function AdminGallery() {
         </div>
       </div>
 
-      {/* Breadcrumbs */}
       {currentPath && (
         <div className="flex items-center gap-2 flex-wrap">
           <Button variant="ghost" size="sm" onClick={() => setCurrentPath("")} className="gap-1">
@@ -242,64 +254,104 @@ export default function AdminGallery() {
               </Button>
             </div>
           ))}
-          <Badge variant="outline" className="ml-2">{files.length} arquivo(s)</Badge>
+          <Badge variant="outline" className="ml-2">
+            {folders.length} pasta(s), {files.length} arquivo(s)
+          </Badge>
         </div>
       )}
 
-      {/* Folder Navigation or File Grid */}
       {!currentPath ? (
         renderFolderNav()
       ) : loading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      ) : files.length === 0 ? (
+      ) : folders.length === 0 && files.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Images className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Nenhuma imagem nesta pasta</p>
+            <p className="text-muted-foreground">Nenhuma pasta ou imagem nesta pasta</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {files.map((file) => (
-            <Card key={file.id} className="overflow-hidden group">
-              <div className="relative aspect-square">
-                {signedUrls[file.name] ? (
-                  <img
-                    src={signedUrls[file.name]}
-                    alt={file.name}
-                    className="w-full h-full object-cover cursor-pointer"
-                    onClick={() => setEnlargedImage(signedUrls[file.name])}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  </div>
-                )}
-                {/* Overlay actions */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <Button size="icon" variant="secondary" onClick={() => handleDownload(file.name)} title="Baixar">
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="destructive" onClick={() => handleDelete(file.name)} title="Excluir">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+        <div className="space-y-6">
+          {folders.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Folder className="w-4 h-4 text-primary" />
+                <h2 className="font-semibold">Pastas</h2>
               </div>
-              <CardContent className="p-2">
-                <p className="text-xs truncate" title={file.name}>{file.name}</p>
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>{formatFileSize(file.metadata?.size)}</span>
-                  <span>{formatDate(file.created_at)}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {folders.map((folder) => (
+                  <Card
+                    key={`folder-${folder.name}`}
+                    className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50"
+                    onClick={() => openFolder(folder.name)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Folder className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate" title={folder.name}>{folder.name}</p>
+                          <p className="text-xs text-muted-foreground">Abrir subpasta</p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {files.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Images className="w-4 h-4 text-primary" />
+                <h2 className="font-semibold">Imagens</h2>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {files.map((file) => (
+                  <Card key={file.id || file.name} className="overflow-hidden group">
+                    <div className="relative aspect-square">
+                      {signedUrls[file.name] ? (
+                        <img
+                          src={signedUrls[file.name]}
+                          alt={file.name}
+                          className="w-full h-full object-cover cursor-pointer"
+                          onClick={() => setEnlargedImage(signedUrls[file.name])}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button size="icon" variant="secondary" onClick={() => handleDownload(file.name)} title="Baixar">
+                          <Download className="w-4 h-4" />
+                        </Button>
+                        <Button size="icon" variant="destructive" onClick={() => handleDelete(file.name)} title="Excluir">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <CardContent className="p-2">
+                      <p className="text-xs truncate" title={file.name}>{file.name}</p>
+                      <div className="flex justify-between text-xs text-muted-foreground mt-1 gap-2">
+                        <span>{formatFileSize(file.metadata?.size)}</span>
+                        <span className="truncate">{formatDate(file.created_at)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Enlarged Image Dialog */}
       <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
         <DialogContent className="max-w-4xl p-2">
           {enlargedImage && (
