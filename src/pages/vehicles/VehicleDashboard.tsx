@@ -128,7 +128,7 @@ export default function VehicleDashboard() {
       {/* My Active Vehicles */}
       {myVehicleCheckouts && myVehicleCheckouts.length > 0 && (
         <Card 
-          className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 cursor-pointer"
+          className="border-primary/50 bg-primary/5 cursor-pointer"
           onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
         >
           <CardHeader className="pb-2">
