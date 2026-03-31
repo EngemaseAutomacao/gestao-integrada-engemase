@@ -320,6 +320,10 @@ export default function Layout({ children }: LayoutProps) {
           <OfflineIndicator />
           
           <ThemeToggle />
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => window.open('/ajuda', '_self')}>
+            <HelpCircle className="h-4 w-4" />
+            <span className="sr-only">Ajuda</span>
+          </Button>
           <NotificationBell />
           
           {/* User dropdown - hidden on mobile (signout is in bottom nav menu) */}
