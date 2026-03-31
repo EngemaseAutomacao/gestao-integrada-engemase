@@ -115,7 +115,7 @@ export default function FuelRecords() {
   const totalCost = records?.reduce((sum: number, r: any) => sum + (parseFloat(r.total_cost) || 0), 0) || 0;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full min-h-0 gap-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
