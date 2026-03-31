@@ -164,10 +164,7 @@ export default function ToolDetail() {
     try {
       const { data, error } = await supabase
         .from("tool_issues")
-        .select(`
-          *,
-          reporter:profiles!reported_by(full_name)
-        `)
+        .select(`*`)
         .eq("tool_id", id)
         .order("created_at", { ascending: false });
 
