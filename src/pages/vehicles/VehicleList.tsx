@@ -161,10 +161,24 @@ export default function VehicleList() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir este veículo?")) return;
+  const handleDeleteClick = (vehicle: any) => {
+    setDeletingVehicle(vehicle);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async (reason: string) => {
+    if (!deletingVehicle) return;
     try {
-      const { error } = await supabase.from("vehicles").delete().eq("id", id);
+      await supabase.from("system_logs").insert({
+        action: "delete_reason",
+        entity_type: "vehicle",
+        entity_id: deletingVehicle.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: { vehicle_name: deletingVehicle.name, plate: deletingVehicle.plate, reason },
+      });
+
+      const { error } = await supabase.from("vehicles").delete().eq("id", deletingVehicle.id);
       if (error) throw error;
       toast.success("Veículo excluído!");
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
