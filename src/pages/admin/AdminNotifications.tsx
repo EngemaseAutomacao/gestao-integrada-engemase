@@ -91,7 +91,7 @@ export default function AdminNotifications() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="hidden sm:block">
         <h2 className="text-3xl font-bold tracking-tight">Sistema de Notificações</h2>
         <p className="text-muted-foreground">Gerencie e envie notificações do sistema</p>
       </div>

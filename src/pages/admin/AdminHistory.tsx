@@ -195,7 +195,7 @@ export default function AdminHistory() {
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
       <div className="shrink-0 flex items-center justify-between flex-wrap gap-4">
-        <div>
+        <div className="hidden sm:block">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Completo</h2>
           <p className="text-sm text-muted-foreground">Visualize todas as movimentações de ferramentas</p>
         </div>

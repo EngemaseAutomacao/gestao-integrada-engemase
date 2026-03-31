@@ -114,7 +114,7 @@ export default function AdminConstructionSites() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="hidden sm:block">
           <h2 className="text-3xl font-bold tracking-tight">Gestão de Obras</h2>
           <p className="text-muted-foreground">Cadastre e gerencie obras/canteiros</p>
         </div>

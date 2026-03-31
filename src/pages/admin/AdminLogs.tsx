@@ -148,7 +148,7 @@ export default function AdminLogs() {
 
   return (
     <div className="flex flex-col h-full min-h-0 space-y-4">
-      <div className="shrink-0">
+      <div className="shrink-0 hidden sm:block">
         <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Logs do Sistema</h2>
         <p className="text-xs sm:text-sm text-muted-foreground">Histórico completo de ações no sistema</p>
       </div>
