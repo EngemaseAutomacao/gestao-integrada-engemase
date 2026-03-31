@@ -86,7 +86,7 @@ export default function VehicleDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="shrink-0 grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
