@@ -641,6 +641,8 @@ export type Database = {
           notes: string | null
           photo_back_checkin: string | null
           photo_back_checkout: string | null
+          photo_dashboard_checkin: string | null
+          photo_dashboard_checkout: string | null
           photo_front_checkin: string | null
           photo_front_checkout: string | null
           photo_left_checkin: string | null
@@ -667,6 +669,8 @@ export type Database = {
           notes?: string | null
           photo_back_checkin?: string | null
           photo_back_checkout?: string | null
+          photo_dashboard_checkin?: string | null
+          photo_dashboard_checkout?: string | null
           photo_front_checkin?: string | null
           photo_front_checkout?: string | null
           photo_left_checkin?: string | null
@@ -693,6 +697,8 @@ export type Database = {
           notes?: string | null
           photo_back_checkin?: string | null
           photo_back_checkout?: string | null
+          photo_dashboard_checkin?: string | null
+          photo_dashboard_checkout?: string | null
           photo_front_checkin?: string | null
           photo_front_checkout?: string | null
           photo_left_checkin?: string | null
