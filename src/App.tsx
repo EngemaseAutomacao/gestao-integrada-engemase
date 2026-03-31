@@ -56,10 +56,10 @@ const App = () => (
         
         <Sonner />
         <UpdatePrompt />
-        <ChangelogModal />
         <BrowserRouter>
           <OfflineProvider>
             <AuthProvider>
+              <ChangelogModal />
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/register" element={<Register />} />
