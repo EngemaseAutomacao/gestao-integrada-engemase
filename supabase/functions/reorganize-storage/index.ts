@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
           { table: "vehicle_checkouts", column: "photo_back_checkout" },
           { table: "vehicle_checkouts", column: "photo_left_checkout" },
           { table: "vehicle_checkouts", column: "photo_right_checkout" },
+          { table: "vehicle_checkouts", column: "photo_dashboard_checkout" },
         ],
       },
       {
@@ -113,6 +114,7 @@ Deno.serve(async (req) => {
           { table: "vehicle_checkouts", column: "photo_back_checkin" },
           { table: "vehicle_checkouts", column: "photo_left_checkin" },
           { table: "vehicle_checkouts", column: "photo_right_checkin" },
+          { table: "vehicle_checkouts", column: "photo_dashboard_checkin" },
         ],
       },
     ];
