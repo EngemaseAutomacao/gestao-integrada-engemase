@@ -177,11 +177,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Package className="w-8 h-8 animate-pulse text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
