@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.9.1",
+    date: "2026-03-31",
+    title: "Notas de Atualização",
+    description: "Sistema de changelog com página dedicada e modal automático.",
+    changes: [
+      { type: "feature", text: "Página de changelog (/changelog) com histórico completo de versões" },
+      { type: "feature", text: "Modal automático ao atualizar mostrando novidades da versão" },
+      { type: "improvement", text: "Link clicável da versão no rodapé para acessar o changelog" },
+    ],
+  },
+  {
     version: "1.9.0",
     date: "2026-03-31",
     title: "Melhorias Gerais do Sistema",
