@@ -100,7 +100,7 @@ export default function VehicleHistory() {
         <p className="text-sm text-muted-foreground">Histórico de saídas e chegadas de veículos</p>
       </div>
 
-      <Card>
+      <Card className="shrink-0">
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
           <CardDescription>Filtre suas movimentações de veículos</CardDescription>
