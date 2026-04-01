@@ -271,8 +271,6 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Usage Chart */}
-        {profile?.id && <UserUsageChart userId={profile.id} />}
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">
