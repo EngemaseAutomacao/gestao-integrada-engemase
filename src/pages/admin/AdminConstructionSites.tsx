@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, MapPin, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, MapPin, Loader2, RefreshCw } from "lucide-react";
 
 interface ConstructionSite {
   id: string;
