@@ -218,7 +218,8 @@ export default function VehicleCheckout() {
         uploadPhoto(photos.dashboard!, "dashboard_out"),
       ]);
 
-      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+
+
       // Build estimated return date from time input
       const now = new Date();
       const [hours, minutes] = estimatedReturnTime.split(":").map(Number);
