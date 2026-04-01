@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.7",
+    date: "2026-04-01",
+    title: "Alertas de veículos, modo escuro e tutorial",
+    description: "Alertas automáticos para veículos atrasados, modo escuro refinado e tutorial para novos usuários.",
+    changes: [
+      { type: "feature", text: "Alerta automático quando veículo passa da hora estimada de retorno" },
+      { type: "feature", text: "Tutorial de onboarding interativo para novos usuários" },
+      { type: "improvement", text: "Modo escuro com cores mais refinadas e melhor contraste" },
+      { type: "improvement", text: "Notificações enviadas ao motorista e administradores sobre atraso" },
+    ],
+  },
+  {
     version: "1.10.6",
     date: "2026-04-01",
     title: "Sincronização inteligente e melhorias visuais",
