@@ -27,7 +27,7 @@ interface Suggestion {
 const cleanDisplayName = (name: string): string => {
   return name
     .split(", ")
-    .filter(part => !part.match(/Região Geográfica/i))
+    .filter(part => !part.match(/Região Geográfica/i) && !part.match(/Região Integrada de Desenvolvimento/i))
     .join(", ");
 };
 
