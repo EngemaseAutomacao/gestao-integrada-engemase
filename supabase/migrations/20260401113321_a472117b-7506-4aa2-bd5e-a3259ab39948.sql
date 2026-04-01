@@ -1,0 +1,1 @@
+ALTER TABLE public.vehicle_checkouts ADD COLUMN estimated_return_time time without time zone;

@@ -638,6 +638,7 @@ export type Database = {
           destination_address: string | null
           estimated_distance_km: number | null
           estimated_duration_minutes: number | null
+          estimated_return_time: string | null
           id: string
           is_outside_city: boolean | null
           km_checkin: number | null
@@ -673,6 +674,7 @@ export type Database = {
           destination_address?: string | null
           estimated_distance_km?: number | null
           estimated_duration_minutes?: number | null
+          estimated_return_time?: string | null
           id?: string
           is_outside_city?: boolean | null
           km_checkin?: number | null
@@ -708,6 +710,7 @@ export type Database = {
           destination_address?: string | null
           estimated_distance_km?: number | null
           estimated_duration_minutes?: number | null
+          estimated_return_time?: string | null
           id?: string
           is_outside_city?: boolean | null
           km_checkin?: number | null
