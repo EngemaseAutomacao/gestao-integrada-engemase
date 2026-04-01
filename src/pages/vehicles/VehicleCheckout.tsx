@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation } from "lucide-react";
+import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation, Clock } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +33,7 @@ export default function VehicleCheckout() {
   const [destination, setDestination] = useState("");
   const [customDestination, setCustomDestination] = useState("");
   const [notes, setNotes] = useState("");
+  const [estimatedReturnTime, setEstimatedReturnTime] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Outside city state
@@ -204,6 +205,9 @@ export default function VehicleCheckout() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
+      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+      if (!finalDestination) throw new Error("Selecione a obra de destino");
+      if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
       if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
 
       const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
@@ -214,7 +218,15 @@ export default function VehicleCheckout() {
         uploadPhoto(photos.dashboard!, "dashboard_out"),
       ]);
 
-      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+
+
+      // Build estimated return date from time input
+      const now = new Date();
+      const [hours, minutes] = estimatedReturnTime.split(":").map(Number);
+      const estimatedReturn = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+      if (estimatedReturn <= now) {
+        estimatedReturn.setDate(estimatedReturn.getDate() + 1);
+      }
 
       const insertData: any = {
         vehicle_id: selectedVehicle,
@@ -230,6 +242,7 @@ export default function VehicleCheckout() {
         photo_right_checkout: rightUrl,
         photo_dashboard_checkout: dashboardUrl,
         is_outside_city: isOutsideCity,
+        estimated_return_time: estimatedReturnTime,
       };
 
       if (isOutsideCity) {
@@ -352,7 +365,7 @@ export default function VehicleCheckout() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="destination">Obra de Destino</Label>
+                <Label htmlFor="destination">Obra de Destino *</Label>
                 <Select value={destination} onValueChange={setDestination}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a obra de destino" />
@@ -372,6 +385,20 @@ export default function VehicleCheckout() {
                     className="mt-2"
                   />
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="estimatedReturnTime" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Hora Estimada de Retorno *
+                </Label>
+                <Input
+                  id="estimatedReturnTime"
+                  type="time"
+                  value={estimatedReturnTime}
+                  onChange={(e) => setEstimatedReturnTime(e.target.value)}
+                  required
+                />
               </div>
 
               {/* Outside City Toggle */}
@@ -532,7 +559,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !allPhotos || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !destination || !estimatedReturnTime || !allPhotos || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}
