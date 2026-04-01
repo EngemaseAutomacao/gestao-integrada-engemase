@@ -113,18 +113,28 @@ export default function AdminConstructionSites() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="hidden sm:block">
           <h2 className="text-3xl font-bold tracking-tight">Gestão de Obras</h2>
           <p className="text-muted-foreground">Cadastre e gerencie obras/canteiros</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Nova Obra
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            disabled={syncMutation.isPending}
+            onClick={() => syncMutation.mutate()}
+          >
+            <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+            Sincronizar Trello
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Nova Obra
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingSite ? "Editar Obra" : "Nova Obra"}</DialogTitle>
