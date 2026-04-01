@@ -60,7 +60,8 @@ export default function VehicleCheckout() {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 15000,
+          timeout: 30000,
+          maximumAge: 0,
         });
       });
 
