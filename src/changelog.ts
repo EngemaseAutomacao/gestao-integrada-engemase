@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.9",
+    date: "2026-04-01",
+    title: "Dashboard de veículos e notificações",
+    description: "Nova interface do módulo de veículos e correção de notificações duplicadas.",
+    changes: [
+      { type: "improvement", text: "Dashboard de veículos redesenhado com lista pesquisável, igual ao de ferramentas" },
+      { type: "improvement", text: "Botões de veículos agora mostram 'Registrar Saída' e 'Registrar Devolução'" },
+      { type: "fix", text: "Corrigido problema de notificações push duplicadas e vazias" },
+      { type: "fix", text: "Limpeza automática de assinaturas push antigas para evitar notificações repetidas" },
+    ],
+  },
+  {
     version: "1.10.7",
     date: "2026-04-01",
     title: "Alertas de veículos, modo escuro e tutorial",
