@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Home, Wrench, Car, Clock, Shield, Settings, BarChart3, Package, History, Bell, Fuel } from "lucide-react";
+import { Home, Wrench, Car, Clock, Shield, Settings, BarChart3, Package, History, Bell, Fuel, ArrowRightLeft } from "lucide-react";
 
 export interface NavTabItem {
   id: string;
