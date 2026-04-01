@@ -50,22 +50,6 @@ export default function AdminTools() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingTool, setDeletingTool] = useState<Tool | null>(null);
-  const [syncing, setSyncing] = useState(false);
-
-  const handleSyncGoogleSheets = async () => {
-    setSyncing(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("sync-google-sheets");
-      if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || "Erro na sincronização");
-      toast.success(`Sincronização concluída! ${data.summary.added} adicionadas, ${data.summary.updated} atualizadas, ${data.summary.deleted} removidas.`);
-      loadTools();
-    } catch (error: any) {
-      toast.error(`Erro ao sincronizar: ${error.message}`);
-    } finally {
-      setSyncing(false);
-    }
-  };
 
   useEffect(() => {
     loadTools();
