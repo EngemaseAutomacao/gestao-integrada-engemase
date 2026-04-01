@@ -97,6 +97,25 @@ export default function VehicleCheckout() {
 
     setIsCalculatingRoute(true);
     try {
+      // Geocode origin if no coords
+      let startLat = originCoords?.lat;
+      let startLon = originCoords?.lon;
+
+      if (!startLat || !startLon) {
+        const originGeoRes = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(originAddress)}&format=json&limit=1&countrycodes=br`,
+          { headers: { "Accept-Language": "pt-BR" } }
+        );
+        const originGeoData = await originGeoRes.json();
+        if (!originGeoData.length) {
+          toast.error("Origem não encontrada. Tente um endereço mais específico.");
+          return;
+        }
+        startLat = parseFloat(originGeoData[0].lat);
+        startLon = parseFloat(originGeoData[0].lon);
+        setOriginCoords({ lat: startLat, lon: startLon });
+      }
+
       // Geocode destination
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinationAddress)}&format=json&limit=1&countrycodes=br`,
