@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Package, Wrench, BarChart3, FileText, Bell, ClipboardList, Settings, AlertCircle, Images } from "lucide-react";
+import { Users, Package, Wrench, BarChart3, FileText, Bell, ClipboardList, Settings, AlertCircle, Images, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
