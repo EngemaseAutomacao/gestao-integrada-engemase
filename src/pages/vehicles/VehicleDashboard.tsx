@@ -111,7 +111,6 @@ export default function VehicleDashboard() {
                         {checkout.vehicles?.name} - {checkout.vehicles?.plate}
                       </p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {checkout.destination && <span>{checkout.destination}</span>}
                         <span>KM: {checkout.km_checkout}</span>
                         <span>Saída: {format(new Date(checkout.checkout_date), "dd/MM HH:mm", { locale: ptBR })}</span>
                       </div>
