@@ -214,13 +214,26 @@ export default function VehicleCheckout() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="destination">Destino</Label>
-                <Input
-                  id="destination"
-                  placeholder="Ex: Obra Centro, Cliente ABC"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                />
+                <Label htmlFor="destination">Obra de Destino</Label>
+                <Select value={destination} onValueChange={setDestination}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a obra de destino" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {constructionSites?.map((site) => (
+                      <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
+                    ))}
+                    <SelectItem value="__custom__">Outra (digitar)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {destination === "__custom__" && (
+                  <Input
+                    placeholder="Digite o destino..."
+                    value={customDestination}
+                    onChange={(e) => setCustomDestination(e.target.value)}
+                    className="mt-2"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
