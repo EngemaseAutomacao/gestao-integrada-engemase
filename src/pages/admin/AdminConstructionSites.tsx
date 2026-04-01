@@ -111,8 +111,7 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
 
-
-    setName("");
+  const resetForm = () => {
     setAddress("");
     setEditingSite(null);
     setDialogOpen(false);
