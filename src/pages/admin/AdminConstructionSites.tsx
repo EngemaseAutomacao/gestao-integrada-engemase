@@ -106,7 +106,7 @@ export default function AdminConstructionSites() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["construction-sites"] });
-      toast.success(`Sincronização concluída! ${data.summary.added} novas, ${data.summary.reactivated} reativadas.`);
+      toast.success(`Sincronização concluída! ${data.summary.added} novas, ${data.summary.reactivated} reativadas, ${data.summary.deactivated} desativadas.`);
     },
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
