@@ -48,6 +48,7 @@ import Changelog from "./pages/Changelog";
 import MobileNavSettings from "./pages/MobileNavSettings";
 import UpdatePrompt from "./components/UpdatePrompt";
 import { ChangelogModal } from "./components/ChangelogModal";
+import { OnboardingTutorial } from "./components/OnboardingTutorial";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
           <OfflineProvider>
             <AuthProvider>
               <ChangelogModal />
+              <OnboardingTutorial />
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/register" element={<Register />} />

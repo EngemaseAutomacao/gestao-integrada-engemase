@@ -70,6 +70,15 @@ Deno.serve(async (req) => {
       console.log('Prolonged vehicle use check completed')
     }
 
+    // Check for vehicle overdue return (past estimated return time)
+    console.log('Checking vehicle overdue returns...')
+    const { error: overdueReturnError } = await supabaseClient.rpc('check_vehicle_overdue_return')
+    if (overdueReturnError) {
+      console.error('Error checking vehicle overdue returns:', overdueReturnError)
+    } else {
+      console.log('Vehicle overdue return check completed')
+    }
+
     console.log('All notification checks completed successfully')
 
     return new Response(

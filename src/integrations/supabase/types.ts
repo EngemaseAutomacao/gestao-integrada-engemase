@@ -830,6 +830,7 @@ export type Database = {
       check_overdue_tools: { Args: never; Returns: undefined }
       check_prolonged_vehicle_use: { Args: never; Returns: undefined }
       check_return_reminders: { Args: never; Returns: undefined }
+      check_vehicle_overdue_return: { Args: never; Returns: undefined }
       cleanup_old_notifications: { Args: never; Returns: undefined }
       get_email_from_username: { Args: { _username: string }; Returns: string }
       get_tool_usage_history: {
