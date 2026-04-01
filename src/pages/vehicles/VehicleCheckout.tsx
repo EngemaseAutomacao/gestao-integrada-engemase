@@ -383,40 +383,57 @@ export default function VehicleCheckout() {
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
-                        Localização Atual (Origem)
+                        Localização de Origem
                       </Label>
                       <div className="flex gap-2">
-                        <Input
-                          value={originAddress}
-                          readOnly
-                          placeholder="Clique para obter sua localização..."
-                          className="flex-1 bg-muted/50"
-                        />
+                        <div className="flex-1">
+                          <AddressAutocomplete
+                            value={originAddress}
+                            onChange={(val) => {
+                              setOriginAddress(val);
+                              setRouteEstimate(null);
+                            }}
+                            onSelect={(addr, lat, lon) => {
+                              setOriginAddress(addr);
+                              setOriginCoords({ lat, lon });
+                              setRouteEstimate(null);
+                            }}
+                            placeholder="Digite ou use o GPS para localização..."
+                          />
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
                           onClick={handleGetLocation}
                           disabled={isLoadingLocation}
+                          title="Usar GPS"
                         >
                           {isLoadingLocation ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <MapPin className="w-4 h-4" />
+                            <Navigation className="w-4 h-4" />
                           )}
                         </Button>
                       </div>
+                      <p className="text-xs text-muted-foreground">
+                        Use o botão GPS ou digite o endereço para buscar
+                      </p>
                     </div>
 
                     {/* Destination Address */}
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
-                        <Navigation className="w-4 h-4 text-primary" />
+                        <MapPin className="w-4 h-4 text-primary" />
                         Endereço de Destino
                       </Label>
-                      <Input
+                      <AddressAutocomplete
                         value={destinationAddress}
-                        onChange={(e) => {
-                          setDestinationAddress(e.target.value);
+                        onChange={(val) => {
+                          setDestinationAddress(val);
+                          setRouteEstimate(null);
+                        }}
+                        onSelect={(addr) => {
+                          setDestinationAddress(addr);
                           setRouteEstimate(null);
                         }}
                         placeholder="Ex: São Paulo, SP ou Rua X, Cidade..."
