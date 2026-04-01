@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.5",
+    date: "2026-04-01",
+    title: "Integração Trello e ordenação de obras",
+    description: "As obras agora são sincronizadas automaticamente do Trello e a lista foi reordenada.",
+    changes: [
+      { type: "feature", text: "Sincronização automática de obras a partir do quadro Trello (a cada 5 minutos)" },
+      { type: "improvement", text: "Lista de obras ordenada do mais recente para o mais antigo (2026 → 2023)" },
+      { type: "improvement", text: "Botão de sincronização manual do Trello na Gestão de Obras" },
+    ],
+  },
+  {
     version: "1.10.4",
     date: "2026-03-31",
     title: "Menu mobile e correções",
