@@ -219,6 +219,13 @@ export default function VehicleCheckout() {
       ]);
 
       const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+      // Build estimated return date from time input
+      const now = new Date();
+      const [hours, minutes] = estimatedReturnTime.split(":").map(Number);
+      const estimatedReturn = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+      if (estimatedReturn <= now) {
+        estimatedReturn.setDate(estimatedReturn.getDate() + 1);
+      }
 
       const insertData: any = {
         vehicle_id: selectedVehicle,
