@@ -309,6 +309,13 @@ export default function Layout({ children }: LayoutProps) {
           )}
         </div>
 
+        {/* Desktop: Centered search bar */}
+        {!isMobile && (
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <GlobalSearch />
+          </div>
+        )}
+
         {/* Mobile: Centered page title */}
         {isMobile && (() => {
           if (isHomePage) {
@@ -333,7 +340,6 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {!isMobile && <GlobalSearch />}
           <OfflineIndicator />
           
           <ThemeToggle />
