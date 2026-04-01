@@ -275,11 +275,6 @@ export default function AdminTools() {
           <p className="text-sm text-muted-foreground">Administre o inventário de ferramentas</p>
         </div>
         
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={handleSyncGoogleSheets} disabled={syncing}>
-            <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
-            Sincronizar Planilha
-          </Button>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) resetForm();
