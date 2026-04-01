@@ -11,11 +11,25 @@ interface AddressAutocompleteProps {
   disabled?: boolean;
 }
 
-interface Suggestion {
+interface NominatimResult {
   display_name: string;
   lat: string;
   lon: string;
 }
+
+interface Suggestion {
+  display_name: string;
+  clean_name: string;
+  lat: string;
+  lon: string;
+}
+
+const cleanDisplayName = (name: string): string => {
+  return name
+    .split(", ")
+    .filter(part => !part.match(/Região Geográfica/i))
+    .join(", ");
+};
 
 export default function AddressAutocomplete({
   value,
@@ -43,9 +57,13 @@ export default function AddressAutocomplete({
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=br&addressdetails=1`,
         { headers: { "Accept-Language": "pt-BR" } }
       );
-      const data: Suggestion[] = await res.json();
-      setSuggestions(data);
-      setShowSuggestions(data.length > 0);
+      const data: NominatimResult[] = await res.json();
+      const cleaned: Suggestion[] = data.map(d => ({
+        ...d,
+        clean_name: cleanDisplayName(d.display_name),
+      }));
+      setSuggestions(cleaned);
+      setShowSuggestions(cleaned.length > 0);
     } catch {
       setSuggestions([]);
     } finally {
@@ -60,11 +78,11 @@ export default function AddressAutocomplete({
   };
 
   const handleSelect = (suggestion: Suggestion) => {
-    onChange(suggestion.display_name);
+    onChange(suggestion.clean_name);
     setShowSuggestions(false);
     setSuggestions([]);
     onSelect?.(
-      suggestion.display_name,
+      suggestion.clean_name,
       parseFloat(suggestion.lat),
       parseFloat(suggestion.lon)
     );
@@ -113,7 +131,7 @@ export default function AddressAutocomplete({
               onClick={() => handleSelect(s)}
             >
               <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-              <span className="text-foreground line-clamp-2">{s.display_name}</span>
+              <span className="text-foreground line-clamp-2">{s.clean_name}</span>
             </button>
           ))}
         </div>
