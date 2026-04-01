@@ -159,6 +159,7 @@ export default function AdminConstructionSites() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card>
