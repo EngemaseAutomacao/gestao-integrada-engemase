@@ -190,33 +190,33 @@ export default function VehicleList() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-6">
-      <div className="shrink-0 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="hidden sm:block">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Car className="w-8 h-8 text-primary" />
-            Lista de Veículos
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Todos os veículos cadastrados no sistema
-          </p>
+      <div className="shrink-0 hidden sm:block">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Car className="w-8 h-8 text-primary" />
+          Lista de Veículos
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Todos os veículos cadastrados no sistema
+        </p>
+      </div>
+
+      {/* Search + Add Button */}
+      <div className="shrink-0 flex gap-2 items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nome, placa, marca ou modelo..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
         </div>
         {isAdmin && (
-          <Button onClick={openNew}>
+          <Button onClick={openNew} className="shrink-0">
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Veículo
           </Button>
         )}
-      </div>
-
-      {/* Search */}
-      <div className="shrink-0 relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar por nome, placa, marca ou modelo..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
       </div>
 
       {/* Vehicle Grid */}
