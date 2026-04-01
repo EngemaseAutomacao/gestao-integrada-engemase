@@ -132,7 +132,7 @@ export default function VehicleCheckout() {
 
       // OSRM route
       const routeRes = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destLon},${destLat}?overview=false`
+        `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${destLon},${destLat}?overview=false`
       );
       const routeData = await routeRes.json();
 
