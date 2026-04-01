@@ -33,6 +33,7 @@ export default function VehicleCheckout() {
   const [destination, setDestination] = useState("");
   const [customDestination, setCustomDestination] = useState("");
   const [notes, setNotes] = useState("");
+  const [estimatedReturnTime, setEstimatedReturnTime] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Outside city state
