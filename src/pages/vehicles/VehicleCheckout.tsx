@@ -15,6 +15,7 @@ import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 interface RouteEstimate {
   distance_km: number;
