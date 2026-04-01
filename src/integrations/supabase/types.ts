@@ -635,10 +635,17 @@ export type Database = {
           checkout_date: string
           created_at: string
           destination: string | null
+          destination_address: string | null
+          estimated_distance_km: number | null
+          estimated_duration_minutes: number | null
           id: string
+          is_outside_city: boolean | null
           km_checkin: number | null
           km_checkout: number
           notes: string | null
+          origin_address: string | null
+          origin_latitude: number | null
+          origin_longitude: number | null
           photo_back_checkin: string | null
           photo_back_checkout: string | null
           photo_dashboard_checkin: string | null
@@ -663,10 +670,17 @@ export type Database = {
           checkout_date?: string
           created_at?: string
           destination?: string | null
+          destination_address?: string | null
+          estimated_distance_km?: number | null
+          estimated_duration_minutes?: number | null
           id?: string
+          is_outside_city?: boolean | null
           km_checkin?: number | null
           km_checkout: number
           notes?: string | null
+          origin_address?: string | null
+          origin_latitude?: number | null
+          origin_longitude?: number | null
           photo_back_checkin?: string | null
           photo_back_checkout?: string | null
           photo_dashboard_checkin?: string | null
@@ -691,10 +705,17 @@ export type Database = {
           checkout_date?: string
           created_at?: string
           destination?: string | null
+          destination_address?: string | null
+          estimated_distance_km?: number | null
+          estimated_duration_minutes?: number | null
           id?: string
+          is_outside_city?: boolean | null
           km_checkin?: number | null
           km_checkout?: number
           notes?: string | null
+          origin_address?: string | null
+          origin_latitude?: number | null
+          origin_longitude?: number | null
           photo_back_checkin?: string | null
           photo_back_checkout?: string | null
           photo_dashboard_checkin?: string | null

@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRightCircle, Car, Search } from "lucide-react";
+import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +15,11 @@ import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+
+interface RouteEstimate {
+  distance_km: number;
+  duration_minutes: number;
+}
 
 export default function VehicleCheckout() {
   const { user } = useAuth();
@@ -28,6 +34,15 @@ export default function VehicleCheckout() {
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Outside city state
+  const [isOutsideCity, setIsOutsideCity] = useState(false);
+  const [originAddress, setOriginAddress] = useState("");
+  const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [destinationAddress, setDestinationAddress] = useState("");
+  const [routeEstimate, setRouteEstimate] = useState<RouteEstimate | null>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+
   const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
   const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
 
@@ -37,6 +52,81 @@ export default function VehicleCheckout() {
   };
 
   const allPhotos = Object.values(photos).every(Boolean);
+
+  const handleGetLocation = async () => {
+    setIsLoadingLocation(true);
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 15000,
+        });
+      });
+
+      const { latitude, longitude } = position.coords;
+      setOriginCoords({ lat: latitude, lon: longitude });
+
+      // Reverse geocode
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
+        { headers: { "Accept-Language": "pt-BR" } }
+      );
+      const data = await res.json();
+      const addr = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      setOriginAddress(addr);
+      toast.success("Localização obtida!");
+    } catch {
+      toast.error("Não foi possível obter a localização. Verifique as permissões.");
+    } finally {
+      setIsLoadingLocation(false);
+    }
+  };
+
+  const handleCalculateRoute = async () => {
+    if (!originCoords || !destinationAddress.trim()) {
+      toast.error("Obtenha sua localização e informe o destino primeiro.");
+      return;
+    }
+
+    setIsCalculatingRoute(true);
+    try {
+      // Geocode destination
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinationAddress)}&format=json&limit=1&countrycodes=br`,
+        { headers: { "Accept-Language": "pt-BR" } }
+      );
+      const geoData = await geoRes.json();
+      if (!geoData.length) {
+        toast.error("Destino não encontrado. Tente um endereço mais específico.");
+        return;
+      }
+
+      const destLat = parseFloat(geoData[0].lat);
+      const destLon = parseFloat(geoData[0].lon);
+
+      // OSRM route
+      const routeRes = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destLon},${destLat}?overview=false`
+      );
+      const routeData = await routeRes.json();
+
+      if (routeData.code !== "Ok" || !routeData.routes?.length) {
+        toast.error("Não foi possível calcular a rota.");
+        return;
+      }
+
+      const route = routeData.routes[0];
+      setRouteEstimate({
+        distance_km: Math.round((route.distance / 1000) * 10) / 10,
+        duration_minutes: Math.round(route.duration / 60),
+      });
+      toast.success("Rota calculada!");
+    } catch {
+      toast.error("Erro ao calcular a rota. Tente novamente.");
+    } finally {
+      setIsCalculatingRoute(false);
+    }
+  };
 
   const { data: availableVehicles, isLoading } = useQuery({
     queryKey: ["available-vehicles"],
@@ -99,7 +189,7 @@ export default function VehicleCheckout() {
 
       const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
 
-      const { error } = await supabase.from("vehicle_checkouts").insert({
+      const insertData: any = {
         vehicle_id: selectedVehicle,
         user_id: user.id,
         checked_out_by: user.id,
@@ -112,7 +202,19 @@ export default function VehicleCheckout() {
         photo_left_checkout: leftUrl,
         photo_right_checkout: rightUrl,
         photo_dashboard_checkout: dashboardUrl,
-      });
+        is_outside_city: isOutsideCity,
+      };
+
+      if (isOutsideCity) {
+        insertData.origin_address = originAddress;
+        insertData.origin_latitude = originCoords?.lat;
+        insertData.origin_longitude = originCoords?.lon;
+        insertData.destination_address = destinationAddress;
+        insertData.estimated_distance_km = routeEstimate?.distance_km;
+        insertData.estimated_duration_minutes = routeEstimate?.duration_minutes;
+      }
+
+      const { error } = await supabase.from("vehicle_checkouts").insert(insertData);
 
       if (error) throw error;
     },
@@ -139,6 +241,13 @@ export default function VehicleCheckout() {
   };
 
   const selectedVehicleData = availableVehicles?.find(v => v.id === selectedVehicle);
+
+  const formatDuration = (minutes: number) => {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h === 0) return `${m} min`;
+    return `${h}h ${m}min`;
+  };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -237,6 +346,114 @@ export default function VehicleCheckout() {
                   />
                 )}
               </div>
+
+              {/* Outside City Toggle */}
+              <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <Label className="text-base font-medium flex items-center gap-2">
+                    <Navigation className="w-4 h-4" />
+                    Trabalho fora da cidade
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Ative para calcular distância e tempo estimado
+                  </p>
+                </div>
+                <Switch
+                  checked={isOutsideCity}
+                  onCheckedChange={(checked) => {
+                    setIsOutsideCity(checked);
+                    if (!checked) {
+                      setOriginAddress("");
+                      setOriginCoords(null);
+                      setDestinationAddress("");
+                      setRouteEstimate(null);
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Outside City Details */}
+              {isOutsideCity && (
+                <Card className="border-dashed">
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Origin */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        Localização Atual (Origem)
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={originAddress}
+                          readOnly
+                          placeholder="Clique para obter sua localização..."
+                          className="flex-1 bg-muted/50"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleGetLocation}
+                          disabled={isLoadingLocation}
+                        >
+                          {isLoadingLocation ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <MapPin className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Destination Address */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <Navigation className="w-4 h-4 text-primary" />
+                        Endereço de Destino
+                      </Label>
+                      <Input
+                        value={destinationAddress}
+                        onChange={(e) => {
+                          setDestinationAddress(e.target.value);
+                          setRouteEstimate(null);
+                        }}
+                        placeholder="Ex: São Paulo, SP ou Rua X, Cidade..."
+                      />
+                    </div>
+
+                    {/* Calculate Button */}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleCalculateRoute}
+                      disabled={isCalculatingRoute || !originCoords || !destinationAddress.trim()}
+                      className="w-full"
+                    >
+                      {isCalculatingRoute ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Calculando...
+                        </>
+                      ) : (
+                        "Calcular Distância e Tempo"
+                      )}
+                    </Button>
+
+                    {/* Route Result */}
+                    {routeEstimate && (
+                      <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-primary">{routeEstimate.distance_km} km</p>
+                          <p className="text-sm text-muted-foreground">Distância estimada</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-primary">{formatDuration(routeEstimate.duration_minutes)}</p>
+                          <p className="text-sm text-muted-foreground">Tempo estimado</p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações</Label>
