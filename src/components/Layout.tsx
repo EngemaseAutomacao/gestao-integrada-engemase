@@ -121,7 +121,7 @@ export default function Layout({ children }: LayoutProps) {
     '/veiculos': { title: 'Veículos', icon: Car },
     '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
     '/veiculos/saida': { title: 'Registrar Saída', icon: Car },
-    '/veiculos/chegada': { title: 'Registrar Chegada', icon: Car },
+    '/veiculos/chegada': { title: 'Registrar Devolução', icon: Car },
     '/veiculos/historico': { title: 'Meu Histórico', icon: History },
     '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
     '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
