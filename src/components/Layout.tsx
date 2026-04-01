@@ -86,6 +86,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const veiculosMenuItems = [
     { title: "Dashboard", url: "/veiculos", icon: Car },
+    { title: "Registrar Saída", url: "/veiculos/saida", icon: Car },
+    { title: "Registrar Devolução", url: "/veiculos/chegada", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
