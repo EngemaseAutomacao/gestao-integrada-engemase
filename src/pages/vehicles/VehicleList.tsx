@@ -232,26 +232,9 @@ export default function VehicleList() {
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    {vehicle.image_url ? (
-                      vehicle.image_url.startsWith("http") ? (
-                        <img 
-                          src={vehicle.image_url} 
-                          alt={vehicle.name}
-                          className="w-12 h-12 rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => setEnlargedImage(vehicle.image_url)}
-                        />
-                      ) : (
-                        <SignedImage
-                          storagePath={vehicle.image_url}
-                          alt={vehicle.name}
-                          className="w-12 h-12 rounded-lg object-cover"
-                        />
-                      )
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                        <Car className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
+                    <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                      <Car className="w-6 h-6 text-muted-foreground" />
+                    </div>
                     <div>
                       <CardTitle className="text-lg">{vehicle.name}</CardTitle>
                       <CardDescription className="font-mono">{vehicle.plate}</CardDescription>
