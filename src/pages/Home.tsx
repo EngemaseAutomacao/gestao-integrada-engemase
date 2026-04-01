@@ -191,7 +191,7 @@ function SummaryCards({ userId }: { userId: string }) {
   ];
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-lg w-full">
+    <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
       {items.map((item) => (
         <div
           key={item.label}
