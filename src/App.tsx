@@ -48,6 +48,7 @@ import Changelog from "./pages/Changelog";
 import MobileNavSettings from "./pages/MobileNavSettings";
 import UpdatePrompt from "./components/UpdatePrompt";
 import { ChangelogModal } from "./components/ChangelogModal";
+import { OnboardingTutorial } from "./components/OnboardingTutorial";
 
 const queryClient = new QueryClient();
 
