@@ -74,6 +74,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const ferramentasMenuItems = [
     { title: "Dashboard", url: "/ferramentas", icon: Wrench },
+    { title: "Registrar Retirada", url: "/ferramentas/retirada", icon: Wrench },
+    { title: "Registrar Devolução", url: "/ferramentas/devolucao", icon: Wrench },
     { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
     ...(isAdmin ? [
@@ -86,6 +88,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const veiculosMenuItems = [
     { title: "Dashboard", url: "/veiculos", icon: Car },
+    { title: "Registrar Saída", url: "/veiculos/saida", icon: Car },
+    { title: "Registrar Devolução", url: "/veiculos/chegada", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
@@ -119,7 +123,7 @@ export default function Layout({ children }: LayoutProps) {
     '/veiculos': { title: 'Veículos', icon: Car },
     '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
     '/veiculos/saida': { title: 'Registrar Saída', icon: Car },
-    '/veiculos/chegada': { title: 'Registrar Chegada', icon: Car },
+    '/veiculos/chegada': { title: 'Registrar Devolução', icon: Car },
     '/veiculos/historico': { title: 'Meu Histórico', icon: History },
     '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
     '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },

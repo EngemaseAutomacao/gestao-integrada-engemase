@@ -121,7 +121,7 @@ export default function VehicleDashboard() {
                       className="text-xs gap-1 shrink-0"
                       onClick={() => navigate(`/veiculos/chegada`)}
                     >
-                      Devolver <ArrowRight className="w-3 h-3" />
+                      Devolução <ArrowRight className="w-3 h-3" />
                     </Button>
                   </div>
                 ))}

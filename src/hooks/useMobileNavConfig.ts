@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Home, Wrench, Car, Clock, Shield, Settings, BarChart3, Package, History, Bell, Fuel } from "lucide-react";
+import { Home, Wrench, Car, Clock, Shield, Settings, BarChart3, Package, History, Bell, Fuel, ArrowRightLeft } from "lucide-react";
 
 export interface NavTabItem {
   id: string;
@@ -15,6 +15,8 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
   { id: "ferramentas-lista", label: "Lista Ferramentas", icon: Package, path: "/ferramentas/lista" },
   { id: "veiculos", label: "Veículos", icon: Car, path: "/veiculos" },
   { id: "veiculos-lista", label: "Lista Veículos", icon: Package, path: "/veiculos/lista" },
+  { id: "veiculos-saida", label: "Saída Veículo", icon: ArrowRightLeft, path: "/veiculos/saida" },
+  { id: "veiculos-devolucao", label: "Devolução Veíc.", icon: ArrowRightLeft, path: "/veiculos/chegada" },
   { id: "combustivel", label: "Combustível", icon: Fuel, path: "/veiculos/combustivel" },
   { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto" },
   { id: "historico-ferramentas", label: "Histórico Ferr.", icon: History, path: "/ferramentas/historico" },
