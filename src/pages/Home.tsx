@@ -262,15 +262,6 @@ export default function Home() {
 
         {isAdmin && (
           <ModuleCard
-            title="Obras"
-            description="Gerenciar canteiros e obras"
-            icon={<Building2 className="w-6 h-6 text-primary" />}
-            to="/admin/construction-sites"
-          />
-        )}
-
-        {isAdmin && (
-          <ModuleCard
             title="Administração"
             description="Usuários, relatórios e configurações"
             icon={<Shield className="w-6 h-6 text-orange-500" />}
