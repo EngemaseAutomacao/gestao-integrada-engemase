@@ -31,26 +31,28 @@ export function MobileBottomNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-card border-t safe-area-bottom">
-      <div className="flex items-center h-14 px-1 overflow-x-auto scrollbar-hide">
-        <div className="flex items-center min-w-0" style={{ minWidth: 'max-content' }}>
-        {tabs.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={cn(
-              "flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground transition-colors px-3 min-w-[60px]",
-              isActive(item.path) && "text-primary"
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium leading-tight whitespace-nowrap">{item.label}</span>
-          </NavLink>
-        ))}
-
+      <div className="flex items-center h-14">
+        <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center h-14" style={{ minWidth: 'max-content' }}>
+            {tabs.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground transition-colors min-w-[60px]",
+                  tabs.length <= 4 ? "flex-1" : "px-3",
+                  isActive(item.path) && "text-primary"
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium leading-tight whitespace-nowrap">{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
         </div>
 
-        {/* More menu button */}
-        <div className="shrink-0 border-l">
+        {/* More menu button - always fixed on right */}
+        <div className="shrink-0 border-l bg-card">
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
             <button className="flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground px-3 min-w-[60px]">
