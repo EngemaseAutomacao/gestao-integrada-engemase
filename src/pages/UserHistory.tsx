@@ -11,6 +11,7 @@ import { History as HistoryIcon, Search, X } from "lucide-react";
 import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { HistorySkeleton } from "@/components/PageSkeleton";
+import { UserUsageChart } from "@/components/UserUsageChart";
 
 interface HistoryEntry {
   id: string;
