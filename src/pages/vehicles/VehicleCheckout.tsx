@@ -24,6 +24,7 @@ export default function VehicleCheckout() {
   
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [destination, setDestination] = useState("");
+  const [customDestination, setCustomDestination] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
