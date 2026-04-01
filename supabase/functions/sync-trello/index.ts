@@ -64,13 +64,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Deactivate sites no longer in Trello "Fazendo" (only auto-managed ones without created_by)
+    // Deactivate sites no longer in Trello "Fazendo"
     const trelloNamesLower = new Set(trelloNames.map(n => n.toLowerCase()));
     for (const site of (existing || [])) {
       if (site.active && !trelloNamesLower.has(site.name.toLowerCase())) {
-        // Only deactivate if it was likely auto-created (we don't touch manually created ones)
-        // For safety, deactivate all that aren't in Trello anymore
-        // Admin can always reactivate manually
+        const { error } = await supabase.from("construction_sites").update({ active: false }).eq("id", site.id);
+        if (!error) deactivated++;
       }
     }
 
