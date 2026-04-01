@@ -365,7 +365,7 @@ export default function VehicleCheckout() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="destination">Obra de Destino</Label>
+                <Label htmlFor="destination">Obra de Destino *</Label>
                 <Select value={destination} onValueChange={setDestination}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione a obra de destino" />
