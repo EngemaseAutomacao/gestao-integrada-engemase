@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        summary: { total_trello_cards: trelloNames.length, added, reactivated },
+        summary: { total_trello_cards: trelloNames.length, added, reactivated, deactivated },
         sites: trelloNames,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
