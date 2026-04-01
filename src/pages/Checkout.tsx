@@ -57,7 +57,7 @@ export default function Checkout() {
         .from("construction_sites")
         .select("id, name")
         .eq("active", true)
-        .order("name");
+        .order("name", { ascending: false });
       if (error) throw error;
       return data;
     },
