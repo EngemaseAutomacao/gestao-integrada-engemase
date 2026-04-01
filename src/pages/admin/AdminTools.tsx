@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search, RefreshCw } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SignedImage } from "@/components/SignedImage";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
