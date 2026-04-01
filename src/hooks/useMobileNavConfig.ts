@@ -26,7 +26,7 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
 
 const DEFAULT_TAB_IDS = ["home", "ferramentas", "veiculos", "ponto"];
 const STORAGE_KEY = "mobile-tab-config";
-const MAX_TABS = 4;
+const MAX_TABS = 8;
 
 export function useMobileNavConfig() {
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {

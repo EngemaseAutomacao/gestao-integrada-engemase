@@ -47,10 +47,13 @@ export function MobileBottomNav() {
           </NavLink>
         ))}
 
+        </div>
+
         {/* More menu button */}
+        <div className="shrink-0 border-l">
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
-            <button className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-muted-foreground">
+            <button className="flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground px-3 min-w-[60px]">
               <Menu className="w-5 h-5" />
               <span className="text-[10px] font-medium">Mais</span>
             </button>
