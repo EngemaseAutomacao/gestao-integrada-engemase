@@ -106,6 +106,7 @@ export function MobileBottomNav() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
 
       <LogoutConfirmDialog 
