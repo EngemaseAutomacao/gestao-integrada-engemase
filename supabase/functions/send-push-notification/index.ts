@@ -360,6 +360,14 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Skip empty notifications (no body/message)
+    if (!msgBody || msgBody.trim() === '') {
+      return new Response(JSON.stringify({ error: 'body is required and cannot be empty' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const { data: notification, error: notifError } = await supabase
       .from('notifications')
       .insert({
