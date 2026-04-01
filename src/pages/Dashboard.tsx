@@ -17,7 +17,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { UserUsageChart } from "@/components/UserUsageChart";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 
 interface Tool {
@@ -272,8 +271,6 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Usage Chart */}
-        {profile?.id && <UserUsageChart userId={profile.id} />}
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">

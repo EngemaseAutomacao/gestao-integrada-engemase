@@ -31,25 +31,29 @@ export function MobileBottomNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-card border-t safe-area-bottom">
-      <div className="flex items-center justify-around h-14 px-1">
+      <div className="flex items-center h-14 px-1 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center min-w-0" style={{ minWidth: 'max-content' }}>
         {tabs.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-muted-foreground transition-colors",
+              "flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground transition-colors px-3 min-w-[60px]",
               isActive(item.path) && "text-primary"
             )}
           >
             <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium leading-tight">{item.label}</span>
+            <span className="text-[10px] font-medium leading-tight whitespace-nowrap">{item.label}</span>
           </NavLink>
         ))}
 
+        </div>
+
         {/* More menu button */}
+        <div className="shrink-0 border-l">
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
-            <button className="flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-muted-foreground">
+            <button className="flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground px-3 min-w-[60px]">
               <Menu className="w-5 h-5" />
               <span className="text-[10px] font-medium">Mais</span>
             </button>
@@ -102,6 +106,7 @@ export function MobileBottomNav() {
             </div>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
 
       <LogoutConfirmDialog 
