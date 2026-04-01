@@ -11,11 +11,25 @@ interface AddressAutocompleteProps {
   disabled?: boolean;
 }
 
-interface Suggestion {
+interface NominatimResult {
   display_name: string;
   lat: string;
   lon: string;
 }
+
+interface Suggestion {
+  display_name: string;
+  clean_name: string;
+  lat: string;
+  lon: string;
+}
+
+const cleanDisplayName = (name: string): string => {
+  return name
+    .split(", ")
+    .filter(part => !part.match(/Região Geográfica/i))
+    .join(", ");
+};
 
 export default function AddressAutocomplete({
   value,
