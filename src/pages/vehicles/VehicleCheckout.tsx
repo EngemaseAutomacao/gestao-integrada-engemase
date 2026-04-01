@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowRightCircle, Car, Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ export default function VehicleCheckout() {
   
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [destination, setDestination] = useState("");
+  const [customDestination, setCustomDestination] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -58,6 +60,19 @@ export default function VehicleCheckout() {
     }
   });
 
+  const { data: constructionSites } = useQuery({
+    queryKey: ["construction-sites-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("construction_sites")
+        .select("id, name")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const uploadPhoto = async (file: File, prefix: string) => {
     const fileExt = file.name.split(".").pop();
     const seq = String(Date.now()).slice(-6);
@@ -82,12 +97,14 @@ export default function VehicleCheckout() {
         uploadPhoto(photos.dashboard!, "dashboard_out"),
       ]);
 
+      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+
       const { error } = await supabase.from("vehicle_checkouts").insert({
         vehicle_id: selectedVehicle,
         user_id: user.id,
         checked_out_by: user.id,
         km_checkout: 0,
-        destination,
+        destination: finalDestination,
         notes,
         status: "checked_out",
         photo_front_checkout: frontUrl,
@@ -199,13 +216,26 @@ export default function VehicleCheckout() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="destination">Destino</Label>
-                <Input
-                  id="destination"
-                  placeholder="Ex: Obra Centro, Cliente ABC"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                />
+                <Label htmlFor="destination">Obra de Destino</Label>
+                <Select value={destination} onValueChange={setDestination}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a obra de destino" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {constructionSites?.map((site) => (
+                      <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
+                    ))}
+                    <SelectItem value="__custom__">Outra (digitar)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {destination === "__custom__" && (
+                  <Input
+                    placeholder="Digite o destino..."
+                    value={customDestination}
+                    onChange={(e) => setCustomDestination(e.target.value)}
+                    className="mt-2"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">

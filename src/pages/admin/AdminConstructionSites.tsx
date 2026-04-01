@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, MapPin, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, MapPin, Loader2, RefreshCw } from "lucide-react";
 
 interface ConstructionSite {
   id: string;
@@ -97,8 +97,21 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("sync-trello");
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erro na sincronização");
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["construction-sites"] });
+      toast.success(`Sincronização concluída! ${data.summary.added} novas, ${data.summary.reactivated} reativadas.`);
+    },
+    onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
+  });
+
   const resetForm = () => {
-    setName("");
     setAddress("");
     setEditingSite(null);
     setDialogOpen(false);
@@ -113,18 +126,28 @@ export default function AdminConstructionSites() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="hidden sm:block">
           <h2 className="text-3xl font-bold tracking-tight">Gestão de Obras</h2>
           <p className="text-muted-foreground">Cadastre e gerencie obras/canteiros</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Nova Obra
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="gap-2"
+            disabled={syncMutation.isPending}
+            onClick={() => syncMutation.mutate()}
+          >
+            <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+            Sincronizar Trello
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Nova Obra
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editingSite ? "Editar Obra" : "Nova Obra"}</DialogTitle>
@@ -149,6 +172,7 @@ export default function AdminConstructionSites() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card>
