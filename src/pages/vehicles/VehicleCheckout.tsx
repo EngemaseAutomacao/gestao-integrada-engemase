@@ -97,12 +97,14 @@ export default function VehicleCheckout() {
         uploadPhoto(photos.dashboard!, "dashboard_out"),
       ]);
 
+      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+
       const { error } = await supabase.from("vehicle_checkouts").insert({
         vehicle_id: selectedVehicle,
         user_id: user.id,
         checked_out_by: user.id,
         km_checkout: 0,
-        destination,
+        destination: finalDestination,
         notes,
         status: "checked_out",
         photo_front_checkout: frontUrl,
