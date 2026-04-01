@@ -15,6 +15,7 @@ import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 interface RouteEstimate {
   distance_km: number;
@@ -59,12 +60,14 @@ export default function VehicleCheckout() {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 15000,
+          timeout: 30000,
+          maximumAge: 0,
         });
       });
 
-      const { latitude, longitude } = position.coords;
+      const { latitude, longitude, accuracy } = position.coords;
       setOriginCoords({ lat: latitude, lon: longitude });
+      console.log(`GPS accuracy: ${accuracy}m`);
 
       // Reverse geocode
       const res = await fetch(
@@ -83,13 +86,36 @@ export default function VehicleCheckout() {
   };
 
   const handleCalculateRoute = async () => {
-    if (!originCoords || !destinationAddress.trim()) {
-      toast.error("Obtenha sua localização e informe o destino primeiro.");
+    if (!destinationAddress.trim()) {
+      toast.error("Informe o destino primeiro.");
+      return;
+    }
+    if (!originCoords && !originAddress.trim()) {
+      toast.error("Informe a origem ou use o GPS.");
       return;
     }
 
     setIsCalculatingRoute(true);
     try {
+      // Geocode origin if no coords
+      let startLat = originCoords?.lat;
+      let startLon = originCoords?.lon;
+
+      if (!startLat || !startLon) {
+        const originGeoRes = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(originAddress)}&format=json&limit=1&countrycodes=br`,
+          { headers: { "Accept-Language": "pt-BR" } }
+        );
+        const originGeoData = await originGeoRes.json();
+        if (!originGeoData.length) {
+          toast.error("Origem não encontrada. Tente um endereço mais específico.");
+          return;
+        }
+        startLat = parseFloat(originGeoData[0].lat);
+        startLon = parseFloat(originGeoData[0].lon);
+        setOriginCoords({ lat: startLat, lon: startLon });
+      }
+
       // Geocode destination
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinationAddress)}&format=json&limit=1&countrycodes=br`,
@@ -106,7 +132,7 @@ export default function VehicleCheckout() {
 
       // OSRM route
       const routeRes = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${originCoords.lon},${originCoords.lat};${destLon},${destLat}?overview=false`
+        `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${destLon},${destLat}?overview=false`
       );
       const routeData = await routeRes.json();
 
@@ -380,40 +406,57 @@ export default function VehicleCheckout() {
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
-                        Localização Atual (Origem)
+                        Localização de Origem
                       </Label>
                       <div className="flex gap-2">
-                        <Input
-                          value={originAddress}
-                          readOnly
-                          placeholder="Clique para obter sua localização..."
-                          className="flex-1 bg-muted/50"
-                        />
+                        <div className="flex-1">
+                          <AddressAutocomplete
+                            value={originAddress}
+                            onChange={(val) => {
+                              setOriginAddress(val);
+                              setRouteEstimate(null);
+                            }}
+                            onSelect={(addr, lat, lon) => {
+                              setOriginAddress(addr);
+                              setOriginCoords({ lat, lon });
+                              setRouteEstimate(null);
+                            }}
+                            placeholder="Digite ou use o GPS para localização..."
+                          />
+                        </div>
                         <Button
                           type="button"
                           variant="outline"
                           onClick={handleGetLocation}
                           disabled={isLoadingLocation}
+                          title="Usar GPS"
                         >
                           {isLoadingLocation ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            <MapPin className="w-4 h-4" />
+                            <Navigation className="w-4 h-4" />
                           )}
                         </Button>
                       </div>
+                      <p className="text-xs text-muted-foreground">
+                        Use o botão GPS ou digite o endereço para buscar
+                      </p>
                     </div>
 
                     {/* Destination Address */}
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
-                        <Navigation className="w-4 h-4 text-primary" />
+                        <MapPin className="w-4 h-4 text-primary" />
                         Endereço de Destino
                       </Label>
-                      <Input
+                      <AddressAutocomplete
                         value={destinationAddress}
-                        onChange={(e) => {
-                          setDestinationAddress(e.target.value);
+                        onChange={(val) => {
+                          setDestinationAddress(val);
+                          setRouteEstimate(null);
+                        }}
+                        onSelect={(addr) => {
+                          setDestinationAddress(addr);
                           setRouteEstimate(null);
                         }}
                         placeholder="Ex: São Paulo, SP ou Rua X, Cidade..."
@@ -425,7 +468,7 @@ export default function VehicleCheckout() {
                       type="button"
                       variant="secondary"
                       onClick={handleCalculateRoute}
-                      disabled={isCalculatingRoute || !originCoords || !destinationAddress.trim()}
+                      disabled={isCalculatingRoute || (!originCoords && !originAddress.trim()) || !destinationAddress.trim()}
                       className="w-full"
                     >
                       {isCalculatingRoute ? (
@@ -442,12 +485,12 @@ export default function VehicleCheckout() {
                     {routeEstimate && (
                       <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-primary">{routeEstimate.distance_km} km</p>
-                          <p className="text-sm text-muted-foreground">Distância estimada</p>
+                          <p className="text-2xl font-bold text-primary">≈ {routeEstimate.distance_km} km</p>
+                          <p className="text-sm text-muted-foreground">Distância aproximada</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-primary">{formatDuration(routeEstimate.duration_minutes)}</p>
-                          <p className="text-sm text-muted-foreground">Tempo estimado</p>
+                          <p className="text-2xl font-bold text-primary">≈ {formatDuration(routeEstimate.duration_minutes)}</p>
+                          <p className="text-sm text-muted-foreground">Tempo aproximado</p>
                         </div>
                       </div>
                     )}
