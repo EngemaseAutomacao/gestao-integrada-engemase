@@ -119,7 +119,8 @@ export default function UserHistory() {
         <p className="text-muted-foreground">Histórico de retiradas e devoluções</p>
       </div>
 
-      <Card className="shrink-0">
+      {profile?.id && <UserUsageChart userId={profile.id} />}
+
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
           <CardDescription>Filtre suas movimentações</CardDescription>
