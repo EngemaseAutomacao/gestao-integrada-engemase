@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.10.6",
+    date: "2026-04-01",
+    title: "Sincronização inteligente e melhorias visuais",
+    description: "Obras removidas do Trello são desativadas automaticamente e a interface ficou mais organizada.",
+    changes: [
+      { type: "feature", text: "Obras removidas da coluna 'Fazendo' no Trello são desativadas automaticamente" },
+      { type: "improvement", text: "Barra de pesquisa centralizada no cabeçalho do desktop" },
+      { type: "improvement", text: "Resumo de ferramentas, veículos e ponto centralizado na tela inicial" },
+    ],
+  },
+  {
     version: "1.10.5",
     date: "2026-04-01",
     title: "Integração Trello e ordenação de obras",
