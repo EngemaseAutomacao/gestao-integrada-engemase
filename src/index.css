@@ -78,54 +78,54 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 215 28% 17%;
-    --foreground: 0 0% 95%;
+    --background: 220 20% 10%;
+    --foreground: 210 20% 92%;
 
-    --card: 215 28% 17%;
-    --card-foreground: 0 0% 95%;
+    --card: 220 18% 13%;
+    --card-foreground: 210 20% 92%;
 
-    --popover: 215 28% 17%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 220 18% 15%;
+    --popover-foreground: 210 20% 92%;
 
-    --primary: 211 100% 50%;
+    --primary: 211 100% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 211 100% 45%;
-    --primary-light: 211 100% 20%;
+    --primary-hover: 211 100% 48%;
+    --primary-light: 211 60% 18%;
 
-    --secondary: 215 25% 25%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 220 16% 20%;
+    --secondary-foreground: 210 20% 88%;
 
-    --muted: 215 25% 25%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 14% 18%;
+    --muted-foreground: 215 15% 58%;
 
-    --accent: 211 100% 50%;
+    --accent: 211 80% 55%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
+    --success: 142 60% 42%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 85% 52%;
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 63% 31%;
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 25%;
-    --input: 215 25% 25%;
-    --ring: 211 100% 50%;
+    --border: 220 14% 22%;
+    --input: 220 14% 20%;
+    --ring: 211 100% 55%;
 
-    --sidebar-background: 215 28% 17%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 211 100% 50%;
+    --sidebar-background: 220 20% 10%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 211 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 25% 25%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 215 25% 25%;
-    --sidebar-ring: 211 100% 50%;
+    --sidebar-accent: 220 16% 18%;
+    --sidebar-accent-foreground: 210 20% 88%;
+    --sidebar-border: 220 14% 22%;
+    --sidebar-ring: 211 100% 55%;
 
-    --badge-employee: 211 100% 50%;
+    --badge-employee: 211 90% 55%;
     --badge-employee-foreground: 0 0% 100%;
-    --badge-thirdparty: 38 92% 50%;
+    --badge-thirdparty: 38 85% 52%;
     --badge-thirdparty-foreground: 0 0% 100%;
   }
 }
