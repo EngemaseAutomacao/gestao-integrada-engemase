@@ -63,6 +63,7 @@ const App = () => (
           <OfflineProvider>
             <AuthProvider>
               <ChangelogModal />
+              <OnboardingTutorial />
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/register" element={<Register />} />
