@@ -74,6 +74,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const ferramentasMenuItems = [
     { title: "Dashboard", url: "/ferramentas", icon: Wrench },
+    { title: "Registrar Retirada", url: "/ferramentas/retirada", icon: Wrench },
+    { title: "Registrar Devolução", url: "/ferramentas/devolucao", icon: Wrench },
     { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
     ...(isAdmin ? [
