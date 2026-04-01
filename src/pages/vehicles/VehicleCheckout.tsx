@@ -468,7 +468,7 @@ export default function VehicleCheckout() {
                       type="button"
                       variant="secondary"
                       onClick={handleCalculateRoute}
-                      disabled={isCalculatingRoute || !originCoords || !destinationAddress.trim()}
+                      disabled={isCalculatingRoute || (!originCoords && !originAddress.trim()) || !destinationAddress.trim()}
                       className="w-full"
                     >
                       {isCalculatingRoute ? (
