@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Home, Wrench, Car, Clock, Shield, Settings, BarChart3, Package, History, Bell, Fuel } from "lucide-react";
 
 export interface NavTabItem {
@@ -26,23 +26,37 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
 
 const DEFAULT_TAB_IDS = ["home", "ferramentas", "veiculos", "ponto"];
 const STORAGE_KEY = "mobile-tab-config";
+const SYNC_EVENT = "mobile-tab-config-changed";
 const MAX_TABS = 8;
 
+function readFromStorage(): string[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return DEFAULT_TAB_IDS;
+}
+
 export function useMobileNavConfig() {
-  const [selectedIds, setSelectedIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch {}
-    return DEFAULT_TAB_IDS;
-  });
+  const [selectedIds, setSelectedIds] = useState<string[]>(readFromStorage);
+
+  // Listen for changes from other instances of this hook
+  useEffect(() => {
+    const handler = () => {
+      setSelectedIds(readFromStorage());
+    };
+    window.addEventListener(SYNC_EVENT, handler);
+    return () => window.removeEventListener(SYNC_EVENT, handler);
+  }, []);
 
   const save = useCallback((ids: string[]) => {
     setSelectedIds(ids);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+    // Notify other hook instances
+    window.dispatchEvent(new Event(SYNC_EVENT));
   }, []);
 
   const reset = useCallback(() => {
