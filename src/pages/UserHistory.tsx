@@ -121,6 +121,7 @@ export default function UserHistory() {
 
       {profile?.id && <UserUsageChart userId={profile.id} />}
 
+      <Card className="shrink-0">
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
           <CardDescription>Filtre suas movimentações</CardDescription>
