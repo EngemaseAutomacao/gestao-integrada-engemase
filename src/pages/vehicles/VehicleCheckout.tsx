@@ -60,6 +60,19 @@ export default function VehicleCheckout() {
     }
   });
 
+  const { data: constructionSites } = useQuery({
+    queryKey: ["construction-sites-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("construction_sites")
+        .select("id, name")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const uploadPhoto = async (file: File, prefix: string) => {
     const fileExt = file.name.split(".").pop();
     const seq = String(Date.now()).slice(-6);
