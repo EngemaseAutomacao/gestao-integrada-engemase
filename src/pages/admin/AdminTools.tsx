@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search } from "lucide-react";
+import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search, RefreshCw } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { SignedImage } from "@/components/SignedImage";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
@@ -50,6 +50,22 @@ export default function AdminTools() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingTool, setDeletingTool] = useState<Tool | null>(null);
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncGoogleSheets = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("sync-google-sheets");
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erro na sincronização");
+      toast.success(`Sincronização concluída! ${data.summary.added} adicionadas, ${data.summary.updated} atualizadas, ${data.summary.deleted} removidas.`);
+      loadTools();
+    } catch (error: any) {
+      toast.error(`Erro ao sincronizar: ${error.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   useEffect(() => {
     loadTools();
@@ -275,6 +291,11 @@ export default function AdminTools() {
           <p className="text-sm text-muted-foreground">Administre o inventário de ferramentas</p>
         </div>
         
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleSyncGoogleSheets} disabled={syncing}>
+            <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+            Sincronizar Planilha
+          </Button>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) resetForm();
@@ -416,6 +437,7 @@ export default function AdminTools() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">

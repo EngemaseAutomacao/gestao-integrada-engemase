@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.sync-user]
 verify_jwt = false
+
+[functions.sync-google-sheets]
+verify_jwt = false
