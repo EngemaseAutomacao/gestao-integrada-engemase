@@ -211,7 +211,6 @@ export default function Dashboard() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {checkout.construction_site && <span>{checkout.construction_site}</span>}
                           {checkout.estimated_return_date && (
                             <span className={isOverdue ? "text-destructive font-medium" : ""}>
                               {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}

@@ -182,6 +182,11 @@ self.addEventListener('push', (event) => {
     }
   }
 
+  // Skip empty notifications
+  if (!data.body || data.body.trim() === '') {
+    return;
+  }
+
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
