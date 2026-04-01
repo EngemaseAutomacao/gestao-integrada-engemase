@@ -82,7 +82,7 @@ export default function AddressAutocomplete({
     setShowSuggestions(false);
     setSuggestions([]);
     onSelect?.(
-      suggestion.display_name,
+      suggestion.clean_name,
       parseFloat(suggestion.lat),
       parseFloat(suggestion.lon)
     );
