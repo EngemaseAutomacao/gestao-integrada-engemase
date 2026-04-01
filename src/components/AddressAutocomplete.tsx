@@ -57,9 +57,13 @@ export default function AddressAutocomplete({
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=br&addressdetails=1`,
         { headers: { "Accept-Language": "pt-BR" } }
       );
-      const data: Suggestion[] = await res.json();
-      setSuggestions(data);
-      setShowSuggestions(data.length > 0);
+      const data: NominatimResult[] = await res.json();
+      const cleaned: Suggestion[] = data.map(d => ({
+        ...d,
+        clean_name: cleanDisplayName(d.display_name),
+      }));
+      setSuggestions(cleaned);
+      setShowSuggestions(cleaned.length > 0);
     } catch {
       setSuggestions([]);
     } finally {
