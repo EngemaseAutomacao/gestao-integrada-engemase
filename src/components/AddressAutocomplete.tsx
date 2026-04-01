@@ -78,7 +78,7 @@ export default function AddressAutocomplete({
   };
 
   const handleSelect = (suggestion: Suggestion) => {
-    onChange(suggestion.display_name);
+    onChange(suggestion.clean_name);
     setShowSuggestions(false);
     setSuggestions([]);
     onSelect?.(
