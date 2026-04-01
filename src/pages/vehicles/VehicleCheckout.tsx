@@ -64,8 +64,9 @@ export default function VehicleCheckout() {
         });
       });
 
-      const { latitude, longitude } = position.coords;
+      const { latitude, longitude, accuracy } = position.coords;
       setOriginCoords({ lat: latitude, lon: longitude });
+      console.log(`GPS accuracy: ${accuracy}m`);
 
       // Reverse geocode
       const res = await fetch(
