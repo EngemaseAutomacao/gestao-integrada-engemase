@@ -86,8 +86,12 @@ export default function VehicleCheckout() {
   };
 
   const handleCalculateRoute = async () => {
-    if (!originCoords || !destinationAddress.trim()) {
-      toast.error("Obtenha sua localização e informe o destino primeiro.");
+    if (!destinationAddress.trim()) {
+      toast.error("Informe o destino primeiro.");
+      return;
+    }
+    if (!originCoords && !originAddress.trim()) {
+      toast.error("Informe a origem ou use o GPS.");
       return;
     }
 
