@@ -97,7 +97,21 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const resetForm = () => {
+  const syncMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("sync-trello");
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erro na sincronização");
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["construction-sites"] });
+      toast.success(`Sincronização concluída! ${data.summary.added} novas, ${data.summary.reactivated} reativadas.`);
+    },
+    onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
+  });
+
+
     setName("");
     setAddress("");
     setEditingSite(null);
