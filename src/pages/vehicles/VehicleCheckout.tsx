@@ -75,7 +75,8 @@ export default function VehicleCheckout() {
         { headers: { "Accept-Language": "pt-BR" } }
       );
       const data = await res.json();
-      const addr = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      const rawAddr = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      const addr = rawAddr.split(", ").filter((p: string) => !p.match(/Região Geográfica/i)).join(", ");
       setOriginAddress(addr);
       toast.success("Localização obtida!");
     } catch {
