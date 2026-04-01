@@ -387,6 +387,20 @@ export default function VehicleCheckout() {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="estimatedReturnTime" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Hora Estimada de Retorno *
+                </Label>
+                <Input
+                  id="estimatedReturnTime"
+                  type="time"
+                  value={estimatedReturnTime}
+                  onChange={(e) => setEstimatedReturnTime(e.target.value)}
+                  required
+                />
+              </div>
+
               {/* Outside City Toggle */}
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
