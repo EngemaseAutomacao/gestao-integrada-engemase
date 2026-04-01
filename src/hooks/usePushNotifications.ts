@@ -123,7 +123,14 @@ export function usePushNotifications() {
       const p256dh = subscriptionJson.keys?.p256dh || "";
       const auth = subscriptionJson.keys?.auth || "";
 
-      // Store in database
+      // Remove old subscriptions for this user (keep only current endpoint)
+      await supabase
+        .from("push_subscriptions")
+        .delete()
+        .eq("user_id", user.id)
+        .neq("endpoint", subscription.endpoint);
+
+      // Store/update current subscription
       const { error } = await supabase
         .from("push_subscriptions")
         .upsert({
