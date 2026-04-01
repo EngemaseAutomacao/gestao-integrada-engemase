@@ -218,7 +218,7 @@ export default function VehicleDashboard() {
                               className="text-xs sm:text-sm"
                               onClick={() => navigate("/veiculos/chegada")}
                             >
-                              Devolver
+                              Registrar Devolução
                             </Button>
                           ) : (
                             <Button
@@ -227,7 +227,7 @@ export default function VehicleDashboard() {
                               onClick={() => navigate("/veiculos/saida")}
                               disabled={!isAvailable}
                             >
-                              Retirar
+                              Registrar Saída
                             </Button>
                           )}
                         </div>
