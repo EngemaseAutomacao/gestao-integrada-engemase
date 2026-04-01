@@ -311,7 +311,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Desktop: Centered search bar */}
         {!isMobile && (
-          <div className="absolute left-1/2 -translate-x-1/2">
+          <div className="absolute left-1/2 -translate-x-1/2 z-30">
             <GlobalSearch />
           </div>
         )}
