@@ -38,12 +38,12 @@ export function MobileBottomNav() {
             key={item.path}
             to={item.path}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-muted-foreground transition-colors",
+              "flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground transition-colors px-3 min-w-[60px]",
               isActive(item.path) && "text-primary"
             )}
           >
             <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium leading-tight">{item.label}</span>
+            <span className="text-[10px] font-medium leading-tight whitespace-nowrap">{item.label}</span>
           </NavLink>
         ))}
 
