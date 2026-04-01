@@ -462,12 +462,12 @@ export default function VehicleCheckout() {
                     {routeEstimate && (
                       <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-primary">{routeEstimate.distance_km} km</p>
-                          <p className="text-sm text-muted-foreground">Distância estimada</p>
+                          <p className="text-2xl font-bold text-primary">≈ {routeEstimate.distance_km} km</p>
+                          <p className="text-sm text-muted-foreground">Distância aproximada</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-primary">{formatDuration(routeEstimate.duration_minutes)}</p>
-                          <p className="text-sm text-muted-foreground">Tempo estimado</p>
+                          <p className="text-2xl font-bold text-primary">≈ {formatDuration(routeEstimate.duration_minutes)}</p>
+                          <p className="text-sm text-muted-foreground">Tempo aproximado</p>
                         </div>
                       </div>
                     )}
