@@ -31,7 +31,8 @@ export function MobileBottomNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-card border-t safe-area-bottom">
-      <div className="flex items-center justify-around h-14 px-1">
+      <div className="flex items-center h-14 px-1 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center min-w-0" style={{ minWidth: 'max-content' }}>
         {tabs.map((item) => (
           <NavLink
             key={item.path}
