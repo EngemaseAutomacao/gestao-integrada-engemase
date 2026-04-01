@@ -242,6 +242,7 @@ export default function VehicleCheckout() {
         photo_right_checkout: rightUrl,
         photo_dashboard_checkout: dashboardUrl,
         is_outside_city: isOutsideCity,
+        estimated_return_time: estimatedReturnTime,
       };
 
       if (isOutsideCity) {
