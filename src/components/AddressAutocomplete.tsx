@@ -131,7 +131,7 @@ export default function AddressAutocomplete({
               onClick={() => handleSelect(s)}
             >
               <MapPin className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-              <span className="text-foreground line-clamp-2">{s.display_name}</span>
+              <span className="text-foreground line-clamp-2">{s.clean_name}</span>
             </button>
           ))}
         </div>
