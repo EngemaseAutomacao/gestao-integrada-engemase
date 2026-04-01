@@ -205,6 +205,9 @@ export default function VehicleCheckout() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
+      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+      if (!finalDestination) throw new Error("Selecione a obra de destino");
+      if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
       if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
 
       const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
