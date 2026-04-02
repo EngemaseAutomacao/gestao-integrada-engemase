@@ -74,7 +74,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const ferramentasMenuItems = [
     { title: "Dashboard", url: "/ferramentas", icon: Wrench },
-    { title: "Registrar Retirada", url: "/ferramentas/retirada", icon: Wrench },
+    { title: "Registrar Saída", url: "/ferramentas/retirada", icon: Wrench },
     { title: "Registrar Devolução", url: "/ferramentas/devolucao", icon: Wrench },
     { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
@@ -113,8 +113,8 @@ export default function Layout({ children }: LayoutProps) {
   const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
     '/ferramentas': { title: 'Ferramentas', icon: Wrench },
     '/ferramentas/lista': { title: 'Catálogo', icon: Package },
-    '/ferramentas/retirada': { title: 'Retirada', icon: Wrench },
-    '/ferramentas/devolucao': { title: 'Devolução', icon: Wrench },
+    '/ferramentas/retirada': { title: 'Registrar Saída', icon: Wrench },
+    '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: Wrench },
     '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
     '/checkout': { title: 'Retirada', icon: Wrench },
     '/checkin': { title: 'Devolução', icon: Wrench },
