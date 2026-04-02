@@ -11,7 +11,6 @@ import { History as HistoryIcon, Search, X } from "lucide-react";
 import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { HistorySkeleton } from "@/components/PageSkeleton";
-import { UserUsageChart } from "@/components/UserUsageChart";
 
 interface HistoryEntry {
   id: string;
@@ -118,8 +117,6 @@ export default function UserHistory() {
         <h2 className="text-3xl font-bold tracking-tight">Meu Histórico</h2>
         <p className="text-muted-foreground">Histórico de retiradas e devoluções</p>
       </div>
-
-      {profile?.id && <UserUsageChart userId={profile.id} />}
 
       <Card className="shrink-0">
         <CardHeader>
