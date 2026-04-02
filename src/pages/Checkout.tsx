@@ -220,8 +220,8 @@ export default function Checkout() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Retirar Ferramenta</CardTitle>
-          <CardDescription>Registre a retirada de uma ferramenta</CardDescription>
+          <CardTitle>Registrar Saída</CardTitle>
+          <CardDescription>Registre a saída de uma ferramenta</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleCheckout} className="space-y-6">
