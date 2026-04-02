@@ -208,17 +208,6 @@ export default function VehicleCheckout() {
       const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
       if (!finalDestination) throw new Error("Selecione a obra de destino");
       if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
-      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
-
-      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
-        uploadPhoto(photos.front!, "front_out"),
-        uploadPhoto(photos.back!, "back_out"),
-        uploadPhoto(photos.left!, "left_out"),
-        uploadPhoto(photos.right!, "right_out"),
-        uploadPhoto(photos.dashboard!, "dashboard_out"),
-      ]);
-
-
 
       // Build estimated return date from time input
       const now = new Date();
@@ -236,11 +225,6 @@ export default function VehicleCheckout() {
         destination: finalDestination,
         notes,
         status: "checked_out",
-        photo_front_checkout: frontUrl,
-        photo_back_checkout: backUrl,
-        photo_left_checkout: leftUrl,
-        photo_right_checkout: rightUrl,
-        photo_dashboard_checkout: dashboardUrl,
         is_outside_city: isOutsideCity,
         estimated_return_time: estimatedReturnTime,
       };
@@ -253,6 +237,29 @@ export default function VehicleCheckout() {
         insertData.estimated_distance_km = routeEstimate?.distance_km;
         insertData.estimated_duration_minutes = routeEstimate?.duration_minutes;
       }
+
+      if (!isOnline) {
+        addPendingOperation("vehicle_checkout", insertData);
+        toast.success("Saída registrada (offline)! Fotos serão perdidas. Será sincronizada quando conectar.");
+        navigate("/veiculos");
+        return;
+      }
+
+      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
+
+      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
+        uploadPhoto(photos.front!, "front_out"),
+        uploadPhoto(photos.back!, "back_out"),
+        uploadPhoto(photos.left!, "left_out"),
+        uploadPhoto(photos.right!, "right_out"),
+        uploadPhoto(photos.dashboard!, "dashboard_out"),
+      ]);
+
+      insertData.photo_front_checkout = frontUrl;
+      insertData.photo_back_checkout = backUrl;
+      insertData.photo_left_checkout = leftUrl;
+      insertData.photo_right_checkout = rightUrl;
+      insertData.photo_dashboard_checkout = dashboardUrl;
 
       const { error } = await supabase.from("vehicle_checkouts").insert(insertData);
 
