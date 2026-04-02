@@ -476,7 +476,7 @@ export default function AdminTools() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Foto</TableHead>
+                      
                       <TableHead>Nome</TableHead>
                       <TableHead>TAG</TableHead>
                       <TableHead>Marca</TableHead>
