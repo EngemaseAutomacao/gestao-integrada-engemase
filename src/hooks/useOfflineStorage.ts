@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 
-interface CacheItem<T> {
-  data: T;
-  timestamp: number;
-}
-
 const CACHE_PREFIX = "engemase_cache_";
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export function useOfflineStorage<T>(key: string, initialData: T | null = null) {
   const [data, setData] = useState<T | null>(initialData);
@@ -22,15 +16,12 @@ export function useOfflineStorage<T>(key: string, initialData: T | null = null) 
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        const cacheItem: CacheItem<T> = JSON.parse(cached);
-        const now = Date.now();
-        
-        // Check if cache is still valid
-        if (now - cacheItem.timestamp < CACHE_DURATION) {
-          setData(cacheItem.data);
-        } else {
-          localStorage.removeItem(cacheKey);
-        }
+        const parsed = JSON.parse(cached);
+        // Support both old format (with timestamp wrapper) and new format (raw data)
+        const cachedData = parsed?.data !== undefined && parsed?.timestamp !== undefined
+          ? parsed.data
+          : parsed;
+        setData(cachedData);
       }
     } catch (error) {
       console.error("Error loading from cache:", error);
@@ -41,11 +32,7 @@ export function useOfflineStorage<T>(key: string, initialData: T | null = null) 
 
   const saveToCache = (newData: T) => {
     try {
-      const cacheItem: CacheItem<T> = {
-        data: newData,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem(cacheKey, JSON.stringify(cacheItem));
+      localStorage.setItem(cacheKey, JSON.stringify(newData));
       setData(newData);
     } catch (error) {
       console.error("Error saving to cache:", error);
