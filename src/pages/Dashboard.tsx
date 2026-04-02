@@ -294,8 +294,12 @@ export default function Dashboard() {
                 Nenhuma ferramenta encontrada
               </p>
             ) : (
-              filteredTools.map((tool) => {
-                const userHasTool = pendingCheckouts?.some((c: any) => c.tool_id === tool.id);
+               filteredTools.map((tool) => {
+                 const userCheckout = pendingCheckouts?.find((c: any) => c.tool_id === tool.id);
+                 const userHasTool = Boolean(userCheckout);
+                 const isOverdue = Boolean(
+                   userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
+                 );
                 return (
                 <Card key={tool.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/tools/${tool.id}`)}>
                   <CardContent className="p-3 sm:p-4">
@@ -325,16 +329,28 @@ export default function Dashboard() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
+                       <div className="flex flex-wrap gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
                         {userHasTool ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-xs sm:text-sm"
-                            onClick={() => handleCheckin(tool.id)}
-                          >
-                            Devolver
-                          </Button>
+                           <>
+                             {isOverdue && userCheckout && (
+                               <Button
+                                 size="sm"
+                                 variant="ghost"
+                                 className="text-xs sm:text-sm"
+                                 onClick={() => openExtendDialog(userCheckout.id, tool.name)}
+                               >
+                                 <CalendarPlus className="w-3 h-3" /> Prorrogar
+                               </Button>
+                             )}
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               className="text-xs sm:text-sm"
+                               onClick={() => handleCheckin(tool.id)}
+                             >
+                               Devolver
+                             </Button>
+                           </>
                         ) : (
                           <Button
                             size="sm"
