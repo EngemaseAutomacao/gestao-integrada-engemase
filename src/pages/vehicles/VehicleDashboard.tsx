@@ -188,26 +188,45 @@ export default function VehicleDashboard() {
                 const userHasVehicle = myActiveVehicleIds.has(vehicle.id);
                 const isAvailable = vehicle.status === "available";
                 return (
-                  <Card key={vehicle.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/veiculos/lista`)}>
+                  <Card key={vehicle.id} className="hover:bg-accent/50 transition-colors">
                     <CardContent className="p-3 sm:p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="font-semibold text-sm sm:text-base">{vehicle.name}</h3>
                             <Badge variant="secondary" className="text-xs">
                               {vehicle.plate}
                             </Badge>
+                            <span className={`text-xs font-medium ${isAvailable ? "text-success" : "text-warning"}`}>
+                              {isAvailable ? "Disponível" : "Em uso"}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground">
                             {vehicle.brand && <span>{vehicle.brand}</span>}
                             {vehicle.model && <span>• {vehicle.model}</span>}
                             {vehicle.color && <span>• {vehicle.color}</span>}
                           </div>
-                          <div className="mt-2">
-                            <span className={`text-xs sm:text-sm ${isAvailable ? "text-success" : "text-warning"}`}>
-                              {isAvailable ? "Disponível" : "Em uso"}
-                            </span>
-                          </div>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          {isAvailable && (
+                            <Button
+                              size="sm"
+                              className="text-xs gap-1"
+                              onClick={() => navigate("/veiculos/saida")}
+                            >
+                              Registrar Saída
+                            </Button>
+                          )}
+                          {userHasVehicle && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-xs gap-1"
+                              onClick={() => navigate("/veiculos/chegada")}
+                            >
+                              Registrar Devolução
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </CardContent>
