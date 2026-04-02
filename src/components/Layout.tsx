@@ -19,7 +19,9 @@ import {
   Fuel,
   MapPin,
   HelpCircle,
-  KeyRound
+  KeyRound,
+  LogIn,
+  Upload
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
