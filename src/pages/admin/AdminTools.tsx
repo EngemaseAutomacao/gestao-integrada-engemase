@@ -50,6 +50,7 @@ export default function AdminTools() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingTool, setDeletingTool] = useState<Tool | null>(null);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     loadTools();
