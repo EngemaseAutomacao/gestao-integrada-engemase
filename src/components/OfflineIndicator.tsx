@@ -74,6 +74,10 @@ export function OfflineIndicator() {
                         {op.type === "checkout" && "Retirada de ferramenta"}
                         {op.type === "checkin" && "Devolução de ferramenta"}
                         {op.type === "issue" && "Relato de problema"}
+                        {op.type === "ponto_in" && "Registro de entrada (ponto)"}
+                        {op.type === "ponto_out" && "Registro de saída (ponto)"}
+                        {op.type === "vehicle_checkout" && "Saída de veículo"}
+                        {op.type === "vehicle_checkin" && "Chegada de veículo"}
                       </span>
                     </li>
                   ))}

@@ -103,6 +103,17 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
             .update(op.data.updates)
             .eq("id", op.data.entryId);
           if (error) throw error;
+        } else if (op.type === "vehicle_checkout") {
+          const { error } = await supabase
+            .from("vehicle_checkouts")
+            .insert(op.data);
+          if (error) throw error;
+        } else if (op.type === "vehicle_checkin") {
+          const { error } = await supabase
+            .from("vehicle_checkouts")
+            .update(op.data.updates)
+            .eq("id", op.data.checkoutId);
+          if (error) throw error;
         }
         successCount++;
       } catch (error) {
