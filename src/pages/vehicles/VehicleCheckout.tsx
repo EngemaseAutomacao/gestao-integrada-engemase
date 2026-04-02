@@ -588,7 +588,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !destination || !estimatedReturnTime || !allPhotos || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos) || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}
