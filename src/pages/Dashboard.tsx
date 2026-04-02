@@ -348,7 +348,7 @@ export default function Dashboard() {
                                className="text-xs sm:text-sm"
                                onClick={() => handleCheckin(tool.id)}
                              >
-                               Devolver
+                                Registrar Devolução
                              </Button>
                            </>
                         ) : (
@@ -358,7 +358,7 @@ export default function Dashboard() {
                             onClick={() => handleCheckout(tool.id)}
                             disabled={tool.quantity_available === 0}
                           >
-                            Retirar
+                            Registrar Saída
                           </Button>
                         )}
                       </div>

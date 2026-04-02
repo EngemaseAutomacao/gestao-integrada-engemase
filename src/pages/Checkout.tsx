@@ -220,8 +220,8 @@ export default function Checkout() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Retirar Ferramenta</CardTitle>
-          <CardDescription>Registre a retirada de uma ferramenta</CardDescription>
+          <CardTitle>Registrar Saída</CardTitle>
+          <CardDescription>Registre a saída de uma ferramenta</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleCheckout} className="space-y-6">
@@ -380,7 +380,7 @@ export default function Checkout() {
                 className="flex-1"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Confirmar Retirada
+                Confirmar Saída
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")}>
                 Cancelar

@@ -216,14 +216,14 @@ export default function ManualEntry() {
 
       <Tabs defaultValue="checkout" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="checkout">Registrar Retirada</TabsTrigger>
+          <TabsTrigger value="checkout">Registrar Saída</TabsTrigger>
           <TabsTrigger value="checkin">Registrar Devolução</TabsTrigger>
         </TabsList>
 
         <TabsContent value="checkout">
           <Card>
             <CardHeader>
-              <CardTitle>Registrar Retirada Manual</CardTitle>
+              <CardTitle>Registrar Saída Manual</CardTitle>
               <CardDescription>
                 Use este formulário para registrar retiradas que ocorreram offline ou para correções
               </CardDescription>
@@ -321,7 +321,7 @@ export default function ManualEntry() {
                 <Button type="submit" disabled={loading} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   <ClipboardEdit className="mr-2 h-4 w-4" />
-                  Registrar Retirada Manual
+                  Registrar Saída Manual
                 </Button>
               </form>
             </CardContent>
