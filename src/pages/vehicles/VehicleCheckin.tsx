@@ -19,7 +19,7 @@ import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 
 export default function VehicleCheckin() {
   const { user } = useAuth();
-  const { isOnline } = useOffline();
+  const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedCheckouts, saveToCache: saveCheckoutsCache } = useOfflineStorage<any[]>("active-vehicle-checkouts", []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -82,8 +82,28 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
       if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
+
+      const updateData = {
+        status: "checked_in",
+        checkin_date: new Date().toISOString(),
+        km_checkin: 0,
+        checked_in_by: user.id,
+        notes: notes || undefined,
+        refueled: refueled === "yes",
+      };
+
+      if (!isOnline) {
+        addPendingOperation("vehicle_checkin", {
+          checkoutId: selectedCheckout,
+          updates: updateData,
+        });
+        toast.success("Chegada registrada (offline)! Fotos serão perdidas. Será sincronizada quando conectar.");
+        navigate("/veiculos");
+        return;
+      }
+
+      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
 
       const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
         uploadPhoto(photos.front!, "front_in"),
@@ -96,12 +116,7 @@ export default function VehicleCheckin() {
       const { error } = await supabase
         .from("vehicle_checkouts")
         .update({
-          status: "checked_in",
-          checkin_date: new Date().toISOString(),
-          km_checkin: 0,
-          checked_in_by: user.id,
-          notes: notes || undefined,
-          refueled: refueled === "yes",
+          ...updateData,
           photo_front_checkin: frontUrl,
           photo_back_checkin: backUrl,
           photo_left_checkin: leftUrl,

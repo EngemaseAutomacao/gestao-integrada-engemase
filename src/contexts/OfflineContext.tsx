@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 interface PendingOperation {
   id: string;
-  type: "checkout" | "checkin" | "issue" | "ponto_in" | "ponto_out";
+  type: "checkout" | "checkin" | "issue" | "ponto_in" | "ponto_out" | "vehicle_checkout" | "vehicle_checkin";
   data: any;
   timestamp: number;
 }
@@ -102,6 +102,17 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
             .from("time_entries")
             .update(op.data.updates)
             .eq("id", op.data.entryId);
+          if (error) throw error;
+        } else if (op.type === "vehicle_checkout") {
+          const { error } = await supabase
+            .from("vehicle_checkouts")
+            .insert(op.data);
+          if (error) throw error;
+        } else if (op.type === "vehicle_checkin") {
+          const { error } = await supabase
+            .from("vehicle_checkouts")
+            .update(op.data.updates)
+            .eq("id", op.data.checkoutId);
           if (error) throw error;
         }
         successCount++;
