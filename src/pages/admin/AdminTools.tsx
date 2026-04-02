@@ -547,26 +547,6 @@ export default function AdminTools() {
                   <Card key={tool.id} className="overflow-hidden">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        {tool.image_url ? (
-                          tool.image_url.startsWith("http") ? (
-                            <img 
-                              src={tool.image_url} 
-                              alt={tool.name}
-                              className="w-14 h-14 object-cover rounded-lg shrink-0 cursor-pointer"
-                              onClick={() => setEnlargedImage(tool.image_url)}
-                            />
-                          ) : (
-                            <SignedImage
-                              storagePath={tool.image_url}
-                              alt={tool.name}
-                              className="w-14 h-14 object-cover rounded-lg shrink-0"
-                            />
-                          )
-                        ) : (
-                          <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center shrink-0">
-                            <Package className="w-6 h-6 text-muted-foreground" />
-                          </div>
-                        )}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-sm truncate">{tool.name}</h3>
                           <div className="flex flex-wrap items-center gap-1.5 mt-1">
