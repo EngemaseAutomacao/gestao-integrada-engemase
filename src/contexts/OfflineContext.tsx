@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 interface PendingOperation {
   id: string;
-  type: "checkout" | "checkin" | "issue" | "ponto_in" | "ponto_out";
+  type: "checkout" | "checkin" | "issue" | "ponto_in" | "ponto_out" | "vehicle_checkout" | "vehicle_checkin";
   data: any;
   timestamp: number;
 }
