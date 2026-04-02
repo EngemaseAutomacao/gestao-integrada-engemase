@@ -321,7 +321,7 @@ export default function ManualEntry() {
                 <Button type="submit" disabled={loading} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   <ClipboardEdit className="mr-2 h-4 w-4" />
-                  Registrar Retirada Manual
+                  Registrar Saída Manual
                 </Button>
               </form>
             </CardContent>

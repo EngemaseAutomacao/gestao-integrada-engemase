@@ -14,7 +14,7 @@ const routeLabels: Record<string, string> = {
   "ferramentas": "Ferramentas",
   "lista": "Lista",
   "historico": "Meu Histórico",
-  "checkout": "Retirada",
+  "checkout": "Registrar Saída",
   "checkin": "Devolução",
   "veiculos": "Veículos",
   "admin": "Administração",

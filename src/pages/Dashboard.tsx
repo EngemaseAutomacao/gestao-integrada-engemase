@@ -358,7 +358,7 @@ export default function Dashboard() {
                             onClick={() => handleCheckout(tool.id)}
                             disabled={tool.quantity_available === 0}
                           >
-                            Retirar
+                            Registrar Saída
                           </Button>
                         )}
                       </div>
