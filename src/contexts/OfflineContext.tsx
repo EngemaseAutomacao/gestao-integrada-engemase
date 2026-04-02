@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "sonner";
+import { getPhotosByOperation, deletePhotosByOperation, clearAllOfflinePhotos, getOfflinePhotosCount } from "@/hooks/useOfflinePhotos";
 
 interface PendingOperation {
   id: string;
