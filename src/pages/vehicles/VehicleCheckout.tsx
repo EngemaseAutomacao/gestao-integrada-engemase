@@ -239,8 +239,30 @@ export default function VehicleCheckout() {
       }
 
       if (!isOnline) {
+        const opId = crypto.randomUUID();
+        // Save photos to IndexedDB if available
+        const photoKeys = ["front", "back", "left", "right", "dashboard"];
+        let photosSaved = 0;
+        for (const key of photoKeys) {
+          if (photos[key]) {
+            try {
+              const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
+              await saveOfflinePhoto(opId, key, photos[key]!);
+              photosSaved++;
+            } catch (e) {
+              console.error(`Erro ao salvar foto ${key} offline:`, e);
+            }
+          }
+        }
         addPendingOperation("vehicle_checkout", insertData);
-        toast.success("Saída registrada (offline)! Fotos serão perdidas. Será sincronizada quando conectar.");
+        // Update the operation ID to match
+        const ops = JSON.parse(localStorage.getItem("engemase_pending_operations") || "[]");
+        if (ops.length > 0) {
+          ops[ops.length - 1].id = opId;
+          localStorage.setItem("engemase_pending_operations", JSON.stringify(ops));
+        }
+        const photoMsg = photosSaved > 0 ? ` ${photosSaved} foto(s) salva(s) localmente.` : " Fotos não foram salvas.";
+        toast.success(`Saída registrada (offline)!${photoMsg} Será sincronizada quando conectar.`);
         navigate("/veiculos");
         return;
       }
@@ -566,7 +588,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !destination || !estimatedReturnTime || !allPhotos || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos) || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}
