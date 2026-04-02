@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.11.0",
+    date: "2026-04-02",
+    title: "Fotos offline e melhorias no modo sem internet",
+    description: "Agora as fotos de veículos são salvas no dispositivo quando você está sem internet e enviadas automaticamente ao reconectar.",
+    changes: [
+      { type: "feature", text: "Fotos de veículos agora são salvas no dispositivo quando offline e enviadas ao reconectar" },
+      { type: "improvement", text: "Dados em cache não expiram mais — ficam salvos até uma nova versão do app" },
+      { type: "improvement", text: "Indicador offline agora mostra quantas fotos estão salvas localmente" },
+      { type: "improvement", text: "Botão de envio funciona offline mesmo sem todas as fotos" },
+      { type: "improvement", text: "Limpeza automática das fotos locais após sincronização bem-sucedida" },
+    ],
+  },
+  {
     version: "1.10.9",
     date: "2026-04-01",
     title: "Dashboard de veículos e notificações",
