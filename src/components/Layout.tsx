@@ -113,8 +113,8 @@ export default function Layout({ children }: LayoutProps) {
   const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
     '/ferramentas': { title: 'Ferramentas', icon: Wrench },
     '/ferramentas/lista': { title: 'Catálogo', icon: Package },
-    '/ferramentas/retirada': { title: 'Retirada', icon: Wrench },
-    '/ferramentas/devolucao': { title: 'Devolução', icon: Wrench },
+    '/ferramentas/retirada': { title: 'Registrar Saída', icon: Wrench },
+    '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: Wrench },
     '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
     '/checkout': { title: 'Retirada', icon: Wrench },
     '/checkin': { title: 'Devolução', icon: Wrench },
