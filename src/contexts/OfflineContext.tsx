@@ -68,6 +68,45 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const uploadOfflinePhoto = async (supabase: any, file: Blob, fileName: string, folder: string, prefix: string) => {
+    const fileExt = fileName.split(".").pop() || "jpg";
+    const seq = String(Date.now()).slice(-6);
+    const dateFolder = new Date().toISOString().slice(0, 10);
+    const filePath = `veiculos/${folder}/${dateFolder}/${prefix}_${seq}.${fileExt}`;
+    const { error } = await supabase.storage.from("imagens").upload(filePath, file);
+    if (error) throw error;
+    return filePath;
+  };
+
+  const syncPhotosForOperation = async (supabase: any, op: PendingOperation) => {
+    const photos = await getPhotosByOperation(op.id);
+    if (photos.length === 0) return {};
+
+    const photoUrls: Record<string, string> = {};
+    const folder = op.type === "vehicle_checkout" ? "saidas" : "entradas";
+    const suffix = op.type === "vehicle_checkout" ? "out" : "in";
+
+    for (const photo of photos) {
+      const prefix = `${photo.angleKey}_${suffix}`;
+      const url = await uploadOfflinePhoto(supabase, photo.blob, photo.fileName, folder, prefix);
+      
+      const fieldMap: Record<string, string> = {
+        front: op.type === "vehicle_checkout" ? "photo_front_checkout" : "photo_front_checkin",
+        back: op.type === "vehicle_checkout" ? "photo_back_checkout" : "photo_back_checkin",
+        left: op.type === "vehicle_checkout" ? "photo_left_checkout" : "photo_left_checkin",
+        right: op.type === "vehicle_checkout" ? "photo_right_checkout" : "photo_right_checkin",
+        dashboard: op.type === "vehicle_checkout" ? "photo_dashboard_checkout" : "photo_dashboard_checkin",
+      };
+      
+      if (fieldMap[photo.angleKey]) {
+        photoUrls[fieldMap[photo.angleKey]] = url;
+      }
+    }
+
+    await deletePhotosByOperation(op.id);
+    return photoUrls;
+  };
+
   const syncPendingOperations = async () => {
     if (!isOnline || pendingOperations.length === 0) return;
 
@@ -105,14 +144,20 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
             .eq("id", op.data.entryId);
           if (error) throw error;
         } else if (op.type === "vehicle_checkout") {
+          // Upload offline photos from IndexedDB
+          const photoUrls = await syncPhotosForOperation(supabase, op);
+          const insertData = { ...op.data, ...photoUrls };
           const { error } = await supabase
             .from("vehicle_checkouts")
-            .insert(op.data);
+            .insert(insertData);
           if (error) throw error;
         } else if (op.type === "vehicle_checkin") {
+          // Upload offline photos from IndexedDB
+          const photoUrls = await syncPhotosForOperation(supabase, op);
+          const updateData = { ...op.data.updates, ...photoUrls };
           const { error } = await supabase
             .from("vehicle_checkouts")
-            .update(op.data.updates)
+            .update(updateData)
             .eq("id", op.data.checkoutId);
           if (error) throw error;
         }
@@ -132,6 +177,16 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       setPendingOperations(failedOps);
     } else {
       clearPendingOperations();
+      // Clean up IndexedDB when no pending operations remain
+      try {
+        const remainingPhotos = await getOfflinePhotosCount();
+        if (remainingPhotos > 0) {
+          await clearAllOfflinePhotos();
+          console.log("IndexedDB photos cleaned up after full sync");
+        }
+      } catch (e) {
+        console.error("Error cleaning IndexedDB:", e);
+      }
     }
   };
 
