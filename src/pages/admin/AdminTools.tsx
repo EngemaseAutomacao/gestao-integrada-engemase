@@ -4,17 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Loader2, Pencil, Trash2, ExternalLink, Package, X, Upload, Search, RefreshCw } from "lucide-react";
+import { Loader2, ExternalLink, Package, Search, RefreshCw } from "lucide-react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { SignedImage } from "@/components/SignedImage";
-import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface Tool {
   id: string;
@@ -26,7 +20,6 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
-  image_url: string | null;
 }
 
 export default function AdminTools() {
@@ -34,22 +27,7 @@ export default function AdminTools() {
   const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingTool, setEditingTool] = useState<Tool | null>(null);
-  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    tag: "",
-    brand: "",
-    quantity_total: 1,
-    employee_only: false,
-  });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deletingTool, setDeletingTool] = useState<Tool | null>(null);
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
@@ -84,190 +62,6 @@ export default function AdminTools() {
     tool.brand?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      let imageUrl = editingTool?.image_url !== undefined ? editingTool.image_url : null;
-
-      // Upload image if a new one was selected
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const seq = String(Date.now()).slice(-6);
-        const dateFolder = new Date().toISOString().slice(0, 10);
-        const newFilePath = `ferramentas/catalogo/${dateFolder}/ferramenta_${seq}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('imagens')
-          .upload(newFilePath, imageFile);
-
-        if (uploadError) throw uploadError;
-
-        // Store the path (not public URL since bucket is private)
-        imageUrl = newFilePath;
-      }
-
-      if (editingTool) {
-        const { error } = await supabase
-          .from("tools")
-          .update({
-            name: formData.name,
-            description: formData.description || null,
-            tag: formData.tag || null,
-            brand: formData.brand || null,
-            quantity_total: formData.quantity_total,
-            employee_only: formData.employee_only,
-            image_url: imageUrl,
-          })
-          .eq("id", editingTool.id);
-
-        if (error) throw error;
-        toast.success("Ferramenta atualizada com sucesso!");
-      } else {
-        const { error } = await supabase
-          .from("tools")
-          .insert({
-            name: formData.name,
-            description: formData.description || null,
-            tag: formData.tag || null,
-            brand: formData.brand || null,
-            quantity_total: formData.quantity_total,
-            quantity_available: formData.quantity_total,
-            employee_only: formData.employee_only,
-            created_by: profile!.id,
-            image_url: imageUrl,
-          });
-
-        if (error) throw error;
-        toast.success("Ferramenta criada com sucesso!");
-      }
-
-      setDialogOpen(false);
-      resetForm();
-      loadTools();
-    } catch (error: any) {
-      toast.error("Erro ao salvar ferramenta", {
-        description: error.message,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEdit = (tool: Tool) => {
-    setEditingTool(tool);
-    setFormData({
-      name: tool.name,
-      description: tool.description || "",
-      tag: tool.tag || "",
-      brand: tool.brand || "",
-      quantity_total: tool.quantity_total,
-      employee_only: tool.employee_only,
-    });
-    setImagePreview(tool.image_url);
-    setDialogOpen(true);
-  };
-
-  const handleDeleteClick = (tool: Tool) => {
-    setDeletingTool(tool);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteConfirm = async (reason: string) => {
-    if (!deletingTool) return;
-    try {
-      // Log the reason before deleting (the trigger logs the deletion itself)
-      await supabase.from("system_logs").insert({
-        action: "delete_reason",
-        entity_type: "tool",
-        entity_id: deletingTool.id,
-        user_id: profile!.id,
-        user_name: profile!.full_name,
-        details: { tool_name: deletingTool.name, reason },
-      });
-
-      const { error } = await supabase
-        .from("tools")
-        .delete()
-        .eq("id", deletingTool.id);
-
-      if (error) throw error;
-      toast.success("Ferramenta excluída com sucesso!");
-      loadTools();
-    } catch (error: any) {
-      toast.error("Erro ao excluir ferramenta", {
-        description: error.message,
-      });
-    }
-  };
-
-  const resetForm = () => {
-    setEditingTool(null);
-    setFormData({
-      name: "",
-      description: "",
-      tag: "",
-      brand: "",
-      quantity_total: 1,
-      employee_only: false,
-    });
-    setImageFile(null);
-    setImagePreview(null);
-  };
-
-  const getMaxExistingTag = async (): Promise<number> => {
-    const { data } = await supabase
-      .from("tools")
-      .select("tag")
-      .not("tag", "is", null);
-
-    if (!data) return 0;
-
-    const allNumbers = data.flatMap((t) => {
-      if (!t.tag) return [];
-      return t.tag.split(",").map((s: string) => parseInt(s.trim())).filter((n: number) => !isNaN(n));
-    });
-
-    return allNumbers.length > 0 ? Math.max(...allNumbers) : 0;
-  };
-
-  const generateNextTag = async () => {
-    try {
-      const maxTag = await getMaxExistingTag();
-      const qty = formData.quantity_total || 1;
-      const tags = Array.from({ length: qty }, (_, i) => String(maxTag + 1 + i));
-      setFormData((prev) => ({ ...prev, tag: tags.join(", ") }));
-    } catch (error) {
-      console.error("Error generating tag:", error);
-    }
-  };
-
-  const handleQuantityChange = async (newQty: number) => {
-    setFormData((prev) => ({ ...prev, quantity_total: newQty }));
-    // Only auto-update tag for new tools (not editing)
-    if (!editingTool && newQty >= 1) {
-      try {
-        const maxTag = await getMaxExistingTag();
-        const tags = Array.from({ length: newQty }, (_, i) => String(maxTag + 1 + i));
-        setFormData((prev) => ({ ...prev, quantity_total: newQty, tag: tags.join(", ") }));
-      } catch (error) {
-        console.error("Error generating tags:", error);
-      }
-    }
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSyncGoogleSheets = async () => {
     setSyncing(true);
     try {
@@ -291,162 +85,40 @@ export default function AdminTools() {
     }
   };
 
+  const getConditionLabel = (condition: string) => {
+    const map: Record<string, string> = {
+      excellent: "Excelente",
+      good: "Bom",
+      fair: "Regular",
+      poor: "Ruim",
+      needs_maintenance: "Manutenção",
+    };
+    return map[condition] || condition;
+  };
+
+  const getConditionClass = (condition: string) => {
+    const map: Record<string, string> = {
+      excellent: "bg-green-500 text-white",
+      good: "bg-blue-500 text-white",
+      fair: "bg-yellow-500 text-white",
+      poor: "bg-orange-500 text-white",
+      needs_maintenance: "bg-red-500 text-white",
+    };
+    return map[condition] || "bg-red-500 text-white";
+  };
+
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
       <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="hidden sm:block">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Ferramentas</h2>
-          <p className="text-sm text-muted-foreground">Administre o inventário de ferramentas</p>
+          <p className="text-sm text-muted-foreground">Inventário sincronizado via Google Sheets</p>
         </div>
         
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={handleSyncGoogleSheets} disabled={syncing}>
-            {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            Sincronizar Planilha
-          </Button>
-
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="gap-2" onClick={generateNextTag}>
-                <Plus className="w-4 h-4" />
-                Nova Ferramenta
-              </Button>
-            </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>{editingTool ? "Editar Ferramenta" : "Nova Ferramenta"}</DialogTitle>
-              <DialogDescription>
-                {editingTool ? "Atualize os dados da ferramenta" : "Adicione uma nova ferramenta ao inventário"}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tag">TAG <span className="text-xs text-muted-foreground">(gerada automaticamente)</span></Label>
-                  <Input
-                    id="tag"
-                    value={formData.tag}
-                    readOnly
-                    className="bg-muted cursor-default"
-                    placeholder="Gerada automaticamente"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Marca</Label>
-                  <Input
-                    id="brand"
-                    value={formData.brand}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Descrição</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Foto da Ferramenta</Label>
-                <div>
-                  <input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => document.getElementById('image')?.click()}
-                  >
-                    <Upload className="h-4 w-4" />
-                    Escolher Foto
-                  </Button>
-                </div>
-                {imagePreview && (
-                  <div className="relative inline-block mt-2">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
-                      className="h-32 w-32 object-cover rounded-lg border cursor-pointer"
-                      onClick={() => setEnlargedImage(imagePreview)}
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                      onClick={() => {
-                        setImageFile(null);
-                        setImagePreview(null);
-                        if (editingTool) {
-                          setEditingTool({ ...editingTool, image_url: null });
-                        }
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="quantity_total">Quantidade Total *</Label>
-                <Input
-                  id="quantity_total"
-                  type="number"
-                  min="1"
-                  value={formData.quantity_total}
-                  onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                  required
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="employee_only"
-                  checked={formData.employee_only}
-                  onCheckedChange={(checked) => setFormData({ ...formData, employee_only: checked as boolean })}
-                />
-                <Label htmlFor="employee_only" className="text-sm font-normal cursor-pointer">
-                  Restrito a funcionários Engemase
-                </Label>
-              </div>
-
-              <div className="flex gap-3">
-                <Button type="submit" disabled={loading} className="flex-1">
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {editingTool ? "Atualizar" : "Criar"} Ferramenta
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  Cancelar
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-        </div>
+        <Button variant="outline" className="gap-2" onClick={handleSyncGoogleSheets} disabled={syncing}>
+          {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          Sincronizar Planilha
+        </Button>
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">
@@ -476,7 +148,6 @@ export default function AdminTools() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      
                       <TableHead>Nome</TableHead>
                       <TableHead>TAG</TableHead>
                       <TableHead>Marca</TableHead>
@@ -493,29 +164,18 @@ export default function AdminTools() {
                         <TableCell>{tool.tag || "-"}</TableCell>
                         <TableCell>{tool.brand || "-"}</TableCell>
                         <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={
-                              tool.condition === 'excellent' ? 'bg-green-500 text-white' :
-                              tool.condition === 'good' ? 'bg-blue-500 text-white' :
-                              tool.condition === 'fair' ? 'bg-yellow-500 text-white' :
-                              tool.condition === 'poor' ? 'bg-orange-500 text-white' :
-                              'bg-red-500 text-white'
-                            }
-                          >
-                            {
-                              tool.condition === 'excellent' ? 'Excelente' :
-                              tool.condition === 'good' ? 'Bom' :
-                              tool.condition === 'fair' ? 'Regular' :
-                              tool.condition === 'poor' ? 'Ruim' :
-                              'Precisa Manutenção'
-                            }
+                          <Badge variant="outline" className={getConditionClass(tool.condition)}>
+                            {getConditionLabel(tool.condition)}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
-                            {tool.quantity_available}/{tool.quantity_total}
-                          </span>
+                          {tool.quantity_available === 0 ? (
+                            <Badge variant="destructive">Indisponível</Badge>
+                          ) : (
+                            <span className="text-success">
+                              {tool.quantity_available}/{tool.quantity_total}
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell>
                           {tool.employee_only ? (
@@ -524,15 +184,9 @@ export default function AdminTools() {
                             <Badge variant="secondary">Todos</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="text-right space-x-2">
+                        <TableCell className="text-right">
                           <Button variant="ghost" size="sm" onClick={() => navigate(`/tools/${tool.id}`)}>
                             <ExternalLink className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(tool)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -554,27 +208,16 @@ export default function AdminTools() {
                             {tool.brand && <span className="text-xs text-muted-foreground">• {tool.brand}</span>}
                           </div>
                           <div className="flex items-center gap-2 mt-2">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${
-                                tool.condition === 'excellent' ? 'bg-green-500 text-white' :
-                                tool.condition === 'good' ? 'bg-blue-500 text-white' :
-                                tool.condition === 'fair' ? 'bg-yellow-500 text-white' :
-                                tool.condition === 'poor' ? 'bg-orange-500 text-white' :
-                                'bg-red-500 text-white'
-                              }`}
-                            >
-                              {
-                                tool.condition === 'excellent' ? 'Excelente' :
-                                tool.condition === 'good' ? 'Bom' :
-                                tool.condition === 'fair' ? 'Regular' :
-                                tool.condition === 'poor' ? 'Ruim' :
-                                'Manutenção'
-                              }
+                            <Badge variant="outline" className={`text-xs ${getConditionClass(tool.condition)}`}>
+                              {getConditionLabel(tool.condition)}
                             </Badge>
-                            <span className={`text-xs font-medium ${tool.quantity_available > 0 ? "text-success" : "text-destructive"}`}>
-                              {tool.quantity_available}/{tool.quantity_total}
-                            </span>
+                            {tool.quantity_available === 0 ? (
+                              <Badge variant="destructive" className="text-xs">Indisponível</Badge>
+                            ) : (
+                              <span className="text-xs font-medium text-success">
+                                {tool.quantity_available}/{tool.quantity_total}
+                              </span>
+                            )}
                             {tool.employee_only && (
                               <Badge variant="outline" className="text-xs">Funcionários</Badge>
                             )}
@@ -584,12 +227,6 @@ export default function AdminTools() {
                       <div className="flex justify-end gap-1 mt-3 pt-3 border-t">
                         <Button variant="ghost" size="sm" onClick={() => navigate(`/tools/${tool.id}`)}>
                           <ExternalLink className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(tool)}>
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(tool)}>
-                          <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
                     </CardContent>
@@ -601,30 +238,6 @@ export default function AdminTools() {
           </div>
         </CardContent>
       </Card>
-
-      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
-        <DialogContent className="max-w-3xl p-2">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Foto da ferramenta</DialogTitle>
-          </DialogHeader>
-          {enlargedImage && (
-            <img
-              src={enlargedImage}
-              alt="Foto ampliada"
-              className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-
-      <DeleteWithReasonDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        title="Excluir Ferramenta"
-        description="Esta ação não pode ser desfeita. Informe o motivo da exclusão para registro de auditoria."
-        itemName={deletingTool?.name || ""}
-      />
     </div>
   );
 }
