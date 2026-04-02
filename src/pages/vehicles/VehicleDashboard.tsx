@@ -226,27 +226,6 @@ export default function VehicleDashboard() {
                             </span>
                           </div>
                         </div>
-                        <div className="flex gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
-                          {userHasVehicle ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-xs sm:text-sm"
-                              onClick={() => navigate("/veiculos/chegada")}
-                            >
-                              Registrar Devolução
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              className="text-xs sm:text-sm"
-                              onClick={() => navigate("/veiculos/saida")}
-                              disabled={!isAvailable}
-                            >
-                              Registrar Saída
-                            </Button>
-                          )}
-                        </div>
                       </div>
                     </CardContent>
                   </Card>
