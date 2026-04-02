@@ -165,25 +165,40 @@ self.addEventListener('message', (event) => {
 
 // ---- Push notifications ----
 self.addEventListener('push', (event) => {
-  let data = {
-    title: 'Notificação',
-    body: 'Você tem uma nova notificação',
-    icon: '/icon-192.png',
-    tag: 'default',
-    data: {}
-  };
-
-  if (event.data) {
-    try {
-      const payload = event.data.json();
-      data = { ...data, ...payload };
-    } catch (e) {
-      data.body = event.data.text();
-    }
+  // If no data at all, skip entirely
+  if (!event.data) {
+    console.log('[SW] Push received with no data, skipping');
+    return;
   }
 
-  // Skip empty notifications
-  if (!data.body || data.body.trim() === '') {
+  let data = null;
+
+  try {
+    const payload = event.data.json();
+    // Validate payload has actual content
+    if (!payload || typeof payload !== 'object') {
+      console.log('[SW] Push payload is not a valid object, skipping');
+      return;
+    }
+    data = payload;
+  } catch (e) {
+    const text = event.data.text();
+    if (!text || text.trim() === '') {
+      console.log('[SW] Push text is empty, skipping');
+      return;
+    }
+    data = { title: 'Notificação', body: text };
+  }
+
+  // Strict validation: must have a non-empty body
+  if (!data.body || String(data.body).trim() === '') {
+    console.log('[SW] Push body is empty, skipping notification');
+    return;
+  }
+
+  // Also skip if title is missing/empty
+  if (!data.title || String(data.title).trim() === '') {
+    console.log('[SW] Push title is empty, skipping notification');
     return;
   }
 
