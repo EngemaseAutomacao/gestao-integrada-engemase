@@ -268,6 +268,29 @@ export default function AdminTools() {
     }
   };
 
+  const handleSyncGoogleSheets = async () => {
+    setSyncing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("sync-google-sheets");
+      if (error) throw error;
+      if (data?.success) {
+        const s = data.summary;
+        toast.success("Sincronização concluída!", {
+          description: `${s.added} adicionada(s), ${s.updated} atualizada(s), ${s.deleted} removida(s) de ${s.total_sheet_rows} linhas.`,
+        });
+        loadTools();
+      } else {
+        throw new Error(data?.error || "Erro desconhecido");
+      }
+    } catch (error: any) {
+      toast.error("Erro ao sincronizar com Google Sheets", {
+        description: error.message,
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
       <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -276,16 +299,22 @@ export default function AdminTools() {
           <p className="text-sm text-muted-foreground">Administre o inventário de ferramentas</p>
         </div>
         
-        <Dialog open={dialogOpen} onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2" onClick={generateNextTag}>
-              <Plus className="w-4 h-4" />
-              Nova Ferramenta
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleSyncGoogleSheets} disabled={syncing}>
+            {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Sincronizar Planilha
+          </Button>
+
+          <Dialog open={dialogOpen} onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button className="gap-2" onClick={generateNextTag}>
+                <Plus className="w-4 h-4" />
+                Nova Ferramenta
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>{editingTool ? "Editar Ferramenta" : "Nova Ferramenta"}</DialogTitle>
