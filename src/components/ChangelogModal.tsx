@@ -20,15 +20,17 @@ const typeConfig = {
 export function ChangelogModal() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
+    if (!user || location.pathname === "/auth" || location.pathname === "/register") return;
     const seen = localStorage.getItem(SEEN_VERSION_KEY);
     if (seen !== APP_VERSION) {
-      // Small delay so the page renders first
       const timer = setTimeout(() => setOpen(true), 1500);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [user, location.pathname]);
 
   const handleClose = () => {
     localStorage.setItem(SEEN_VERSION_KEY, APP_VERSION);
