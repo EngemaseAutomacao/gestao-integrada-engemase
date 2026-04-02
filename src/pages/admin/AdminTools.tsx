@@ -476,7 +476,7 @@ export default function AdminTools() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Foto</TableHead>
+                      
                       <TableHead>Nome</TableHead>
                       <TableHead>TAG</TableHead>
                       <TableHead>Marca</TableHead>
@@ -489,28 +489,6 @@ export default function AdminTools() {
                   <TableBody>
                     {filteredTools.map((tool) => (
                       <TableRow key={tool.id}>
-                        <TableCell>
-                          {tool.image_url ? (
-                            tool.image_url.startsWith("http") ? (
-                              <img 
-                                src={tool.image_url} 
-                                alt={tool.name}
-                                className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
-                                onClick={() => setEnlargedImage(tool.image_url)}
-                              />
-                            ) : (
-                              <SignedImage
-                                storagePath={tool.image_url}
-                                alt={tool.name}
-                                className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
-                              />
-                            )
-                          ) : (
-                            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                              <Package className="w-6 h-6 text-muted-foreground" />
-                            </div>
-                          )}
-                        </TableCell>
                         <TableCell className="font-medium">{tool.name}</TableCell>
                         <TableCell>{tool.tag || "-"}</TableCell>
                         <TableCell>{tool.brand || "-"}</TableCell>
@@ -569,26 +547,6 @@ export default function AdminTools() {
                   <Card key={tool.id} className="overflow-hidden">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        {tool.image_url ? (
-                          tool.image_url.startsWith("http") ? (
-                            <img 
-                              src={tool.image_url} 
-                              alt={tool.name}
-                              className="w-14 h-14 object-cover rounded-lg shrink-0 cursor-pointer"
-                              onClick={() => setEnlargedImage(tool.image_url)}
-                            />
-                          ) : (
-                            <SignedImage
-                              storagePath={tool.image_url}
-                              alt={tool.name}
-                              className="w-14 h-14 object-cover rounded-lg shrink-0"
-                            />
-                          )
-                        ) : (
-                          <div className="w-14 h-14 bg-muted rounded-lg flex items-center justify-center shrink-0">
-                            <Package className="w-6 h-6 text-muted-foreground" />
-                          </div>
-                        )}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-sm truncate">{tool.name}</h3>
                           <div className="flex flex-wrap items-center gap-1.5 mt-1">
