@@ -166,14 +166,31 @@ export default function VehicleDashboard() {
           <CardDescription>Lista de veículos disponíveis</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
-          <div className="relative shrink-0">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar veículo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex gap-2 items-center shrink-0">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar veículo..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              size="sm"
+              className="text-xs sm:text-sm shrink-0"
+              onClick={() => navigate("/veiculos/saida")}
+            >
+              Registrar Saída
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs sm:text-sm shrink-0"
+              onClick={() => navigate("/veiculos/chegada")}
+            >
+              Registrar Devolução
+            </Button>
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
