@@ -6,7 +6,6 @@ const corsHeaders = {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -14,77 +13,163 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting notification checks...')
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    })
+
+    // Record timestamp before running checks
+    const checkStartTime = new Date().toISOString()
+
+    // Run all notification checks
+    const checks = [
+      { name: 'overdue tools', fn: 'check_overdue_tools' },
+      { name: 'low stock', fn: 'check_low_stock' },
+      { name: 'return reminders', fn: 'check_return_reminders' },
+      { name: 'maintenance reminders', fn: 'check_maintenance_reminders' },
+      { name: 'prolonged vehicle use', fn: 'check_prolonged_vehicle_use' },
+      { name: 'vehicle overdue return', fn: 'check_vehicle_overdue_return' },
+    ]
+
+    for (const check of checks) {
+      console.log(`Checking ${check.name}...`)
+      const { error } = await supabaseClient.rpc(check.fn)
+      if (error) {
+        console.error(`Error checking ${check.name}:`, error)
+      } else {
+        console.log(`${check.name} check completed`)
+      }
+    }
+
+    // Now send push notifications for any notifications created during this run
+    const { data: newNotifications, error: fetchError } = await supabaseClient
+      .from('notifications')
+      .select('id, user_id, title, message, type, tool_id, checkout_id')
+      .gte('created_at', checkStartTime)
+      .not('message', 'is', null)
+      .neq('message', '')
+
+    if (fetchError) {
+      console.error('Error fetching new notifications:', fetchError)
+    }
+
+    let pushSentCount = 0
+
+    if (newNotifications && newNotifications.length > 0) {
+      console.log(`Found ${newNotifications.length} new notifications to push`)
+
+      // Get all unique user IDs
+      const userIds = [...new Set(newNotifications.map(n => n.user_id))]
+
+      // Fetch all push subscriptions for these users
+      const { data: allSubscriptions, error: subError } = await supabaseClient
+        .from('push_subscriptions')
+        .select('*')
+        .in('user_id', userIds)
+
+      if (subError) {
+        console.error('Error fetching subscriptions:', subError)
+      }
+
+      if (allSubscriptions && allSubscriptions.length > 0) {
+        // Group subscriptions by user
+        const subsByUser = new Map<string, typeof allSubscriptions>()
+        for (const sub of allSubscriptions) {
+          const existing = subsByUser.get(sub.user_id) || []
+          existing.push(sub)
+          subsByUser.set(sub.user_id, existing)
+        }
+
+        // Send push for each notification
+        for (const notif of newNotifications) {
+          const userSubs = subsByUser.get(notif.user_id)
+          if (!userSubs || userSubs.length === 0) continue
+
+          // Skip if message is empty
+          if (!notif.message || notif.message.trim() === '') continue
+
+          try {
+            // Call send-push-notification edge function for each notification
+            const pushResponse = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+              },
+              body: JSON.stringify({
+                subscription: {
+                  endpoint: userSubs[0].endpoint,
+                  keys: {
+                    p256dh: userSubs[0].p256dh,
+                    auth: userSubs[0].auth,
+                  }
+                },
+                title: notif.title,
+                body: notif.message,
+                tag: notif.id,
+                data: {
+                  notificationId: notif.id,
+                  type: notif.type,
+                  toolId: notif.tool_id,
+                  checkoutId: notif.checkout_id,
+                },
+              }),
+            })
+
+            if (pushResponse.ok) {
+              pushSentCount++
+            } else {
+              const errorText = await pushResponse.text()
+              console.error(`Push failed for notification ${notif.id}:`, errorText)
+            }
+
+            // Send to additional subscriptions for the same user
+            for (let i = 1; i < userSubs.length; i++) {
+              try {
+                await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+                  },
+                  body: JSON.stringify({
+                    subscription: {
+                      endpoint: userSubs[i].endpoint,
+                      keys: {
+                        p256dh: userSubs[i].p256dh,
+                        auth: userSubs[i].auth,
+                      }
+                    },
+                    title: notif.title,
+                    body: notif.message,
+                    tag: notif.id,
+                    data: {
+                      notificationId: notif.id,
+                      type: notif.type,
+                    },
+                  }),
+                })
+              } catch (e) {
+                console.error(`Push to extra sub failed:`, e)
+              }
+            }
+          } catch (error) {
+            console.error(`Error sending push for notification ${notif.id}:`, error)
+          }
         }
       }
-    )
-
-    // Check for overdue tools
-    console.log('Checking overdue tools...')
-    const { error: overdueError } = await supabaseClient.rpc('check_overdue_tools')
-    if (overdueError) {
-      console.error('Error checking overdue tools:', overdueError)
-    } else {
-      console.log('Overdue tools check completed')
     }
 
-    // Check for low stock
-    console.log('Checking low stock...')
-    const { error: lowStockError } = await supabaseClient.rpc('check_low_stock')
-    if (lowStockError) {
-      console.error('Error checking low stock:', lowStockError)
-    } else {
-      console.log('Low stock check completed')
-    }
-
-    // Check for return reminders
-    console.log('Checking return reminders...')
-    const { error: remindersError } = await supabaseClient.rpc('check_return_reminders')
-    if (remindersError) {
-      console.error('Error checking return reminders:', remindersError)
-    } else {
-      console.log('Return reminders check completed')
-    }
-
-    // Check for maintenance reminders
-    console.log('Checking maintenance reminders...')
-    const { error: maintenanceError } = await supabaseClient.rpc('check_maintenance_reminders')
-    if (maintenanceError) {
-      console.error('Error checking maintenance reminders:', maintenanceError)
-    } else {
-      console.log('Maintenance reminders check completed')
-    }
-
-    // Check for prolonged vehicle use
-    console.log('Checking prolonged vehicle use...')
-    const { error: vehicleError } = await supabaseClient.rpc('check_prolonged_vehicle_use')
-    if (vehicleError) {
-      console.error('Error checking prolonged vehicle use:', vehicleError)
-    } else {
-      console.log('Prolonged vehicle use check completed')
-    }
-
-    // Check for vehicle overdue return (past estimated return time)
-    console.log('Checking vehicle overdue returns...')
-    const { error: overdueReturnError } = await supabaseClient.rpc('check_vehicle_overdue_return')
-    if (overdueReturnError) {
-      console.error('Error checking vehicle overdue returns:', overdueReturnError)
-    } else {
-      console.log('Vehicle overdue return check completed')
-    }
-
-    console.log('All notification checks completed successfully')
+    console.log(`All checks completed. Push sent: ${pushSentCount}`)
 
     return new Response(
       JSON.stringify({ 
         success: true,
         message: 'Notification checks completed',
+        newNotifications: newNotifications?.length || 0,
+        pushSent: pushSentCount,
         timestamp: new Date().toISOString()
       }),
       {
@@ -96,10 +181,7 @@ Deno.serve(async (req) => {
     console.error('Error in check-notifications function:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(
-      JSON.stringify({ 
-        error: errorMessage,
-        timestamp: new Date().toISOString()
-      }),
+      JSON.stringify({ error: errorMessage, timestamp: new Date().toISOString() }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
