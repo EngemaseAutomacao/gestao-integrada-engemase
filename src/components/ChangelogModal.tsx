@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Zap, Bug, Shield } from "lucide-react";
 import { changelog } from "@/changelog";
 import { APP_VERSION } from "@/version";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SEEN_VERSION_KEY = "engemase_seen_changelog";
 
