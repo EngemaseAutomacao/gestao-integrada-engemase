@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.12.1",
+    date: "2026-04-02",
+    title: "Correções na sincronização e gestão somente leitura",
+    description: "Ferramentas e obras agora são gerenciadas exclusivamente pela sincronização com a planilha.",
+    changes: [
+      { type: "improvement", text: "Ferramentas e obras agora são gerenciadas apenas pela sincronização com o Google Sheets" },
+      { type: "improvement", text: "Ferramentas com quantidade 0 aparecem como 'Indisponível' no sistema" },
+      { type: "fix", text: "Corrigido bug onde ferramentas com quantidade 0 na planilha apareciam com quantidade 1" },
+      { type: "improvement", text: "Removidas opções de edição manual de ferramentas e obras no painel admin" },
+    ],
+  },
+  {
     version: "1.12.0",
     date: "2026-04-02",
     title: "Sincronização com Google Sheets",
