@@ -223,7 +223,7 @@ export default function ManualEntry() {
         <TabsContent value="checkout">
           <Card>
             <CardHeader>
-              <CardTitle>Registrar Retirada Manual</CardTitle>
+              <CardTitle>Registrar Saída Manual</CardTitle>
               <CardDescription>
                 Use este formulário para registrar retiradas que ocorreram offline ou para correções
               </CardDescription>
