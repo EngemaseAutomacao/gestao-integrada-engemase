@@ -61,7 +61,8 @@ Deno.serve(async (req) => {
         const brand = (row[3] || "").trim() || null;
         const rawCondition = (row[4] || "").trim().toLowerCase();
         const condition = conditionMap[rawCondition] || "good";
-        const quantityTotal = parseInt(row[5] || "1", 10) || 1;
+        const parsedQty = parseInt(row[5] || "0", 10);
+        const quantityTotal = isNaN(parsedQty) ? 1 : parsedQty;
         const employeeOnlyRaw = (row[6] || "").trim().toLowerCase();
         const employeeOnly = ["sim", "yes", "true", "1", "x"].includes(employeeOnlyRaw);
 
