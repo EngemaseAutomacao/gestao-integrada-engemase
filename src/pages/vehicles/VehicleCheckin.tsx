@@ -19,7 +19,7 @@ import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 
 export default function VehicleCheckin() {
   const { user } = useAuth();
-  const { isOnline } = useOffline();
+  const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedCheckouts, saveToCache: saveCheckoutsCache } = useOfflineStorage<any[]>("active-vehicle-checkouts", []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
