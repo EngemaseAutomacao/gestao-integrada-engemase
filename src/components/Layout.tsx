@@ -19,7 +19,9 @@ import {
   Fuel,
   MapPin,
   HelpCircle,
-  KeyRound
+  KeyRound,
+  LogIn,
+  Upload
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -74,8 +76,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const ferramentasMenuItems = [
     { title: "Dashboard", url: "/ferramentas", icon: Wrench },
-    { title: "Registrar Saída", url: "/ferramentas/retirada", icon: Wrench },
-    { title: "Registrar Devolução", url: "/ferramentas/devolucao", icon: Wrench },
+    { title: "Registrar Saída", url: "/ferramentas/retirada", icon: Upload },
+    { title: "Registrar Devolução", url: "/ferramentas/devolucao", icon: LogIn },
     { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
     ...(isAdmin ? [
@@ -88,8 +90,8 @@ export default function Layout({ children }: LayoutProps) {
 
   const veiculosMenuItems = [
     { title: "Dashboard", url: "/veiculos", icon: Car },
-    { title: "Registrar Saída", url: "/veiculos/saida", icon: Car },
-    { title: "Registrar Devolução", url: "/veiculos/chegada", icon: Car },
+    { title: "Registrar Saída", url: "/veiculos/saida", icon: Upload },
+    { title: "Registrar Devolução", url: "/veiculos/chegada", icon: LogIn },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
@@ -113,17 +115,17 @@ export default function Layout({ children }: LayoutProps) {
   const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
     '/ferramentas': { title: 'Ferramentas', icon: Wrench },
     '/ferramentas/lista': { title: 'Catálogo', icon: Package },
-    '/ferramentas/retirada': { title: 'Registrar Saída', icon: Wrench },
-    '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: Wrench },
+    '/ferramentas/retirada': { title: 'Registrar Saída', icon: Upload },
+    '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: LogIn },
     '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
-    '/checkout': { title: 'Retirada', icon: Wrench },
-    '/checkin': { title: 'Devolução', icon: Wrench },
+    '/checkout': { title: 'Registrar Saída', icon: Upload },
+    '/checkin': { title: 'Registrar Devolução', icon: LogIn },
     '/history': { title: 'Meu Histórico', icon: History },
     '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
     '/veiculos': { title: 'Veículos', icon: Car },
     '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
-    '/veiculos/saida': { title: 'Registrar Saída', icon: Car },
-    '/veiculos/chegada': { title: 'Registrar Devolução', icon: Car },
+    '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
+    '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
     '/veiculos/historico': { title: 'Meu Histórico', icon: History },
     '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
     '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
