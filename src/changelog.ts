@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.11.2",
+    date: "2026-04-02",
+    title: "Correção definitiva de notificações vazias",
+    description: "Removido sistema duplicado que causava notificações vazias e repetidas.",
+    changes: [
+      { type: "fix", text: "Removido gatilho duplicado que enviava notificações vazias ao dispositivo" },
+      { type: "fix", text: "Notificações push agora são enviadas apenas pelo sistema principal, sem duplicidade" },
+      { type: "improvement", text: "Maior confiabilidade no envio de notificações push" },
+    ],
+  },
+  {
     version: "1.11.1",
     date: "2026-04-02",
     title: "Notificações em segundo plano e correções",
