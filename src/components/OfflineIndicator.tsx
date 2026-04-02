@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff, Clock, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getOfflinePhotosCount } from "@/hooks/useOfflinePhotos";
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -26,6 +25,8 @@ export function OfflineIndicator() {
     const interval = setInterval(checkPhotos, 10000);
     return () => clearInterval(interval);
   }, [pendingOperations]);
+
+  if (isOnline && pendingOperations.length === 0 && offlinePhotosCount === 0) {
     return null;
   }
 
@@ -38,7 +39,7 @@ export function OfflineIndicator() {
           ) : (
             <WifiOff className="h-4 w-4 text-orange-500" />
           )}
-          {pendingOperations.length > 0 && (
+          {(pendingOperations.length > 0 || offlinePhotosCount > 0) && (
             <Badge variant="secondary" className="h-5 px-1.5">
               {pendingOperations.length}
             </Badge>
@@ -96,6 +97,12 @@ export function OfflineIndicator() {
                     </li>
                   ))}
                 </ul>
+                {offlinePhotosCount > 0 && (
+                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                    <Image className="h-3 w-3" />
+                    <span>{offlinePhotosCount} foto(s) salva(s) localmente</span>
+                  </div>
+                )}
               </div>
 
               {isOnline && (
