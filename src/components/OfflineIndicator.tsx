@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
 import { useOffline } from "@/contexts/OfflineContext";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, WifiOff, Clock } from "lucide-react";
+import { Wifi, WifiOff, Clock, Image } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getOfflinePhotosCount } from "@/hooks/useOfflinePhotos";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
