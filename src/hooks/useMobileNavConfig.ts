@@ -26,6 +26,7 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
   { id: "notificacoes", label: "Notificações", icon: Bell, path: "/admin/notifications", adminOnly: true },
 ];
 
+
 const DEFAULT_TAB_IDS = ["home", "ferramentas", "veiculos", "ponto"];
 const STORAGE_KEY = "mobile-tab-config";
 const SYNC_EVENT = "mobile-tab-config-changed";
