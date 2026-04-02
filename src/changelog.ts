@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.12.0",
+    date: "2026-04-02",
+    title: "Sincronização com Google Sheets",
+    description: "Reativada a funcionalidade de sincronização do catálogo de ferramentas com o Google Sheets.",
+    changes: [
+      { type: "feature", text: "Botão de sincronização com Google Sheets na página de ferramentas do admin" },
+      { type: "feature", text: "Importa, atualiza e remove ferramentas automaticamente com base na planilha" },
+      { type: "improvement", text: "Ferramentas com checkouts ativos não são removidas na sincronização" },
+    ],
+  },
+  {
     version: "1.11.2",
     date: "2026-04-02",
     title: "Correção definitiva de notificações vazias",
