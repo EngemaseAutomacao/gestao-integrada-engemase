@@ -24,7 +24,7 @@ interface RouteEstimate {
 
 export default function VehicleCheckout() {
   const { user } = useAuth();
-  const { isOnline } = useOffline();
+  const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedVehicles, saveToCache: saveVehiclesCache } = useOfflineStorage<any[]>("available-vehicles", []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
