@@ -23,8 +23,8 @@ Deno.serve(async (req) => {
       throw new Error("Missing Supabase configuration");
     }
 
-    // Fetch data from Google Sheets (Sheet1, columns A-G)
-    const range = "A2:G";
+    // Fetch data from Google Sheets (columns B-H, skipping row number column A)
+    const range = "B2:H";
     const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${range}?key=${GOOGLE_SHEETS_API_KEY}`;
     const sheetsRes = await fetch(sheetsUrl);
     if (!sheetsRes.ok) {
@@ -37,8 +37,20 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Parse rows into tool objects
-    // Columns: Nome | Descrição | TAG | Marca | Condição | Quantidade Total | Apenas Funcionários
-    const validConditions = ["excellent", "good", "fair", "poor", "needs_maintenance"];
+    // Columns: Nome | Descrição | TAG | Marca | Estado | Quantidade | Apenas Funcionários
+    const conditionMap: Record<string, string> = {
+      "excelente": "excellent",
+      "bom": "good",
+      "regular": "fair",
+      "ruim": "poor",
+      "manutenção": "needs_maintenance",
+      "manutencao": "needs_maintenance",
+      "excellent": "excellent",
+      "good": "good",
+      "fair": "fair",
+      "poor": "poor",
+      "needs_maintenance": "needs_maintenance",
+    };
 
     const sheetTools = rows
       .filter((row) => row[0] && row[0].trim() !== "")
@@ -48,7 +60,7 @@ Deno.serve(async (req) => {
         const tag = (row[2] || "").trim() || null;
         const brand = (row[3] || "").trim() || null;
         const rawCondition = (row[4] || "").trim().toLowerCase();
-        const condition = validConditions.includes(rawCondition) ? rawCondition : "good";
+        const condition = conditionMap[rawCondition] || "good";
         const quantityTotal = parseInt(row[5] || "1", 10) || 1;
         const employeeOnlyRaw = (row[6] || "").trim().toLowerCase();
         const employeeOnly = ["sim", "yes", "true", "1", "x"].includes(employeeOnlyRaw);
