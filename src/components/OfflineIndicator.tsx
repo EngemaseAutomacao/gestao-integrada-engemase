@@ -13,8 +13,19 @@ import {
 
 export function OfflineIndicator() {
   const { isOnline, pendingOperations, syncPendingOperations } = useOffline();
+  const [offlinePhotosCount, setOfflinePhotosCount] = useState(0);
 
-  if (isOnline && pendingOperations.length === 0) {
+  useEffect(() => {
+    const checkPhotos = async () => {
+      try {
+        const count = await getOfflinePhotosCount();
+        setOfflinePhotosCount(count);
+      } catch { setOfflinePhotosCount(0); }
+    };
+    checkPhotos();
+    const interval = setInterval(checkPhotos, 10000);
+    return () => clearInterval(interval);
+  }, [pendingOperations]);
     return null;
   }
 
