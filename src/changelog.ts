@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.11.1",
+    date: "2026-04-02",
+    title: "Notificações em segundo plano e correções",
+    description: "As notificações automáticas agora chegam mesmo com o app fechado, e notificações vazias foram eliminadas.",
+    changes: [
+      { type: "feature", text: "Notificações push agora chegam mesmo com o app fechado ou em segundo plano" },
+      { type: "improvement", text: "Alertas automáticos (uso prolongado, atraso na devolução, etc.) agora enviam push diretamente ao dispositivo" },
+      { type: "fix", text: "Notificações vazias ou sem conteúdo não são mais exibidas" },
+    ],
+  },
+  {
     version: "1.11.0",
     date: "2026-04-02",
     title: "Fotos offline e melhorias no modo sem internet",
