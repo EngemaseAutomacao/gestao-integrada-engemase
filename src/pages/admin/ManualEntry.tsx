@@ -216,7 +216,7 @@ export default function ManualEntry() {
 
       <Tabs defaultValue="checkout" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="checkout">Registrar Retirada</TabsTrigger>
+          <TabsTrigger value="checkout">Registrar Saída</TabsTrigger>
           <TabsTrigger value="checkin">Registrar Devolução</TabsTrigger>
         </TabsList>
 
