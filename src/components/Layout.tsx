@@ -280,7 +280,7 @@ export default function Layout({ children }: LayoutProps) {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className={cn("gap-1.5 h-8 px-2 sm:px-3 text-xs", currentModule.color)}>
+                  <Button variant="outline" size="sm" className="gap-1.5 h-8 px-2 sm:px-3 text-xs text-foreground">
                     <currentModule.icon className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">{currentModule.title}</span>
                     <ChevronDown className="w-3 h-3 opacity-50" />
