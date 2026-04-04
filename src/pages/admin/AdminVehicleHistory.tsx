@@ -62,6 +62,14 @@ export default function AdminVehicleHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<VehicleHistoryEntry | null>(null);
+  const [aiEstimation, setAiEstimation] = useState<{
+    checkout_km: number | null;
+    checkin_km: number | null;
+    distance_km: number | null;
+    confidence: string;
+    notes: string;
+  } | null>(null);
+  const [estimating, setEstimating] = useState(false);
 
   useEffect(() => {
     loadHistory();
