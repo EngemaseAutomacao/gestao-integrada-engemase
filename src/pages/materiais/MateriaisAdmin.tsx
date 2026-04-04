@@ -42,10 +42,6 @@ export default function MateriaisAdmin() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  if (profile?.role !== "admin") {
-    return <Navigate to="/" />;
-  }
-
   useEffect(() => {
     loadRequests();
   }, []);

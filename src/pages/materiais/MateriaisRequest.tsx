@@ -10,7 +10,7 @@ import { Plus, Trash2, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
+import { supabase as sb } from "@/integrations/supabase/client";
 
 interface RequestItem {
   material_name: string;
