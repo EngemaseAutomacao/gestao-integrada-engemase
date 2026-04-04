@@ -143,6 +143,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/logs': { title: 'Logs', icon: ClipboardList },
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
+    '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
     '/ajuda': { title: 'Ajuda', icon: HelpCircle },
     '/changelog': { title: 'Notas de Atualização', icon: FileText },
     '/change-password': { title: 'Alterar Senha', icon: Settings },
