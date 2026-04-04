@@ -78,7 +78,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const ferramentasMenuItems = [
     { title: "Menu", url: "/ferramentas", icon: Wrench },
-    { title: "Dashboard", url: "/ferramentas/dashboard", icon: Package },
+    { title: "Painel Geral", url: "/ferramentas/dashboard", icon: Package },
     { title: "Catálogo", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
     ...(isAdmin ? [
