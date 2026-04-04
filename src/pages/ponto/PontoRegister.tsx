@@ -350,6 +350,20 @@ export default function PontoRegister() {
         </div>
       )}
 
+      {/* Construction site */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5">
+          <Building2 className="w-3.5 h-3.5" />
+          Vincular a uma Obra (opcional)
+        </Label>
+        <ConstructionSiteAutocomplete
+          sites={sites}
+          value={constructionSite}
+          onChange={setConstructionSite}
+          placeholder="Selecione a obra..."
+        />
+      </div>
+
       {/* Notes */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">Observações (opcional)</label>
