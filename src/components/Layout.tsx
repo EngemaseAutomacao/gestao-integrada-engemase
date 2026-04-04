@@ -116,6 +116,7 @@ export default function Layout({ children }: LayoutProps) {
   // Route-to-title mapping for mobile header
   const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
     '/ferramentas': { title: 'Ferramentas', icon: Wrench },
+    '/ferramentas/dashboard': { title: 'Dashboard', icon: Wrench },
     '/ferramentas/lista': { title: 'Catálogo', icon: Package },
     '/ferramentas/retirada': { title: 'Registrar Saída', icon: Upload },
     '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: LogIn },
