@@ -19,12 +19,8 @@ export const changelog: ChangelogEntry[] = [
       { type: "feature", text: "Novos menus visuais com cards para Ferramentas, Veículos, Ponto, Materiais e Administração" },
       { type: "feature", text: "Módulo de Solicitação de Materiais com lista de itens e seleção de obra" },
       { type: "feature", text: "Registro de ponto agora permite vincular a uma obra" },
-      { type: "improvement", text: "Seletor de obras com autocomplete em todos os módulos (Ferramentas, Veículos, Ponto e Materiais)" },
+      { type: "improvement", text: "Seletor de obras com autocomplete em todos os módulos" },
       { type: "improvement", text: "Navegação mobile simplificada — barra inferior mostra apenas os módulos principais" },
-      { type: "improvement", text: "Menu do cabeçalho desktop simplificado, sem dropdown de sub-páginas" },
-      { type: "improvement", text: "Cards dos menus com altura uniforme no celular" },
-      { type: "improvement", text: "Título do cabeçalho mobile centralizado corretamente" },
-      { type: "improvement", text: "Card de Administração centralizado na tela inicial" },
     ],
   },
   {
