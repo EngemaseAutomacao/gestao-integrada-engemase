@@ -177,6 +177,13 @@ export default function PontoAdmin() {
                     )}
                   </div>
 
+                  {(entry as any).construction_site && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <Building2 className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{(entry as any).construction_site}</span>
+                    </p>
+                  )}
+
                   {entry.clock_in_address && (
                     <p className="text-xs text-muted-foreground flex items-start gap-1">
                       <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
