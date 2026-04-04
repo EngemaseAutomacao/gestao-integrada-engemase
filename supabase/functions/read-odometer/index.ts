@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     const checkinImageUrl = checkinUrlResult.data.signedUrl;
 
     // Call AI to read odometers from both images
-    const aiResponse = await fetch("https://ai.lovable.dev/api/chat/completions", {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
