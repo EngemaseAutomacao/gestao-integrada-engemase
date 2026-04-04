@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
@@ -35,7 +36,6 @@ export default function Checkout() {
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [constructionSite, setConstructionSite] = useState("");
-  const [customConstructionSite, setCustomConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
@@ -147,7 +147,7 @@ export default function Checkout() {
       return;
     }
 
-    const finalSite = constructionSite === "__custom__" ? customConstructionSite.trim() : constructionSite;
+    const finalSite = constructionSite.trim();
     if (!finalSite) {
       toast.error("Informe a obra de destino");
       return;
@@ -268,25 +268,11 @@ export default function Checkout() {
               ) : (
                 <div className="space-y-2">
                   <Label htmlFor="construction_site">Obra de Destino *</Label>
-                  <Select value={constructionSite} onValueChange={setConstructionSite}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a obra" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {constructionSites?.map((site) => (
-                        <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
-                      ))}
-                      <SelectItem value="__custom__">Outra (digitar)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {constructionSite === "__custom__" && (
-                    <Input
-                      placeholder="Digite o nome da obra..."
-                      value={customConstructionSite}
-                      onChange={(e) => setCustomConstructionSite(e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
+                  <ConstructionSiteAutocomplete
+                    sites={constructionSites || []}
+                    value={constructionSite}
+                    onChange={setConstructionSite}
+                  />
                 </div>
               )}
 
@@ -294,25 +280,11 @@ export default function Checkout() {
               {selectedToolId && hasMultipleTags && (
                 <div className="space-y-2">
                   <Label htmlFor="construction_site">Obra de Destino *</Label>
-                  <Select value={constructionSite} onValueChange={setConstructionSite}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a obra" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {constructionSites?.map((site) => (
-                        <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
-                      ))}
-                      <SelectItem value="__custom__">Outra (digitar)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {constructionSite === "__custom__" && (
-                    <Input
-                      placeholder="Digite o nome da obra..."
-                      value={customConstructionSite}
-                      onChange={(e) => setCustomConstructionSite(e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
+                  <ConstructionSiteAutocomplete
+                    sites={constructionSites || []}
+                    value={constructionSite}
+                    onChange={setConstructionSite}
+                  />
                 </div>
               )}
 
@@ -376,7 +348,7 @@ export default function Checkout() {
             <div className="flex gap-3 pt-2">
               <Button 
                 type="submit" 
-                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate} 
+                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || !constructionSite.trim() || !estimatedReturnDate} 
                 className="flex-1"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
