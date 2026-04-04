@@ -206,7 +206,7 @@ export default function AdminVehicleHistory() {
         format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
         e.km_checkout.toLocaleString(),
         e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
-        e.km_checkin ? e.km_checkin.toLocaleString() : "-",
+        e.km_checkin !== null ? e.km_checkin.toLocaleString() : "-",
         e.status === "checked_out" ? "Em Uso" : "Devolvido",
       ]),
       startY: 40,
@@ -231,8 +231,8 @@ export default function AdminVehicleHistory() {
       Saída: format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       "KM Saída": e.km_checkout,
       Chegada: e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
-      "KM Chegada": e.km_checkin || "-",
-      "KM Percorridos": e.km_checkin ? e.km_checkin - e.km_checkout : "-",
+      "KM Chegada": e.km_checkin !== null ? e.km_checkin : "-",
+      "KM Percorridos": e.km_checkin !== null ? e.km_checkin - e.km_checkout : "-",
       Abastecido: e.refueled === null ? "-" : e.refueled ? "Sim" : "Não",
       Status: e.status === "checked_out" ? "Em Uso" : "Devolvido",
       "Retirado por": e.checked_out_by_profile?.full_name || "-",
@@ -380,7 +380,7 @@ export default function AdminVehicleHistory() {
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {entry.km_checkin
+                          {entry.km_checkin !== null
                             ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
                             : "-"}
                         </TableCell>
@@ -441,7 +441,7 @@ export default function AdminVehicleHistory() {
                                           ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
                                           : "Não devolvido"}
                                       </p>
-                                      {selectedEntry.km_checkin && (
+                                      {selectedEntry.km_checkin !== null && (
                                         <p className="text-xs text-muted-foreground">
                                           KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
                                         </p>
@@ -449,7 +449,7 @@ export default function AdminVehicleHistory() {
                                     </div>
                                   </div>
 
-                                  {selectedEntry.km_checkin && (
+                                  {selectedEntry.km_checkin !== null && (
                                     <div className="pt-4 border-t">
                                       <p className="text-sm font-medium text-muted-foreground">Distância Percorrida</p>
                                       <p className="text-lg font-bold text-primary">
@@ -575,7 +575,7 @@ export default function AdminVehicleHistory() {
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"} className="text-[10px]">
                             {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
                           </Badge>
-                          {entry.km_checkin && (
+                          {entry.km_checkin !== null && (
                             <span className="text-xs font-medium text-primary">
                               {(entry.km_checkin - entry.km_checkout).toLocaleString()} km
                             </span>
