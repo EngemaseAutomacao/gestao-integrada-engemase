@@ -92,6 +92,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
     ...(isAdmin ? [
+      { title: "Histórico Geral", url: "/admin/vehicle-history", icon: ClipboardList },
       { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
     ] : []),
   ];
