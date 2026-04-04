@@ -67,12 +67,14 @@ export default function VeiculosMenu() {
           icon={<LogIn className="w-6 h-6 text-primary" />}
           to="/veiculos/chegada"
         />
-        <MenuCard
-          title="Combustível"
-          description="Registros de abastecimento"
-          icon={<Fuel className="w-6 h-6 text-primary" />}
-          to="/veiculos/combustivel"
-        />
+        {isAdmin && (
+          <MenuCard
+            title="Combustível"
+            description="Registros de abastecimento"
+            icon={<Fuel className="w-6 h-6 text-primary" />}
+            to="/veiculos/combustivel"
+          />
+        )}
         <MenuCard
           title="Meu Histórico"
           description="Suas movimentações de veículos"
