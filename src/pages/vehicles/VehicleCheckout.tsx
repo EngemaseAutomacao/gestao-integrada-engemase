@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 interface RouteEstimate {
   distance_km: number;
