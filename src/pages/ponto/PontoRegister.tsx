@@ -22,6 +22,7 @@ interface TimeEntry {
   clock_out: string | null;
   clock_in_address: string | null;
   clock_out_address: string | null;
+  construction_site: string | null;
   notes: string | null;
   status: string;
   is_offline?: boolean;
