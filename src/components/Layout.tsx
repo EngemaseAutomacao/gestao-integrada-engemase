@@ -369,7 +369,7 @@ export default function Layout({ children }: LayoutProps) {
         })()}
 
         {/* Right side */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className={cn("flex items-center gap-1 sm:gap-2", isMobile && "min-w-[100px] justify-end")}>
           <OfflineIndicator />
           
           <ThemeToggle />
