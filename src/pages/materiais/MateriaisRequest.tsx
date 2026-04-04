@@ -28,9 +28,21 @@ export default function MateriaisRequest() {
   const [loading, setLoading] = useState(false);
   const [constructionSite, setConstructionSite] = useState("");
   const [notes, setNotes] = useState("");
+  const [sites, setSites] = useState<{ id: string; name: string }[]>([]);
   const [items, setItems] = useState<RequestItem[]>([
     { material_name: "", quantity: 1, unit: "un", notes: "" },
   ]);
+
+  useEffect(() => {
+    supabase
+      .from("construction_sites")
+      .select("id, name")
+      .eq("active", true)
+      .order("name")
+      .then(({ data }) => {
+        if (data) setSites(data);
+      });
+  }, []);
 
   const addItem = () => {
     setItems([...items, { material_name: "", quantity: 1, unit: "un", notes: "" }]);
