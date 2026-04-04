@@ -280,25 +280,11 @@ export default function Checkout() {
               {selectedToolId && hasMultipleTags && (
                 <div className="space-y-2">
                   <Label htmlFor="construction_site">Obra de Destino *</Label>
-                  <Select value={constructionSite} onValueChange={setConstructionSite}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a obra" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {constructionSites?.map((site) => (
-                        <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
-                      ))}
-                      <SelectItem value="__custom__">Outra (digitar)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {constructionSite === "__custom__" && (
-                    <Input
-                      placeholder="Digite o nome da obra..."
-                      value={customConstructionSite}
-                      onChange={(e) => setCustomConstructionSite(e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
+                  <ConstructionSiteAutocomplete
+                    sites={constructionSites || []}
+                    value={constructionSite}
+                    onChange={setConstructionSite}
+                  />
                 </div>
               )}
 
