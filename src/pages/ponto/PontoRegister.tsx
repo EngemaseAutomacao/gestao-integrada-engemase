@@ -168,6 +168,7 @@ export default function PontoRegister() {
           clock_out: null,
           clock_in_address: address,
           clock_out_address: null,
+          construction_site: entryData.construction_site,
           notes: entryData.notes,
           status: "open",
           is_offline: true,
