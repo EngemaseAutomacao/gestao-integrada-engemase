@@ -12,21 +12,14 @@ export interface NavTabItem {
 export const ALL_TAB_OPTIONS: NavTabItem[] = [
   { id: "home", label: "Início", icon: Home, path: "/" },
   { id: "ferramentas", label: "Ferramentas", icon: Wrench, path: "/ferramentas" },
-  { id: "ferramentas-lista", label: "Lista Ferramentas", icon: Package, path: "/ferramentas/lista" },
   { id: "veiculos", label: "Veículos", icon: Car, path: "/veiculos" },
-  { id: "veiculos-lista", label: "Lista Veículos", icon: Package, path: "/veiculos/lista" },
-  { id: "combustivel", label: "Combustível", icon: Fuel, path: "/veiculos/combustivel" },
   { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto", adminOnly: true },
-  { id: "historico-ferramentas", label: "Histórico Ferr.", icon: History, path: "/ferramentas/historico" },
-  { id: "historico-veiculos", label: "Histórico Veíc.", icon: History, path: "/veiculos/historico" },
-  { id: "admin", label: "Admin", icon: Shield, path: "/admin", adminOnly: true },
   { id: "materiais", label: "Materiais", icon: Package, path: "/materiais", adminOnly: true },
-  { id: "admin-analytics", label: "Analytics", icon: BarChart3, path: "/admin/analytics", adminOnly: true },
-  { id: "notificacoes", label: "Notificações", icon: Bell, path: "/admin/notifications", adminOnly: true },
+  { id: "admin", label: "Admin", icon: Shield, path: "/admin", adminOnly: true },
 ];
 
 
-const DEFAULT_TAB_IDS = ["home", "ferramentas", "veiculos", "ponto"];
+const DEFAULT_TAB_IDS = ["home", "ferramentas", "veiculos", "admin"];
 const STORAGE_KEY = "mobile-tab-config";
 const SYNC_EVENT = "mobile-tab-config-changed";
 const MAX_TABS = 8;
@@ -36,7 +29,12 @@ function readFromStorage(): string[] {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Filter out old IDs that no longer exist
+        const validIds = new Set(ALL_TAB_OPTIONS.map(t => t.id));
+        const filtered = parsed.filter((id: string) => validIds.has(id));
+        if (filtered.length > 0) return filtered;
+      }
     }
   } catch {}
   return DEFAULT_TAB_IDS;

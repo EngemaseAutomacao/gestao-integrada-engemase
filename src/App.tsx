@@ -11,6 +11,8 @@ import Auth from "./pages/Auth";
 import Register from "./pages/Register";
 import ChangePassword from "./pages/ChangePassword";
 import Home from "./pages/Home";
+import FerramentasMenu from "./pages/FerramentasMenu";
+import VeiculosMenu from "./pages/VeiculosMenu";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
 import ToolDetail from "./pages/ToolDetail";
@@ -77,14 +79,16 @@ const App = () => (
                 <Route path="/change-password" element={<ChangePassword />} />
                 <Route path="/" element={<Layout><Home /></Layout>} />
                 {/* Ferramentas Routes */}
-                <Route path="/ferramentas" element={<Layout><Dashboard /></Layout>} />
+                <Route path="/ferramentas" element={<Layout><FerramentasMenu /></Layout>} />
+                <Route path="/ferramentas/dashboard" element={<Layout><Dashboard /></Layout>} />
                 <Route path="/ferramentas/lista" element={<Layout><Tools /></Layout>} />
                 <Route path="/ferramentas/:id" element={<Layout><ToolDetail /></Layout>} />
                 <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
                 <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
                 <Route path="/ferramentas/historico" element={<Layout><UserHistory /></Layout>} />
                 {/* Veículos Routes */}
-                <Route path="/veiculos" element={<Layout><VehicleDashboard /></Layout>} />
+                <Route path="/veiculos" element={<Layout><VeiculosMenu /></Layout>} />
+                <Route path="/veiculos/dashboard" element={<Layout><VehicleDashboard /></Layout>} />
                 <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
                 <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                 <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />

@@ -77,8 +77,9 @@ export default function Layout({ children }: LayoutProps) {
   const isAdmin = profile?.role === "admin";
 
   const ferramentasMenuItems = [
-    { title: "Dashboard", url: "/ferramentas", icon: Wrench },
-    { title: "Lista de Ferramentas", url: "/ferramentas/lista", icon: Package },
+    { title: "Menu", url: "/ferramentas", icon: Wrench },
+    { title: "Dashboard", url: "/ferramentas/dashboard", icon: Package },
+    { title: "Catálogo", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
     ...(isAdmin ? [
       { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Settings },
@@ -89,7 +90,8 @@ export default function Layout({ children }: LayoutProps) {
   ];
 
   const veiculosMenuItems = [
-    { title: "Dashboard", url: "/veiculos", icon: Car },
+    { title: "Menu", url: "/veiculos", icon: Car },
+    { title: "Dashboard", url: "/veiculos/dashboard", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
@@ -114,6 +116,7 @@ export default function Layout({ children }: LayoutProps) {
   // Route-to-title mapping for mobile header
   const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
     '/ferramentas': { title: 'Ferramentas', icon: Wrench },
+    '/ferramentas/dashboard': { title: 'Dashboard', icon: Wrench },
     '/ferramentas/lista': { title: 'Catálogo', icon: Package },
     '/ferramentas/retirada': { title: 'Registrar Saída', icon: Upload },
     '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: LogIn },
@@ -123,6 +126,7 @@ export default function Layout({ children }: LayoutProps) {
     '/history': { title: 'Meu Histórico', icon: History },
     '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
     '/veiculos': { title: 'Veículos', icon: Car },
+    '/veiculos/dashboard': { title: 'Dashboard', icon: Car },
     '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
     '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
     '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
