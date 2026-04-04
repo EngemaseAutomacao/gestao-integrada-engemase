@@ -43,6 +43,7 @@ export default function VehicleCheckin() {
   const [isEstimatingKm, setIsEstimatingKm] = useState(false);
   const [manualKm, setManualKm] = useState<string>("");
   const [showManualKm, setShowManualKm] = useState(false);
+  const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<Record<string, string> | null>(null);
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
   const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
