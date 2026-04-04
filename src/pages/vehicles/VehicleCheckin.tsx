@@ -215,20 +215,76 @@ export default function VehicleCheckin() {
         uploadPhoto(photos.dashboard!, "dashboard_in"),
       ]);
 
-      // Estimate km from dashboard photos
-      await estimateKm(dashboardUrl);
+      // Try to estimate km from dashboard photos
+      const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+      if (checkoutData?.photo_dashboard_checkout) {
+        setIsEstimatingKm(true);
+        try {
+          const { data: odometerData, error: odometerError } = await supabase.functions.invoke("read-odometer", {
+            body: {
+              checkout_photo_path: checkoutData.photo_dashboard_checkout,
+              checkin_photo_path: dashboardUrl,
+            },
+          });
+
+          if (!odometerError && odometerData) {
+            const result = odometerData as OdometerResult;
+            setOdometerResult(result);
+
+            if (result.distance_km !== null && result.confidence !== "low") {
+              updateData.km_checkin = result.checkin_km || 0;
+              if (result.checkout_km && result.checkout_km > 0 && checkoutData.km_checkout === 0) {
+                updateData.km_checkout = result.checkout_km;
+              }
+            } else {
+              // Need manual input - stop and ask user
+              setShowManualKm(true);
+              setIsEstimatingKm(false);
+              // Save dashboard url for later
+              (window as any).__pendingDashboardUrl = dashboardUrl;
+              (window as any).__pendingPhotoUrls = { frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl };
+              throw new Error("NEEDS_MANUAL_KM");
+            }
+          }
+        } catch (e: any) {
+          if (e.message === "NEEDS_MANUAL_KM") throw e;
+          console.error("Odometer estimation failed:", e);
+          setShowManualKm(true);
+          setIsEstimatingKm(false);
+          setOdometerResult({
+            checkout_km: null, checkin_km: null, distance_km: null,
+            confidence: "low",
+            notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
+          });
+          (window as any).__pendingPhotoUrls = { frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl };
+          throw new Error("NEEDS_MANUAL_KM");
+        } finally {
+          setIsEstimatingKm(false);
+        }
+      }
+
+      // If manual km was provided, use it
+      if (manualKm) {
+        updateData.km_checkin = parseInt(manualKm);
+      }
+
+      // Use pending photo URLs if this is a retry after manual km entry
+      const photoUrls = (window as any).__pendingPhotoUrls || { frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl };
+      delete (window as any).__pendingPhotoUrls;
 
       const { error } = await supabase
         .from("vehicle_checkouts")
         .update({
           ...updateData,
-          photo_front_checkin: frontUrl,
-          photo_back_checkin: backUrl,
-          photo_left_checkin: leftUrl,
-          photo_right_checkin: rightUrl,
-          photo_dashboard_checkin: dashboardUrl,
+          photo_front_checkin: photoUrls.frontUrl || frontUrl,
+          photo_back_checkin: photoUrls.backUrl || backUrl,
+          photo_left_checkin: photoUrls.leftUrl || leftUrl,
+          photo_right_checkin: photoUrls.rightUrl || rightUrl,
+          photo_dashboard_checkin: photoUrls.dashboardUrl || dashboardUrl,
         })
         .eq("id", selectedCheckout);
+
+      if (error) throw error;
 
       if (error) throw error;
     },
