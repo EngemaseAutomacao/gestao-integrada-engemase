@@ -20,9 +20,6 @@ export default function MobileNavSettings() {
   const availableIds = new Set(availableOptions.map(t => t.id));
   const [draft, setDraft] = useState<string[]>(selectedIds.filter(id => availableIds.has(id)));
 
-  const availableOptions = ALL_TAB_OPTIONS.filter(
-    (t) => !t.adminOnly || isAdmin
-  );
 
   const toggleTab = (id: string) => {
     setDraft((prev) => {
