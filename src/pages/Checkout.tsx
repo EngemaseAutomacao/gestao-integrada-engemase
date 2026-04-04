@@ -33,7 +33,9 @@ export default function Checkout() {
   const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("tools", []);
   const navigate = useNavigate();
   const [tools, setTools] = useState<Tool[]>(cachedTools || []);
-  const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
+  const toolIdFromParam = searchParams.get("toolId") || "";
+  const [selectedToolId, setSelectedToolId] = useState<string>(toolIdFromParam);
+  const isToolLocked = !!toolIdFromParam;
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [constructionSite, setConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
@@ -233,7 +235,7 @@ export default function Checkout() {
                   key={selectedToolId || "empty"}
                   value={selectedToolId}
                   onValueChange={(val) => { setSelectedToolId(val); setSelectedTag(""); }}
-                  disabled={loadingTools}
+                  disabled={loadingTools || isToolLocked}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma ferramenta" />
