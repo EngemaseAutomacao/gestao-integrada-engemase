@@ -461,6 +461,58 @@ export default function AdminVehicleHistory() {
                                     </div>
                                   )}
 
+                                  {canEstimateKm(selectedEntry) && (
+                                    <div className="pt-4 border-t">
+                                      <div className="flex items-center justify-between">
+                                        <p className="text-sm font-medium text-muted-foreground">Estimativa por IA</p>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="gap-2"
+                                          onClick={() => estimateKm(selectedEntry)}
+                                          disabled={estimating}
+                                        >
+                                          {estimating ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                          ) : (
+                                            <Brain className="w-4 h-4" />
+                                          )}
+                                          {estimating ? "Analisando..." : "Estimar KM via IA"}
+                                        </Button>
+                                      </div>
+                                      {aiEstimation && (
+                                        <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant={
+                                              aiEstimation.confidence === "high" ? "default" :
+                                              aiEstimation.confidence === "medium" ? "secondary" : "destructive"
+                                            }>
+                                              {aiEstimation.confidence === "high" ? "Alta confiança" :
+                                               aiEstimation.confidence === "medium" ? "Média confiança" : "Baixa confiança"}
+                                            </Badge>
+                                          </div>
+                                          <div className="grid grid-cols-3 gap-2 text-sm">
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">KM Saída</p>
+                                              <p className="font-medium">{aiEstimation.checkout_km?.toLocaleString() || "N/A"}</p>
+                                            </div>
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">KM Chegada</p>
+                                              <p className="font-medium">{aiEstimation.checkin_km?.toLocaleString() || "N/A"}</p>
+                                            </div>
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">Distância</p>
+                                              <p className="font-bold text-primary">{aiEstimation.distance_km?.toLocaleString() || "N/A"} km</p>
+                                            </div>
+                                          </div>
+                                          {aiEstimation.notes && (
+                                            <p className="text-xs text-muted-foreground">{aiEstimation.notes}</p>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )
+
                                   {selectedEntry.notes && (
                                     <div className="pt-4 border-t">
                                       <p className="text-sm font-medium text-muted-foreground">Observações</p>
