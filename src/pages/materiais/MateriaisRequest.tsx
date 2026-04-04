@@ -125,6 +125,7 @@ export default function MateriaisRequest() {
           <div>
             <Label>Obra / Canteiro</Label>
             <ConstructionSiteAutocomplete
+              sites={sites}
               value={constructionSite}
               onChange={setConstructionSite}
             />
