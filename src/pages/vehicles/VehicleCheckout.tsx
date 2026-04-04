@@ -205,7 +205,7 @@ export default function VehicleCheckout() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
-      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+      const finalDestination = destination.trim();
       if (!finalDestination) throw new Error("Selecione a obra de destino");
       if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
 
