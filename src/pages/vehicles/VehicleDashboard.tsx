@@ -222,7 +222,7 @@ export default function VehicleDashboard() {
                               size="sm"
                               variant="outline"
                               className="text-xs gap-1"
-                              onClick={() => navigate("/veiculos/chegada")}
+                              onClick={(e) => { e.stopPropagation(); navigate("/veiculos/chegada"); }}
                             >
                               Registrar Devolução
                             </Button>
