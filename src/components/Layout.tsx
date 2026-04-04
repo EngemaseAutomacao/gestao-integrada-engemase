@@ -294,8 +294,8 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           )}
 
-          {/* Desktop: Back button + Module Dropdown */}
-          {!isHomePage && currentModule && !isMobile && (
+          {/* Desktop: Back button */}
+          {!isHomePage && !isMobile && (
             <>
               <div className="h-5 w-px bg-border hidden sm:block" />
               
@@ -305,36 +305,6 @@ export default function Layout({ children }: LayoutProps) {
                   <span className="hidden sm:inline text-xs">Menu</span>
                 </Button>
               </NavLink>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5 h-8 px-2 sm:px-3 text-xs text-foreground">
-                    <currentModule.icon className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">{currentModule.title}</span>
-                    <ChevronDown className="w-3 h-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 bg-popover border shadow-lg z-50">
-                  <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">
-                    {currentModule.title}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {currentModule.items.map((item) => (
-                    <DropdownMenuItem key={item.url} asChild>
-                      <NavLink 
-                        to={item.url} 
-                        className={cn(
-                          "flex items-center gap-2 cursor-pointer",
-                          isActiveRoute(item.url) && "bg-primary/10 text-primary font-medium"
-                        )}
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {item.title}
-                      </NavLink>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </>
           )}
         </div>
