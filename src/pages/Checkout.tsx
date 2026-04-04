@@ -348,7 +348,7 @@ export default function Checkout() {
             <div className="flex gap-3 pt-2">
               <Button 
                 type="submit" 
-                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || (!constructionSite || (constructionSite === "__custom__" && !customConstructionSite.trim())) || !estimatedReturnDate} 
+                disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || !constructionSite.trim() || !estimatedReturnDate} 
                 className="flex-1"
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
