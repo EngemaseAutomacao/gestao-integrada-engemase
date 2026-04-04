@@ -441,7 +441,7 @@ export default function AdminVehicleHistory() {
                                           ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
                                           : "Não devolvido"}
                                       </p>
-                                      {selectedEntry.km_checkin && (
+                                      {selectedEntry.km_checkin !== null && (
                                         <p className="text-xs text-muted-foreground">
                                           KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
                                         </p>
