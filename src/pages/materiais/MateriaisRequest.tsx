@@ -10,6 +10,7 @@ import { Plus, Trash2, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 
 interface RequestItem {
@@ -27,9 +28,21 @@ export default function MateriaisRequest() {
   const [loading, setLoading] = useState(false);
   const [constructionSite, setConstructionSite] = useState("");
   const [notes, setNotes] = useState("");
+  const [sites, setSites] = useState<{ id: string; name: string }[]>([]);
   const [items, setItems] = useState<RequestItem[]>([
     { material_name: "", quantity: 1, unit: "un", notes: "" },
   ]);
+
+  useEffect(() => {
+    supabase
+      .from("construction_sites")
+      .select("id, name")
+      .eq("active", true)
+      .order("name")
+      .then(({ data }) => {
+        if (data) setSites(data);
+      });
+  }, []);
 
   const addItem = () => {
     setItems([...items, { material_name: "", quantity: 1, unit: "un", notes: "" }]);
@@ -111,10 +124,10 @@ export default function MateriaisRequest() {
         <CardContent className="space-y-4">
           <div>
             <Label>Obra / Canteiro</Label>
-            <Input
-              placeholder="Nome da obra ou canteiro"
+            <ConstructionSiteAutocomplete
+              sites={sites}
               value={constructionSite}
-              onChange={(e) => setConstructionSite(e.target.value)}
+              onChange={setConstructionSite}
             />
           </div>
           <div>
