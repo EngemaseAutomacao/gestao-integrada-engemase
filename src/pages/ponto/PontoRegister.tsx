@@ -186,6 +186,7 @@ export default function PontoRegister() {
         description: `Ponto ${totalEntries + 1}/${MAX_ENTRIES_PER_DAY} registrado às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
       setNotes("");
+      setConstructionSite("");
       if (isOnline) await loadEntries();
     } catch (err: any) {
       const msg = err?.code === 1
