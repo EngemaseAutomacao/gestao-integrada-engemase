@@ -511,7 +511,7 @@ export default function AdminVehicleHistory() {
                                         </div>
                                       )}
                                     </div>
-                                  )
+                                  )}
 
                                   {selectedEntry.notes && (
                                     <div className="pt-4 border-t">
