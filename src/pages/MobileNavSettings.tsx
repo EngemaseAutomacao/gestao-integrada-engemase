@@ -12,11 +12,14 @@ export default function MobileNavSettings() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
   const { selectedIds, save, reset, maxTabs } = useMobileNavConfig();
-  const [draft, setDraft] = useState<string[]>(selectedIds);
-
+  
+  // Filter out admin-only tabs for non-admin users
   const availableOptions = ALL_TAB_OPTIONS.filter(
     (t) => !t.adminOnly || isAdmin
   );
+  const availableIds = new Set(availableOptions.map(t => t.id));
+  const [draft, setDraft] = useState<string[]>(selectedIds.filter(id => availableIds.has(id)));
+
 
   const toggleTab = (id: string) => {
     setDraft((prev) => {
@@ -42,9 +45,11 @@ export default function MobileNavSettings() {
   };
 
   const handleReset = () => {
+    const defaults = isAdmin 
+      ? ["home", "ferramentas", "veiculos", "admin"]
+      : ["home", "ferramentas", "veiculos"];
     reset();
-    setDraft(["home", "ferramentas", "veiculos", "ponto"]);
-    toast.success("Menu restaurado ao padrão");
+    setDraft(defaults);
   };
 
   return (
@@ -68,9 +73,9 @@ export default function MobileNavSettings() {
               const tab = ALL_TAB_OPTIONS.find((t) => t.id === id);
               if (!tab) return null;
               return (
-                <div key={id} className="flex flex-col items-center gap-0.5 px-3">
+                <div key={id} className="flex flex-col items-center gap-0.5 w-14">
                   <tab.icon className="w-5 h-5 text-primary" />
-                  <span className="text-[9px] text-primary font-medium">{tab.label}</span>
+                  <span className="text-[9px] text-primary font-medium text-center leading-tight">{tab.label}</span>
                 </div>
               );
             })}
