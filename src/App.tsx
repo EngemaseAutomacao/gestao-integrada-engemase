@@ -37,6 +37,7 @@ import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
 import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import AdminGallery from "./pages/admin/AdminGallery";
+import AdminVehicleHistory from "./pages/admin/AdminVehicleHistory";
 import ReportIssue from "./pages/ReportIssue";
 import PontoDashboard from "./pages/ponto/PontoDashboard";
 import PontoRegister from "./pages/ponto/PontoRegister";
@@ -84,6 +85,7 @@ const App = () => (
                 <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
                 <Route path="/veiculos/combustivel" element={<Layout><FuelRecords /></Layout>} />
                 <Route path="/veiculos/analytics" element={<Layout><VehicleAnalytics /></Layout>} />
+                <Route path="/admin/vehicle-history" element={<Layout><AdminVehicleHistory /></Layout>} />
                 {/* Legacy routes - redirect to new paths */}
                 <Route path="/tools" element={<Navigate to="/ferramentas/lista" replace />} />
                 <Route path="/tools/:id" element={<Layout><ToolDetail /></Layout>} />

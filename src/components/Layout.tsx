@@ -92,6 +92,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
     ...(isAdmin ? [
+      { title: "Histórico Geral", url: "/admin/vehicle-history", icon: ClipboardList },
       { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
     ] : []),
   ];
@@ -142,6 +143,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/logs': { title: 'Logs', icon: ClipboardList },
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
+    '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
     '/ajuda': { title: 'Ajuda', icon: HelpCircle },
     '/changelog': { title: 'Notas de Atualização', icon: FileText },
     '/change-password': { title: 'Alterar Senha', icon: Settings },
