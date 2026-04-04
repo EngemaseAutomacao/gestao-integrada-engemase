@@ -188,6 +188,7 @@ export default function Layout({ children }: LayoutProps) {
       };
     }
     if (location.pathname.startsWith('/ponto')) {
+      if (!isAdmin) return null;
       return {
         title: "Ponto",
         icon: MapPin,
@@ -195,6 +196,19 @@ export default function Layout({ children }: LayoutProps) {
           { title: "Registrar Ponto", url: "/ponto/registrar", icon: MapPin },
           { title: "Meu Histórico", url: "/ponto/historico", icon: History },
           ...(isAdmin ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }] : []),
+        ],
+        color: "text-primary"
+      };
+    }
+    if (isMateriaisModule) {
+      return {
+        title: "Materiais",
+        icon: Package,
+        items: [
+          { title: "Dashboard", url: "/materiais", icon: Package },
+          { title: "Nova Solicitação", url: "/materiais/solicitar", icon: ClipboardList },
+          { title: "Minhas Solicitações", url: "/materiais/historico", icon: History },
+          ...(isAdmin ? [{ title: "Gerenciar", url: "/materiais/admin", icon: Users }] : []),
         ],
         color: "text-primary"
       };
