@@ -71,9 +71,9 @@ export default function MobileNavSettings() {
               const tab = ALL_TAB_OPTIONS.find((t) => t.id === id);
               if (!tab) return null;
               return (
-                <div key={id} className="flex flex-col items-center gap-0.5 px-3">
+                <div key={id} className="flex flex-col items-center gap-0.5 w-14">
                   <tab.icon className="w-5 h-5 text-primary" />
-                  <span className="text-[9px] text-primary font-medium">{tab.label}</span>
+                  <span className="text-[9px] text-primary font-medium text-center leading-tight">{tab.label}</span>
                 </div>
               );
             })}
