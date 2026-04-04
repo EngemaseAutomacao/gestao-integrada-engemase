@@ -12,9 +12,9 @@ interface MenuCardProps {
 
 function MenuCard({ title, description, icon, to }: MenuCardProps) {
   return (
-    <Link to={to} className="block">
-      <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary">
-        <CardHeader className="text-center pb-2">
+    <Link to={to} className="block h-full">
+      <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary h-full flex flex-col">
+        <CardHeader className="text-center pb-2 flex-1 flex flex-col items-center justify-center">
           <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
             {icon}
           </div>
