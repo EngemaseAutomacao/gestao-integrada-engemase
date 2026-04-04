@@ -449,7 +449,7 @@ export default function AdminVehicleHistory() {
                                     </div>
                                   </div>
 
-                                  {selectedEntry.km_checkin && (
+                                  {selectedEntry.km_checkin !== null && (
                                     <div className="pt-4 border-t">
                                       <p className="text-sm font-medium text-muted-foreground">Distância Percorrida</p>
                                       <p className="text-lg font-bold text-primary">
