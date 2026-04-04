@@ -40,7 +40,21 @@ export default function PontoRegister() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState("");
+  const [constructionSite, setConstructionSite] = useState("");
+  const [sites, setSites] = useState<{ id: string; name: string }[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Load construction sites
+  useEffect(() => {
+    supabase
+      .from("construction_sites")
+      .select("id, name")
+      .eq("active", true)
+      .order("name")
+      .then(({ data }) => {
+        if (data) setSites(data);
+      });
+  }, []);
 
   // Live clock
   useEffect(() => {
