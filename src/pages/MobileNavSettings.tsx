@@ -12,7 +12,13 @@ export default function MobileNavSettings() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
   const { selectedIds, save, reset, maxTabs } = useMobileNavConfig();
-  const [draft, setDraft] = useState<string[]>(selectedIds);
+  
+  // Filter out admin-only tabs for non-admin users
+  const availableOptions = ALL_TAB_OPTIONS.filter(
+    (t) => !t.adminOnly || isAdmin
+  );
+  const availableIds = new Set(availableOptions.map(t => t.id));
+  const [draft, setDraft] = useState<string[]>(selectedIds.filter(id => availableIds.has(id)));
 
   const availableOptions = ALL_TAB_OPTIONS.filter(
     (t) => !t.adminOnly || isAdmin
