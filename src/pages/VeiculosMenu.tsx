@@ -44,7 +44,7 @@ export default function VeiculosMenu() {
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <MenuCard
-          title="Dashboard"
+          title="Painel Geral"
           description="Visão geral da frota"
           icon={<Car className="w-6 h-6 text-primary" />}
           to="/veiculos/dashboard"
