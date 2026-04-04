@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeftCircle, Car, Search } from "lucide-react";
+import { ArrowLeftCircle, Car, Search, Loader2, AlertTriangle, CheckCircle2, Gauge } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,15 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+import { Badge } from "@/components/ui/badge";
+
+interface OdometerResult {
+  checkout_km: number | null;
+  checkin_km: number | null;
+  distance_km: number | null;
+  confidence: "high" | "medium" | "low";
+  notes: string;
+}
 
 export default function VehicleCheckin() {
   const { user } = useAuth();
@@ -29,12 +38,24 @@ export default function VehicleCheckin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [refueled, setRefueled] = useState<string | null>(null);
 
+  // Odometer estimation state
+  const [odometerResult, setOdometerResult] = useState<OdometerResult | null>(null);
+  const [isEstimatingKm, setIsEstimatingKm] = useState(false);
+  const [manualKm, setManualKm] = useState<string>("");
+  const [showManualKm, setShowManualKm] = useState(false);
+
   const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
   const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
 
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
     setPreviews(prev => ({ ...prev, [key]: preview }));
+    // Reset odometer result when dashboard photo changes
+    if (key === "dashboard") {
+      setOdometerResult(null);
+      setShowManualKm(false);
+      setManualKm("");
+    }
   };
 
   const allPhotos = Object.values(photos).every(Boolean);
@@ -56,6 +77,7 @@ export default function VehicleCheckin() {
           checkout_date,
           km_checkout,
           destination,
+          photo_dashboard_checkout,
           vehicles!inner(id, name, plate, brand, model),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
@@ -78,20 +100,80 @@ export default function VehicleCheckin() {
     return filePath;
   };
 
+  const estimateKm = async (checkinDashboardPath: string) => {
+    const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+    if (!checkoutData?.photo_dashboard_checkout) {
+      setShowManualKm(true);
+      setOdometerResult({
+        checkout_km: null,
+        checkin_km: null,
+        distance_km: null,
+        confidence: "low",
+        notes: "Foto do painel da saída não encontrada. Informe a quilometragem manualmente.",
+      });
+      return;
+    }
+
+    setIsEstimatingKm(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("read-odometer", {
+        body: {
+          checkout_photo_path: checkoutData.photo_dashboard_checkout,
+          checkin_photo_path: checkinDashboardPath,
+        },
+      });
+
+      if (error) throw error;
+
+      const result = data as OdometerResult;
+      setOdometerResult(result);
+
+      if (result.distance_km !== null && result.confidence !== "low") {
+        toast.success(`Quilometragem estimada: ~${result.distance_km} km`);
+      } else {
+        setShowManualKm(true);
+        toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente.");
+      }
+    } catch (error) {
+      console.error("Error estimating km:", error);
+      setShowManualKm(true);
+      setOdometerResult({
+        checkout_km: null,
+        checkin_km: null,
+        distance_km: null,
+        confidence: "low",
+        notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
+      });
+      toast.warning("Não foi possível estimar a quilometragem. Informe manualmente.");
+    } finally {
+      setIsEstimatingKm(false);
+    }
+  };
+
   const checkinMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
       if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
-      const updateData = {
+      // Determine final km values
+      const finalKmCheckin = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+      const finalKmCheckout = odometerResult?.checkout_km || 0;
+
+      const updateData: any = {
         status: "checked_in",
         checkin_date: new Date().toISOString(),
-        km_checkin: 0,
+        km_checkin: finalKmCheckin,
         checked_in_by: user.id,
         notes: notes || undefined,
         refueled: refueled === "yes",
       };
+
+      // Update checkout km if AI read it and it was 0
+      const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+      if (finalKmCheckout > 0 && checkoutData?.km_checkout === 0) {
+        updateData.km_checkout = finalKmCheckout;
+      }
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
@@ -112,7 +194,6 @@ export default function VehicleCheckin() {
           checkoutId: selectedCheckout,
           updates: updateData,
         });
-        // Update the operation ID to match
         const ops = JSON.parse(localStorage.getItem("engemase_pending_operations") || "[]");
         if (ops.length > 0) {
           ops[ops.length - 1].id = opId;
@@ -133,6 +214,9 @@ export default function VehicleCheckin() {
         uploadPhoto(photos.right!, "right_in"),
         uploadPhoto(photos.dashboard!, "dashboard_in"),
       ]);
+
+      // Estimate km from dashboard photos
+      await estimateKm(dashboardUrl);
 
       const { error } = await supabase
         .from("vehicle_checkouts")
@@ -173,6 +257,17 @@ export default function VehicleCheckin() {
   };
 
   const selectedCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+
+  const confidenceBadge = (confidence: string) => {
+    switch (confidence) {
+      case "high":
+        return <Badge variant="default" className="gap-1 bg-green-600"><CheckCircle2 className="w-3 h-3" />Alta precisão</Badge>;
+      case "medium":
+        return <Badge variant="secondary" className="gap-1"><AlertTriangle className="w-3 h-3" />Precisão média</Badge>;
+      default:
+        return <Badge variant="destructive" className="gap-1"><AlertTriangle className="w-3 h-3" />Baixa precisão</Badge>;
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -290,6 +385,84 @@ export default function VehicleCheckin() {
                 onPhotoChange={handlePhotoChange}
                 includeDashboard
               />
+
+              {/* Odometer estimation result */}
+              {isEstimatingKm && (
+                <Card className="border-primary/30 bg-primary/5">
+                  <CardContent className="py-4 flex items-center gap-3">
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                    <div>
+                      <p className="font-medium text-sm">Analisando fotos do painel...</p>
+                      <p className="text-xs text-muted-foreground">A IA está lendo o hodômetro para estimar a quilometragem percorrida</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {odometerResult && !isEstimatingKm && (
+                <Card className="border-primary/30">
+                  <CardContent className="py-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Gauge className="w-5 h-5 text-primary" />
+                        <p className="font-semibold text-sm">Estimativa de Quilometragem</p>
+                      </div>
+                      {confidenceBadge(odometerResult.confidence)}
+                    </div>
+
+                    {odometerResult.distance_km !== null && odometerResult.confidence !== "low" && (
+                      <div className="grid grid-cols-3 gap-3 text-center">
+                        <div className="rounded-lg bg-muted p-2">
+                          <p className="text-xs text-muted-foreground">Saída</p>
+                          <p className="font-bold text-sm">{odometerResult.checkout_km?.toLocaleString("pt-BR") ?? "—"} km</p>
+                        </div>
+                        <div className="rounded-lg bg-muted p-2">
+                          <p className="text-xs text-muted-foreground">Chegada</p>
+                          <p className="font-bold text-sm">{odometerResult.checkin_km?.toLocaleString("pt-BR") ?? "—"} km</p>
+                        </div>
+                        <div className="rounded-lg bg-primary/10 p-2">
+                          <p className="text-xs text-muted-foreground">Percorrido</p>
+                          <p className="font-bold text-sm text-primary">~{odometerResult.distance_km?.toLocaleString("pt-BR")} km</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground">{odometerResult.notes}</p>
+
+                    {odometerResult.confidence !== "low" && !showManualKm && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowManualKm(true)}
+                        className="text-xs"
+                      >
+                        Corrigir manualmente
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {showManualKm && (
+                <div className="space-y-2">
+                  <Label htmlFor="manualKm" className="flex items-center gap-2">
+                    <Gauge className="w-4 h-4" />
+                    Quilometragem atual (km) *
+                  </Label>
+                  <Input
+                    id="manualKm"
+                    type="number"
+                    placeholder="Ex: 45230"
+                    value={manualKm}
+                    onChange={(e) => setManualKm(e.target.value)}
+                    min={0}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Informe a quilometragem atual mostrada no painel do veículo
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -306,7 +479,14 @@ export default function VehicleCheckin() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedCheckout || (isOnline && !allPhotos) || refueled === null || checkinMutation.isPending}
+            disabled={
+              !selectedCheckout || 
+              (isOnline && !allPhotos) || 
+              refueled === null || 
+              checkinMutation.isPending ||
+              isEstimatingKm ||
+              (showManualKm && !manualKm)
+            }
             className="flex-1"
           >
             {checkinMutation.isPending ? "Registrando..." : "Registrar Chegada"}
