@@ -350,7 +350,7 @@ export default function Layout({ children }: LayoutProps) {
         {isMobile && (() => {
           if (isHomePage) {
             return (
-              <div className="absolute left-1/2 -translate-x-[60%] flex items-center gap-1.5">
+              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
                 <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto" />
               </div>
             );
