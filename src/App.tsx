@@ -91,6 +91,7 @@ const App = () => (
                 <Route path="/veiculos" element={<Layout><VeiculosMenu /></Layout>} />
                 <Route path="/veiculos/dashboard" element={<Layout><VehicleDashboard /></Layout>} />
                 <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
+                <Route path="/veiculos/:id" element={<Layout><VehicleDetail /></Layout>} />
                 <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                 <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
                 <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
