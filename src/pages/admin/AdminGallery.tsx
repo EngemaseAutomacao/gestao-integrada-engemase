@@ -312,14 +312,13 @@ export default function AdminGallery() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {files.map((file) => (
-                  <Card key={file.id || file.name} className="overflow-hidden group">
+                  <Card key={file.id || file.name} className="overflow-hidden group cursor-pointer" onClick={() => signedUrls[file.name] && setEnlargedImage(signedUrls[file.name])}>
                     <div className="relative aspect-square">
                       {signedUrls[file.name] ? (
                         <img
                           src={signedUrls[file.name]}
                           alt={file.name}
-                          className="w-full h-full object-cover cursor-pointer"
-                          onClick={() => setEnlargedImage(signedUrls[file.name])}
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">
