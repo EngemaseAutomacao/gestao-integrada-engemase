@@ -126,6 +126,7 @@ export default function Layout({ children }: LayoutProps) {
     '/history': { title: 'Meu Histórico', icon: History },
     '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
     '/veiculos': { title: 'Veículos', icon: Car },
+    '/veiculos/dashboard': { title: 'Dashboard', icon: Car },
     '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
     '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
     '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
