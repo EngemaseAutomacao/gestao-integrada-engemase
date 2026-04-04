@@ -209,7 +209,7 @@ export default function VehicleCheckin() {
 
       // Try to estimate km from dashboard photos
       const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
-      if (checkoutData?.photo_dashboard_checkout) {
+      if (currentCheckoutData?.photo_dashboard_checkout) {
         setIsEstimatingKm(true);
         try {
           const { data: odometerData, error: odometerError } = await supabase.functions.invoke("read-odometer", {
