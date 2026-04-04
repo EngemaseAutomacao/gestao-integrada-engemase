@@ -102,7 +102,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
-    { title: "Obras", url: "/admin/construction-sites", icon: MapPin },
+    
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs", url: "/admin/logs", icon: ClipboardList },
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
@@ -138,7 +138,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
     '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
     '/admin/reports': { title: 'Relatórios', icon: FileText },
-    '/admin/construction-sites': { title: 'Obras', icon: MapPin },
+    
     '/admin/notifications': { title: 'Notificações', icon: Bell },
     '/admin/logs': { title: 'Logs', icon: ClipboardList },
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
