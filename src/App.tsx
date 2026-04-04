@@ -45,6 +45,10 @@ import PontoDashboard from "./pages/ponto/PontoDashboard";
 import PontoRegister from "./pages/ponto/PontoRegister";
 import PontoHistory from "./pages/ponto/PontoHistory";
 import PontoAdmin from "./pages/ponto/PontoAdmin";
+import MateriaisDashboard from "./pages/materiais/MateriaisDashboard";
+import MateriaisRequest from "./pages/materiais/MateriaisRequest";
+import MateriaisHistory from "./pages/materiais/MateriaisHistory";
+import MateriaisAdmin from "./pages/materiais/MateriaisAdmin";
 import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
 import Changelog from "./pages/Changelog";
@@ -115,6 +119,11 @@ const App = () => (
                 <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
                 <Route path="/ponto/historico" element={<Layout><PontoHistory /></Layout>} />
                 <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
+                {/* Materiais Routes */}
+                <Route path="/materiais" element={<Layout><MateriaisDashboard /></Layout>} />
+                <Route path="/materiais/solicitar" element={<Layout><MateriaisRequest /></Layout>} />
+                <Route path="/materiais/historico" element={<Layout><MateriaisHistory /></Layout>} />
+                <Route path="/materiais/admin" element={<Layout><MateriaisAdmin /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                 <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                 <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />

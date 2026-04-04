@@ -71,6 +71,7 @@ export default function Layout({ children }: LayoutProps) {
                                isAdminToolRoute;
   const isAdminVehicleRoute = location.pathname === '/admin/vehicle-history' || location.pathname === '/admin/vehicle-issues';
   const isVeiculosModule = location.pathname.startsWith('/veiculos') || isAdminVehicleRoute;
+  const isMateriaisModule = location.pathname.startsWith('/materiais');
   const isAdminModule = location.pathname.startsWith('/admin') && !isAdminToolRoute && !isAdminVehicleRoute;
 
   const isAdmin = profile?.role === "admin";
@@ -132,6 +133,10 @@ export default function Layout({ children }: LayoutProps) {
     '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
     '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
     '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
+    '/materiais': { title: 'Materiais', icon: Package },
+    '/materiais/solicitar': { title: 'Nova Solicitação', icon: ClipboardList },
+    '/materiais/historico': { title: 'Minhas Solicitações', icon: History },
+    '/materiais/admin': { title: 'Gerenciar Solicitações', icon: Users },
     '/admin': { title: 'Administração', icon: Settings },
     '/admin/users': { title: 'Usuários', icon: Users },
     '/admin/tools': { title: 'Gerenciar Ferramentas', icon: Settings },
@@ -187,6 +192,7 @@ export default function Layout({ children }: LayoutProps) {
       };
     }
     if (location.pathname.startsWith('/ponto')) {
+      if (!isAdmin) return null;
       return {
         title: "Ponto",
         icon: MapPin,
@@ -194,6 +200,19 @@ export default function Layout({ children }: LayoutProps) {
           { title: "Registrar Ponto", url: "/ponto/registrar", icon: MapPin },
           { title: "Meu Histórico", url: "/ponto/historico", icon: History },
           ...(isAdmin ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }] : []),
+        ],
+        color: "text-primary"
+      };
+    }
+    if (isMateriaisModule) {
+      return {
+        title: "Materiais",
+        icon: Package,
+        items: [
+          { title: "Dashboard", url: "/materiais", icon: Package },
+          { title: "Nova Solicitação", url: "/materiais/solicitar", icon: ClipboardList },
+          { title: "Minhas Solicitações", url: "/materiais/historico", icon: History },
+          ...(isAdmin ? [{ title: "Gerenciar", url: "/materiais/admin", icon: Users }] : []),
         ],
         color: "text-primary"
       };
@@ -408,7 +427,11 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn("flex-1 min-h-0 overflow-auto p-3 sm:p-4 md:p-6", isMobile && "pb-20")}>
-        {children}
+        {/* Block non-admin from Ponto and Materiais */}
+        {((location.pathname.startsWith('/ponto') || location.pathname.startsWith('/materiais')) && !isAdmin)
+          ? <Navigate to="/" />
+          : children
+        }
       </main>
 
       {/* Footer - hidden on mobile */}

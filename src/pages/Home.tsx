@@ -253,9 +253,18 @@ export default function Home() {
 
         <ModuleCard
           title="Ponto Online"
-          description={isAdmin ? "Registre pontos em atividades externas" : "Em desenvolvimento. Acessível apenas para admins em fase de testes."}
+          description={isAdmin ? "Registre pontos em atividades externas" : "Módulo restrito a administradores"}
           icon={<Clock className="w-6 h-6 text-primary" />}
           to={isAdmin ? "/ponto" : undefined}
+          disabled={!isAdmin}
+          comingSoon={!isAdmin}
+        />
+
+        <ModuleCard
+          title="Materiais"
+          description={isAdmin ? "Solicite e gerencie requisições de materiais" : "Módulo restrito a administradores"}
+          icon={<Package className="w-6 h-6 text-primary" />}
+          to={isAdmin ? "/materiais" : undefined}
           disabled={!isAdmin}
           comingSoon={!isAdmin}
         />
