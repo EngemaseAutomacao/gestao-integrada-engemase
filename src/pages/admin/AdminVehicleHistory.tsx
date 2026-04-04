@@ -380,7 +380,7 @@ export default function AdminVehicleHistory() {
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {entry.km_checkin
+                          {entry.km_checkin !== null
                             ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
                             : "-"}
                         </TableCell>
