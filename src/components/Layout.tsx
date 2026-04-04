@@ -71,6 +71,7 @@ export default function Layout({ children }: LayoutProps) {
                                isAdminToolRoute;
   const isAdminVehicleRoute = location.pathname === '/admin/vehicle-history' || location.pathname === '/admin/vehicle-issues';
   const isVeiculosModule = location.pathname.startsWith('/veiculos') || isAdminVehicleRoute;
+  const isMateriaisModule = location.pathname.startsWith('/materiais');
   const isAdminModule = location.pathname.startsWith('/admin') && !isAdminToolRoute && !isAdminVehicleRoute;
 
   const isAdmin = profile?.role === "admin";
