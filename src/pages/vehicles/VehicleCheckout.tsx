@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
+import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 interface RouteEstimate {
   distance_km: number;
@@ -31,7 +32,6 @@ export default function VehicleCheckout() {
   
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [destination, setDestination] = useState("");
-  const [customDestination, setCustomDestination] = useState("");
   const [notes, setNotes] = useState("");
   const [estimatedReturnTime, setEstimatedReturnTime] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,7 +205,7 @@ export default function VehicleCheckout() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedVehicle) throw new Error("Selecione um veículo");
-      const finalDestination = destination === "__custom__" ? customDestination.trim() : destination;
+      const finalDestination = destination.trim();
       if (!finalDestination) throw new Error("Selecione a obra de destino");
       if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
 
@@ -395,25 +395,11 @@ export default function VehicleCheckout() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="destination">Obra de Destino *</Label>
-                <Select value={destination} onValueChange={setDestination}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a obra de destino" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {constructionSites?.map((site) => (
-                      <SelectItem key={site.id} value={site.name}>{site.name}</SelectItem>
-                    ))}
-                    <SelectItem value="__custom__">Outra (digitar)</SelectItem>
-                  </SelectContent>
-                </Select>
-                {destination === "__custom__" && (
-                  <Input
-                    placeholder="Digite o destino..."
-                    value={customDestination}
-                    onChange={(e) => setCustomDestination(e.target.value)}
-                    className="mt-2"
-                  />
-                )}
+                <ConstructionSiteAutocomplete
+                  sites={constructionSites || []}
+                  value={destination}
+                  onChange={setDestination}
+                />
               </div>
 
               <div className="space-y-2">
