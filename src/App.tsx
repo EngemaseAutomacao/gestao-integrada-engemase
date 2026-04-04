@@ -11,6 +11,8 @@ import Auth from "./pages/Auth";
 import Register from "./pages/Register";
 import ChangePassword from "./pages/ChangePassword";
 import Home from "./pages/Home";
+import FerramentasMenu from "./pages/FerramentasMenu";
+import VeiculosMenu from "./pages/VeiculosMenu";
 import Dashboard from "./pages/Dashboard";
 import Tools from "./pages/Tools";
 import ToolDetail from "./pages/ToolDetail";
