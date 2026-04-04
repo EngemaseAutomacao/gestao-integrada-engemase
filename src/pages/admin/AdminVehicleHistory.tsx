@@ -206,7 +206,7 @@ export default function AdminVehicleHistory() {
         format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
         e.km_checkout.toLocaleString(),
         e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
-        e.km_checkin ? e.km_checkin.toLocaleString() : "-",
+        e.km_checkin !== null ? e.km_checkin.toLocaleString() : "-",
         e.status === "checked_out" ? "Em Uso" : "Devolvido",
       ]),
       startY: 40,
