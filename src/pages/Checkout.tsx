@@ -235,7 +235,7 @@ export default function Checkout() {
                   key={selectedToolId || "empty"}
                   value={selectedToolId}
                   onValueChange={(val) => { setSelectedToolId(val); setSelectedTag(""); }}
-                  disabled={loadingTools}
+                  disabled={loadingTools || isToolLocked}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma ferramenta" />
