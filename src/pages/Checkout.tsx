@@ -36,7 +36,6 @@ export default function Checkout() {
   const [selectedToolId, setSelectedToolId] = useState<string>(searchParams.get("toolId") || "");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [constructionSite, setConstructionSite] = useState("");
-  const [customConstructionSite, setCustomConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
