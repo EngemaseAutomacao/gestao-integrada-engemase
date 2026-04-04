@@ -575,7 +575,7 @@ export default function AdminVehicleHistory() {
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"} className="text-[10px]">
                             {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
                           </Badge>
-                          {entry.km_checkin && (
+                          {entry.km_checkin !== null && (
                             <span className="text-xs font-medium text-primary">
                               {(entry.km_checkin - entry.km_checkout).toLocaleString()} km
                             </span>
