@@ -16,7 +16,7 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
   { id: "veiculos", label: "Veículos", icon: Car, path: "/veiculos" },
   { id: "veiculos-lista", label: "Lista Veículos", icon: Package, path: "/veiculos/lista" },
   { id: "combustivel", label: "Combustível", icon: Fuel, path: "/veiculos/combustivel" },
-  { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto" },
+  { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto", adminOnly: true },
   { id: "historico-ferramentas", label: "Histórico Ferr.", icon: History, path: "/ferramentas/historico" },
   { id: "historico-veiculos", label: "Histórico Veíc.", icon: History, path: "/veiculos/historico" },
   { id: "admin", label: "Admin", icon: Shield, path: "/admin", adminOnly: true },
