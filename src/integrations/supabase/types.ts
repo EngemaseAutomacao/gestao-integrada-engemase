@@ -419,6 +419,7 @@ export type Database = {
           clock_out_address: string | null
           clock_out_latitude: number | null
           clock_out_longitude: number | null
+          construction_site: string | null
           created_at: string
           entry_date: string
           id: string
@@ -436,6 +437,7 @@ export type Database = {
           clock_out_address?: string | null
           clock_out_latitude?: number | null
           clock_out_longitude?: number | null
+          construction_site?: string | null
           created_at?: string
           entry_date?: string
           id?: string
@@ -453,6 +455,7 @@ export type Database = {
           clock_out_address?: string | null
           clock_out_latitude?: number | null
           clock_out_longitude?: number | null
+          construction_site?: string | null
           created_at?: string
           entry_date?: string
           id?: string

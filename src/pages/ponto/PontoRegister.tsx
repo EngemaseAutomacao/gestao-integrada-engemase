@@ -2,14 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check } from "lucide-react";
+import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 const MAX_ENTRIES_PER_DAY = 3;
 const PONTO_CACHE_KEY = "engemase_ponto_today";
@@ -20,6 +22,7 @@ interface TimeEntry {
   clock_out: string | null;
   clock_in_address: string | null;
   clock_out_address: string | null;
+  construction_site: string | null;
   notes: string | null;
   status: string;
   is_offline?: boolean;
@@ -37,7 +40,21 @@ export default function PontoRegister() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState("");
+  const [constructionSite, setConstructionSite] = useState("");
+  const [sites, setSites] = useState<{ id: string; name: string }[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Load construction sites
+  useEffect(() => {
+    supabase
+      .from("construction_sites")
+      .select("id, name")
+      .eq("active", true)
+      .order("name")
+      .then(({ data }) => {
+        if (data) setSites(data);
+      });
+  }, []);
 
   // Live clock
   useEffect(() => {
@@ -134,6 +151,7 @@ export default function PontoRegister() {
         clock_in_latitude: coords.latitude,
         clock_in_longitude: coords.longitude,
         clock_in_address: address,
+        construction_site: constructionSite || null,
         notes: notes || null,
         status: "open",
       };
@@ -150,6 +168,7 @@ export default function PontoRegister() {
           clock_out: null,
           clock_in_address: address,
           clock_out_address: null,
+          construction_site: entryData.construction_site,
           notes: entryData.notes,
           status: "open",
           is_offline: true,
@@ -167,6 +186,7 @@ export default function PontoRegister() {
         description: `Ponto ${totalEntries + 1}/${MAX_ENTRIES_PER_DAY} registrado às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
       setNotes("");
+      setConstructionSite("");
       if (isOnline) await loadEntries();
     } catch (err: any) {
       const msg = err?.code === 1
@@ -318,6 +338,12 @@ export default function PontoRegister() {
                     </Badge>
                   </div>
                 </div>
+                {entry.construction_site && (
+                  <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1">
+                    <Building2 className="w-3 h-3 mt-0.5 shrink-0" />
+                    {entry.construction_site}
+                  </p>
+                )}
                 {entry.clock_in_address && (
                   <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1">
                     <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
@@ -329,6 +355,20 @@ export default function PontoRegister() {
           ))}
         </div>
       )}
+
+      {/* Construction site */}
+      <div className="space-y-2">
+        <Label className="flex items-center gap-1.5">
+          <Building2 className="w-3.5 h-3.5" />
+          Vincular a uma Obra (opcional)
+        </Label>
+        <ConstructionSiteAutocomplete
+          sites={sites}
+          value={constructionSite}
+          onChange={setConstructionSite}
+          placeholder="Selecione a obra..."
+        />
+      </div>
 
       {/* Notes */}
       <div className="space-y-2">

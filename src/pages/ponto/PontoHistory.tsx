@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Loader2, Calendar } from "lucide-react";
+import { MapPin, Clock, Loader2, Calendar, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInMinutes } from "date-fns";
@@ -14,6 +14,7 @@ interface TimeEntry {
   clock_out: string | null;
   clock_in_address: string | null;
   clock_out_address: string | null;
+  construction_site: string | null;
   notes: string | null;
   status: string;
 }
@@ -106,6 +107,13 @@ export default function PontoHistory() {
                       <Badge variant="outline">{formatDuration(duration)}</Badge>
                     )}
                   </div>
+
+                  {entry.construction_site && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <Building2 className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{entry.construction_site}</span>
+                    </p>
+                  )}
 
                   {entry.clock_in_address && (
                     <p className="text-xs text-muted-foreground flex items-start gap-1">

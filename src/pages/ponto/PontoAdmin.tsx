@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Clock, Loader2, Calendar, Search, Users } from "lucide-react";
+import { MapPin, Clock, Loader2, Calendar, Search, Users, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -176,6 +176,13 @@ export default function PontoAdmin() {
                       <Badge variant="outline">{formatDuration(duration)}</Badge>
                     )}
                   </div>
+
+                  {(entry as any).construction_site && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <Building2 className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{(entry as any).construction_site}</span>
+                    </p>
+                  )}
 
                   {entry.clock_in_address && (
                     <p className="text-xs text-muted-foreground flex items-start gap-1">
