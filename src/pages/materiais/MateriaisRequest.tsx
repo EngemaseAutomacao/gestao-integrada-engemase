@@ -111,9 +111,10 @@ export default function MateriaisRequest() {
         <CardContent className="space-y-4">
           <div>
             <Label>Obra / Canteiro</Label>
-            <ConstructionSiteAutocomplete
+            <Input
+              placeholder="Nome da obra ou canteiro"
               value={constructionSite}
-              onValueChange={setConstructionSite}
+              onChange={(e) => setConstructionSite(e.target.value)}
             />
           </div>
           <div>
