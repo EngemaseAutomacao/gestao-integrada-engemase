@@ -156,24 +156,16 @@ export default function VehicleCheckin() {
       if (!selectedCheckout) throw new Error("Selecione um veículo");
       if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
-      // Determine final km values
-      const finalKmCheckin = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
-      const finalKmCheckout = odometerResult?.checkout_km || 0;
+      const currentCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
 
       const updateData: any = {
         status: "checked_in",
         checkin_date: new Date().toISOString(),
-        km_checkin: finalKmCheckin,
+        km_checkin: manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0),
         checked_in_by: user.id,
         notes: notes || undefined,
         refueled: refueled === "yes",
       };
-
-      // Update checkout km if AI read it and it was 0
-      const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
-      if (finalKmCheckout > 0 && checkoutData?.km_checkout === 0) {
-        updateData.km_checkout = finalKmCheckout;
-      }
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
