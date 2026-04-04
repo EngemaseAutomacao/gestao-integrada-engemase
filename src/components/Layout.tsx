@@ -277,7 +277,7 @@ export default function Layout({ children }: LayoutProps) {
       <PermissionsRequest />
       {/* Header */}
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
-        <div className="flex items-center gap-1.5 sm:gap-3">
+        <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
           {/* Mobile: Back button when inside a module */}
           {isMobile && !isHomePage && (
             <NavLink to="/">
@@ -369,7 +369,7 @@ export default function Layout({ children }: LayoutProps) {
         })()}
 
         {/* Right side */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className={cn("flex items-center gap-1 sm:gap-2", isMobile && "min-w-[100px] justify-end")}>
           <OfflineIndicator />
           
           <ThemeToggle />
