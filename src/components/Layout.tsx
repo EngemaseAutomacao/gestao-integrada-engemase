@@ -69,7 +69,7 @@ export default function Layout({ children }: LayoutProps) {
                                location.pathname.startsWith('/history') ||
                                location.pathname.startsWith('/report-issue') ||
                                isAdminToolRoute;
-  const isAdminVehicleRoute = location.pathname === '/admin/vehicle-history';
+  const isAdminVehicleRoute = location.pathname === '/admin/vehicle-history' || location.pathname === '/admin/vehicle-issues';
   const isVeiculosModule = location.pathname.startsWith('/veiculos') || isAdminVehicleRoute;
   const isAdminModule = location.pathname.startsWith('/admin') && !isAdminToolRoute && !isAdminVehicleRoute;
 
@@ -93,6 +93,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
     ...(isAdmin ? [
+      { title: "Problemas", url: "/admin/vehicle-issues", icon: AlertCircle },
       { title: "Histórico Geral", url: "/admin/vehicle-history", icon: ClipboardList },
       { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
     ] : []),
@@ -145,6 +146,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
     '/admin/gallery': { title: 'Galeria', icon: Package },
     '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
+    '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
     '/ajuda': { title: 'Ajuda', icon: HelpCircle },
     '/changelog': { title: 'Notas de Atualização', icon: FileText },
     '/change-password': { title: 'Alterar Senha', icon: Settings },
