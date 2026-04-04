@@ -151,6 +151,7 @@ export default function PontoRegister() {
         clock_in_latitude: coords.latitude,
         clock_in_longitude: coords.longitude,
         clock_in_address: address,
+        construction_site: constructionSite || null,
         notes: notes || null,
         status: "open",
       };
