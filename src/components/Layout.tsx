@@ -138,7 +138,7 @@ export default function Layout({ children }: LayoutProps) {
     '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
     '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
     '/admin/reports': { title: 'Relatórios', icon: FileText },
-    '/admin/construction-sites': { title: 'Obras', icon: MapPin },
+    
     '/admin/notifications': { title: 'Notificações', icon: Bell },
     '/admin/logs': { title: 'Logs', icon: ClipboardList },
     '/admin/manual': { title: 'Entrada Manual', icon: Settings },
