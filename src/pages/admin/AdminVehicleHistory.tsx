@@ -159,8 +159,10 @@ export default function AdminVehicleHistory() {
       toast.error("Fotos do painel de saída e devolução são necessárias");
       return;
     }
+
     setEstimating(true);
     setAiEstimation(null);
+
     try {
       const { data, error } = await supabase.functions.invoke("read-odometer", {
         body: {
@@ -168,13 +170,62 @@ export default function AdminVehicleHistory() {
           checkin_photo_path: entry.photo_dashboard_checkin,
         },
       });
+
       if (error) throw error;
-      setAiEstimation(data);
-      if (data.confidence === "low") {
+
+      const estimation = data as {
+        checkout_km: number | null;
+        checkin_km: number | null;
+        distance_km: number | null;
+        confidence: string;
+        notes: string;
+      };
+
+      setAiEstimation(estimation);
+
+      if (estimation.confidence === "low" || estimation.checkin_km === null) {
         toast.warning("Baixa confiança na leitura. Verifique manualmente.");
-      } else {
-        toast.success("Estimativa concluída!");
+        return;
       }
+
+      const updateData: { km_checkin: number; km_checkout?: number } = {
+        km_checkin: estimation.checkin_km,
+      };
+
+      if (estimation.checkout_km !== null && entry.km_checkout === 0) {
+        updateData.km_checkout = estimation.checkout_km;
+      }
+
+      const { error: updateError } = await supabase
+        .from("vehicle_checkouts")
+        .update(updateData)
+        .eq("id", entry.id);
+
+      if (updateError) throw updateError;
+
+      setHistory((prev) =>
+        prev.map((item) =>
+          item.id === entry.id
+            ? {
+                ...item,
+                km_checkin: estimation.checkin_km,
+                km_checkout: updateData.km_checkout ?? item.km_checkout,
+              }
+            : item
+        )
+      );
+
+      setSelectedEntry((prev) =>
+        prev && prev.id === entry.id
+          ? {
+              ...prev,
+              km_checkin: estimation.checkin_km,
+              km_checkout: updateData.km_checkout ?? prev.km_checkout,
+            }
+          : prev
+      );
+
+      toast.success("Estimativa concluída e salva no histórico!");
     } catch (error) {
       console.error("Error estimating km:", error);
       toast.error("Erro ao estimar quilometragem");
