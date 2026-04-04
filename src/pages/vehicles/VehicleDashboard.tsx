@@ -188,7 +188,7 @@ export default function VehicleDashboard() {
                 const userHasVehicle = myActiveVehicleIds.has(vehicle.id);
                 const isAvailable = vehicle.status === "available";
                 return (
-                  <Card key={vehicle.id} className="hover:bg-accent/50 transition-colors">
+                  <Card key={vehicle.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => navigate(`/veiculos/${vehicle.id}`)}>
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -212,7 +212,7 @@ export default function VehicleDashboard() {
                             <Button
                               size="sm"
                               className="text-xs gap-1"
-                              onClick={() => navigate("/veiculos/saida")}
+                              onClick={(e) => { e.stopPropagation(); navigate("/veiculos/saida"); }}
                             >
                               Registrar Saída
                             </Button>
@@ -222,7 +222,7 @@ export default function VehicleDashboard() {
                               size="sm"
                               variant="outline"
                               className="text-xs gap-1"
-                              onClick={() => navigate("/veiculos/chegada")}
+                              onClick={(e) => { e.stopPropagation(); navigate("/veiculos/chegada"); }}
                             >
                               Registrar Devolução
                             </Button>

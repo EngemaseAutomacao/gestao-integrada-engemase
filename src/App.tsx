@@ -24,6 +24,7 @@ import VehicleCheckout from "./pages/vehicles/VehicleCheckout";
 import VehicleHistory from "./pages/vehicles/VehicleHistory";
 import VehicleCheckin from "./pages/vehicles/VehicleCheckin";
 import VehicleList from "./pages/vehicles/VehicleList";
+import VehicleDetail from "./pages/vehicles/VehicleDetail";
 import VehicleAnalytics from "./pages/vehicles/VehicleAnalytics";
 import FuelRecords from "./pages/vehicles/FuelRecords";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -90,6 +91,7 @@ const App = () => (
                 <Route path="/veiculos" element={<Layout><VeiculosMenu /></Layout>} />
                 <Route path="/veiculos/dashboard" element={<Layout><VehicleDashboard /></Layout>} />
                 <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
+                <Route path="/veiculos/:id" element={<Layout><VehicleDetail /></Layout>} />
                 <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                 <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
                 <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
