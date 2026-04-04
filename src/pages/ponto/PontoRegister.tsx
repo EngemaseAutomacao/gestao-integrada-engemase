@@ -2,14 +2,16 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check } from "lucide-react";
+import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 const MAX_ENTRIES_PER_DAY = 3;
 const PONTO_CACHE_KEY = "engemase_ponto_today";
