@@ -150,6 +150,39 @@ export default function AdminVehicleHistory() {
       entry.photo_dashboard_checkout || entry.photo_dashboard_checkin;
   };
 
+  const canEstimateKm = (entry: VehicleHistoryEntry) => {
+    return entry.photo_dashboard_checkout && entry.photo_dashboard_checkin;
+  };
+
+  const estimateKm = async (entry: VehicleHistoryEntry) => {
+    if (!entry.photo_dashboard_checkout || !entry.photo_dashboard_checkin) {
+      toast.error("Fotos do painel de saída e devolução são necessárias");
+      return;
+    }
+    setEstimating(true);
+    setAiEstimation(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("read-odometer", {
+        body: {
+          checkout_photo_path: entry.photo_dashboard_checkout,
+          checkin_photo_path: entry.photo_dashboard_checkin,
+        },
+      });
+      if (error) throw error;
+      setAiEstimation(data);
+      if (data.confidence === "low") {
+        toast.warning("Baixa confiança na leitura. Verifique manualmente.");
+      } else {
+        toast.success("Estimativa concluída!");
+      }
+    } catch (error) {
+      console.error("Error estimating km:", error);
+      toast.error("Erro ao estimar quilometragem");
+    } finally {
+      setEstimating(false);
+    }
+  };
+
   const exportPDF = () => {
     if (filteredHistory.length === 0) {
       toast.error("Nenhum registro para exportar");
