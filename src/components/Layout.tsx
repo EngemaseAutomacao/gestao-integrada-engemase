@@ -350,7 +350,7 @@ export default function Layout({ children }: LayoutProps) {
         {isMobile && (() => {
           if (isHomePage) {
             return (
-              <div className="absolute left-1/2 -translate-x-[60%] flex items-center gap-1.5">
+              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
                 <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto" />
               </div>
             );
@@ -361,7 +361,7 @@ export default function Layout({ children }: LayoutProps) {
           const IconComponent = icon;
           if (!title) return null;
           return (
-            <div className="absolute left-1/2 -translate-x-[60%] flex items-center gap-1.5">
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
               {IconComponent && <IconComponent className="w-4 h-4 text-primary" />}
               <span className="text-sm font-semibold text-foreground">{title}</span>
             </div>
