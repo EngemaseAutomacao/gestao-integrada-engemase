@@ -584,7 +584,7 @@ export default function AdminVehicleHistory() {
                       </div>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                          <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
                             <Eye className="w-4 h-4" />
                           </Button>
                         </DialogTrigger>
