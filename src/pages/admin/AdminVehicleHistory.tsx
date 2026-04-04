@@ -392,7 +392,7 @@ export default function AdminVehicleHistory() {
                         <TableCell>
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                              <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
                                 <Eye className="w-4 h-4 mr-1" />
                                 Ver
                                 {hasPhotos(entry) && <Camera className="w-3 h-3 ml-1" />}
