@@ -122,7 +122,7 @@ export default function Dashboard() {
   );
 
   const handleCheckout = (toolId: string) => {
-    navigate(`/checkout?toolId=${toolId}`);
+    navigate(`/ferramentas/retirada?toolId=${toolId}`);
   };
 
   const handleCheckin = (toolId: string) => {
