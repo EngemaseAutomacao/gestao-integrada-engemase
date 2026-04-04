@@ -200,25 +200,32 @@ export default function VehicleCheckin() {
 
       if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
 
-      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
-        uploadPhoto(photos.front!, "front_in"),
-        uploadPhoto(photos.back!, "back_in"),
-        uploadPhoto(photos.left!, "left_in"),
-        uploadPhoto(photos.right!, "right_in"),
-        uploadPhoto(photos.dashboard!, "dashboard_in"),
-      ]);
+      // Skip re-uploading if photos were already uploaded (retry after manual km)
+      let urls = uploadedPhotoUrls;
+      if (!urls) {
+        const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
+          uploadPhoto(photos.front!, "front_in"),
+          uploadPhoto(photos.back!, "back_in"),
+          uploadPhoto(photos.left!, "left_in"),
+          uploadPhoto(photos.right!, "right_in"),
+          uploadPhoto(photos.dashboard!, "dashboard_in"),
+        ]);
+        urls = { front: frontUrl, back: backUrl, left: leftUrl, right: rightUrl, dashboard: dashboardUrl };
+        setUploadedPhotoUrls(urls);
+      }
 
-      // Try to estimate km from dashboard photos
-      const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
-      if (currentCheckoutData?.photo_dashboard_checkout) {
+      // Try to estimate km from dashboard photos (only on first attempt)
+      if (!odometerResult && !showManualKm && currentCheckoutData?.photo_dashboard_checkout) {
         setIsEstimatingKm(true);
         try {
           const { data: odometerData, error: odometerError } = await supabase.functions.invoke("read-odometer", {
             body: {
-              checkout_photo_path: checkoutData.photo_dashboard_checkout,
-              checkin_photo_path: dashboardUrl,
+              checkout_photo_path: currentCheckoutData.photo_dashboard_checkout,
+              checkin_photo_path: urls.dashboard,
             },
           });
+
+          setIsEstimatingKm(false);
 
           if (!odometerError && odometerData) {
             const result = odometerData as OdometerResult;
@@ -226,33 +233,26 @@ export default function VehicleCheckin() {
 
             if (result.distance_km !== null && result.confidence !== "low") {
               updateData.km_checkin = result.checkin_km || 0;
-              if (result.checkout_km && result.checkout_km > 0 && checkoutData.km_checkout === 0) {
+              if (result.checkout_km && result.checkout_km > 0 && currentCheckoutData.km_checkout === 0) {
                 updateData.km_checkout = result.checkout_km;
               }
             } else {
-              // Need manual input - stop and ask user
               setShowManualKm(true);
-              setIsEstimatingKm(false);
-              // Save dashboard url for later
-              (window as any).__pendingDashboardUrl = dashboardUrl;
-              (window as any).__pendingPhotoUrls = { frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl };
-              throw new Error("NEEDS_MANUAL_KM");
+              toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente.");
+              return; // Stop - user needs to enter km manually and resubmit
             }
           }
-        } catch (e: any) {
-          if (e.message === "NEEDS_MANUAL_KM") throw e;
+        } catch (e) {
+          setIsEstimatingKm(false);
           console.error("Odometer estimation failed:", e);
           setShowManualKm(true);
-          setIsEstimatingKm(false);
           setOdometerResult({
             checkout_km: null, checkin_km: null, distance_km: null,
             confidence: "low",
             notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
           });
-          (window as any).__pendingPhotoUrls = { frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl };
-          throw new Error("NEEDS_MANUAL_KM");
-        } finally {
-          setIsEstimatingKm(false);
+          toast.warning("Não foi possível estimar a quilometragem. Informe manualmente.");
+          return; // Stop - user needs to enter km manually and resubmit
         }
       }
 
@@ -261,19 +261,15 @@ export default function VehicleCheckin() {
         updateData.km_checkin = parseInt(manualKm);
       }
 
-      // Use pending photo URLs if this is a retry after manual km entry
-      const photoUrls = (window as any).__pendingPhotoUrls || { frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl };
-      delete (window as any).__pendingPhotoUrls;
-
       const { error } = await supabase
         .from("vehicle_checkouts")
         .update({
           ...updateData,
-          photo_front_checkin: photoUrls.frontUrl || frontUrl,
-          photo_back_checkin: photoUrls.backUrl || backUrl,
-          photo_left_checkin: photoUrls.leftUrl || leftUrl,
-          photo_right_checkin: photoUrls.rightUrl || rightUrl,
-          photo_dashboard_checkin: photoUrls.dashboardUrl || dashboardUrl,
+          photo_front_checkin: urls.front,
+          photo_back_checkin: urls.back,
+          photo_left_checkin: urls.left,
+          photo_right_checkin: urls.right,
+          photo_dashboard_checkin: urls.dashboard,
         })
         .eq("id", selectedCheckout);
 
