@@ -182,6 +182,77 @@ export type Database = {
           },
         ]
       }
+      material_request_items: {
+        Row: {
+          created_at: string
+          id: string
+          material_name: string
+          notes: string | null
+          quantity: number
+          request_id: string
+          unit: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_name: string
+          notes?: string | null
+          quantity?: number
+          request_id: string
+          unit?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_name?: string
+          notes?: string | null
+          quantity?: number
+          request_id?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_request_items_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "material_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_requests: {
+        Row: {
+          construction_site: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          requested_by_name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          construction_site?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          requested_by_name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          construction_site?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          requested_by_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           checkout_id: string | null
