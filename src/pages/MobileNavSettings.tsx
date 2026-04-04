@@ -45,9 +45,11 @@ export default function MobileNavSettings() {
   };
 
   const handleReset = () => {
+    const defaults = isAdmin 
+      ? ["home", "ferramentas", "veiculos", "admin"]
+      : ["home", "ferramentas", "veiculos"];
     reset();
-    setDraft(["home", "ferramentas", "veiculos", "ponto"]);
-    toast.success("Menu restaurado ao padrão");
+    setDraft(defaults);
   };
 
   return (
