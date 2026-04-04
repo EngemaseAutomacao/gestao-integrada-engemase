@@ -101,55 +101,6 @@ export default function VehicleCheckin() {
     return filePath;
   };
 
-  const estimateKm = async (checkinDashboardPath: string) => {
-    const checkoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
-    if (!checkoutData?.photo_dashboard_checkout) {
-      setShowManualKm(true);
-      setOdometerResult({
-        checkout_km: null,
-        checkin_km: null,
-        distance_km: null,
-        confidence: "low",
-        notes: "Foto do painel da saída não encontrada. Informe a quilometragem manualmente.",
-      });
-      return;
-    }
-
-    setIsEstimatingKm(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("read-odometer", {
-        body: {
-          checkout_photo_path: checkoutData.photo_dashboard_checkout,
-          checkin_photo_path: checkinDashboardPath,
-        },
-      });
-
-      if (error) throw error;
-
-      const result = data as OdometerResult;
-      setOdometerResult(result);
-
-      if (result.distance_km !== null && result.confidence !== "low") {
-        toast.success(`Quilometragem estimada: ~${result.distance_km} km`);
-      } else {
-        setShowManualKm(true);
-        toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente.");
-      }
-    } catch (error) {
-      console.error("Error estimating km:", error);
-      setShowManualKm(true);
-      setOdometerResult({
-        checkout_km: null,
-        checkin_km: null,
-        distance_km: null,
-        confidence: "low",
-        notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
-      });
-      toast.warning("Não foi possível estimar a quilometragem. Informe manualmente.");
-    } finally {
-      setIsEstimatingKm(false);
-    }
-  };
 
   const checkinMutation = useMutation({
     mutationFn: async () => {
