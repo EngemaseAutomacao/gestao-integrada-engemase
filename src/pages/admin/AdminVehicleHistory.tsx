@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -62,6 +62,14 @@ export default function AdminVehicleHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<VehicleHistoryEntry | null>(null);
+  const [aiEstimation, setAiEstimation] = useState<{
+    checkout_km: number | null;
+    checkin_km: number | null;
+    distance_km: number | null;
+    confidence: string;
+    notes: string;
+  } | null>(null);
+  const [estimating, setEstimating] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -140,6 +148,39 @@ export default function AdminVehicleHistory() {
   const hasPhotos = (entry: VehicleHistoryEntry) => {
     return entry.photo_front_checkout || entry.photo_front_checkin ||
       entry.photo_dashboard_checkout || entry.photo_dashboard_checkin;
+  };
+
+  const canEstimateKm = (entry: VehicleHistoryEntry) => {
+    return entry.photo_dashboard_checkout && entry.photo_dashboard_checkin;
+  };
+
+  const estimateKm = async (entry: VehicleHistoryEntry) => {
+    if (!entry.photo_dashboard_checkout || !entry.photo_dashboard_checkin) {
+      toast.error("Fotos do painel de saída e devolução são necessárias");
+      return;
+    }
+    setEstimating(true);
+    setAiEstimation(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("read-odometer", {
+        body: {
+          checkout_photo_path: entry.photo_dashboard_checkout,
+          checkin_photo_path: entry.photo_dashboard_checkin,
+        },
+      });
+      if (error) throw error;
+      setAiEstimation(data);
+      if (data.confidence === "low") {
+        toast.warning("Baixa confiança na leitura. Verifique manualmente.");
+      } else {
+        toast.success("Estimativa concluída!");
+      }
+    } catch (error) {
+      console.error("Error estimating km:", error);
+      toast.error("Erro ao estimar quilometragem");
+    } finally {
+      setEstimating(false);
+    }
   };
 
   const exportPDF = () => {
@@ -351,7 +392,7 @@ export default function AdminVehicleHistory() {
                         <TableCell>
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                              <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
                                 <Eye className="w-4 h-4 mr-1" />
                                 Ver
                                 {hasPhotos(entry) && <Camera className="w-3 h-3 ml-1" />}
@@ -417,6 +458,58 @@ export default function AdminVehicleHistory() {
                                       <p className="text-xs text-muted-foreground">
                                         Abastecido: {selectedEntry.refueled === null ? "Não informado" : selectedEntry.refueled ? "Sim" : "Não"}
                                       </p>
+                                    </div>
+                                  )}
+
+                                  {canEstimateKm(selectedEntry) && (
+                                    <div className="pt-4 border-t">
+                                      <div className="flex items-center justify-between">
+                                        <p className="text-sm font-medium text-muted-foreground">Estimativa por IA</p>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="gap-2"
+                                          onClick={() => estimateKm(selectedEntry)}
+                                          disabled={estimating}
+                                        >
+                                          {estimating ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                          ) : (
+                                            <Brain className="w-4 h-4" />
+                                          )}
+                                          {estimating ? "Analisando..." : "Estimar KM via IA"}
+                                        </Button>
+                                      </div>
+                                      {aiEstimation && (
+                                        <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant={
+                                              aiEstimation.confidence === "high" ? "default" :
+                                              aiEstimation.confidence === "medium" ? "secondary" : "destructive"
+                                            }>
+                                              {aiEstimation.confidence === "high" ? "Alta confiança" :
+                                               aiEstimation.confidence === "medium" ? "Média confiança" : "Baixa confiança"}
+                                            </Badge>
+                                          </div>
+                                          <div className="grid grid-cols-3 gap-2 text-sm">
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">KM Saída</p>
+                                              <p className="font-medium">{aiEstimation.checkout_km?.toLocaleString() || "N/A"}</p>
+                                            </div>
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">KM Chegada</p>
+                                              <p className="font-medium">{aiEstimation.checkin_km?.toLocaleString() || "N/A"}</p>
+                                            </div>
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">Distância</p>
+                                              <p className="font-bold text-primary">{aiEstimation.distance_km?.toLocaleString() || "N/A"} km</p>
+                                            </div>
+                                          </div>
+                                          {aiEstimation.notes && (
+                                            <p className="text-xs text-muted-foreground">{aiEstimation.notes}</p>
+                                          )}
+                                        </div>
+                                      )}
                                     </div>
                                   )}
 
@@ -491,7 +584,7 @@ export default function AdminVehicleHistory() {
                       </div>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                          <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
                             <Eye className="w-4 h-4" />
                           </Button>
                         </DialogTrigger>
