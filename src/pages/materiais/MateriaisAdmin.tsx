@@ -45,7 +45,11 @@ export default function MateriaisAdmin() {
   useEffect(() => {
     if (profile?.role !== "admin") return;
     loadRequests();
-  }, []);
+  }, [profile]);
+
+  if (profile?.role !== "admin") {
+    return <Navigate to="/" />;
+  }
 
   const loadRequests = async () => {
     setLoading(true);
