@@ -181,7 +181,7 @@ export default function Layout({ children }: LayoutProps) {
         title: "Administração", 
         icon: Settings, 
         items: adminMenuItems,
-        color: "text-orange-500"
+        color: "text-primary"
       };
     }
     if (location.pathname.startsWith('/ponto')) {
