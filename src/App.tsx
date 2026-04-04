@@ -39,6 +39,8 @@ import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminVehicleHistory from "./pages/admin/AdminVehicleHistory";
 import ReportIssue from "./pages/ReportIssue";
+import ReportVehicleIssue from "./pages/vehicles/ReportVehicleIssue";
+import AdminVehicleIssues from "./pages/admin/AdminVehicleIssues";
 import PontoDashboard from "./pages/ponto/PontoDashboard";
 import PontoRegister from "./pages/ponto/PontoRegister";
 import PontoHistory from "./pages/ponto/PontoHistory";
