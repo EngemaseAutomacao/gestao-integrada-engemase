@@ -243,7 +243,7 @@ export default function VehicleHistory() {
          assetType="vehicle"
          checkoutId={transferDialog.checkoutId}
          assetName={transferDialog.vehicleName}
-         onTransferCreated={loadHistory}
+         onTransferCreated={() => { loadHistory(); reloadTransfers(); }}
        />
      </div>
    );
