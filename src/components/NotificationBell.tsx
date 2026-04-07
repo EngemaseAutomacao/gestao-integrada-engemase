@@ -237,6 +237,9 @@ export function NotificationBell() {
     }
   };
 
+  const isTransferNotification = (type: string) =>
+    type.startsWith("transfer_");
+
   const getNotificationColor = (type: string) => {
     switch (type) {
       case "overdue":
@@ -245,8 +248,21 @@ export function NotificationBell() {
         return "text-orange-500";
       case "return_reminder":
         return "text-primary";
+      case "transfer_request":
+      case "transfer_accepted":
+      case "transfer_approved":
+      case "transfer_rejected":
+        return "text-primary";
       default:
         return "";
+    }
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.read) markAsRead(notification.id);
+    if (isTransferNotification(notification.type)) {
+      setOpen(false);
+      navigate("/transferencias");
     }
   };
 
