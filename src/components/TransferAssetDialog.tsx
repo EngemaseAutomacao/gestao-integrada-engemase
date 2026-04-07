@@ -50,15 +50,10 @@ export function TransferAssetDialog({
   const loadUsers = async () => {
     setLoadingUsers(true);
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, full_name, email")
-        .eq("approved", true)
-        .neq("id", profile!.id)
-        .order("full_name");
+      const { data, error } = await supabase.rpc("get_approved_users");
 
       if (error) throw error;
-      setUsers(data || []);
+      setUsers((data || []).filter((u: any) => u.id !== profile!.id));
     } catch (error) {
       console.error("Erro ao carregar usuários:", error);
     } finally {
@@ -97,8 +92,8 @@ export function TransferAssetDialog({
       onOpenChange(false);
       onTransferCreated?.();
     } catch (error: any) {
-      console.error("Erro ao criar transferência:", error);
-      toast.error("Erro ao solicitar transferência");
+      console.error("Erro ao criar transferência:", error?.message, error?.details, error?.hint, error);
+      toast.error(error?.message || "Erro ao solicitar transferência");
     } finally {
       setLoading(false);
     }

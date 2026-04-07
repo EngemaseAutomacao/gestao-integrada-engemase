@@ -1087,6 +1087,14 @@ export type Database = {
         Args: { transfer_id: string }
         Returns: undefined
       }
+      get_approved_users: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+        }[]
+      }
       get_email_from_username: { Args: { _username: string }; Returns: string }
       get_tool_usage_history: {
         Args: { tool_uuid: string }
