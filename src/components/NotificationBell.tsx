@@ -20,7 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 interface Notification {
   id: string;
-  type: "overdue" | "low_stock" | "return_reminder";
+  type: string;
   title: string;
   message: string;
   read: boolean;
