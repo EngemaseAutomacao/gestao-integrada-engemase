@@ -37,6 +37,7 @@ export default function UserHistory() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; toolName: string }>({ open: false, checkoutId: "", toolName: "" });
 
