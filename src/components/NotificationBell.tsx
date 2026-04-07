@@ -361,7 +361,7 @@ export function NotificationBell() {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    onClick={() => !notification.read && markAsRead(notification.id)}
+                    onClick={() => handleNotificationClick(notification)}
                     className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                       notification.read
                         ? "bg-background"
@@ -387,6 +387,18 @@ export function NotificationBell() {
                       <p className="text-sm text-muted-foreground">
                         {notification.message}
                       </p>
+                      {isTransferNotification(notification.type) && notification.type === "transfer_request" && (
+                        <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
+                          <ArrowRightLeft className="w-3 h-3" />
+                          Toque para aceitar ou recusar
+                        </div>
+                      )}
+                      {isTransferNotification(notification.type) && notification.type === "transfer_accepted" && isAdmin && (
+                        <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
+                          <ArrowRightLeft className="w-3 h-3" />
+                          Toque para aprovar
+                        </div>
+                      )}
                       <p className="text-xs text-muted-foreground">
                         {format(
                           new Date(notification.created_at),
