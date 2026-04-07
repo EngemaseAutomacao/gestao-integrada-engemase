@@ -42,6 +42,25 @@ export default function UserHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; toolName: string }>({ open: false, checkoutId: "", toolName: "" });
+  const [cancellingTransfer, setCancellingTransfer] = useState<string | null>(null);
+
+  const handleCancelTransfer = useCallback(async (transferId: string) => {
+    setCancellingTransfer(transferId);
+    try {
+      const { error } = await supabase
+        .from("asset_transfers")
+        .update({ status: "cancelled" })
+        .eq("id", transferId);
+      if (error) throw error;
+      toast.success("Transferência cancelada.");
+      reloadTransfers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cancelar transferência");
+    } finally {
+      setCancellingTransfer(null);
+    }
+  }, [reloadTransfers]);
 
   const checkedOutIds = history.filter(e => e.status === "checked_out").map(e => e.id);
   const { transfers, reload: reloadTransfers } = useTransferStatus(checkedOutIds, "tool");
