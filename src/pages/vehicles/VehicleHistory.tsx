@@ -11,6 +11,7 @@ import { Car, Search, ArrowRightLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TransferAssetDialog } from "@/components/TransferAssetDialog";
+import { useTransferStatus } from "@/hooks/useTransferStatus";
 
 interface VehicleHistoryEntry {
   id: string;

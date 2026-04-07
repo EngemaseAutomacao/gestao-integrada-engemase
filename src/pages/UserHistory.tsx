@@ -12,6 +12,7 @@ import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } f
 import { ptBR } from "date-fns/locale";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { TransferAssetDialog } from "@/components/TransferAssetDialog";
+import { useTransferStatus } from "@/hooks/useTransferStatus";
 
 interface HistoryEntry {
   id: string;
