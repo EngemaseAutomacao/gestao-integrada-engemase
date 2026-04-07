@@ -196,6 +196,7 @@ export default function UserHistory() {
                   <TableHead>Devolvido Por</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Ações</TableHead>
+                </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredHistory.map((entry) => (
