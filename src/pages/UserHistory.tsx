@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { History as HistoryIcon, Search, X, ArrowRightLeft } from "lucide-react";
+import { History as HistoryIcon, Search, X, ArrowRightLeft, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { HistorySkeleton } from "@/components/PageSkeleton";
@@ -41,9 +42,27 @@ export default function UserHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; toolName: string }>({ open: false, checkoutId: "", toolName: "" });
-
   const checkedOutIds = history.filter(e => e.status === "checked_out").map(e => e.id);
   const { transfers, reload: reloadTransfers } = useTransferStatus(checkedOutIds, "tool");
+  const [cancellingTransfer, setCancellingTransfer] = useState<string | null>(null);
+
+  const handleCancelTransfer = useCallback(async (transferId: string) => {
+    setCancellingTransfer(transferId);
+    try {
+      const { error } = await supabase
+        .from("asset_transfers")
+        .update({ status: "cancelled" })
+        .eq("id", transferId);
+      if (error) throw error;
+      toast.success("Transferência cancelada.");
+      reloadTransfers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cancelar transferência");
+    } finally {
+      setCancellingTransfer(null);
+    }
+  }, [reloadTransfers]);
 
   useEffect(() => {
     loadHistory();
@@ -254,6 +273,18 @@ export default function UserHistory() {
                                 </Badge>
                                 {transfer.to_user && (
                                   <span className="text-xs text-muted-foreground">→ {transfer.to_user}</span>
+                                )}
+                                {transfer.status === "pending" && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 text-xs text-destructive hover:text-destructive px-1"
+                                    onClick={() => handleCancelTransfer(transfer.id)}
+                                    disabled={cancellingTransfer === transfer.id}
+                                  >
+                                    {cancellingTransfer === transfer.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
+                                    Cancelar
+                                  </Button>
                                 )}
                               </div>
                             );
