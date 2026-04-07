@@ -22,7 +22,7 @@ export default function Changelog() {
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1">
-        {changelog.map((entry) => {
+        {changelog.slice(0, 10).map((entry) => {
           const isCurrent = entry.version === APP_VERSION;
           return (
             <Card key={entry.version} className={isCurrent ? "border-primary/50 shadow-md" : ""}>
