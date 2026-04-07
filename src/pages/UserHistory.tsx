@@ -42,6 +42,8 @@ export default function UserHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; toolName: string }>({ open: false, checkoutId: "", toolName: "" });
+  const checkedOutIds = history.filter(e => e.status === "checked_out").map(e => e.id);
+  const { transfers, reload: reloadTransfers } = useTransferStatus(checkedOutIds, "tool");
   const [cancellingTransfer, setCancellingTransfer] = useState<string | null>(null);
 
   const handleCancelTransfer = useCallback(async (transferId: string) => {
@@ -61,9 +63,6 @@ export default function UserHistory() {
       setCancellingTransfer(null);
     }
   }, [reloadTransfers]);
-
-  const checkedOutIds = history.filter(e => e.status === "checked_out").map(e => e.id);
-  const { transfers, reload: reloadTransfers } = useTransferStatus(checkedOutIds, "tool");
 
   useEffect(() => {
     loadHistory();
