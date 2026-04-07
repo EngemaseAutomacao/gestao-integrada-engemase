@@ -159,8 +159,9 @@ export default function VehicleHistory() {
                     <TableHead>Chegada</TableHead>
                     <TableHead>KM Chegada</TableHead>
                     <TableHead>Abastecido</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
+                     <TableHead>Status</TableHead>
+                     <TableHead>Ações</TableHead>
+                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredHistory.map((entry) => (
@@ -183,19 +184,41 @@ export default function VehicleHistory() {
                       <TableCell>
                         {entry.refueled === null ? "-" : entry.refueled ? "Sim" : "Não"}
                       </TableCell>
-                      <TableCell>
-                        <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
-                          {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+                       <TableCell>
+                         <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+                           {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
+                         </Badge>
+                       </TableCell>
+                       <TableCell>
+                         {entry.status === "checked_out" && (
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             className="gap-1"
+                             onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, vehicleName: `${entry.vehicles.name} (${entry.vehicles.plate})` })}
+                           >
+                             <ArrowRightLeft className="w-3 h-3" />
+                             Transferir
+                           </Button>
+                         )}
+                       </TableCell>
+                     </TableRow>
+                   ))}
+                 </TableBody>
+               </Table>
+             </div>
+           )}
+         </CardContent>
+       </Card>
+
+       <TransferAssetDialog
+         open={transferDialog.open}
+         onOpenChange={(open) => setTransferDialog((prev) => ({ ...prev, open }))}
+         assetType="vehicle"
+         checkoutId={transferDialog.checkoutId}
+         assetName={transferDialog.vehicleName}
+         onTransferCreated={loadHistory}
+       />
+     </div>
+   );
+ }
