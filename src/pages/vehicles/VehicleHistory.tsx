@@ -11,6 +11,7 @@ import { Car, Search, ArrowRightLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { TransferAssetDialog } from "@/components/TransferAssetDialog";
+import { useTransferStatus } from "@/hooks/useTransferStatus";
 
 interface VehicleHistoryEntry {
   id: string;
@@ -41,6 +42,9 @@ export default function VehicleHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; vehicleName: string }>({ open: false, checkoutId: "", vehicleName: "" });
+
+  const checkedOutIds = history.filter(e => e.status === "checked_out").map(e => e.id);
+  const { transfers, reload: reloadTransfers } = useTransferStatus(checkedOutIds, "vehicle");
 
   useEffect(() => {
     loadHistory();
@@ -190,17 +194,39 @@ export default function VehicleHistory() {
                          </Badge>
                        </TableCell>
                        <TableCell>
-                         {entry.status === "checked_out" && (
-                           <Button
-                             size="sm"
-                             variant="outline"
-                             className="gap-1"
-                             onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, vehicleName: `${entry.vehicles.name} (${entry.vehicles.plate})` })}
-                           >
-                             <ArrowRightLeft className="w-3 h-3" />
-                             Transferir
-                           </Button>
-                         )}
+                         {entry.status === "checked_out" && (() => {
+                           const transfer = transfers[entry.id];
+                           if (transfer) {
+                             const statusMap: Record<string, { label: string; variant: "outline" | "default" | "secondary" }> = {
+                               pending: { label: "Transferência Pendente", variant: "outline" },
+                               accepted: { label: "Aguardando Aprovação", variant: "default" },
+                               approved: { label: "Transferência Concluída", variant: "secondary" },
+                             };
+                             const s = statusMap[transfer.status] || { label: transfer.status, variant: "outline" as const };
+                             return (
+                               <div className="flex flex-col gap-1">
+                                 <Badge variant={s.variant} className="gap-1 text-xs">
+                                   <ArrowRightLeft className="w-3 h-3" />
+                                   {s.label}
+                                 </Badge>
+                                 {transfer.to_user && (
+                                   <span className="text-xs text-muted-foreground">→ {transfer.to_user}</span>
+                                 )}
+                               </div>
+                             );
+                           }
+                           return (
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               className="gap-1"
+                               onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, vehicleName: `${entry.vehicles.name} (${entry.vehicles.plate})` })}
+                             >
+                               <ArrowRightLeft className="w-3 h-3" />
+                               Transferir
+                             </Button>
+                           );
+                         })()}
                        </TableCell>
                      </TableRow>
                    ))}
@@ -217,7 +243,7 @@ export default function VehicleHistory() {
          assetType="vehicle"
          checkoutId={transferDialog.checkoutId}
          assetName={transferDialog.vehicleName}
-         onTransferCreated={loadHistory}
+         onTransferCreated={() => { loadHistory(); reloadTransfers(); }}
        />
      </div>
    );
