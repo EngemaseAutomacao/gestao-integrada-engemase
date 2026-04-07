@@ -274,6 +274,18 @@ export default function UserHistory() {
                                 {transfer.to_user && (
                                   <span className="text-xs text-muted-foreground">→ {transfer.to_user}</span>
                                 )}
+                                {transfer.status === "pending" && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 text-xs text-destructive hover:text-destructive px-1"
+                                    onClick={() => handleCancelTransfer(transfer.id)}
+                                    disabled={cancellingTransfer === transfer.id}
+                                  >
+                                    {cancellingTransfer === transfer.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
+                                    Cancelar
+                                  </Button>
+                                )}
                               </div>
                             );
                           }
