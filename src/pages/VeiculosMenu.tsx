@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Car, Package, Upload, LogIn, History, Fuel, BarChart3, AlertCircle, ClipboardList } from "lucide-react";
+import { Car, Package, Upload, LogIn, History, Fuel, BarChart3, AlertCircle, ClipboardList, ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -86,6 +86,12 @@ export default function VeiculosMenu() {
           description="Informar defeito em veículo"
           icon={<AlertCircle className="w-6 h-6 text-primary" />}
           to="/veiculos/report-issue"
+        />
+        <MenuCard
+          title="Transferências"
+          description="Transferir posse de veículos"
+          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+          to="/transferencias"
         />
         {isAdmin && (
           <>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Package, Upload, LogIn, History, BarChart3, AlertCircle, ClipboardList, Settings } from "lucide-react";
+import { Wrench, Package, Upload, LogIn, History, BarChart3, AlertCircle, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -78,6 +78,12 @@ export default function FerramentasMenu() {
           description="Informar defeito em ferramenta"
           icon={<AlertCircle className="w-6 h-6 text-primary" />}
           to="/report-issue"
+        />
+        <MenuCard
+          title="Transferências"
+          description="Transferir posse de ferramentas"
+          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+          to="/transferencias"
         />
         {isAdmin && (
           <>
