@@ -42,6 +42,9 @@ export default function UserHistory() {
   const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; toolName: string }>({ open: false, checkoutId: "", toolName: "" });
 
+  const checkedOutIds = history.filter(e => e.status === "checked_out").map(e => e.id);
+  const { transfers, reload: reloadTransfers } = useTransferStatus(checkedOutIds, "tool");
+
   useEffect(() => {
     loadHistory();
   }, []);
@@ -234,17 +237,39 @@ export default function UserHistory() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {entry.status === "checked_out" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="gap-1"
-                            onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, toolName: entry.tools.name })}
-                          >
-                            <ArrowRightLeft className="w-3 h-3" />
-                            Transferir
-                          </Button>
-                        )}
+                        {entry.status === "checked_out" && (() => {
+                          const transfer = transfers[entry.id];
+                          if (transfer) {
+                            const statusMap: Record<string, { label: string; variant: "outline" | "default" | "secondary" }> = {
+                              pending: { label: "Transferência Pendente", variant: "outline" },
+                              accepted: { label: "Aguardando Aprovação", variant: "default" },
+                              approved: { label: "Transferência Concluída", variant: "secondary" },
+                            };
+                            const s = statusMap[transfer.status] || { label: transfer.status, variant: "outline" as const };
+                            return (
+                              <div className="flex flex-col gap-1">
+                                <Badge variant={s.variant} className="gap-1 text-xs">
+                                  <ArrowRightLeft className="w-3 h-3" />
+                                  {s.label}
+                                </Badge>
+                                {transfer.to_user && (
+                                  <span className="text-xs text-muted-foreground">→ {transfer.to_user}</span>
+                                )}
+                              </div>
+                            );
+                          }
+                          return (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1"
+                              onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, toolName: entry.tools.name })}
+                            >
+                              <ArrowRightLeft className="w-3 h-3" />
+                              Transferir
+                            </Button>
+                          );
+                        })()}
                       </TableCell>
                     </TableRow>
                   ))}
