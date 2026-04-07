@@ -97,8 +97,8 @@ export function TransferAssetDialog({
       onOpenChange(false);
       onTransferCreated?.();
     } catch (error: any) {
-      console.error("Erro ao criar transferência:", error);
-      toast.error("Erro ao solicitar transferência");
+      console.error("Erro ao criar transferência:", error?.message, error?.details, error?.hint, error);
+      toast.error(error?.message || "Erro ao solicitar transferência");
     } finally {
       setLoading(false);
     }
