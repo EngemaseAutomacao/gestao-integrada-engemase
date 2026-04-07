@@ -200,8 +200,8 @@ export default function Transfers() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending": return <Badge variant="outline" className="gap-1"><Clock className="w-3 h-3" /> Pendente</Badge>;
-      case "accepted": return <Badge className="gap-1 bg-amber-500"><Clock className="w-3 h-3" /> Aguardando Aprovação</Badge>;
-      case "approved": return <Badge className="gap-1 bg-green-600"><Check className="w-3 h-3" /> Aprovada</Badge>;
+      case "accepted": return <Badge className="gap-1 bg-warning text-warning-foreground"><Clock className="w-3 h-3" /> Aguardando Aprovação</Badge>;
+      case "approved": return <Badge className="gap-1 bg-primary text-primary-foreground"><Check className="w-3 h-3" /> Aprovada</Badge>;
       case "rejected": return <Badge variant="destructive" className="gap-1"><X className="w-3 h-3" /> Rejeitada</Badge>;
       case "cancelled": return <Badge variant="secondary" className="gap-1">Cancelada</Badge>;
       default: return <Badge>{status}</Badge>;
@@ -333,7 +333,7 @@ export default function Transfers() {
             <TabsTrigger value="approval" className="relative">
               Aprovar
               {pendingApproval.length > 0 && (
-                <span className="ml-1 bg-amber-500 text-primary-foreground rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                <span className="ml-1 bg-warning text-warning-foreground rounded-full text-xs w-5 h-5 flex items-center justify-center">
                   {pendingApproval.length}
                 </span>
               )}

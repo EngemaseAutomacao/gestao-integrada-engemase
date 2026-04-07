@@ -89,7 +89,7 @@ export function TransferAssetDialog({
 
       const { error } = await supabase
         .from("asset_transfers")
-        .insert(insertData);
+        .insert(insertData as any);
 
       if (error) throw error;
 
