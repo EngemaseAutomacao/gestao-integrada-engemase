@@ -195,7 +195,7 @@ export default function UserHistory() {
                   <TableHead>Devolução</TableHead>
                   <TableHead>Devolvido Por</TableHead>
                   <TableHead>Status</TableHead>
-                </TableRow>
+                  <TableHead>Ações</TableHead>
               </TableHeader>
               <TableBody>
                 {filteredHistory.map((entry) => (
@@ -229,15 +229,37 @@ export default function UserHistory() {
                         {entry.estimated_return_date && entry.status === "checked_out" && new Date(entry.estimated_return_date) < new Date() && (
                           <Badge variant="destructive">Atrasado</Badge>
                         )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {entry.status === "checked_out" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1"
+                            onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, toolName: entry.tools.name })}
+                          >
+                            <ArrowRightLeft className="w-3 h-3" />
+                            Transferir
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        <TransferAssetDialog
+          open={transferDialog.open}
+          onOpenChange={(open) => setTransferDialog((prev) => ({ ...prev, open }))}
+          assetType="tool"
+          checkoutId={transferDialog.checkoutId}
+          assetName={transferDialog.toolName}
+          onTransferCreated={loadHistory}
+        />
+      </div>
+    );
+  }
