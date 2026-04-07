@@ -285,7 +285,7 @@ export default function UserHistory() {
           assetType="tool"
           checkoutId={transferDialog.checkoutId}
           assetName={transferDialog.toolName}
-          onTransferCreated={loadHistory}
+          onTransferCreated={() => { loadHistory(); reloadTransfers(); }}
         />
       </div>
     );
