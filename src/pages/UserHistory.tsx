@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { History as HistoryIcon, Search, X } from "lucide-react";
+import { History as HistoryIcon, Search, X, ArrowRightLeft } from "lucide-react";
 import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { HistorySkeleton } from "@/components/PageSkeleton";
+import { TransferAssetDialog } from "@/components/TransferAssetDialog";
 
 interface HistoryEntry {
   id: string;
@@ -38,6 +39,7 @@ export default function UserHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState<string>("all");
+  const [transferDialog, setTransferDialog] = useState<{ open: boolean; checkoutId: string; toolName: string }>({ open: false, checkoutId: "", toolName: "" });
 
   useEffect(() => {
     loadHistory();
@@ -193,6 +195,7 @@ export default function UserHistory() {
                   <TableHead>Devolução</TableHead>
                   <TableHead>Devolvido Por</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -227,15 +230,37 @@ export default function UserHistory() {
                         {entry.estimated_return_date && entry.status === "checked_out" && new Date(entry.estimated_return_date) < new Date() && (
                           <Badge variant="destructive">Atrasado</Badge>
                         )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {entry.status === "checked_out" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1"
+                            onClick={() => setTransferDialog({ open: true, checkoutId: entry.id, toolName: entry.tools.name })}
+                          >
+                            <ArrowRightLeft className="w-3 h-3" />
+                            Transferir
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+
+        <TransferAssetDialog
+          open={transferDialog.open}
+          onOpenChange={(open) => setTransferDialog((prev) => ({ ...prev, open }))}
+          assetType="tool"
+          checkoutId={transferDialog.checkoutId}
+          assetName={transferDialog.toolName}
+          onTransferCreated={loadHistory}
+        />
+      </div>
+    );
+  }

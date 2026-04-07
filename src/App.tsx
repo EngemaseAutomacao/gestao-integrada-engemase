@@ -55,6 +55,7 @@ import MateriaisAdmin from "./pages/materiais/MateriaisAdmin";
 import NotFound from "./pages/NotFound";
 import Help from "./pages/Help";
 import Changelog from "./pages/Changelog";
+import Transfers from "./pages/Transfers";
 import MobileNavSettings from "./pages/MobileNavSettings";
 import UpdatePrompt from "./components/UpdatePrompt";
 import { ChangelogModal } from "./components/ChangelogModal";
@@ -130,6 +131,7 @@ const App = () => (
                 <Route path="/materiais/solicitar" element={<Layout><MateriaisRequest /></Layout>} />
                 <Route path="/materiais/historico" element={<Layout><MateriaisHistory /></Layout>} />
                 <Route path="/materiais/admin" element={<Layout><MateriaisAdmin /></Layout>} />
+                <Route path="/transferencias" element={<Layout><Transfers /></Layout>} />
                 <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                 <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                 <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />
