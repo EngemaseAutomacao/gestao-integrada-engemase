@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.14.0",
+    date: "2026-04-07",
+    title: "Transferência de Posse de Ativos",
+    description: "Agora é possível transferir a responsabilidade de ferramentas e veículos entre usuários diretamente pelo sistema.",
+    changes: [
+      { type: "feature", text: "Nova funcionalidade de transferência de posse para ferramentas e veículos" },
+      { type: "feature", text: "Fluxo completo: solicitação → aceitação pelo destinatário → aprovação do administrador" },
+      { type: "feature", text: "Página dedicada de Transferências acessível pelos menus de Ferramentas e Veículos" },
+      { type: "feature", text: "Botão 'Transferir' no histórico para itens em uso" },
+      { type: "feature", text: "Notificações automáticas em cada etapa da transferência" },
+      { type: "improvement", text: "Registro de auditoria completo para todas as transferências realizadas" },
+    ],
+  },
+  {
     version: "1.13.0",
     date: "2026-04-04",
     title: "Menus de módulos, materiais e melhorias no ponto",
