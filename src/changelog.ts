@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.15.0",
+    date: "2026-04-08",
+    title: "Notificações e Histórico",
+    description: "Melhorias nas notificações push e gestão de histórico.",
+    changes: [
+      { type: "feature", text: "Notificações push em tempo real mesmo com app fechado" },
+      { type: "feature", text: "Exclusão de registros no histórico pelo administrador" },
+      { type: "improvement", text: "Melhorias gerais de estabilidade" },
+    ],
+  },
+  {
     version: "1.14.1",
     date: "2026-04-07",
     title: "Melhorias nas Transferências",
