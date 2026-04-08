@@ -68,7 +68,7 @@ export function NotificationBell() {
 
     // Push notifications are delivered by the backend edge function (check-notifications)
     // Do NOT show local push here to avoid duplicate/empty notifications
-  }, [soundEnabled, playNotificationSound, permission, showPushNotification]);
+  }, [soundEnabled, playNotificationSound]);
 
   useEffect(() => {
     if (user) {
