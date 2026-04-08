@@ -40,6 +40,7 @@ import ManualEntry from "./pages/admin/ManualEntry";
 import AdminIssues from "./pages/admin/AdminIssues";
 import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import AdminGallery from "./pages/admin/AdminGallery";
+import AdminDataRetention from "./pages/admin/AdminDataRetention";
 import AdminVehicleHistory from "./pages/admin/AdminVehicleHistory";
 import ReportIssue from "./pages/ReportIssue";
 import ReportVehicleIssue from "./pages/vehicles/ReportVehicleIssue";

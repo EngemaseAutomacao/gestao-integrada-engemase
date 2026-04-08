@@ -67,6 +67,10 @@ export default function AdminDataRetention() {
     setLoading(false);
   };
 
+  if (profile?.role !== "admin") {
+    return <Navigate to="/" />;
+  }
+
   const updateSetting = async (id: string, updates: Partial<RetentionSetting>) => {
     setSaving(id);
     const { error } = await supabase
