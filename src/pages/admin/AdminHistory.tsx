@@ -323,7 +323,6 @@ export default function AdminHistory() {
                         <TableCell>{entry.profiles.full_name}</TableCell>
                         <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
                         <TableCell>
-                          <div className="flex gap-1">
                           {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                         </TableCell>
                         <TableCell>
