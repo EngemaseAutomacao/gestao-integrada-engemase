@@ -152,6 +152,42 @@ export type Database = {
           },
         ]
       }
+      data_retention_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          label: string
+          retention_days: number
+          setting_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          label: string
+          retention_days?: number
+          setting_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          label?: string
+          retention_days?: number
+          setting_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       fuel_records: {
         Row: {
           cost_per_liter: number | null
