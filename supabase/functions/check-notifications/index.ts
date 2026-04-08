@@ -20,10 +20,7 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    // Record timestamp before running checks
-    const checkStartTime = new Date().toISOString()
-
-    // Run all notification checks
+    // Run all notification checks (these create notifications via RPCs)
     const checks = [
       { name: 'overdue tools', fn: 'check_overdue_tools' },
       { name: 'low stock', fn: 'check_low_stock' },
@@ -43,25 +40,26 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Now send push notifications for any notifications created during this run
-    const { data: newNotifications, error: fetchError } = await supabaseClient
+    // Now send push for ANY notifications that haven't been pushed yet
+    // This catches notifications created by triggers that pg_net might have failed to push
+    const { data: unsentNotifications, error: fetchError } = await supabaseClient
       .from('notifications')
       .select('id, user_id, title, message, type, tool_id, checkout_id')
-      .gte('created_at', checkStartTime)
+      .eq('push_sent', false)
       .not('message', 'is', null)
       .neq('message', '')
 
     if (fetchError) {
-      console.error('Error fetching new notifications:', fetchError)
+      console.error('Error fetching unsent notifications:', fetchError)
     }
 
     let pushSentCount = 0
 
-    if (newNotifications && newNotifications.length > 0) {
-      console.log(`Found ${newNotifications.length} new notifications to push`)
+    if (unsentNotifications && unsentNotifications.length > 0) {
+      console.log(`Found ${unsentNotifications.length} unsent notifications to push`)
 
       // Get all unique user IDs
-      const userIds = [...new Set(newNotifications.map(n => n.user_id))]
+      const userIds = [...new Set(unsentNotifications.map(n => n.user_id))]
 
       // Fetch all push subscriptions for these users
       const { data: allSubscriptions, error: subError } = await supabaseClient
@@ -83,52 +81,26 @@ Deno.serve(async (req) => {
         }
 
         // Send push for each notification
-        for (const notif of newNotifications) {
-          const userSubs = subsByUser.get(notif.user_id)
-          if (!userSubs || userSubs.length === 0) continue
+        const sentIds: string[] = []
 
-          // Skip if message is empty
-          if (!notif.message || notif.message.trim() === '') continue
+        for (const notif of unsentNotifications) {
+          const userSubs = subsByUser.get(notif.user_id)
+          if (!userSubs || userSubs.length === 0) {
+            // No subscription, still mark as sent to avoid retrying forever
+            sentIds.push(notif.id)
+            continue
+          }
+
+          if (!notif.message || notif.message.trim() === '') {
+            sentIds.push(notif.id)
+            continue
+          }
 
           try {
-            // Call send-push-notification edge function for each notification
-            const pushResponse = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-              },
-              body: JSON.stringify({
-                subscription: {
-                  endpoint: userSubs[0].endpoint,
-                  keys: {
-                    p256dh: userSubs[0].p256dh,
-                    auth: userSubs[0].auth,
-                  }
-                },
-                title: notif.title,
-                body: notif.message,
-                tag: notif.id,
-                data: {
-                  notificationId: notif.id,
-                  type: notif.type,
-                  toolId: notif.tool_id,
-                  checkoutId: notif.checkout_id,
-                },
-              }),
-            })
-
-            if (pushResponse.ok) {
-              pushSentCount++
-            } else {
-              const errorText = await pushResponse.text()
-              console.error(`Push failed for notification ${notif.id}:`, errorText)
-            }
-
-            // Send to additional subscriptions for the same user
-            for (let i = 1; i < userSubs.length; i++) {
+            // Send to all subscriptions for this user
+            for (const sub of userSubs) {
               try {
-                await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
+                const pushResponse = await fetch(`${SUPABASE_URL}/functions/v1/send-push-notification`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -136,11 +108,8 @@ Deno.serve(async (req) => {
                   },
                   body: JSON.stringify({
                     subscription: {
-                      endpoint: userSubs[i].endpoint,
-                      keys: {
-                        p256dh: userSubs[i].p256dh,
-                        auth: userSubs[i].auth,
-                      }
+                      endpoint: sub.endpoint,
+                      keys: { p256dh: sub.p256dh, auth: sub.auth }
                     },
                     title: notif.title,
                     body: notif.message,
@@ -148,15 +117,40 @@ Deno.serve(async (req) => {
                     data: {
                       notificationId: notif.id,
                       type: notif.type,
+                      toolId: notif.tool_id,
+                      checkoutId: notif.checkout_id,
                     },
                   }),
                 })
+
+                if (pushResponse.ok) {
+                  pushSentCount++
+                } else {
+                  const errorText = await pushResponse.text()
+                  console.error(`Push failed for notification ${notif.id}:`, errorText)
+                }
               } catch (e) {
-                console.error(`Push to extra sub failed:`, e)
+                console.error(`Push to sub failed:`, e)
               }
             }
+
+            sentIds.push(notif.id)
           } catch (error) {
             console.error(`Error sending push for notification ${notif.id}:`, error)
+          }
+        }
+
+        // Mark all processed notifications as push_sent
+        if (sentIds.length > 0) {
+          const { error: updateError } = await supabaseClient
+            .from('notifications')
+            .update({ push_sent: true })
+            .in('id', sentIds)
+
+          if (updateError) {
+            console.error('Error marking notifications as sent:', updateError)
+          } else {
+            console.log(`Marked ${sentIds.length} notifications as push_sent`)
           }
         }
       }
@@ -168,7 +162,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true,
         message: 'Notification checks completed',
-        newNotifications: newNotifications?.length || 0,
+        unsentNotifications: unsentNotifications?.length || 0,
         pushSent: pushSentCount,
         timestamp: new Date().toISOString()
       }),
