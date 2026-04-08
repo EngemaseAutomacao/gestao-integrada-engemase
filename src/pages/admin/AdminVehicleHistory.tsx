@@ -476,165 +476,175 @@ export default function AdminVehicleHistory() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
-                                <Eye className="w-4 h-4 mr-1" />
-                                Ver
-                                {hasPhotos(entry) && <Camera className="w-3 h-3 ml-1" />}
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                              <DialogHeader>
-                                <DialogTitle>Detalhes da Movimentação</DialogTitle>
-                              </DialogHeader>
-                              {selectedEntry && (
-                                <div className="space-y-6">
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Veículo</p>
-                                      <p className="font-semibold">{selectedEntry.vehicles.name} - {selectedEntry.vehicles.plate}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                      <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
-                                      {getCategoryBadge(selectedEntry.profiles.category)}
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Destino</p>
-                                      <p>{selectedEntry.destination || "Não informado"}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                      <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
-                                        {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvido"}
-                                      </Badge>
-                                    </div>
-                                  </div>
-
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Saída</p>
-                                      <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                      <p className="text-xs text-muted-foreground">
-                                        KM: {selectedEntry.km_checkout.toLocaleString()} | Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Chegada</p>
-                                      <p>
-                                        {selectedEntry.checkin_date
-                                          ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                                          : "Não devolvido"}
-                                      </p>
-                                      {selectedEntry.km_checkin !== null && (
-                                        <p className="text-xs text-muted-foreground">
-                                          KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {selectedEntry.km_checkin !== null && (
-                                    <div className="pt-4 border-t">
-                                      <p className="text-sm font-medium text-muted-foreground">Distância Percorrida</p>
-                                      <p className="text-lg font-bold text-primary">
-                                        {(selectedEntry.km_checkin - selectedEntry.km_checkout).toLocaleString()} km
-                                      </p>
-                                      <p className="text-xs text-muted-foreground">
-                                        Abastecido: {selectedEntry.refueled === null ? "Não informado" : selectedEntry.refueled ? "Sim" : "Não"}
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {canEstimateKm(selectedEntry) && (
-                                    <div className="pt-4 border-t">
-                                      <div className="flex items-center justify-between">
-                                        <p className="text-sm font-medium text-muted-foreground">Estimativa por IA</p>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="gap-2"
-                                          onClick={() => estimateKm(selectedEntry)}
-                                          disabled={estimating}
-                                        >
-                                          {estimating ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                          ) : (
-                                            <Brain className="w-4 h-4" />
-                                          )}
-                                          {estimating ? "Analisando..." : "Estimar KM via IA"}
-                                        </Button>
+                          <div className="flex gap-1">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Ver
+                                  {hasPhotos(entry) && <Camera className="w-3 h-3 ml-1" />}
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>Detalhes da Movimentação</DialogTitle>
+                                </DialogHeader>
+                                {selectedEntry && (
+                                  <div className="space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Veículo</p>
+                                        <p className="font-semibold">{selectedEntry.vehicles.name} - {selectedEntry.vehicles.plate}</p>
                                       </div>
-                                      {aiEstimation && (
-                                        <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
-                                          <div className="flex items-center gap-2">
-                                            <Badge variant={
-                                              aiEstimation.confidence === "high" ? "default" :
-                                              aiEstimation.confidence === "medium" ? "secondary" : "destructive"
-                                            }>
-                                              {aiEstimation.confidence === "high" ? "Alta confiança" :
-                                               aiEstimation.confidence === "medium" ? "Média confiança" : "Baixa confiança"}
-                                            </Badge>
-                                          </div>
-                                          <div className="grid grid-cols-3 gap-2 text-sm">
-                                            <div>
-                                              <p className="text-muted-foreground text-xs">KM Saída</p>
-                                              <p className="font-medium">{aiEstimation.checkout_km?.toLocaleString() || "N/A"}</p>
-                                            </div>
-                                            <div>
-                                              <p className="text-muted-foreground text-xs">KM Chegada</p>
-                                              <p className="font-medium">{aiEstimation.checkin_km?.toLocaleString() || "N/A"}</p>
-                                            </div>
-                                            <div>
-                                              <p className="text-muted-foreground text-xs">Distância</p>
-                                              <p className="font-bold text-primary">{aiEstimation.distance_km?.toLocaleString() || "N/A"} km</p>
-                                            </div>
-                                          </div>
-                                          {aiEstimation.notes && (
-                                            <p className="text-xs text-muted-foreground">{aiEstimation.notes}</p>
-                                          )}
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Usuário</p>
+                                        <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                        {getCategoryBadge(selectedEntry.profiles.category)}
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Destino</p>
+                                        <p>{selectedEntry.destination || "Não informado"}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Status</p>
+                                        <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
+                                          {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvido"}
+                                        </Badge>
+                                      </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Saída</p>
+                                        <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          KM: {selectedEntry.km_checkout.toLocaleString()} | Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Chegada</p>
+                                        <p>
+                                          {selectedEntry.checkin_date
+                                            ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                            : "Não devolvido"}
+                                        </p>
+                                        {selectedEntry.km_checkin !== null && (
+                                          <p className="text-xs text-muted-foreground">
+                                            KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {selectedEntry.km_checkin !== null && (
+                                      <div className="pt-4 border-t">
+                                        <p className="text-sm font-medium text-muted-foreground">Distância Percorrida</p>
+                                        <p className="text-lg font-bold text-primary">
+                                          {(selectedEntry.km_checkin - selectedEntry.km_checkout).toLocaleString()} km
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                          Abastecido: {selectedEntry.refueled === null ? "Não informado" : selectedEntry.refueled ? "Sim" : "Não"}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {canEstimateKm(selectedEntry) && (
+                                      <div className="pt-4 border-t">
+                                        <div className="flex items-center justify-between">
+                                          <p className="text-sm font-medium text-muted-foreground">Estimativa por IA</p>
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="gap-2"
+                                            onClick={() => estimateKm(selectedEntry)}
+                                            disabled={estimating}
+                                          >
+                                            {estimating ? (
+                                              <Loader2 className="w-4 h-4 animate-spin" />
+                                            ) : (
+                                              <Brain className="w-4 h-4" />
+                                            )}
+                                            {estimating ? "Analisando..." : "Estimar KM via IA"}
+                                          </Button>
                                         </div>
-                                      )}
-                                    </div>
-                                  )}
+                                        {aiEstimation && (
+                                          <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
+                                            <div className="flex items-center gap-2">
+                                              <Badge variant={
+                                                aiEstimation.confidence === "high" ? "default" :
+                                                aiEstimation.confidence === "medium" ? "secondary" : "destructive"
+                                              }>
+                                                {aiEstimation.confidence === "high" ? "Alta confiança" :
+                                                 aiEstimation.confidence === "medium" ? "Média confiança" : "Baixa confiança"}
+                                              </Badge>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-2 text-sm">
+                                              <div>
+                                                <p className="text-muted-foreground text-xs">KM Saída</p>
+                                                <p className="font-medium">{aiEstimation.checkout_km?.toLocaleString() || "N/A"}</p>
+                                              </div>
+                                              <div>
+                                                <p className="text-muted-foreground text-xs">KM Chegada</p>
+                                                <p className="font-medium">{aiEstimation.checkin_km?.toLocaleString() || "N/A"}</p>
+                                              </div>
+                                              <div>
+                                                <p className="text-muted-foreground text-xs">Distância</p>
+                                                <p className="font-bold text-primary">{aiEstimation.distance_km?.toLocaleString() || "N/A"} km</p>
+                                              </div>
+                                            </div>
+                                            {aiEstimation.notes && (
+                                              <p className="text-xs text-muted-foreground">{aiEstimation.notes}</p>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
 
-                                  {selectedEntry.notes && (
-                                    <div className="pt-4 border-t">
-                                      <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                                      <p className="text-sm">{selectedEntry.notes}</p>
-                                    </div>
-                                  )}
+                                    {selectedEntry.notes && (
+                                      <div className="pt-4 border-t">
+                                        <p className="text-sm font-medium text-muted-foreground">Observações</p>
+                                        <p className="text-sm">{selectedEntry.notes}</p>
+                                      </div>
+                                    )}
 
-                                  {hasPhotos(selectedEntry) && (
-                                    <div className="pt-4 border-t space-y-4">
-                                      <h4 className="font-semibold">Fotos</h4>
-                                      <PhotoSection
-                                        label="Saída"
-                                        photos={[
-                                          { label: "Frente", path: selectedEntry.photo_front_checkout },
-                                          { label: "Traseira", path: selectedEntry.photo_back_checkout },
-                                          { label: "Esquerda", path: selectedEntry.photo_left_checkout },
-                                          { label: "Direita", path: selectedEntry.photo_right_checkout },
-                                          { label: "Painel", path: selectedEntry.photo_dashboard_checkout },
-                                        ]}
-                                      />
-                                      <PhotoSection
-                                        label="Devolução"
-                                        photos={[
-                                          { label: "Frente", path: selectedEntry.photo_front_checkin },
-                                          { label: "Traseira", path: selectedEntry.photo_back_checkin },
-                                          { label: "Esquerda", path: selectedEntry.photo_left_checkin },
-                                          { label: "Direita", path: selectedEntry.photo_right_checkin },
-                                          { label: "Painel", path: selectedEntry.photo_dashboard_checkin },
-                                        ]}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </DialogContent>
-                          </Dialog>
+                                    {hasPhotos(selectedEntry) && (
+                                      <div className="pt-4 border-t space-y-4">
+                                        <h4 className="font-semibold">Fotos</h4>
+                                        <PhotoSection
+                                          label="Saída"
+                                          photos={[
+                                            { label: "Frente", path: selectedEntry.photo_front_checkout },
+                                            { label: "Traseira", path: selectedEntry.photo_back_checkout },
+                                            { label: "Esquerda", path: selectedEntry.photo_left_checkout },
+                                            { label: "Direita", path: selectedEntry.photo_right_checkout },
+                                            { label: "Painel", path: selectedEntry.photo_dashboard_checkout },
+                                          ]}
+                                        />
+                                        <PhotoSection
+                                          label="Devolução"
+                                          photos={[
+                                            { label: "Frente", path: selectedEntry.photo_front_checkin },
+                                            { label: "Traseira", path: selectedEntry.photo_back_checkin },
+                                            { label: "Esquerda", path: selectedEntry.photo_left_checkin },
+                                            { label: "Direita", path: selectedEntry.photo_right_checkin },
+                                            { label: "Painel", path: selectedEntry.photo_dashboard_checkin },
+                                          ]}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => setDeleteDialog({ open: true, entry })}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
