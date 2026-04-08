@@ -583,6 +583,15 @@ export default function AdminHistory() {
           )}
         </CardContent>
       </Card>
+
+      <DeleteWithReasonDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, entry: open ? deleteDialog.entry : null })}
+        onConfirm={handleDeleteEntry}
+        title="Excluir Registro do Histórico"
+        description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
+        itemName={deleteDialog.entry ? `${deleteDialog.entry.tools.name} - ${deleteDialog.entry.profiles.full_name}` : ""}
+      />
     </div>
   );
 }
