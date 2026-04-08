@@ -48,10 +48,6 @@ export default function AdminDataRetention() {
   const [saving, setSaving] = useState<string | null>(null);
   const [runningCleanup, setRunningCleanup] = useState(false);
 
-  if (profile?.role !== "admin") {
-    return <Navigate to="/" />;
-  }
-
   useEffect(() => {
     fetchSettings();
   }, []);
