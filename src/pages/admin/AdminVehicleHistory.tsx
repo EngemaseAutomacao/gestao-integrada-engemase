@@ -722,6 +722,15 @@ export default function AdminVehicleHistory() {
           )}
         </CardContent>
       </Card>
+
+      <DeleteWithReasonDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, entry: open ? deleteDialog.entry : null })}
+        onConfirm={handleDeleteEntry}
+        title="Excluir Registro do Histórico"
+        description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
+        itemName={deleteDialog.entry ? `${deleteDialog.entry.vehicles.name} (${deleteDialog.entry.vehicles.plate}) - ${deleteDialog.entry.profiles.full_name}` : ""}
+      />
     </div>
   );
 }
