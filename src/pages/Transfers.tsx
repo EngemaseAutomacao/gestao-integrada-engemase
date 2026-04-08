@@ -41,6 +41,40 @@ export default function Transfers() {
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; transferId: string | null }>({ open: false, transferId: null });
   const [rejectionReason, setRejectionReason] = useState("");
   const isAdmin = profile?.role === "admin";
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; transfer: Transfer | null }>({ open: false, transfer: null });
+
+  const handleDeleteTransfer = async (reason: string) => {
+    if (!deleteDialog.transfer) return;
+    try {
+      const { error } = await supabase
+        .from("asset_transfers")
+        .delete()
+        .eq("id", deleteDialog.transfer.id);
+
+      if (error) throw error;
+
+      await supabase.from("system_logs").insert({
+        action: "delete_history",
+        entity_type: "asset_transfer",
+        entity_id: deleteDialog.transfer.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          asset_name: deleteDialog.transfer.asset_name,
+          from_user: deleteDialog.transfer.from_user?.full_name,
+          to_user: deleteDialog.transfer.to_user?.full_name,
+          reason,
+        },
+      });
+
+      setTransfers((prev) => prev.filter((t) => t.id !== deleteDialog.transfer!.id));
+      toast.success("Registro de transferência excluído");
+    } catch (error) {
+      console.error("Erro ao excluir transferência:", error);
+      toast.error("Erro ao excluir transferência");
+      throw error;
+    }
+  };
 
   useEffect(() => {
     loadTransfers();
