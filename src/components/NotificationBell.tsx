@@ -66,13 +66,8 @@ export function NotificationBell() {
       playNotificationSound();
     }
 
-    // Show push notification if permitted
-    if (permission === "granted") {
-      showPushNotification(notification.title, {
-        body: notification.message,
-        tag: notification.id,
-      });
-    }
+    // Push notifications are delivered by the backend edge function (check-notifications)
+    // Do NOT show local push here to avoid duplicate/empty notifications
   }, [soundEnabled, playNotificationSound, permission, showPushNotification]);
 
   useEffect(() => {
