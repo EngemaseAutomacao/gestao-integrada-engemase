@@ -39,7 +39,7 @@ export function NotificationBell() {
   });
   
   const { playNotificationSound } = useNotificationSound();
-  const { permission, isSupported, isSubscribed, subscribe, unsubscribe, requestPermission, showPushNotification } = usePushNotifications();
+  const { permission, isSupported, isSubscribed, subscribe, unsubscribe, requestPermission } = usePushNotifications();
   const previousNotificationIds = useRef<Set<string>>(new Set());
   const isInitialLoad = useRef(true);
 
