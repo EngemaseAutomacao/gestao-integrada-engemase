@@ -71,6 +71,40 @@ export default function AdminVehicleHistory() {
     notes: string;
   } | null>(null);
   const [estimating, setEstimating] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: VehicleHistoryEntry | null }>({ open: false, entry: null });
+
+  const handleDeleteEntry = async (reason: string) => {
+    if (!deleteDialog.entry) return;
+    try {
+      const { error } = await supabase
+        .from("vehicle_checkouts")
+        .delete()
+        .eq("id", deleteDialog.entry.id);
+
+      if (error) throw error;
+
+      await supabase.from("system_logs").insert({
+        action: "delete_history",
+        entity_type: "vehicle_checkout",
+        entity_id: deleteDialog.entry.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          vehicle_name: deleteDialog.entry.vehicles.name,
+          plate: deleteDialog.entry.vehicles.plate,
+          user_name: deleteDialog.entry.profiles.full_name,
+          reason,
+        },
+      });
+
+      setHistory((prev) => prev.filter((e) => e.id !== deleteDialog.entry!.id));
+      toast.success("Registro excluído com sucesso");
+    } catch (error) {
+      console.error("Erro ao excluir registro:", error);
+      toast.error("Erro ao excluir registro");
+      throw error;
+    }
+  };
 
   useEffect(() => {
     loadHistory();
