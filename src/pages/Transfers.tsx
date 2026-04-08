@@ -8,10 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowRightLeft, Check, X, Clock, Loader2, ArrowRight } from "lucide-react";
+import { ArrowRightLeft, Check, X, Clock, Loader2, ArrowRight, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface Transfer {
   id: string;
@@ -40,6 +41,40 @@ export default function Transfers() {
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; transferId: string | null }>({ open: false, transferId: null });
   const [rejectionReason, setRejectionReason] = useState("");
   const isAdmin = profile?.role === "admin";
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; transfer: Transfer | null }>({ open: false, transfer: null });
+
+  const handleDeleteTransfer = async (reason: string) => {
+    if (!deleteDialog.transfer) return;
+    try {
+      const { error } = await supabase
+        .from("asset_transfers")
+        .delete()
+        .eq("id", deleteDialog.transfer.id);
+
+      if (error) throw error;
+
+      await supabase.from("system_logs").insert({
+        action: "delete_history",
+        entity_type: "asset_transfer",
+        entity_id: deleteDialog.transfer.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          asset_name: deleteDialog.transfer.asset_name,
+          from_user: deleteDialog.transfer.from_user?.full_name,
+          to_user: deleteDialog.transfer.to_user?.full_name,
+          reason,
+        },
+      });
+
+      setTransfers((prev) => prev.filter((t) => t.id !== deleteDialog.transfer!.id));
+      toast.success("Registro de transferência excluído");
+    } catch (error) {
+      console.error("Erro ao excluir transferência:", error);
+      toast.error("Erro ao excluir transferência");
+      throw error;
+    }
+  };
 
   useEffect(() => {
     loadTransfers();
@@ -298,6 +333,16 @@ export default function Transfers() {
                 Cancelar
               </Button>
             )}
+            {isAdmin && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setDeleteDialog({ open: true, transfer })}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
@@ -394,6 +439,15 @@ export default function Transfers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, transfer: open ? deleteDialog.transfer : null })}
+        onConfirm={handleDeleteTransfer}
+        title="Excluir Registro de Transferência"
+        description="Esta ação é irreversível. O registro será removido permanentemente."
+        itemName={deleteDialog.transfer ? `${deleteDialog.transfer.asset_name || 'Item'} (${deleteDialog.transfer.from_user?.full_name} → ${deleteDialog.transfer.to_user?.full_name})` : ""}
+      />
     </div>
   );
 }

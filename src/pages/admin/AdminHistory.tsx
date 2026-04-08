@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet } from "lucide-react";
+import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2 } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface HistoryEntry {
   id: string;
@@ -53,6 +54,40 @@ export default function AdminHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: HistoryEntry | null }>({ open: false, entry: null });
+
+  const handleDeleteEntry = async (reason: string) => {
+    if (!deleteDialog.entry) return;
+    try {
+      const { error } = await supabase
+        .from("tool_checkouts")
+        .delete()
+        .eq("id", deleteDialog.entry.id);
+
+      if (error) throw error;
+
+      // Log the deletion
+      await supabase.from("system_logs").insert({
+        action: "delete_history",
+        entity_type: "tool_checkout",
+        entity_id: deleteDialog.entry.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          tool_name: deleteDialog.entry.tools.name,
+          user_name: deleteDialog.entry.profiles.full_name,
+          reason,
+        },
+      });
+
+      setHistory((prev) => prev.filter((e) => e.id !== deleteDialog.entry!.id));
+      toast.success("Registro excluído com sucesso");
+    } catch (error) {
+      console.error("Erro ao excluir registro:", error);
+      toast.error("Erro ao excluir registro");
+      throw error;
+    }
+  };
 
   useEffect(() => {
     loadHistory();
@@ -306,126 +341,136 @@ export default function AdminHistory() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
-                                <Eye className="w-4 h-4 mr-1" />
-                                Ver
-                                {hasMedia(entry) && (
-                                  <span className="ml-1 flex gap-1">
-                                    {(entry.checkout_photo_url || entry.checkin_photo_url) && 
-                                      <Camera className="w-3 h-3" />}
-                                    {(entry.checkout_signature_url || entry.checkin_signature_url) && 
-                                      <FileSignature className="w-3 h-3" />}
-                                  </span>
-                                )}
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                              <DialogHeader>
-                                <DialogTitle>Detalhes da Movimentação</DialogTitle>
-                              </DialogHeader>
-                              {selectedEntry && (
-                                <div className="space-y-6">
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                      <p className="font-semibold">{selectedEntry.tools.name}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                      <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Obra</p>
-                                      <p>{selectedEntry.construction_site || "Não informado"}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                      <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
-                                        {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
-                                      <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                      <p className="text-xs text-muted-foreground">
-                                        Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
-                                      <p>
-                                        {selectedEntry.checkin_date 
-                                          ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                                          : "Não devolvida"}
-                                      </p>
-                                      {selectedEntry.checked_in_by_profile && (
-                                        <p className="text-xs text-muted-foreground">
-                                          Por: {selectedEntry.checked_in_by_profile.full_name}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                  {hasMedia(selectedEntry) && (
-                                    <div className="pt-4 border-t space-y-4">
-                                      <h4 className="font-semibold">Fotos e Assinaturas</h4>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                          <p className="text-sm font-medium">Retirada</p>
-                                          {selectedEntry.checkout_photo_url && (
-                                            <div>
-                                              <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                              <SignedImage storagePath={selectedEntry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
-                                            </div>
-                                          )}
-                                          {selectedEntry.checkout_signature_url && (
-                                            <div>
-                                              <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
-                                              <div className="border rounded-lg p-2 bg-white">
-                                                <SignedImage storagePath={selectedEntry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
-                                              </div>
-                                            </div>
-                                          )}
-                                          {!selectedEntry.checkout_photo_url && !selectedEntry.checkout_signature_url && (
-                                            <p className="text-sm text-muted-foreground">Sem registros</p>
-                                          )}
-                                        </div>
-                                        <div className="space-y-2">
-                                          <p className="text-sm font-medium">Devolução</p>
-                                          {selectedEntry.checkin_photo_url && (
-                                            <div>
-                                              <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                              <SignedImage storagePath={selectedEntry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
-                                            </div>
-                                          )}
-                                          {selectedEntry.checkin_signature_url && (
-                                            <div>
-                                              <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
-                                              <div className="border rounded-lg p-2 bg-white">
-                                                <SignedImage storagePath={selectedEntry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
-                                              </div>
-                                            </div>
-                                          )}
-                                          {!selectedEntry.checkin_photo_url && !selectedEntry.checkin_signature_url && (
-                                            <p className="text-sm text-muted-foreground">Sem registros</p>
-                                          )}
-                                        </div>
+                          <div className="flex gap-1">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Ver
+                                  {hasMedia(entry) && (
+                                    <span className="ml-1 flex gap-1">
+                                      {(entry.checkout_photo_url || entry.checkin_photo_url) && 
+                                        <Camera className="w-3 h-3" />}
+                                      {(entry.checkout_signature_url || entry.checkin_signature_url) && 
+                                        <FileSignature className="w-3 h-3" />}
+                                    </span>
+                                  )}
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>Detalhes da Movimentação</DialogTitle>
+                                </DialogHeader>
+                                {selectedEntry && (
+                                  <div className="space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
+                                        <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Usuário</p>
+                                        <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Obra</p>
+                                        <p>{selectedEntry.construction_site || "Não informado"}</p>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Status</p>
+                                        <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
+                                          {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                                        </Badge>
                                       </div>
                                     </div>
-                                  )}
-                                  {selectedEntry.notes && (
-                                    <div className="pt-4 border-t">
-                                      <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                                      <p className="mt-1">{selectedEntry.notes}</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
+                                        <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
+                                        <p>
+                                          {selectedEntry.checkin_date 
+                                            ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                            : "Não devolvida"}
+                                        </p>
+                                        {selectedEntry.checked_in_by_profile && (
+                                          <p className="text-xs text-muted-foreground">
+                                            Por: {selectedEntry.checked_in_by_profile.full_name}
+                                          </p>
+                                        )}
+                                      </div>
                                     </div>
-                                  )}
-                                </div>
-                              )}
-                            </DialogContent>
-                          </Dialog>
+                                    {hasMedia(selectedEntry) && (
+                                      <div className="pt-4 border-t space-y-4">
+                                        <h4 className="font-semibold">Fotos e Assinaturas</h4>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          <div className="space-y-2">
+                                            <p className="text-sm font-medium">Retirada</p>
+                                            {selectedEntry.checkout_photo_url && (
+                                              <div>
+                                                <p className="text-xs text-muted-foreground mb-1">Foto:</p>
+                                                <SignedImage storagePath={selectedEntry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
+                                              </div>
+                                            )}
+                                            {selectedEntry.checkout_signature_url && (
+                                              <div>
+                                                <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
+                                                <div className="border rounded-lg p-2 bg-white">
+                                                  <SignedImage storagePath={selectedEntry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
+                                                </div>
+                                              </div>
+                                            )}
+                                            {!selectedEntry.checkout_photo_url && !selectedEntry.checkout_signature_url && (
+                                              <p className="text-sm text-muted-foreground">Sem registros</p>
+                                            )}
+                                          </div>
+                                          <div className="space-y-2">
+                                            <p className="text-sm font-medium">Devolução</p>
+                                            {selectedEntry.checkin_photo_url && (
+                                              <div>
+                                                <p className="text-xs text-muted-foreground mb-1">Foto:</p>
+                                                <SignedImage storagePath={selectedEntry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
+                                              </div>
+                                            )}
+                                            {selectedEntry.checkin_signature_url && (
+                                              <div>
+                                                <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
+                                                <div className="border rounded-lg p-2 bg-white">
+                                                  <SignedImage storagePath={selectedEntry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
+                                                </div>
+                                              </div>
+                                            )}
+                                            {!selectedEntry.checkin_photo_url && !selectedEntry.checkin_signature_url && (
+                                              <p className="text-sm text-muted-foreground">Sem registros</p>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {selectedEntry.notes && (
+                                      <div className="pt-4 border-t">
+                                        <p className="text-sm font-medium text-muted-foreground">Observações</p>
+                                        <p className="mt-1">{selectedEntry.notes}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </DialogContent>
+                            </Dialog>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                              onClick={() => setDeleteDialog({ open: true, entry })}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -462,63 +507,73 @@ export default function AdminHistory() {
                             <p>Devolução: {format(new Date(entry.checkin_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                           )}
                         </div>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
-                              <Eye className="w-4 h-4 mr-1" />
-                              Ver
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Detalhes da Movimentação</DialogTitle>
-                            </DialogHeader>
-                            {selectedEntry && (
-                              <div className="space-y-6">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                    <p className="font-semibold">{selectedEntry.tools.name}</p>
+                        <div className="flex gap-1">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                                <Eye className="w-4 h-4 mr-1" />
+                                Ver
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Detalhes da Movimentação</DialogTitle>
+                              </DialogHeader>
+                              {selectedEntry && (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
+                                      <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Usuário</p>
+                                      <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Obra</p>
+                                      <p>{selectedEntry.construction_site || "Não informado"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                                      <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
+                                        {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                                      </Badge>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                    <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
+                                      <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
+                                      <p>
+                                        {selectedEntry.checkin_date 
+                                          ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                          : "Não devolvida"}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Obra</p>
-                                    <p>{selectedEntry.construction_site || "Não informado"}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                    <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
-                                      {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                                    </Badge>
-                                  </div>
+                                  {selectedEntry.notes && (
+                                    <div className="pt-4 border-t">
+                                      <p className="text-sm font-medium text-muted-foreground">Observações</p>
+                                      <p className="mt-1">{selectedEntry.notes}</p>
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
-                                    <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
-                                    <p>
-                                      {selectedEntry.checkin_date 
-                                        ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                                        : "Não devolvida"}
-                                    </p>
-                                  </div>
-                                </div>
-                                {selectedEntry.notes && (
-                                  <div className="pt-4 border-t">
-                                    <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                                    <p className="mt-1">{selectedEntry.notes}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeleteDialog({ open: true, entry })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -528,6 +583,15 @@ export default function AdminHistory() {
           )}
         </CardContent>
       </Card>
+
+      <DeleteWithReasonDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, entry: open ? deleteDialog.entry : null })}
+        onConfirm={handleDeleteEntry}
+        title="Excluir Registro do Histórico"
+        description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
+        itemName={deleteDialog.entry ? `${deleteDialog.entry.tools.name} - ${deleteDialog.entry.profiles.full_name}` : ""}
+      />
     </div>
   );
 }
