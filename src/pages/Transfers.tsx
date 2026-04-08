@@ -333,6 +333,16 @@ export default function Transfers() {
                 Cancelar
               </Button>
             )}
+            {isAdmin && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setDeleteDialog({ open: true, transfer })}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
