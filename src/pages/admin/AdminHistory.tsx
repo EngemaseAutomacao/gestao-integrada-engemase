@@ -507,63 +507,73 @@ export default function AdminHistory() {
                             <p>Devolução: {format(new Date(entry.checkin_date), "dd/MM/yy HH:mm", { locale: ptBR })}</p>
                           )}
                         </div>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
-                              <Eye className="w-4 h-4 mr-1" />
-                              Ver
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>Detalhes da Movimentação</DialogTitle>
-                            </DialogHeader>
-                            {selectedEntry && (
-                              <div className="space-y-6">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                    <p className="font-semibold">{selectedEntry.tools.name}</p>
+                        <div className="flex gap-1">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
+                                <Eye className="w-4 h-4 mr-1" />
+                                Ver
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Detalhes da Movimentação</DialogTitle>
+                              </DialogHeader>
+                              {selectedEntry && (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
+                                      <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Usuário</p>
+                                      <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Obra</p>
+                                      <p>{selectedEntry.construction_site || "Não informado"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Status</p>
+                                      <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
+                                        {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                                      </Badge>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                    <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
+                                      <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
+                                      <p>
+                                        {selectedEntry.checkin_date 
+                                          ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                          : "Não devolvida"}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Obra</p>
-                                    <p>{selectedEntry.construction_site || "Não informado"}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                    <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
-                                      {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                                    </Badge>
-                                  </div>
+                                  {selectedEntry.notes && (
+                                    <div className="pt-4 border-t">
+                                      <p className="text-sm font-medium text-muted-foreground">Observações</p>
+                                      <p className="mt-1">{selectedEntry.notes}</p>
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
-                                    <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
-                                    <p>
-                                      {selectedEntry.checkin_date 
-                                        ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                                        : "Não devolvida"}
-                                    </p>
-                                  </div>
-                                </div>
-                                {selectedEntry.notes && (
-                                  <div className="pt-4 border-t">
-                                    <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                                    <p className="mt-1">{selectedEntry.notes}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeleteDialog({ open: true, entry })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
