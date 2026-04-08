@@ -54,6 +54,40 @@ export default function AdminHistory() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: HistoryEntry | null }>({ open: false, entry: null });
+
+  const handleDeleteEntry = async (reason: string) => {
+    if (!deleteDialog.entry) return;
+    try {
+      const { error } = await supabase
+        .from("tool_checkouts")
+        .delete()
+        .eq("id", deleteDialog.entry.id);
+
+      if (error) throw error;
+
+      // Log the deletion
+      await supabase.from("system_logs").insert({
+        action: "delete_history",
+        entity_type: "tool_checkout",
+        entity_id: deleteDialog.entry.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          tool_name: deleteDialog.entry.tools.name,
+          user_name: deleteDialog.entry.profiles.full_name,
+          reason,
+        },
+      });
+
+      setHistory((prev) => prev.filter((e) => e.id !== deleteDialog.entry!.id));
+      toast.success("Registro excluído com sucesso");
+    } catch (error) {
+      console.error("Erro ao excluir registro:", error);
+      toast.error("Erro ao excluir registro");
+      throw error;
+    }
+  };
 
   useEffect(() => {
     loadHistory();
