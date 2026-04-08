@@ -39,7 +39,7 @@ export function NotificationBell() {
   });
   
   const { playNotificationSound } = useNotificationSound();
-  const { permission, isSupported, isSubscribed, subscribe, unsubscribe, requestPermission, showPushNotification } = usePushNotifications();
+  const { permission, isSupported, isSubscribed, subscribe, unsubscribe, requestPermission } = usePushNotifications();
   const previousNotificationIds = useRef<Set<string>>(new Set());
   const isInitialLoad = useRef(true);
 
@@ -66,14 +66,9 @@ export function NotificationBell() {
       playNotificationSound();
     }
 
-    // Show push notification if permitted
-    if (permission === "granted") {
-      showPushNotification(notification.title, {
-        body: notification.message,
-        tag: notification.id,
-      });
-    }
-  }, [soundEnabled, playNotificationSound, permission, showPushNotification]);
+    // Push notifications are delivered by the backend edge function (check-notifications)
+    // Do NOT show local push here to avoid duplicate/empty notifications
+  }, [soundEnabled, playNotificationSound]);
 
   useEffect(() => {
     if (user) {
