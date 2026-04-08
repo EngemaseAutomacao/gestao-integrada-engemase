@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet } from "lucide-react";
+import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2 } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
