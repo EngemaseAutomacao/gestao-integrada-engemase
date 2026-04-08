@@ -439,6 +439,15 @@ export default function Transfers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, transfer: open ? deleteDialog.transfer : null })}
+        onConfirm={handleDeleteTransfer}
+        title="Excluir Registro de Transferência"
+        description="Esta ação é irreversível. O registro será removido permanentemente."
+        itemName={deleteDialog.transfer ? `${deleteDialog.transfer.asset_name || 'Item'} (${deleteDialog.transfer.from_user?.full_name} → ${deleteDialog.transfer.to_user?.full_name})` : ""}
+      />
     </div>
   );
 }
