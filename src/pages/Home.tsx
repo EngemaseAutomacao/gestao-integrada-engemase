@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -63,9 +64,10 @@ interface ModuleCardProps {
   disabled?: boolean;
   comingSoon?: boolean;
   variant?: "default" | "admin";
+  badgeCount?: number;
 }
 
-function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default" }: ModuleCardProps) {
+function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount }: ModuleCardProps) {
   const isAdmin = variant === "admin";
   
   const content = (
@@ -80,6 +82,11 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
           Em Breve
         </div>
       )}
+      {badgeCount && badgeCount > 0 ? (
+        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+          {badgeCount}
+        </div>
+      ) : null}
       <CardHeader className="text-center pb-1 px-3 pt-4">
         <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
           isAdmin ? 'bg-orange-500/10' : 'bg-primary/10'
