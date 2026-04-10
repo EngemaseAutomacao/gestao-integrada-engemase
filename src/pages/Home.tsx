@@ -217,6 +217,7 @@ function SummaryCards({ userId }: { userId: string }) {
 export default function Home() {
   const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
+  const { toolBadgeCount, vehicleBadgeCount } = useUrgencyBadges();
 
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -249,6 +250,7 @@ export default function Home() {
           description="Retiradas, devoluções e manutenções"
           icon={<Wrench className="w-6 h-6 text-primary" />}
           to="/ferramentas"
+          badgeCount={toolBadgeCount}
         />
 
         <ModuleCard
@@ -256,6 +258,7 @@ export default function Home() {
           description="Entradas e saídas de veículos"
           icon={<Car className="w-6 h-6 text-primary" />}
           to="/veiculos"
+          badgeCount={vehicleBadgeCount}
         />
 
         <ModuleCard
