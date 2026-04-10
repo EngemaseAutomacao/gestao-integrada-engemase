@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { NotificationBell } from "@/components/NotificationBell";
 
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { SyncQueuePanel } from "@/components/SyncQueuePanel";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { Footer } from "@/components/Footer";
@@ -340,6 +341,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Right side */}
         <div className={cn("flex items-center gap-1 sm:gap-2", isMobile && "min-w-[100px] justify-end")}>
+          <SyncQueuePanel />
           <OfflineIndicator />
           
           <ThemeToggle />
