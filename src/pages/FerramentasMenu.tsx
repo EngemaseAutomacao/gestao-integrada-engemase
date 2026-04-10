@@ -75,6 +75,7 @@ export default function FerramentasMenu() {
           description="Devolver uma ferramenta"
           icon={<LogIn className="w-6 h-6 text-primary" />}
           to="/ferramentas/devolucao"
+          badgeCount={toolOverdue}
         />
         <MenuCard
           title="Meu Histórico"
@@ -87,6 +88,7 @@ export default function FerramentasMenu() {
           description="Informar defeito em ferramenta"
           icon={<AlertCircle className="w-6 h-6 text-primary" />}
           to="/report-issue"
+          badgeCount={toolIssuesOpen}
         />
         <MenuCard
           title="Transferências"
