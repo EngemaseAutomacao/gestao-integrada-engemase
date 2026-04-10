@@ -282,11 +282,11 @@ export default function AdminHistory() {
           <CardDescription>Filtre o histórico por diferentes critérios</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar ferramenta ou usuário..."
+                placeholder="Buscar ferramenta, usuário ou obra..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -312,9 +312,31 @@ export default function AdminHistory() {
                 <SelectItem value="all">Todas as Categorias</SelectItem>
                 <SelectItem value="engemase_employee">Funcionários</SelectItem>
                 <SelectItem value="third_party">Terceirizados</SelectItem>
+                <SelectItem value="socios">Sócios</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={periodFilter} onValueChange={setPeriodFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todo o período</SelectItem>
+                <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                <SelectItem value="6m">Últimos 6 meses</SelectItem>
+                <SelectItem value="1y">Último ano</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+              <X className="w-3 h-3" />
+              Limpar filtros
+            </Button>
+          )}
         </CardContent>
       </Card>
 
