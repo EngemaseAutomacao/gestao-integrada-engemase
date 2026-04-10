@@ -6,7 +6,7 @@ import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight, ChevronDown, CalendarPlus } from "lucide-react";
+import { Package, Search, QrCode, CheckCircle, AlertCircle, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useNavigate, Link } from "react-router-dom";
@@ -18,6 +18,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 
 interface Tool {
   id: string;
