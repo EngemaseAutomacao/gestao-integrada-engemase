@@ -95,6 +95,7 @@ export default function VeiculosMenu() {
           description="Informar defeito em veículo"
           icon={<AlertCircle className="w-6 h-6 text-primary" />}
           to="/veiculos/report-issue"
+          badgeCount={vehicleIssuesOpen}
         />
         <MenuCard
           title="Transferências"
@@ -109,6 +110,7 @@ export default function VeiculosMenu() {
               description="Gerenciar problemas reportados"
               icon={<AlertCircle className="w-6 h-6 text-primary" />}
               to="/admin/vehicle-issues"
+              badgeCount={vehicleIssuesOpen}
             />
             <MenuCard
               title="Histórico Geral"
