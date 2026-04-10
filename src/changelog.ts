@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.18.0",
+    date: "2026-04-10",
+    title: "Badges de Urgência e Exportação nos Dashboards",
+    description: "Indicadores visuais de pendências nos módulos e exportação PDF/Excel nos painéis de ferramentas e veículos.",
+    changes: [
+      { type: "feature", text: "Badges vermelhos nos cards de Ferramentas e Veículos indicando devoluções atrasadas e problemas abertos" },
+      { type: "feature", text: "Exportação para PDF e Excel no dashboard de ferramentas" },
+      { type: "feature", text: "Exportação para PDF e Excel no dashboard de veículos" },
+      { type: "improvement", text: "Hook reutilizável useUrgencyBadges com atualização automática a cada minuto" },
+      { type: "improvement", text: "Utilitário centralizado de exportação (exportUtils) para PDF e Excel" },
+    ],
+  },
+  {
     version: "1.17.0",
     date: "2026-04-10",
     title: "Filtros Avançados, Sync Queue e Auditoria",
