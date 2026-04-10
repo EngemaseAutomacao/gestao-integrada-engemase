@@ -17,7 +17,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
