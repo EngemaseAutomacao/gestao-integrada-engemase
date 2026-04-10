@@ -11,6 +11,21 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.17.0",
+    date: "2026-04-10",
+    title: "Filtros Avançados, Sync Queue e Auditoria",
+    description: "Melhorias significativas em filtros, modo offline e painel de auditoria.",
+    changes: [
+      { type: "feature", text: "Filtros avançados por período, categoria e status em todos os históricos" },
+      { type: "feature", text: "Botão de limpar filtros nos históricos" },
+      { type: "feature", text: "Fila de sincronização offline visível com status de cada operação" },
+      { type: "feature", text: "Painel de Auditoria com registro detalhado de todas as ações do sistema" },
+      { type: "feature", text: "Exportação de relatório de auditoria em PDF e Excel" },
+      { type: "improvement", text: "Busca nos históricos agora inclui pesquisa por obra" },
+      { type: "improvement", text: "Filtro de categoria de sócios adicionado ao histórico de ferramentas" },
+    ],
+  },
+  {
     version: "1.16.0",
     date: "2026-04-10",
     title: "Retenção de Dados",
