@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2 } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -62,6 +63,7 @@ export default function AdminVehicleHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<VehicleHistoryEntry | null>(null);
   const [aiEstimation, setAiEstimation] = useState<{
     checkout_km: number | null;
