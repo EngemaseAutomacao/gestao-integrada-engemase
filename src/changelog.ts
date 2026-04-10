@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.16.0",
+    date: "2026-04-10",
+    title: "Retenção de Dados",
+    description: "Controle de limpeza automática de dados antigos.",
+    changes: [
+      { type: "feature", text: "Painel de controle de retenção de dados" },
+      { type: "feature", text: "Limpeza automática de fotos e históricos antigos" },
+      { type: "improvement", text: "Revisão geral de estabilidade do sistema" },
+    ],
+  },
+  {
     version: "1.15.0",
     date: "2026-04-08",
     title: "Notificações e Histórico",
