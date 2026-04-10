@@ -2,7 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Car, ArrowRight, ChevronDown, Search } from "lucide-react";
+import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet } from "lucide-react";
+import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +11,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 
 export default function VehicleDashboard() {
   const { profile } = useAuth();
@@ -162,8 +164,54 @@ export default function VehicleDashboard() {
       {/* Vehicle List - same pattern as tools Dashboard */}
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0">
-          <CardTitle>Veículos</CardTitle>
-          <CardDescription>Lista de veículos disponíveis</CardDescription>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle>Veículos</CardTitle>
+              <CardDescription>Lista de veículos disponíveis</CardDescription>
+            </div>
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs gap-1"
+                onClick={() => {
+                  const headers = ["Nome", "Placa", "Marca", "Modelo", "Cor", "Status"];
+                  const rows = filteredVehicles.map(v => [
+                    v.name,
+                    v.plate,
+                    v.brand || "-",
+                    v.model || "-",
+                    v.color || "-",
+                    v.status === "available" ? "Disponível" : "Em uso",
+                  ]);
+                  exportToPDF("Relatório de Veículos", headers, rows, "veiculos.pdf");
+                  toast.success("PDF exportado!");
+                }}
+              >
+                <FileText className="w-3.5 h-3.5" /> PDF
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs gap-1"
+                onClick={() => {
+                  const headers = ["Nome", "Placa", "Marca", "Modelo", "Cor", "Status"];
+                  const rows = filteredVehicles.map(v => [
+                    v.name,
+                    v.plate,
+                    v.brand || "-",
+                    v.model || "-",
+                    v.color || "-",
+                    v.status === "available" ? "Disponível" : "Em uso",
+                  ]);
+                  exportToExcel("Veículos", headers, rows, "veiculos.xlsx");
+                  toast.success("Excel exportado!");
+                }}
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
           <div className="relative shrink-0">

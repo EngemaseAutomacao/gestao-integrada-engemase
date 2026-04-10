@@ -2,18 +2,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Wrench, Package, Upload, LogIn, History, BarChart3, AlertCircle, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 
 interface MenuCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
   to: string;
+  badgeCount?: number;
 }
 
-function MenuCard({ title, description, icon, to }: MenuCardProps) {
+function MenuCard({ title, description, icon, to, badgeCount }: MenuCardProps) {
   return (
     <Link to={to} className="block h-full">
       <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary h-full flex flex-col">
+        {badgeCount && badgeCount > 0 ? (
+          <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10">
+            {badgeCount}
+          </div>
+        ) : null}
         <CardHeader className="text-center pb-2 flex-1 flex flex-col items-center justify-center">
           <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
             {icon}
@@ -32,6 +39,8 @@ function MenuCard({ title, description, icon, to }: MenuCardProps) {
 export default function FerramentasMenu() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
+
+  const { toolOverdue, toolIssuesOpen } = useUrgencyBadges();
 
   return (
     <div className="space-y-6">
@@ -66,6 +75,7 @@ export default function FerramentasMenu() {
           description="Devolver uma ferramenta"
           icon={<LogIn className="w-6 h-6 text-primary" />}
           to="/ferramentas/devolucao"
+          badgeCount={toolOverdue}
         />
         <MenuCard
           title="Meu Histórico"
@@ -78,6 +88,7 @@ export default function FerramentasMenu() {
           description="Informar defeito em ferramenta"
           icon={<AlertCircle className="w-6 h-6 text-primary" />}
           to="/report-issue"
+          badgeCount={toolIssuesOpen}
         />
         <MenuCard
           title="Transferências"
