@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Package, Wrench, BarChart3, FileText, Bell, ClipboardList, Settings, AlertCircle, Images, Building2, Database } from "lucide-react";
+import { Users, Package, Wrench, BarChart3, FileText, Bell, ClipboardList, Settings, AlertCircle, Images, Building2, Database, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -48,6 +48,7 @@ export default function AdminDashboard() {
     { title: "Galeria de Imagens", description: "Visualizar fotos do sistema", icon: <Images className="w-5 h-5 text-orange-500" />, to: "/admin/gallery" },
     { title: "Obras", description: "Gerenciar canteiros e obras", icon: <Building2 className="w-5 h-5 text-orange-500" />, to: "/admin/construction-sites" },
     { title: "Retenção de Dados", description: "Controle de limpeza automática", icon: <Database className="w-5 h-5 text-orange-500" />, to: "/admin/data-retention" },
+    { title: "Auditoria", description: "Registro detalhado de ações", icon: <Shield className="w-5 h-5 text-orange-500" />, to: "/admin/audit" },
   ];
 
   return (

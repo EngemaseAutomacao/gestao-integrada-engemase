@@ -5,16 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2 } from "lucide-react";
+import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, CalendarIcon, X } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
@@ -53,6 +56,7 @@ export default function AdminHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: HistoryEntry | null }>({ open: false, entry: null });
 
@@ -129,10 +133,23 @@ export default function AdminHistory() {
     }
   };
 
+  const getDateRange = () => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { start: subDays(now, 7), end: now };
+      case "30d": return { start: subDays(now, 30), end: now };
+      case "90d": return { start: subDays(now, 90), end: now };
+      case "6m": return { start: subMonths(now, 6), end: now };
+      case "1y": return { start: subMonths(now, 12), end: now };
+      default: return null;
+    }
+  };
+
   const filteredHistory = history.filter((entry) => {
     const matchesSearch = 
       entry.tools.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase());
+      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (entry.construction_site && entry.construction_site.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesStatus = 
       statusFilter === "all" || entry.status === statusFilter;
@@ -140,8 +157,23 @@ export default function AdminHistory() {
     const matchesCategory = 
       categoryFilter === "all" || entry.profiles.category === categoryFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory;
+    const dateRange = getDateRange();
+    const matchesPeriod = !dateRange || (
+      isAfter(new Date(entry.checkout_date), startOfDay(dateRange.start)) &&
+      isBefore(new Date(entry.checkout_date), endOfDay(dateRange.end))
+    );
+
+    return matchesSearch && matchesStatus && matchesCategory && matchesPeriod;
   });
+
+  const hasActiveFilters = searchQuery || statusFilter !== "all" || categoryFilter !== "all" || periodFilter !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setCategoryFilter("all");
+    setPeriodFilter("all");
+  };
 
   const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
     if (category === "engemase_employee") {
@@ -250,11 +282,11 @@ export default function AdminHistory() {
           <CardDescription>Filtre o histórico por diferentes critérios</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar ferramenta ou usuário..."
+                placeholder="Buscar ferramenta, usuário ou obra..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -280,9 +312,31 @@ export default function AdminHistory() {
                 <SelectItem value="all">Todas as Categorias</SelectItem>
                 <SelectItem value="engemase_employee">Funcionários</SelectItem>
                 <SelectItem value="third_party">Terceirizados</SelectItem>
+                <SelectItem value="socios">Sócios</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={periodFilter} onValueChange={setPeriodFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Período" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todo o período</SelectItem>
+                <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                <SelectItem value="6m">Últimos 6 meses</SelectItem>
+                <SelectItem value="1y">Último ano</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+              <X className="w-3 h-3" />
+              Limpar filtros
+            </Button>
+          )}
         </CardContent>
       </Card>
 
