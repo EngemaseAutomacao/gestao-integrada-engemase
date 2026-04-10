@@ -56,6 +56,7 @@ export default function AdminHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [periodFilter, setPeriodFilter] = useState<string>("all");
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: HistoryEntry | null }>({ open: false, entry: null });
 
@@ -132,10 +133,23 @@ export default function AdminHistory() {
     }
   };
 
+  const getDateRange = () => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "7d": return { start: subDays(now, 7), end: now };
+      case "30d": return { start: subDays(now, 30), end: now };
+      case "90d": return { start: subDays(now, 90), end: now };
+      case "6m": return { start: subMonths(now, 6), end: now };
+      case "1y": return { start: subMonths(now, 12), end: now };
+      default: return null;
+    }
+  };
+
   const filteredHistory = history.filter((entry) => {
     const matchesSearch = 
       entry.tools.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase());
+      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (entry.construction_site && entry.construction_site.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesStatus = 
       statusFilter === "all" || entry.status === statusFilter;
@@ -143,8 +157,23 @@ export default function AdminHistory() {
     const matchesCategory = 
       categoryFilter === "all" || entry.profiles.category === categoryFilter;
 
-    return matchesSearch && matchesStatus && matchesCategory;
+    const dateRange = getDateRange();
+    const matchesPeriod = !dateRange || (
+      isAfter(new Date(entry.checkout_date), startOfDay(dateRange.start)) &&
+      isBefore(new Date(entry.checkout_date), endOfDay(dateRange.end))
+    );
+
+    return matchesSearch && matchesStatus && matchesCategory && matchesPeriod;
   });
+
+  const hasActiveFilters = searchQuery || statusFilter !== "all" || categoryFilter !== "all" || periodFilter !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setCategoryFilter("all");
+    setPeriodFilter("all");
+  };
 
   const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
     if (category === "engemase_employee") {
