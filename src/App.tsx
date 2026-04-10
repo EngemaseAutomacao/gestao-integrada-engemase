@@ -41,6 +41,7 @@ import AdminIssues from "./pages/admin/AdminIssues";
 import AdminConstructionSites from "./pages/admin/AdminConstructionSites";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminDataRetention from "./pages/admin/AdminDataRetention";
+import AdminAudit from "./pages/admin/AdminAudit";
 import AdminVehicleHistory from "./pages/admin/AdminVehicleHistory";
 import ReportIssue from "./pages/ReportIssue";
 import ReportVehicleIssue from "./pages/vehicles/ReportVehicleIssue";
@@ -123,6 +124,7 @@ const App = () => (
                 <Route path="/admin/construction-sites" element={<Layout><AdminConstructionSites /></Layout>} />
                 <Route path="/admin/gallery" element={<Layout><AdminGallery /></Layout>} />
                 <Route path="/admin/data-retention" element={<Layout><AdminDataRetention /></Layout>} />
+                <Route path="/admin/audit" element={<Layout><AdminAudit /></Layout>} />
                 {/* Ponto Online Routes */}
                 <Route path="/ponto" element={<Layout><PontoDashboard /></Layout>} />
                 <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
