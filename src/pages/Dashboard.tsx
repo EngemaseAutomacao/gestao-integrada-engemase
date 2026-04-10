@@ -275,8 +275,52 @@ export default function Dashboard() {
 
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0">
-          <CardTitle>Ferramentas</CardTitle>
-          <CardDescription>Lista de ferramentas disponíveis</CardDescription>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle>Ferramentas</CardTitle>
+              <CardDescription>Lista de ferramentas disponíveis</CardDescription>
+            </div>
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs gap-1"
+                onClick={() => {
+                  const headers = ["Nome", "Tag", "Disponível", "Total", "Em Uso"];
+                  const rows = filteredTools.map(t => [
+                    t.name,
+                    t.tag || "-",
+                    String(t.quantity_available),
+                    String(t.quantity_total),
+                    String(t.quantity_total - t.quantity_available),
+                  ]);
+                  exportToPDF("Relatório de Ferramentas", headers, rows, "ferramentas.pdf");
+                  toast.success("PDF exportado!");
+                }}
+              >
+                <FileText className="w-3.5 h-3.5" /> PDF
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs gap-1"
+                onClick={() => {
+                  const headers = ["Nome", "Tag", "Disponível", "Total", "Em Uso"];
+                  const rows = filteredTools.map(t => [
+                    t.name,
+                    t.tag || "-",
+                    String(t.quantity_available),
+                    String(t.quantity_total),
+                    String(t.quantity_total - t.quantity_available),
+                  ]);
+                  exportToExcel("Ferramentas", headers, rows, "ferramentas.xlsx");
+                  toast.success("Excel exportado!");
+                }}
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 flex flex-col space-y-4">
           <div className="relative shrink-0">
