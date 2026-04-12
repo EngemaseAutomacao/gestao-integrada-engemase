@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock } from "lucide-react";
+import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -74,6 +75,7 @@ export default function AdminVehicleHistory() {
   } | null>(null);
   const [estimating, setEstimating] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: VehicleHistoryEntry | null }>({ open: false, entry: null });
+  const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
@@ -469,17 +471,50 @@ export default function AdminVehicleHistory() {
       </Card>
 
       <Card className="flex-1 min-h-0 flex flex-col">
-        <CardHeader className="shrink-0">
-          <CardTitle>Histórico de Movimentações</CardTitle>
-          <CardDescription>
-            Mostrando {filteredHistory.length} de {history.length} registros
-          </CardDescription>
+        <CardHeader className="shrink-0 flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Histórico de Movimentações</CardTitle>
+            <CardDescription>
+              Mostrando {filteredHistory.length} de {history.length} registros
+            </CardDescription>
+          </div>
+          <div className="flex gap-1">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("table")}
+              title="Visualização em tabela"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === "timeline" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("timeline")}
+              title="Visualização em timeline"
+            >
+              <Clock className="w-4 h-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 overflow-y-auto">
           {filteredHistory.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhuma movimentação encontrada
             </p>
+          ) : viewMode === "timeline" ? (
+            <AssetTimeline
+              events={filteredHistory.map((entry) => ({
+                id: entry.id,
+                date: entry.status === "checked_in" && entry.checkin_date ? entry.checkin_date : entry.checkout_date,
+                action: entry.status === "checked_out" ? "Retirada" : "Devolução",
+                description: `${entry.vehicles.name} (${entry.vehicles.plate})${entry.destination ? ` — ${entry.destination}` : ""}${entry.km_checkin !== null ? ` • ${(entry.km_checkin - entry.km_checkout).toLocaleString()} km` : ""}`,
+                user: entry.profiles.full_name,
+                type: entry.status === "checked_out" ? "checkout" : "checkin",
+              }))}
+            />
           ) : (
             <>
               {/* Desktop Table */}
@@ -659,27 +694,42 @@ export default function AdminVehicleHistory() {
 
                                     {hasPhotos(selectedEntry) && (
                                       <div className="pt-4 border-t space-y-4">
-                                        <h4 className="font-semibold">Fotos</h4>
-                                        <PhotoSection
-                                          label="Saída"
-                                          photos={[
-                                            { label: "Frente", path: selectedEntry.photo_front_checkout },
-                                            { label: "Traseira", path: selectedEntry.photo_back_checkout },
-                                            { label: "Esquerda", path: selectedEntry.photo_left_checkout },
-                                            { label: "Direita", path: selectedEntry.photo_right_checkout },
-                                            { label: "Painel", path: selectedEntry.photo_dashboard_checkout },
-                                          ]}
-                                        />
-                                        <PhotoSection
-                                          label="Devolução"
-                                          photos={[
-                                            { label: "Frente", path: selectedEntry.photo_front_checkin },
-                                            { label: "Traseira", path: selectedEntry.photo_back_checkin },
-                                            { label: "Esquerda", path: selectedEntry.photo_left_checkin },
-                                            { label: "Direita", path: selectedEntry.photo_right_checkin },
-                                            { label: "Painel", path: selectedEntry.photo_dashboard_checkin },
-                                          ]}
-                                        />
+                                        <h4 className="font-semibold">Fotos — Comparativo Saída vs Devolução</h4>
+                                        {[
+                                          { label: "Frente", checkout: selectedEntry.photo_front_checkout, checkin: selectedEntry.photo_front_checkin },
+                                          { label: "Traseira", checkout: selectedEntry.photo_back_checkout, checkin: selectedEntry.photo_back_checkin },
+                                          { label: "Esquerda", checkout: selectedEntry.photo_left_checkout, checkin: selectedEntry.photo_left_checkin },
+                                          { label: "Direita", checkout: selectedEntry.photo_right_checkout, checkin: selectedEntry.photo_right_checkin },
+                                          { label: "Painel", checkout: selectedEntry.photo_dashboard_checkout, checkin: selectedEntry.photo_dashboard_checkin },
+                                        ]
+                                          .filter((pair) => pair.checkout || pair.checkin)
+                                          .map((pair) => (
+                                            <div key={pair.label} className="space-y-1">
+                                              <p className="text-sm font-medium text-muted-foreground">{pair.label}</p>
+                                              <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                  <p className="text-xs text-muted-foreground mb-1">Saída</p>
+                                                  {pair.checkout ? (
+                                                    <SignedImage storagePath={pair.checkout} alt={`${pair.label} - Saída`} className="w-full h-32 object-cover rounded-lg border" />
+                                                  ) : (
+                                                    <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                                      Sem foto
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <div>
+                                                  <p className="text-xs text-muted-foreground mb-1">Devolução</p>
+                                                  {pair.checkin ? (
+                                                    <SignedImage storagePath={pair.checkin} alt={`${pair.label} - Devolução`} className="w-full h-32 object-cover rounded-lg border" />
+                                                  ) : (
+                                                    <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                                      Sem foto
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
                                       </div>
                                     )}
                                   </div>
