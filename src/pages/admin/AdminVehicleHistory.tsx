@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock } from "lucide-react";
+import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -74,6 +75,7 @@ export default function AdminVehicleHistory() {
   } | null>(null);
   const [estimating, setEstimating] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: VehicleHistoryEntry | null }>({ open: false, entry: null });
+  const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
@@ -469,17 +471,50 @@ export default function AdminVehicleHistory() {
       </Card>
 
       <Card className="flex-1 min-h-0 flex flex-col">
-        <CardHeader className="shrink-0">
-          <CardTitle>Histórico de Movimentações</CardTitle>
-          <CardDescription>
-            Mostrando {filteredHistory.length} de {history.length} registros
-          </CardDescription>
+        <CardHeader className="shrink-0 flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Histórico de Movimentações</CardTitle>
+            <CardDescription>
+              Mostrando {filteredHistory.length} de {history.length} registros
+            </CardDescription>
+          </div>
+          <div className="flex gap-1">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("table")}
+              title="Visualização em tabela"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === "timeline" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("timeline")}
+              title="Visualização em timeline"
+            >
+              <Clock className="w-4 h-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="flex-1 min-h-0 overflow-y-auto">
           {filteredHistory.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhuma movimentação encontrada
             </p>
+          ) : viewMode === "timeline" ? (
+            <AssetTimeline
+              events={filteredHistory.map((entry) => ({
+                id: entry.id,
+                date: entry.status === "checked_in" && entry.checkin_date ? entry.checkin_date : entry.checkout_date,
+                action: entry.status === "checked_out" ? "Retirada" : "Devolução",
+                description: `${entry.vehicles.name} (${entry.vehicles.plate})${entry.destination ? ` — ${entry.destination}` : ""}${entry.km_checkin !== null ? ` • ${(entry.km_checkin - entry.km_checkout).toLocaleString()} km` : ""}`,
+                user: entry.profiles.full_name,
+                type: entry.status === "checked_out" ? "checkout" : "checkin",
+              }))}
+            />
           ) : (
             <>
               {/* Desktop Table */}
