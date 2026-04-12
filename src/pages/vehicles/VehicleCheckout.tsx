@@ -9,6 +9,7 @@ import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation, Clock } fro
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadFileImage } from "@/lib/storageUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
@@ -192,13 +193,7 @@ export default function VehicleCheckout() {
   });
 
   const uploadPhoto = async (file: File, prefix: string) => {
-    const fileExt = file.name.split(".").pop();
-    const seq = String(Date.now()).slice(-6);
-    const dateFolder = new Date().toISOString().slice(0, 10);
-    const filePath = `veiculos/saidas/${dateFolder}/saida_${prefix}_${seq}.${fileExt}`;
-    const { error } = await supabase.storage.from("imagens").upload(filePath, file);
-    if (error) throw error;
-    return filePath;
+    return uploadFileImage(file, prefix, "veiculos", "saidas");
   };
 
   const checkoutMutation = useMutation({
