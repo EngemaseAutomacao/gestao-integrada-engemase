@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.19.0",
+    date: "2026-04-12",
+    title: "Performance e Estabilidade",
+    description: "Melhorias de performance no carregamento e maior estabilidade geral do sistema.",
+    changes: [
+      { type: "improvement", text: "Carregamento mais rápido com lazy loading em todas as páginas" },
+      { type: "improvement", text: "Tela de erro amigável em caso de falhas inesperadas" },
+      { type: "improvement", text: "Código de upload de imagens centralizado e otimizado" },
+    ],
+  },
+  {
     version: "1.18.0",
     date: "2026-04-10",
     title: "Badges de Urgência e Exportação nos Dashboards",
