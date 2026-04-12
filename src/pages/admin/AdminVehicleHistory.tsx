@@ -694,27 +694,42 @@ export default function AdminVehicleHistory() {
 
                                     {hasPhotos(selectedEntry) && (
                                       <div className="pt-4 border-t space-y-4">
-                                        <h4 className="font-semibold">Fotos</h4>
-                                        <PhotoSection
-                                          label="Saída"
-                                          photos={[
-                                            { label: "Frente", path: selectedEntry.photo_front_checkout },
-                                            { label: "Traseira", path: selectedEntry.photo_back_checkout },
-                                            { label: "Esquerda", path: selectedEntry.photo_left_checkout },
-                                            { label: "Direita", path: selectedEntry.photo_right_checkout },
-                                            { label: "Painel", path: selectedEntry.photo_dashboard_checkout },
-                                          ]}
-                                        />
-                                        <PhotoSection
-                                          label="Devolução"
-                                          photos={[
-                                            { label: "Frente", path: selectedEntry.photo_front_checkin },
-                                            { label: "Traseira", path: selectedEntry.photo_back_checkin },
-                                            { label: "Esquerda", path: selectedEntry.photo_left_checkin },
-                                            { label: "Direita", path: selectedEntry.photo_right_checkin },
-                                            { label: "Painel", path: selectedEntry.photo_dashboard_checkin },
-                                          ]}
-                                        />
+                                        <h4 className="font-semibold">Fotos — Comparativo Saída vs Devolução</h4>
+                                        {[
+                                          { label: "Frente", checkout: selectedEntry.photo_front_checkout, checkin: selectedEntry.photo_front_checkin },
+                                          { label: "Traseira", checkout: selectedEntry.photo_back_checkout, checkin: selectedEntry.photo_back_checkin },
+                                          { label: "Esquerda", checkout: selectedEntry.photo_left_checkout, checkin: selectedEntry.photo_left_checkin },
+                                          { label: "Direita", checkout: selectedEntry.photo_right_checkout, checkin: selectedEntry.photo_right_checkin },
+                                          { label: "Painel", checkout: selectedEntry.photo_dashboard_checkout, checkin: selectedEntry.photo_dashboard_checkin },
+                                        ]
+                                          .filter((pair) => pair.checkout || pair.checkin)
+                                          .map((pair) => (
+                                            <div key={pair.label} className="space-y-1">
+                                              <p className="text-sm font-medium text-muted-foreground">{pair.label}</p>
+                                              <div className="grid grid-cols-2 gap-2">
+                                                <div>
+                                                  <p className="text-xs text-muted-foreground mb-1">Saída</p>
+                                                  {pair.checkout ? (
+                                                    <SignedImage storagePath={pair.checkout} alt={`${pair.label} - Saída`} className="w-full h-32 object-cover rounded-lg border" />
+                                                  ) : (
+                                                    <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                                      Sem foto
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <div>
+                                                  <p className="text-xs text-muted-foreground mb-1">Devolução</p>
+                                                  {pair.checkin ? (
+                                                    <SignedImage storagePath={pair.checkin} alt={`${pair.label} - Devolução`} className="w-full h-32 object-cover rounded-lg border" />
+                                                  ) : (
+                                                    <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                                      Sem foto
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))}
                                       </div>
                                     )}
                                   </div>
