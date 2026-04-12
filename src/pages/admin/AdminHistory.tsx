@@ -376,6 +376,17 @@ export default function AdminHistory() {
             <p className="text-center text-muted-foreground py-8">
               Nenhuma movimentação encontrada
             </p>
+          ) : viewMode === "timeline" ? (
+            <AssetTimeline
+              events={filteredHistory.map((entry) => ({
+                id: entry.id,
+                date: entry.status === "checked_in" && entry.checkin_date ? entry.checkin_date : entry.checkout_date,
+                action: entry.status === "checked_out" ? "Retirada" : "Devolução",
+                description: `${entry.tools.name}${entry.construction_site ? ` — ${entry.construction_site}` : ""}`,
+                user: entry.profiles.full_name,
+                type: entry.status === "checked_out" ? "checkout" : "checkin",
+              }))}
+            />
           ) : (
             <>
               {/* Desktop Table */}
