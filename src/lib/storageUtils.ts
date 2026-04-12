@@ -1,0 +1,68 @@
+import { supabase } from "@/integrations/supabase/client";
+
+/**
+ * Convert a base64 data URL to a Blob
+ */
+export const dataUrlToBlob = (dataUrl: string, mimeType: string): Blob => {
+  const base64Data = dataUrl.split(",")[1];
+  const byteCharacters = atob(base64Data);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
+};
+
+/**
+ * Upload an image (from data URL) to Supabase Storage
+ * Used for tool checkout/checkin photos and signatures
+ */
+export const uploadDataUrlImage = async (
+  dataUrl: string,
+  type: "photo" | "signature",
+  module: "ferramentas" | "veiculos",
+  direction: "saidas" | "entradas"
+): Promise<string | null> => {
+  try {
+    const mimeType = type === "photo" ? "image/jpeg" : "image/png";
+    const ext = type === "photo" ? "jpg" : "png";
+    const blob = dataUrlToBlob(dataUrl, mimeType);
+
+    const seq = String(Date.now()).slice(-6);
+    const dateFolder = new Date().toISOString().slice(0, 10);
+    const dirLabel = direction === "saidas" ? "saida" : "entrada";
+    const fileName = `${module}/${direction}/${dateFolder}/${dirLabel}_${type}_${seq}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("imagens")
+      .upload(fileName, blob);
+
+    if (uploadError) throw uploadError;
+    return fileName;
+  } catch (error) {
+    console.error(`Error uploading ${type}:`, error);
+    return null;
+  }
+};
+
+/**
+ * Upload a File object to Supabase Storage
+ * Used for vehicle checkout/checkin photos
+ */
+export const uploadFileImage = async (
+  file: File,
+  prefix: string,
+  module: "ferramentas" | "veiculos",
+  direction: "saidas" | "entradas"
+): Promise<string> => {
+  const fileExt = file.name.split(".").pop();
+  const seq = String(Date.now()).slice(-6);
+  const dateFolder = new Date().toISOString().slice(0, 10);
+  const dirLabel = direction === "saidas" ? "saida" : "entrada";
+  const filePath = `${module}/${direction}/${dateFolder}/${dirLabel}_${prefix}_${seq}.${fileExt}`;
+
+  const { error } = await supabase.storage.from("imagens").upload(filePath, file);
+  if (error) throw error;
+  return filePath;
+};
