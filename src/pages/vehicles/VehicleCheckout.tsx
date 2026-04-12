@@ -192,13 +192,7 @@ export default function VehicleCheckout() {
   });
 
   const uploadPhoto = async (file: File, prefix: string) => {
-    const fileExt = file.name.split(".").pop();
-    const seq = String(Date.now()).slice(-6);
-    const dateFolder = new Date().toISOString().slice(0, 10);
-    const filePath = `veiculos/saidas/${dateFolder}/saida_${prefix}_${seq}.${fileExt}`;
-    const { error } = await supabase.storage.from("imagens").upload(filePath, file);
-    if (error) throw error;
-    return filePath;
+    return uploadFileImage(file, prefix, "veiculos", "saidas");
   };
 
   const checkoutMutation = useMutation({

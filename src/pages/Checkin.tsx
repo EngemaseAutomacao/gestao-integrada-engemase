@@ -94,31 +94,7 @@ export default function Checkin() {
   };
 
   const uploadImage = async (dataUrl: string, type: "photo" | "signature"): Promise<string | null> => {
-    try {
-      const base64Data = dataUrl.split(",")[1];
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: type === "photo" ? "image/jpeg" : "image/png" });
-
-      const seq = String(Date.now()).slice(-6);
-      const dateFolder = new Date().toISOString().slice(0, 10);
-      const fileName = `ferramentas/entradas/${dateFolder}/entrada_${type}_${seq}.${type === "photo" ? "jpg" : "png"}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("imagens")
-        .upload(fileName, blob);
-
-      if (uploadError) throw uploadError;
-
-      return fileName;
-    } catch (error) {
-      console.error(`Error uploading ${type}:`, error);
-      return null;
-    }
+    return uploadDataUrlImage(dataUrl, type, "ferramentas", "entradas");
   };
 
   const handleCheckin = async (e: React.FormEvent) => {
