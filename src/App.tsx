@@ -9,7 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OfflineProvider } from "@/contexts/OfflineContext";
 import Layout from "@/components/Layout";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import PageSkeleton from "@/components/PageSkeleton";
+import { DashboardSkeleton as PageSkeleton } from "@/components/PageSkeleton";
 import UpdatePrompt from "./components/UpdatePrompt";
 import { ChangelogModal } from "./components/ChangelogModal";
 import { OnboardingTutorial } from "./components/OnboardingTutorial";

@@ -9,6 +9,7 @@ import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation, Clock } fro
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadFileImage } from "@/lib/storageUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
