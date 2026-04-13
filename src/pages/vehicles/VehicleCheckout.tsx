@@ -92,55 +92,31 @@ export default function VehicleCheckout() {
 
     setIsCalculatingRoute(true);
     try {
-      // Geocode origin if no coords
-      let startLat = originCoords?.lat;
-      let startLon = originCoords?.lon;
+      let startCoords = originCoords;
 
-      if (!startLat || !startLon) {
-        const originGeoRes = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(originAddress)}&format=json&limit=1&countrycodes=br`,
-          { headers: { "Accept-Language": "pt-BR" } }
-        );
-        const originGeoData = await originGeoRes.json();
-        if (!originGeoData.length) {
+      if (!startCoords) {
+        const geocoded = await geocodeAddress(originAddress);
+        if (!geocoded) {
           toast.error("Origem não encontrada. Tente um endereço mais específico.");
           return;
         }
-        startLat = parseFloat(originGeoData[0].lat);
-        startLon = parseFloat(originGeoData[0].lon);
-        setOriginCoords({ lat: startLat, lon: startLon });
+        startCoords = geocoded;
+        setOriginCoords(startCoords);
       }
 
-      // Geocode destination
-      const geoRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinationAddress)}&format=json&limit=1&countrycodes=br`,
-        { headers: { "Accept-Language": "pt-BR" } }
-      );
-      const geoData = await geoRes.json();
-      if (!geoData.length) {
+      const destCoords = await geocodeAddress(destinationAddress);
+      if (!destCoords) {
         toast.error("Destino não encontrado. Tente um endereço mais específico.");
         return;
       }
 
-      const destLat = parseFloat(geoData[0].lat);
-      const destLon = parseFloat(geoData[0].lon);
-
-      // OSRM route
-      const routeRes = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${destLon},${destLat}?overview=false`
-      );
-      const routeData = await routeRes.json();
-
-      if (routeData.code !== "Ok" || !routeData.routes?.length) {
+      const route = await calculateRoute(startCoords, destCoords);
+      if (!route) {
         toast.error("Não foi possível calcular a rota.");
         return;
       }
 
-      const route = routeData.routes[0];
-      setRouteEstimate({
-        distance_km: Math.round((route.distance / 1000) * 10) / 10,
-        duration_minutes: Math.round(route.duration / 60),
-      });
+      setRouteEstimate(route);
       toast.success("Rota calculada!");
     } catch {
       toast.error("Erro ao calcular a rota. Tente novamente.");
@@ -171,18 +147,7 @@ export default function VehicleCheckout() {
     }
   });
 
-  const { data: constructionSites } = useQuery({
-    queryKey: ["construction-sites-active"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("construction_sites")
-        .select("id, name")
-        .eq("active", true)
-        .order("name", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: constructionSites } = useActiveConstructionSites();
 
   const uploadPhoto = async (file: File, prefix: string) => {
     return uploadFileImage(file, prefix, "veiculos", "saidas");
