@@ -36,6 +36,7 @@ interface TimeEntryWithUser {
   location_alert: boolean;
   distance_from_site_meters: number | null;
   construction_site: string | null;
+  client_name: string | null;
   profiles: {
     full_name: string;
     username: string | null;
@@ -259,6 +260,13 @@ export default function PontoAdmin() {
                     <p className="text-xs text-muted-foreground flex items-start gap-1">
                       <Building2 className="w-3 h-3 mt-0.5 shrink-0" />
                       <span>{entry.construction_site}</span>
+                    </p>
+                  )}
+
+                  {entry.client_name && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <Users className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{entry.client_name}</span>
                     </p>
                   )}
 

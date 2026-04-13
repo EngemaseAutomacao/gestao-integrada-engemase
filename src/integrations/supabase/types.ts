@@ -114,6 +114,53 @@ export type Database = {
           },
         ]
       }
+      clients: {
+        Row: {
+          active: boolean
+          address: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       construction_sites: {
         Row: {
           active: boolean
@@ -556,6 +603,7 @@ export type Database = {
       }
       time_entries: {
         Row: {
+          client_name: string | null
           clock_in: string
           clock_in_address: string | null
           clock_in_latitude: number | null
@@ -579,6 +627,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          client_name?: string | null
           clock_in?: string
           clock_in_address?: string | null
           clock_in_latitude?: number | null
@@ -602,6 +651,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          client_name?: string | null
           clock_in?: string
           clock_in_address?: string | null
           clock_in_latitude?: number | null

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Clock, Loader2, Calendar, Building2, AlertTriangle, Camera, Image } from "lucide-react";
+import { MapPin, Clock, Loader2, Calendar, Building2, AlertTriangle, Camera, Image, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInMinutes } from "date-fns";
@@ -33,6 +33,7 @@ interface TimeEntry {
   entry_type: string;
   location_alert: boolean;
   distance_from_site_meters: number | null;
+  client_name: string | null;
 }
 
 function formatDuration(minutes: number): string {
@@ -163,6 +164,13 @@ export default function PontoHistory() {
                           ({entry.distance_from_site_meters}m)
                         </span>
                       )}
+                    </p>
+                  )}
+
+                  {entry.client_name && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <User className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{entry.client_name}</span>
                     </p>
                   )}
 
