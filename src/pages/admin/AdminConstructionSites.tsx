@@ -42,9 +42,6 @@ export default function AdminConstructionSites() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [savingClient, setSavingClient] = useState(false);
   const [formName, setFormName] = useState("");
-  const [formContactName, setFormContactName] = useState("");
-  const [formContactPhone, setFormContactPhone] = useState("");
-  const [formContactEmail, setFormContactEmail] = useState("");
   const [formAddress, setFormAddress] = useState("");
 
   if (!profile || profile.role !== "admin") {
@@ -93,16 +90,13 @@ export default function AdminConstructionSites() {
 
   const openNewClient = () => {
     setEditingClient(null);
-    setFormName(""); setFormContactName(""); setFormContactPhone(""); setFormContactEmail(""); setFormAddress("");
+    setFormName(""); setFormAddress("");
     setClientDialogOpen(true);
   };
 
   const openEditClient = (c: Client) => {
     setEditingClient(c);
     setFormName(c.name);
-    setFormContactName(c.contact_name || "");
-    setFormContactPhone(c.contact_phone || "");
-    setFormContactEmail(c.contact_email || "");
     setFormAddress(c.address || "");
     setClientDialogOpen(true);
   };
@@ -112,9 +106,6 @@ export default function AdminConstructionSites() {
     setSavingClient(true);
     const payload = {
       name: formName.trim(),
-      contact_name: formContactName.trim() || null,
-      contact_phone: formContactPhone.trim() || null,
-      contact_email: formContactEmail.trim() || null,
       address: formAddress.trim() || null,
     };
 
@@ -261,7 +252,7 @@ export default function AdminConstructionSites() {
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="text-base">{c.name}</CardTitle>
-                        {c.contact_name && <CardDescription>{c.contact_name}</CardDescription>}
+                        {c.address && <CardDescription>{c.address}</CardDescription>}
                       </div>
                       <Badge variant={c.active ? "default" : "secondary"}>
                         {c.active ? "Ativo" : "Inativo"}
@@ -269,12 +260,7 @@ export default function AdminConstructionSites() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      {c.contact_phone && <span>📞 {c.contact_phone}</span>}
-                      {c.contact_email && <span>✉️ {c.contact_email}</span>}
-                      {c.address && <span>📍 {c.address}</span>}
-                    </div>
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex gap-2 mt-2">
                       <Button variant="outline" size="sm" onClick={() => openEditClient(c)}>
                         <Pencil className="w-3 h-3 mr-1" />Editar
                       </Button>
@@ -303,20 +289,6 @@ export default function AdminConstructionSites() {
             <div className="space-y-2">
               <Label>Nome *</Label>
               <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Nome do cliente" />
-            </div>
-            <div className="space-y-2">
-              <Label>Contato</Label>
-              <Input value={formContactName} onChange={(e) => setFormContactName(e.target.value)} placeholder="Nome do contato" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label>Telefone</Label>
-                <Input value={formContactPhone} onChange={(e) => setFormContactPhone(e.target.value)} placeholder="(00) 00000-0000" />
-              </div>
-              <div className="space-y-2">
-                <Label>E-mail</Label>
-                <Input value={formContactEmail} onChange={(e) => setFormContactEmail(e.target.value)} placeholder="email@exemplo.com" />
-              </div>
             </div>
             <div className="space-y-2">
               <Label>Endereço</Label>
