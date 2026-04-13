@@ -215,7 +215,7 @@ export default function PontoHistory() {
           </DialogHeader>
           {photoDialog && (
             <SignedImage
-              path={photoDialog.url}
+              storagePath={photoDialog.url}
               alt={photoDialog.title}
               className="w-full rounded-lg"
             />

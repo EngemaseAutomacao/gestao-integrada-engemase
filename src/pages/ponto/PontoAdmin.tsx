@@ -311,7 +311,7 @@ export default function PontoAdmin() {
           </DialogHeader>
           {photoDialog && (
             <SignedImage
-              path={photoDialog.url}
+              storagePath={photoDialog.url}
               alt={photoDialog.title}
               className="w-full rounded-lg"
             />
