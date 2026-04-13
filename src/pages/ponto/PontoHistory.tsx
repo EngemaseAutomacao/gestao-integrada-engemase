@@ -33,6 +33,7 @@ interface TimeEntry {
   entry_type: string;
   location_alert: boolean;
   distance_from_site_meters: number | null;
+  client_name: string | null;
 }
 
 function formatDuration(minutes: number): string {
