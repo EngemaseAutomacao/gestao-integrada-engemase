@@ -42,7 +42,7 @@ export default function VehicleCheckout() {
   const [originAddress, setOriginAddress] = useState("");
   const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [destinationAddress, setDestinationAddress] = useState("");
-  const [routeEstimate, setRouteEstimate] = useState<RouteEstimate | null>(null);
+  const [routeEstimate, setRouteEstimate] = useState<RouteEstimateType | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
