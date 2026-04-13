@@ -16,7 +16,7 @@ import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { reverseGeocode, geocodeAddress, calculateRoute } from "@/lib/geocoding";
-import type { RouteEstimate } from "@/lib/geocoding";
+import type { RouteEstimate as RouteEstimateType } from "@/lib/geocoding";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
