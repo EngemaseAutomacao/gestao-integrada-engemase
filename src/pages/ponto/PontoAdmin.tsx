@@ -36,6 +36,7 @@ interface TimeEntryWithUser {
   location_alert: boolean;
   distance_from_site_meters: number | null;
   construction_site: string | null;
+  client_name: string | null;
   profiles: {
     full_name: string;
     username: string | null;
