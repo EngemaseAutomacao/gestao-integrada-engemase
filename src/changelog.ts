@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.20.0",
+    date: "2026-04-13",
+    title: "Refatoração e Qualidade de Código",
+    description: "Centralização de lógica duplicada, tipos de domínio, tratamento de erros global e compressão de imagens.",
+    changes: [
+      { type: "improvement", text: "Tipos de domínio centralizados em src/types/domain.ts — elimina interfaces duplicadas" },
+      { type: "improvement", text: "Geolocalização e geocoding centralizados (useGeolocation + lib/geocoding)" },
+      { type: "improvement", text: "Hook useActiveConstructionSites evita queries duplicadas de obras" },
+      { type: "improvement", text: "Utilitário de compressão de imagens para reduzir uploads de 3-5MB para ~300KB" },
+      { type: "improvement", text: "Tratamento de erros global no QueryClient com mensagens amigáveis em português" },
+      { type: "fix", text: "Removidos componentes não utilizados (Breadcrumbs, UserUsageChart)" },
+    ],
+  },
+  {
     version: "1.19.0",
     date: "2026-04-12",
     title: "Performance e Estabilidade",
