@@ -135,7 +135,7 @@ export default function PontoRegister() {
     try {
       const coords = await getLocation();
       let address: string | null = null;
-      try { address = await reverseGeocode(coords.latitude, coords.longitude); } catch {}
+      try { address = await reverseGeocodeLocal(coords.latitude, coords.longitude); } catch {}
 
       const entryData = {
         user_id: user.id,
@@ -198,7 +198,7 @@ export default function PontoRegister() {
     try {
       const coords = await getLocation();
       let address: string | null = null;
-      try { address = await reverseGeocode(coords.latitude, coords.longitude); } catch {}
+      try { address = await reverseGeocodeLocal(coords.latitude, coords.longitude); } catch {}
 
       const updateData = {
         clock_out: new Date().toISOString(),

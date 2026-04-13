@@ -23,10 +23,6 @@ import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
-interface RouteEstimate {
-  distance_km: number;
-  duration_minutes: number;
-}
 
 export default function VehicleCheckout() {
   const { user } = useAuth();
