@@ -470,7 +470,7 @@ export default function PontoRegister() {
           </SelectTrigger>
           <SelectContent>
             {ENTRY_TYPES.map((t) => (
-              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+              <SelectItem key={t.value} value={t.value} disabled={t.disabled}>{t.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
