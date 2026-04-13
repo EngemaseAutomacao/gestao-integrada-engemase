@@ -2,7 +2,8 @@
 import { lazy, Suspense } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "@tanstack/react-query";
+import { getFriendlyErrorMessage } from "@/lib/errors";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -68,7 +69,31 @@ const Changelog = lazy(() => import("./pages/Changelog"));
 const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      const msg = getFriendlyErrorMessage(error);
+      if (typeof window !== "undefined") {
+        import("sonner").then(({ toast }) => toast.error(msg));
+      }
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      const msg = getFriendlyErrorMessage(error);
+      if (typeof window !== "undefined") {
+        import("sonner").then(({ toast }) => toast.error(msg));
+      }
+    },
+  }),
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>

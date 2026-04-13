@@ -13,16 +13,16 @@ import { uploadFileImage } from "@/lib/storageUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
+import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { reverseGeocode, geocodeAddress, calculateRoute } from "@/lib/geocoding";
+import type { RouteEstimate as RouteEstimateType } from "@/lib/geocoding";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
-interface RouteEstimate {
-  distance_km: number;
-  duration_minutes: number;
-}
 
 export default function VehicleCheckout() {
   const { user } = useAuth();
@@ -42,7 +42,7 @@ export default function VehicleCheckout() {
   const [originAddress, setOriginAddress] = useState("");
   const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [destinationAddress, setDestinationAddress] = useState("");
-  const [routeEstimate, setRouteEstimate] = useState<RouteEstimate | null>(null);
+  const [routeEstimate, setRouteEstimate] = useState<RouteEstimateType | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
@@ -67,19 +67,11 @@ export default function VehicleCheckout() {
         });
       });
 
-      const { latitude, longitude, accuracy } = position.coords;
+      const { latitude, longitude } = position.coords;
       setOriginCoords({ lat: latitude, lon: longitude });
-      console.log(`GPS accuracy: ${accuracy}m`);
 
-      // Reverse geocode
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
-        { headers: { "Accept-Language": "pt-BR" } }
-      );
-      const data = await res.json();
-      const rawAddr = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-      const addr = rawAddr.split(", ").filter((p: string) => !p.match(/^Região /i)).join(", ");
-      setOriginAddress(addr);
+      const addr = await reverseGeocode(latitude, longitude);
+      setOriginAddress(addr || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
       toast.success("Localização obtida!");
     } catch {
       toast.error("Não foi possível obter a localização. Verifique as permissões.");
@@ -100,55 +92,31 @@ export default function VehicleCheckout() {
 
     setIsCalculatingRoute(true);
     try {
-      // Geocode origin if no coords
-      let startLat = originCoords?.lat;
-      let startLon = originCoords?.lon;
+      let startCoords = originCoords;
 
-      if (!startLat || !startLon) {
-        const originGeoRes = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(originAddress)}&format=json&limit=1&countrycodes=br`,
-          { headers: { "Accept-Language": "pt-BR" } }
-        );
-        const originGeoData = await originGeoRes.json();
-        if (!originGeoData.length) {
+      if (!startCoords) {
+        const geocoded = await geocodeAddress(originAddress);
+        if (!geocoded) {
           toast.error("Origem não encontrada. Tente um endereço mais específico.");
           return;
         }
-        startLat = parseFloat(originGeoData[0].lat);
-        startLon = parseFloat(originGeoData[0].lon);
-        setOriginCoords({ lat: startLat, lon: startLon });
+        startCoords = geocoded;
+        setOriginCoords(startCoords);
       }
 
-      // Geocode destination
-      const geoRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(destinationAddress)}&format=json&limit=1&countrycodes=br`,
-        { headers: { "Accept-Language": "pt-BR" } }
-      );
-      const geoData = await geoRes.json();
-      if (!geoData.length) {
+      const destCoords = await geocodeAddress(destinationAddress);
+      if (!destCoords) {
         toast.error("Destino não encontrado. Tente um endereço mais específico.");
         return;
       }
 
-      const destLat = parseFloat(geoData[0].lat);
-      const destLon = parseFloat(geoData[0].lon);
-
-      // OSRM route
-      const routeRes = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${destLon},${destLat}?overview=false`
-      );
-      const routeData = await routeRes.json();
-
-      if (routeData.code !== "Ok" || !routeData.routes?.length) {
+      const route = await calculateRoute(startCoords, destCoords);
+      if (!route) {
         toast.error("Não foi possível calcular a rota.");
         return;
       }
 
-      const route = routeData.routes[0];
-      setRouteEstimate({
-        distance_km: Math.round((route.distance / 1000) * 10) / 10,
-        duration_minutes: Math.round(route.duration / 60),
-      });
+      setRouteEstimate(route);
       toast.success("Rota calculada!");
     } catch {
       toast.error("Erro ao calcular a rota. Tente novamente.");
@@ -179,18 +147,7 @@ export default function VehicleCheckout() {
     }
   });
 
-  const { data: constructionSites } = useQuery({
-    queryKey: ["construction-sites-active"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("construction_sites")
-        .select("id, name")
-        .eq("active", true)
-        .order("name", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: constructionSites } = useActiveConstructionSites();
 
   const uploadPhoto = async (file: File, prefix: string) => {
     return uploadFileImage(file, prefix, "veiculos", "saidas");
