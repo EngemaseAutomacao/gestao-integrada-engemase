@@ -123,16 +123,9 @@ export default function PontoRegister() {
     });
   };
 
-  const reverseGeocode = async (lat: number, lng: number): Promise<string | null> => {
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=pt-BR`
-      );
-      const data = await res.json();
-      return data.display_name || null;
-    } catch {
-      return null;
-    }
+  const reverseGeocodeLocal = async (lat: number, lng: number): Promise<string | null> => {
+    const { reverseGeocode: reverseGeo } = await import("@/lib/geocoding");
+    return reverseGeo(lat, lng);
   };
 
   const handleClockIn = async () => {
