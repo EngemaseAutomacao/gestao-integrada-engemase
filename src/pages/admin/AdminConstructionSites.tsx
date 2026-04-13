@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,9 +6,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { MapPin, Loader2, RefreshCw } from "lucide-react";
+import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2 } from "lucide-react";
 
 interface ConstructionSite {
   id: string;
@@ -18,15 +22,37 @@ interface ConstructionSite {
   created_at: string;
 }
 
+interface Client {
+  id: string;
+  name: string;
+  contact_name: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  address: string | null;
+  active: boolean;
+}
+
 export default function AdminConstructionSites() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+
+  // Client state
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientDialogOpen, setClientDialogOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [savingClient, setSavingClient] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [formContactName, setFormContactName] = useState("");
+  const [formContactPhone, setFormContactPhone] = useState("");
+  const [formContactEmail, setFormContactEmail] = useState("");
+  const [formAddress, setFormAddress] = useState("");
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
 
-  const { data: sites, isLoading } = useQuery({
+  // ─── Obras ───
+  const { data: sites, isLoading: loadingSites } = useQuery({
     queryKey: ["construction-sites"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -52,67 +78,260 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
 
+  // ─── Clientes ───
+  const { data: clients = [], isLoading: loadingClients, refetch: refetchClients } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data as Client[];
+    },
+  });
+
+  const openNewClient = () => {
+    setEditingClient(null);
+    setFormName(""); setFormContactName(""); setFormContactPhone(""); setFormContactEmail(""); setFormAddress("");
+    setClientDialogOpen(true);
+  };
+
+  const openEditClient = (c: Client) => {
+    setEditingClient(c);
+    setFormName(c.name);
+    setFormContactName(c.contact_name || "");
+    setFormContactPhone(c.contact_phone || "");
+    setFormContactEmail(c.contact_email || "");
+    setFormAddress(c.address || "");
+    setClientDialogOpen(true);
+  };
+
+  const handleSaveClient = async () => {
+    if (!formName.trim()) { toast.error("Nome é obrigatório"); return; }
+    setSavingClient(true);
+    const payload = {
+      name: formName.trim(),
+      contact_name: formContactName.trim() || null,
+      contact_phone: formContactPhone.trim() || null,
+      contact_email: formContactEmail.trim() || null,
+      address: formAddress.trim() || null,
+    };
+
+    if (editingClient) {
+      const { error } = await supabase.from("clients").update(payload).eq("id", editingClient.id);
+      if (error) { toast.error("Erro ao atualizar"); setSavingClient(false); return; }
+      toast.success("Cliente atualizado!");
+    } else {
+      const { error } = await supabase.from("clients").insert({ ...payload, created_by: profile!.id });
+      if (error) { toast.error("Erro ao criar"); setSavingClient(false); return; }
+      toast.success("Cliente criado!");
+    }
+    setSavingClient(false);
+    setClientDialogOpen(false);
+    refetchClients();
+  };
+
+  const toggleClientActive = async (c: Client) => {
+    const { error } = await supabase.from("clients").update({ active: !c.active }).eq("id", c.id);
+    if (error) { toast.error("Erro"); return; }
+    toast.success(c.active ? "Cliente desativado" : "Cliente ativado");
+    refetchClients();
+  };
+
+  const handleDeleteClient = async (c: Client) => {
+    if (!confirm(`Excluir cliente "${c.name}"?`)) return;
+    const { error } = await supabase.from("clients").delete().eq("id", c.id);
+    if (error) { toast.error("Erro ao excluir"); return; }
+    toast.success("Cliente excluído");
+    refetchClients();
+  };
+
+  const filteredClients = clients.filter((c) =>
+    !clientSearch || c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+    c.contact_name?.toLowerCase().includes(clientSearch.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="hidden sm:block">
-          <h2 className="text-3xl font-bold tracking-tight">Gestão de Obras</h2>
-          <p className="text-muted-foreground">Obras sincronizadas via Trello</p>
-        </div>
-        <Button
-          variant="outline"
-          className="gap-2"
-          disabled={syncMutation.isPending}
-          onClick={() => syncMutation.mutate()}
-        >
-          <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-          Sincronizar Trello
-        </Button>
+      <div className="hidden sm:block">
+        <h2 className="text-3xl font-bold tracking-tight">Obras e Clientes</h2>
+        <p className="text-muted-foreground">Gerencie obras e clientes da empresa</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
-            Obras Cadastradas
-          </CardTitle>
-          <CardDescription>{sites?.length || 0} obras no sistema</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
+      <Tabs defaultValue="obras" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="obras" className="gap-2">
+            <Building2 className="w-4 h-4" />
+            Obras
+          </TabsTrigger>
+          <TabsTrigger value="clientes" className="gap-2">
+            <Users className="w-4 h-4" />
+            Clientes
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ─── ABA OBRAS ─── */}
+        <TabsContent value="obras" className="space-y-4">
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              className="gap-2"
+              disabled={syncMutation.isPending}
+              onClick={() => syncMutation.mutate()}
+            >
+              <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+              Sincronizar Trello
+            </Button>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Obras Cadastradas
+              </CardTitle>
+              <CardDescription>{sites?.length || 0} obras no sistema</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingSites ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : !sites || sites.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Nenhuma obra cadastrada</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Endereço</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sites.map((site) => (
+                        <TableRow key={site.id}>
+                          <TableCell className="font-medium">{site.name}</TableCell>
+                          <TableCell>{site.address || "-"}</TableCell>
+                          <TableCell>
+                            <Badge variant={site.active ? "default" : "secondary"}>
+                              {site.active ? "Ativa" : "Inativa"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ─── ABA CLIENTES ─── */}
+        <TabsContent value="clientes" className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="Buscar cliente..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-10" />
+            </div>
+            <Button onClick={openNewClient} className="gap-2">
+              <Plus className="w-4 h-4" />Novo Cliente
+            </Button>
+          </div>
+
+          {loadingClients ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
-          ) : !sites || sites.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">Nenhuma obra cadastrada</p>
+          ) : filteredClients.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6 text-center text-muted-foreground">
+                <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Nenhum cliente encontrado.</p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Endereço</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sites.map((site) => (
-                    <TableRow key={site.id}>
-                      <TableCell className="font-medium">{site.name}</TableCell>
-                      <TableCell>{site.address || "-"}</TableCell>
-                      <TableCell>
-                        <Badge variant={site.active ? "default" : "secondary"}>
-                          {site.active ? "Ativa" : "Inativa"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <div className="space-y-3">
+              {filteredClients.map((c) => (
+                <Card key={c.id} className={!c.active ? "opacity-60" : ""}>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-base">{c.name}</CardTitle>
+                        {c.contact_name && <CardDescription>{c.contact_name}</CardDescription>}
+                      </div>
+                      <Badge variant={c.active ? "default" : "secondary"}>
+                        {c.active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                      {c.contact_phone && <span>📞 {c.contact_phone}</span>}
+                      {c.contact_email && <span>✉️ {c.contact_email}</span>}
+                      {c.address && <span>📍 {c.address}</span>}
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                      <Button variant="outline" size="sm" onClick={() => openEditClient(c)}>
+                        <Pencil className="w-3 h-3 mr-1" />Editar
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => toggleClientActive(c)}>
+                        {c.active ? "Desativar" : "Ativar"}
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-destructive" onClick={() => handleDeleteClient(c)}>
+                        <Trash2 className="w-3 h-3 mr-1" />Excluir
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Dialog de Cliente */}
+      <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingClient ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Nome *</Label>
+              <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Nome do cliente" />
+            </div>
+            <div className="space-y-2">
+              <Label>Contato</Label>
+              <Input value={formContactName} onChange={(e) => setFormContactName(e.target.value)} placeholder="Nome do contato" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Telefone</Label>
+                <Input value={formContactPhone} onChange={(e) => setFormContactPhone(e.target.value)} placeholder="(00) 00000-0000" />
+              </div>
+              <div className="space-y-2">
+                <Label>E-mail</Label>
+                <Input value={formContactEmail} onChange={(e) => setFormContactEmail(e.target.value)} placeholder="email@exemplo.com" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Endereço</Label>
+              <Input value={formAddress} onChange={(e) => setFormAddress(e.target.value)} placeholder="Endereço do cliente" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setClientDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveClient} disabled={savingClient}>
+              {savingClient && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {editingClient ? "Salvar" : "Criar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
