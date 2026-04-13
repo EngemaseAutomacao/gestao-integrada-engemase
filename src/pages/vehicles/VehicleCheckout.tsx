@@ -67,19 +67,11 @@ export default function VehicleCheckout() {
         });
       });
 
-      const { latitude, longitude, accuracy } = position.coords;
+      const { latitude, longitude } = position.coords;
       setOriginCoords({ lat: latitude, lon: longitude });
-      console.log(`GPS accuracy: ${accuracy}m`);
 
-      // Reverse geocode
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`,
-        { headers: { "Accept-Language": "pt-BR" } }
-      );
-      const data = await res.json();
-      const rawAddr = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-      const addr = rawAddr.split(", ").filter((p: string) => !p.match(/^Região /i)).join(", ");
-      setOriginAddress(addr);
+      const addr = await reverseGeocode(latitude, longitude);
+      setOriginAddress(addr || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
       toast.success("Localização obtida!");
     } catch {
       toast.error("Não foi possível obter a localização. Verifique as permissões.");
