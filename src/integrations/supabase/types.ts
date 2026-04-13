@@ -121,6 +121,8 @@ export type Database = {
           created_at: string
           created_by: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           updated_at: string
         }
@@ -130,6 +132,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           updated_at?: string
         }
@@ -139,6 +143,8 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           updated_at?: string
         }
@@ -554,14 +560,19 @@ export type Database = {
           clock_in_address: string | null
           clock_in_latitude: number | null
           clock_in_longitude: number | null
+          clock_in_photo_url: string | null
           clock_out: string | null
           clock_out_address: string | null
           clock_out_latitude: number | null
           clock_out_longitude: number | null
+          clock_out_photo_url: string | null
           construction_site: string | null
           created_at: string
+          distance_from_site_meters: number | null
           entry_date: string
+          entry_type: string
           id: string
+          location_alert: boolean
           notes: string | null
           status: string
           updated_at: string
@@ -572,14 +583,19 @@ export type Database = {
           clock_in_address?: string | null
           clock_in_latitude?: number | null
           clock_in_longitude?: number | null
+          clock_in_photo_url?: string | null
           clock_out?: string | null
           clock_out_address?: string | null
           clock_out_latitude?: number | null
           clock_out_longitude?: number | null
+          clock_out_photo_url?: string | null
           construction_site?: string | null
           created_at?: string
+          distance_from_site_meters?: number | null
           entry_date?: string
+          entry_type?: string
           id?: string
+          location_alert?: boolean
           notes?: string | null
           status?: string
           updated_at?: string
@@ -590,14 +606,19 @@ export type Database = {
           clock_in_address?: string | null
           clock_in_latitude?: number | null
           clock_in_longitude?: number | null
+          clock_in_photo_url?: string | null
           clock_out?: string | null
           clock_out_address?: string | null
           clock_out_latitude?: number | null
           clock_out_longitude?: number | null
+          clock_out_photo_url?: string | null
           construction_site?: string | null
           created_at?: string
+          distance_from_site_meters?: number | null
           entry_date?: string
+          entry_type?: string
           id?: string
+          location_alert?: boolean
           notes?: string | null
           status?: string
           updated_at?: string
