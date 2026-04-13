@@ -53,11 +53,11 @@ interface TimeEntry {
 }
 
 const ENTRY_TYPES = [
-  { value: "obra", label: "Por Obra" },
-  { value: "cliente", label: "Por Cliente" },
-  { value: "tecnico", label: "Por Técnico" },
-  { value: "relatorio", label: "Relatório" },
-  { value: "interno", label: "Uso Interno" },
+  { value: "obra", label: "Por Obra", disabled: false },
+  { value: "cliente", label: "Por Cliente", disabled: false },
+  { value: "tecnico", label: "Por Técnico (Em breve)", disabled: true },
+  { value: "relatorio", label: "Relatório (Em breve)", disabled: true },
+  { value: "interno", label: "Uso Interno", disabled: false },
 ];
 
 function getToday() {
@@ -470,7 +470,7 @@ export default function PontoRegister() {
           </SelectTrigger>
           <SelectContent>
             {ENTRY_TYPES.map((t) => (
-              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+              <SelectItem key={t.value} value={t.value} disabled={t.disabled}>{t.label}</SelectItem>
             ))}
           </SelectContent>
         </Select>
