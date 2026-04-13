@@ -53,18 +53,7 @@ export default function Checkout() {
   const toolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
   const hasMultipleTags = toolTags.length > 1;
 
-  const { data: constructionSites } = useQuery({
-    queryKey: ["construction-sites-active"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("construction_sites")
-        .select("id, name")
-        .eq("active", true)
-        .order("name", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: constructionSites } = useActiveConstructionSites();
 
   useEffect(() => {
     loadTools();
