@@ -263,7 +263,13 @@ export default function PontoAdmin() {
                     </p>
                   )}
 
-                  {entry.clock_in_address && (
+                  {entry.client_name && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <Users className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>{entry.client_name}</span>
+                    </p>
+                  )}
+
                     <p className="text-xs text-muted-foreground flex items-start gap-1">
                       <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
                       <span>{entry.clock_in_address.split(",").slice(0, 3).join(",")}</span>
