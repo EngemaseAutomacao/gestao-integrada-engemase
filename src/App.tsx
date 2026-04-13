@@ -69,7 +69,31 @@ const Changelog = lazy(() => import("./pages/Changelog"));
 const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      const msg = getFriendlyErrorMessage(error);
+      if (typeof window !== "undefined") {
+        import("sonner").then(({ toast }) => toast.error(msg));
+      }
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      const msg = getFriendlyErrorMessage(error);
+      if (typeof window !== "undefined") {
+        import("sonner").then(({ toast }) => toast.error(msg));
+      }
+    },
+  }),
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>
