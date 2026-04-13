@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.21.0",
+    date: "2026-04-13",
+    title: "Melhorias no Módulo de Ponto e Clientes",
+    description: "Registro de ponto com fotos, validação de localização por obra e cadastro simplificado de clientes.",
+    changes: [
+      { type: "feature", text: "Registro fotográfico obrigatório ao bater ponto" },
+      { type: "feature", text: "Validação de GPS com alerta ao registrar ponto fora da área da obra" },
+      { type: "feature", text: "Opção de registro de ponto por Obra ou por Cliente" },
+      { type: "improvement", text: "Cadastro de clientes simplificado com nome e endereço" },
+    ],
+  },
+  {
     version: "1.20.0",
     date: "2026-04-13",
     title: "Refatoração e Qualidade de Código",
