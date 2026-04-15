@@ -1,8 +1,23 @@
 const NOMINATIM = "https://nominatim.openstreetmap.org";
 const OSRM = "https://router.project-osrm.org";
-const HEADERS = { "Accept-Language": "pt-BR" };
+const HEADERS: Record<string, string> = {
+  "Accept-Language": "pt-BR",
+  "User-Agent": "EngemaseApp/1.0 (contato@engemase.com.br)",
+};
+
+// Simple LRU cache for reverse geocode results (last 10)
+const geocodeCache = new Map<string, string | null>();
+const CACHE_MAX = 10;
+const COORD_PRECISION = 4; // ~11m precision
+
+function roundedKey(lat: number, lon: number): string {
+  return `${lat.toFixed(COORD_PRECISION)},${lon.toFixed(COORD_PRECISION)}`;
+}
 
 export async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
+  const key = roundedKey(lat, lon);
+  if (geocodeCache.has(key)) return geocodeCache.get(key)!;
+
   try {
     const res = await fetch(
       `${NOMINATIM}/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`,
@@ -10,8 +25,14 @@ export async function reverseGeocode(lat: number, lon: number): Promise<string |
     );
     const data = await res.json();
     const raw = data.display_name as string | undefined;
-    if (!raw) return null;
-    return raw.split(", ").filter((p) => !p.match(/^Região /i)).join(", ");
+    const result = raw ? raw.split(", ").filter((p) => !p.match(/^Região /i)).join(", ") : null;
+
+    if (geocodeCache.size >= CACHE_MAX) {
+      const firstKey = geocodeCache.keys().next().value;
+      if (firstKey !== undefined) geocodeCache.delete(firstKey);
+    }
+    geocodeCache.set(key, result);
+    return result;
   } catch {
     return null;
   }
