@@ -52,17 +52,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
         setProfile(profileData);
         try {
-          localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profileData));
+          localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify({ data: profileData, cachedAt: Date.now() }));
         } catch {}
       }
     } catch {
-      // Offline fallback: load from cache
+      // Offline fallback: load from cache (with 24h TTL)
       try {
         const cached = localStorage.getItem(PROFILE_CACHE_KEY);
         if (cached) {
-          const cachedProfile = JSON.parse(cached) as Profile;
-          if (cachedProfile.id === userId) {
-            setProfile(cachedProfile);
+          const parsed = JSON.parse(cached);
+          const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+          const data = parsed.data || parsed; // backwards compat
+          const cachedAt = parsed.cachedAt || 0;
+          if (data.id === userId && (Date.now() - cachedAt) < CACHE_TTL) {
+            setProfile(data as Profile);
           }
         }
       } catch {}
@@ -94,18 +97,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           };
           setProfile(profileData);
           try {
-            localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profileData));
+            localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify({ data: profileData, cachedAt: Date.now() }));
           } catch {}
         }
       } catch {
-        // Offline fallback: load from cache
+        // Offline fallback: load from cache (with 24h TTL)
         if (isMounted) {
           try {
             const cached = localStorage.getItem(PROFILE_CACHE_KEY);
             if (cached) {
-              const cachedProfile = JSON.parse(cached) as Profile;
-              if (cachedProfile.id === userId) {
-                setProfile(cachedProfile);
+              const parsed = JSON.parse(cached);
+              const CACHE_TTL = 24 * 60 * 60 * 1000;
+              const data = parsed.data || parsed;
+              const cachedAt = parsed.cachedAt || 0;
+              if (data.id === userId && (Date.now() - cachedAt) < CACHE_TTL) {
+                setProfile(data as Profile);
               }
             }
           } catch {}

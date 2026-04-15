@@ -49,6 +49,54 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import { useState } from "react";
 
+// Route-to-title mapping as module-level constant (avoids re-creation on every render)
+const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
+  '/ferramentas': { title: 'Ferramentas', icon: Wrench },
+  '/ferramentas/dashboard': { title: 'Painel Geral', icon: Wrench },
+  '/ferramentas/lista': { title: 'Catálogo', icon: Package },
+  '/ferramentas/retirada': { title: 'Registrar Saída', icon: Upload },
+  '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: LogIn },
+  '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
+  '/checkout': { title: 'Registrar Saída', icon: Upload },
+  '/checkin': { title: 'Registrar Devolução', icon: LogIn },
+  '/history': { title: 'Meu Histórico', icon: History },
+  '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
+  '/veiculos': { title: 'Veículos', icon: Car },
+  '/veiculos/dashboard': { title: 'Painel Geral', icon: Car },
+  '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
+  '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
+  '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
+  '/veiculos/historico': { title: 'Meu Histórico', icon: History },
+  '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
+  '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
+  '/ponto': { title: 'Ponto Online', icon: MapPin },
+  '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
+  '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
+  '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
+  '/materiais': { title: 'Materiais', icon: Package },
+  '/materiais/solicitar': { title: 'Nova Solicitação', icon: ClipboardList },
+  '/materiais/historico': { title: 'Minhas Solicitações', icon: History },
+  '/materiais/admin': { title: 'Gerenciar Solicitações', icon: Users },
+  '/admin': { title: 'Administração', icon: Settings },
+  '/admin/users': { title: 'Usuários', icon: Users },
+  '/admin/tools': { title: 'Gerenciar Ferramentas', icon: Settings },
+  '/admin/maintenance': { title: 'Manutenções', icon: Wrench },
+  '/admin/issues': { title: 'Problemas', icon: AlertCircle },
+  '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
+  '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
+  '/admin/reports': { title: 'Relatórios', icon: FileText },
+  '/admin/notifications': { title: 'Notificações', icon: Bell },
+  '/admin/logs': { title: 'Logs', icon: ClipboardList },
+  '/admin/manual': { title: 'Entrada Manual', icon: Settings },
+  '/admin/gallery': { title: 'Galeria', icon: Package },
+  '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
+  '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
+  '/ajuda': { title: 'Ajuda', icon: HelpCircle },
+  '/changelog': { title: 'Notas de Atualização', icon: FileText },
+  '/change-password': { title: 'Alterar Senha', icon: Settings },
+  '/mobile-settings': { title: 'Menu Mobile', icon: Settings },
+};
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -114,54 +162,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
 
-  // Route-to-title mapping for mobile header
-  const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
-    '/ferramentas': { title: 'Ferramentas', icon: Wrench },
-    '/ferramentas/dashboard': { title: 'Painel Geral', icon: Wrench },
-    '/ferramentas/lista': { title: 'Catálogo', icon: Package },
-    '/ferramentas/retirada': { title: 'Registrar Saída', icon: Upload },
-    '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: LogIn },
-    '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
-    '/checkout': { title: 'Registrar Saída', icon: Upload },
-    '/checkin': { title: 'Registrar Devolução', icon: LogIn },
-    '/history': { title: 'Meu Histórico', icon: History },
-    '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
-    '/veiculos': { title: 'Veículos', icon: Car },
-    '/veiculos/dashboard': { title: 'Painel Geral', icon: Car },
-    '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
-    '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
-    '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
-    '/veiculos/historico': { title: 'Meu Histórico', icon: History },
-    '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
-    '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
-    '/ponto': { title: 'Ponto Online', icon: MapPin },
-    '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
-    '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
-    '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
-    '/materiais': { title: 'Materiais', icon: Package },
-    '/materiais/solicitar': { title: 'Nova Solicitação', icon: ClipboardList },
-    '/materiais/historico': { title: 'Minhas Solicitações', icon: History },
-    '/materiais/admin': { title: 'Gerenciar Solicitações', icon: Users },
-    '/admin': { title: 'Administração', icon: Settings },
-    '/admin/users': { title: 'Usuários', icon: Users },
-    '/admin/tools': { title: 'Gerenciar Ferramentas', icon: Settings },
-    '/admin/maintenance': { title: 'Manutenções', icon: Wrench },
-    '/admin/issues': { title: 'Problemas', icon: AlertCircle },
-    '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
-    '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
-    '/admin/reports': { title: 'Relatórios', icon: FileText },
-    
-    '/admin/notifications': { title: 'Notificações', icon: Bell },
-    '/admin/logs': { title: 'Logs', icon: ClipboardList },
-    '/admin/manual': { title: 'Entrada Manual', icon: Settings },
-    '/admin/gallery': { title: 'Galeria', icon: Package },
-    '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
-    '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
-    '/ajuda': { title: 'Ajuda', icon: HelpCircle },
-    '/changelog': { title: 'Notas de Atualização', icon: FileText },
-    '/change-password': { title: 'Alterar Senha', icon: Settings },
-    '/mobile-settings': { title: 'Menu Mobile', icon: Settings },
-  };
+  
 
   const getMobilePageTitle = () => {
     // Try exact match first
@@ -282,7 +283,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Mobile: Back button when inside a module */}
           {isMobile && !isHomePage && (
             <NavLink to="/">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar ao menu">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </NavLink>
@@ -301,7 +302,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="h-5 w-px bg-border hidden sm:block" />
               
               <NavLink to="/">
-                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2">
+                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar ao menu principal">
                   <ArrowLeft className="w-4 h-4" />
                   <span className="hidden sm:inline text-xs">Menu</span>
                 </Button>
@@ -345,7 +346,7 @@ export default function Layout({ children }: LayoutProps) {
           <OfflineIndicator />
           
           <ThemeToggle />
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate('/ajuda')}>
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate('/ajuda')} aria-label="Ajuda">
             <HelpCircle className="h-4 w-4" />
             <span className="sr-only">Ajuda</span>
           </Button>

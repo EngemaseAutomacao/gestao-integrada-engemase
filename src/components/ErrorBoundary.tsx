@@ -49,7 +49,7 @@ class ErrorBoundary extends Component<Props, State> {
                 Ocorreu um erro inesperado. Tente recarregar a página.
               </p>
             </div>
-            {this.state.error && (
+            {this.state.error && import.meta.env.DEV && (
               <pre className="text-xs text-left bg-muted p-3 rounded-lg overflow-auto max-h-32 text-muted-foreground">
                 {this.state.error.message}
               </pre>

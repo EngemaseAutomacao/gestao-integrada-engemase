@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadDataUrlImage } from "@/lib/storageUtils";
+import { compressDataUrl } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -219,7 +220,8 @@ export default function PontoRegister() {
       let address: string | null = null;
       try { address = await reverseGeocodeLocal(coords.latitude, coords.longitude); } catch {}
 
-      const photoUrl = await uploadDataUrlImage(photoDataUrl, "photo", "ferramentas", "saidas");
+      const compressedPhoto = await compressDataUrl(photoDataUrl, 1280, 0.7);
+      const photoUrl = await uploadDataUrlImage(compressedPhoto, "photo", "ferramentas", "saidas");
 
       let locationAlert = false;
       let distanceFromSite: number | null = null;
@@ -307,7 +309,8 @@ export default function PontoRegister() {
       let address: string | null = null;
       try { address = await reverseGeocodeLocal(coords.latitude, coords.longitude); } catch {}
 
-      const photoUrl = await uploadDataUrlImage(photoDataUrl, "photo", "ferramentas", "entradas");
+      const compressedPhoto = await compressDataUrl(photoDataUrl, 1280, 0.7);
+      const photoUrl = await uploadDataUrlImage(compressedPhoto, "photo", "ferramentas", "entradas");
 
       let locationAlert = openEntry.location_alert;
       let distanceFromSite = openEntry.distance_from_site_meters;
