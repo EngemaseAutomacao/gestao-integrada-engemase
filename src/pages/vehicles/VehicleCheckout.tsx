@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,9 @@ export default function VehicleCheckout() {
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
   const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+
+  const hasUnsavedData = !!(selectedVehicle || destination || notes || Object.values(photos).some(Boolean));
+  useUnsavedChanges(hasUnsavedData);
 
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
