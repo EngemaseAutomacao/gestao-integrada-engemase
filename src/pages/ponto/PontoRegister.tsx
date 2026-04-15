@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { geocodeAddress } from "@/lib/geocoding";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { PontoEntryCard } from "@/components/ponto/PontoEntryCard";
 import { PontoFormFields } from "@/components/ponto/PontoFormFields";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
@@ -145,15 +146,11 @@ export default function PontoRegister() {
 
   useEffect(() => { loadEntries(); }, [loadEntries]);
 
-  const getLocation = (): Promise<{ latitude: number; longitude: number; accuracy: number }> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) { reject(new Error("Geolocalização não suportada")); return; }
-      navigator.geolocation.getCurrentPosition(
-        (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy }),
-        (err) => reject(err),
-        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
-      );
-    });
+  const { getCurrentPosition } = useGeolocation();
+
+  const getLocation = async (): Promise<{ latitude: number; longitude: number; accuracy: number }> => {
+    const coords = await getCurrentPosition();
+    return { latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy || 0 };
   };
 
   const reverseGeocodeLocal = async (lat: number, lng: number): Promise<string | null> => {

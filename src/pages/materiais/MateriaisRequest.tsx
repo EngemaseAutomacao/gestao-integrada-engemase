@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
-
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 interface RequestItem {
   material_name: string;
@@ -32,6 +32,9 @@ export default function MateriaisRequest() {
   const [items, setItems] = useState<RequestItem[]>([
     { material_name: "", quantity: 1, unit: "un", notes: "" },
   ]);
+
+  const hasUnsavedData = !!(constructionSite || notes || items.some(i => i.material_name));
+  useUnsavedChanges(hasUnsavedData);
 
   useEffect(() => {
     supabase

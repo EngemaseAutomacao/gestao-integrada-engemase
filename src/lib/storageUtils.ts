@@ -4,13 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
  * Convert a base64 data URL to a Blob
  */
 export const dataUrlToBlob = (dataUrl: string, mimeType: string): Blob => {
-  const base64Data = dataUrl.split(",")[1];
-  const byteCharacters = atob(base64Data);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  const byteArray = new Uint8Array(byteNumbers);
+  const byteArray = Uint8Array.from(atob(dataUrl.split(",")[1]), c => c.charCodeAt(0));
   return new Blob([byteArray], { type: mimeType });
 };
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,11 +44,13 @@ export default function VehicleCheckout() {
   const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [destinationAddress, setDestinationAddress] = useState("");
   const [routeEstimate, setRouteEstimate] = useState<RouteEstimateType | null>(null);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
   const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+
+  const hasUnsavedData = !!(selectedVehicle || destination || notes || Object.values(photos).some(Boolean));
+  useUnsavedChanges(hasUnsavedData);
 
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
@@ -56,28 +59,20 @@ export default function VehicleCheckout() {
 
   const allPhotos = Object.values(photos).every(Boolean);
 
+  const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
+
   const handleGetLocation = async () => {
-    setIsLoadingLocation(true);
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 30000,
-          maximumAge: 0,
-        });
-      });
+      const coords = await getCurrentPosition();
+      setOriginCoords({ lat: coords.latitude, lon: coords.longitude });
 
-      const { latitude, longitude } = position.coords;
-      setOriginCoords({ lat: latitude, lon: longitude });
-
-      const addr = await reverseGeocode(latitude, longitude);
-      setOriginAddress(addr || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+      const addr = await reverseGeocode(coords.latitude, coords.longitude);
+      setOriginAddress(addr || `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`);
       toast.success("Localização obtida!");
     } catch {
       toast.error("Não foi possível obter a localização. Verifique as permissões.");
-    } finally {
-      setIsLoadingLocation(false);
     }
+  };
   };
 
   const handleCalculateRoute = async () => {
