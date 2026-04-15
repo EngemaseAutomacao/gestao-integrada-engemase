@@ -4,7 +4,7 @@
   "description": "Gestão integrada de ferramentas, veículos e jornada para Engemase Engenharia",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#007BFF",
+  "background_color": "#ffffff",
   "theme_color": "#007BFF",
   "orientation": "portrait",
   "icons": [

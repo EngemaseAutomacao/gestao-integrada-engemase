@@ -291,6 +291,20 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           )}
 
+          {/* Mobile: Search button next to back button */}
+          {isMobile && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Buscar">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="top" className="pt-10">
+                <GlobalSearch />
+              </SheetContent>
+            </Sheet>
+          )}
+
           {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
           {!isMobile && (
             <NavLink to="/" className="flex items-center gap-2 shrink-0">
@@ -344,19 +358,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Right side */}
         <div className={cn("flex items-center gap-1 sm:gap-2", isMobile && "min-w-[100px] justify-end")}>
-          {/* Mobile: Search button that opens sheet */}
-          {isMobile && (
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Buscar">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="top" className="pt-10">
-                <GlobalSearch />
-              </SheetContent>
-            </Sheet>
-          )}
+          
           <SyncQueuePanel />
           <OfflineIndicator />
           

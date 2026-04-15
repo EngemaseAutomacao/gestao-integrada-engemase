@@ -20,40 +20,33 @@ export function useUrgencyBadges() {
 
       const now = new Date().toISOString();
 
-      // For regular users: their own overdue items
-      // For admins: all overdue items
+      // Always show only the current user's own pending items
       const toolCheckoutsQuery = supabase
         .from("tool_checkouts")
         .select("id", { count: "exact", head: true })
         .eq("status", "checked_out")
+        .eq("user_id", profile.id)
         .lt("estimated_return_date", now);
 
       const vehicleCheckoutsQuery = supabase
         .from("vehicle_checkouts")
         .select("id", { count: "exact", head: true })
         .eq("status", "checked_out")
+        .eq("user_id", profile.id)
         .lt("estimated_return_time", new Date().toTimeString().slice(0, 5));
 
-      if (!isAdmin) {
-        toolCheckoutsQuery.eq("user_id", profile.id);
-        vehicleCheckoutsQuery.eq("user_id", profile.id);
-      }
-
-      // Open issues (visible to all)
+      // Open issues reported by the current user only
       const toolIssuesQuery = supabase
         .from("tool_issues")
         .select("id", { count: "exact", head: true })
-        .in("status", ["open", "in_progress"]);
+        .in("status", ["open", "in_progress"])
+        .eq("reported_by", profile.id);
 
       const vehicleIssuesQuery = supabase
         .from("vehicle_issues")
         .select("id", { count: "exact", head: true })
-        .in("status", ["open", "in_progress"]);
-
-      if (!isAdmin) {
-        toolIssuesQuery.eq("reported_by", profile.id);
-        vehicleIssuesQuery.eq("reported_by", profile.id);
-      }
+        .in("status", ["open", "in_progress"])
+        .eq("reported_by", profile.id);
 
       const [toolOverdueRes, toolIssuesRes, vehicleIssuesRes] = await Promise.all([
         toolCheckoutsQuery,
