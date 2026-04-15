@@ -16,6 +16,7 @@ import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
 
 import { PhotoCapture } from "@/components/PhotoCapture";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 interface Checkout {
   id: string;
@@ -43,6 +44,10 @@ export default function Checkin() {
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
+
+  // Warn on unsaved form data
+  const hasUnsavedData = !!(notes || photoConfirmed);
+  useUnsavedChanges(hasUnsavedData);
 
   useEffect(() => {
     loadCheckouts();

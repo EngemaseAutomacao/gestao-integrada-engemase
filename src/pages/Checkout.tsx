@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
 import { Badge } from "@/components/ui/badge";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 interface Tool {
   id: string;
@@ -55,6 +56,9 @@ export default function Checkout() {
 
   const { data: constructionSites } = useActiveConstructionSites();
 
+  // Warn on unsaved form data
+  const hasUnsavedData = !!(constructionSite || notes || estimatedReturnDate || photoConfirmed);
+  useUnsavedChanges(hasUnsavedData);
   useEffect(() => {
     loadTools();
   }, []);

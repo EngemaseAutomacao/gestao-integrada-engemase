@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.23.0",
+    date: "2026-04-15",
+    title: "Busca Global Mobile, Proteção de Formulários e Refatoração",
+    description: "Busca acessível no mobile, alerta ao sair com dados não salvos e refatoração do módulo de Ponto.",
+    changes: [
+      { type: "feature", text: "Busca global disponível no mobile via ícone no header" },
+      { type: "improvement", text: "Alerta ao sair de formulários com dados não salvos (Checkout, Checkin, Ponto)" },
+      { type: "improvement", text: "PontoRegister refatorado em componentes menores (PontoEntryCard, PontoFormFields)" },
+    ],
+  },
+  {
     version: "1.22.0",
     date: "2026-04-15",
     title: "Otimizações de Performance, Segurança e Acessibilidade",
