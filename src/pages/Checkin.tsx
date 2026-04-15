@@ -43,7 +43,9 @@ export default function Checkin() {
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
-  const [photoConfirmed, setPhotoConfirmed] = useState(false);
+  // Warn on unsaved form data
+  const hasUnsavedData = !!(notes || photoConfirmed);
+  useUnsavedChanges(hasUnsavedData);
 
   useEffect(() => {
     loadCheckouts();

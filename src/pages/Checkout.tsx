@@ -56,6 +56,9 @@ export default function Checkout() {
 
   const { data: constructionSites } = useActiveConstructionSites();
 
+  // Warn on unsaved form data
+  const hasUnsavedData = !!(constructionSite || notes || estimatedReturnDate || photoConfirmed);
+  useUnsavedChanges(hasUnsavedData);
   useEffect(() => {
     loadTools();
   }, []);
