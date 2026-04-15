@@ -84,7 +84,7 @@ export default function AdminReports() {
       query = query.ilike("construction_site", `%${filters.constructionSite}%`);
     }
 
-    query = query.order("checkout_date", { ascending: false });
+    query = query.order("checkout_date", { ascending: false }).limit(5000);
 
     const { data, error } = await query;
 
@@ -109,7 +109,7 @@ export default function AdminReports() {
       query = query.eq("tool_id", filters.toolId);
     }
 
-    query = query.order("created_at", { ascending: false });
+    query = query.order("created_at", { ascending: false }).limit(5000);
 
     const { data, error } = await query;
 
@@ -124,7 +124,7 @@ export default function AdminReports() {
       query = query.eq("id", filters.toolId);
     }
 
-    query = query.order("name");
+    query = query.order("name").limit(5000);
 
     const { data, error } = await query;
 
@@ -142,7 +142,7 @@ export default function AdminReports() {
     if (filters.startDate) query = query.gte("checkout_date", filters.startDate);
     if (filters.endDate) query = query.lte("checkout_date", filters.endDate);
 
-    query = query.order("checkout_date", { ascending: false });
+    query = query.order("checkout_date", { ascending: false }).limit(5000);
     const { data, error } = await query;
     if (error) throw error;
     return data;
@@ -158,7 +158,7 @@ export default function AdminReports() {
     if (filters.startDate) query = query.gte("refuel_date", filters.startDate);
     if (filters.endDate) query = query.lte("refuel_date", filters.endDate);
 
-    query = query.order("refuel_date", { ascending: false });
+    query = query.order("refuel_date", { ascending: false }).limit(5000);
     const { data, error } = await query;
     if (error) throw error;
     return data;
