@@ -11,6 +11,21 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.22.0",
+    date: "2026-04-15",
+    title: "Otimizações de Performance, Segurança e Acessibilidade",
+    description: "Melhorias baseadas em auditoria técnica: compressão de fotos, cache com expiração, proteção em produção e acessibilidade.",
+    changes: [
+      { type: "improvement", text: "Compressão automática de fotos no módulo de Ponto (reduz de 3-8MB para ~300KB)" },
+      { type: "improvement", text: "routeTitleMap otimizado como constante de módulo (menos alocações de memória)" },
+      { type: "security", text: "Cache de perfil no localStorage agora expira após 24 horas" },
+      { type: "security", text: "ErrorBoundary não exibe stack trace em produção" },
+      { type: "improvement", text: "Botões de ícone com rótulos acessíveis (aria-label)" },
+      { type: "feature", text: "Instrução de instalação PWA para dispositivos iOS" },
+      { type: "improvement", text: "Mensagem mais clara em módulos restritos" },
+    ],
+  },
+  {
     version: "1.21.0",
     date: "2026-04-13",
     title: "Melhorias no Módulo de Ponto e Clientes",
