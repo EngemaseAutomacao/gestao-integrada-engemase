@@ -283,7 +283,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Mobile: Back button when inside a module */}
           {isMobile && !isHomePage && (
             <NavLink to="/">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar ao menu">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </NavLink>
@@ -302,7 +302,7 @@ export default function Layout({ children }: LayoutProps) {
               <div className="h-5 w-px bg-border hidden sm:block" />
               
               <NavLink to="/">
-                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2">
+                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar ao menu principal">
                   <ArrowLeft className="w-4 h-4" />
                   <span className="hidden sm:inline text-xs">Menu</span>
                 </Button>
@@ -346,7 +346,7 @@ export default function Layout({ children }: LayoutProps) {
           <OfflineIndicator />
           
           <ThemeToggle />
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate('/ajuda')}>
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate('/ajuda')} aria-label="Ajuda">
             <HelpCircle className="h-4 w-4" />
             <span className="sr-only">Ajuda</span>
           </Button>
