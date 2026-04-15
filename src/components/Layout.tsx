@@ -114,7 +114,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
   ];
 
-  // routeTitleMap moved to module scope (see below)
+  
 
   const getMobilePageTitle = () => {
     // Try exact match first
