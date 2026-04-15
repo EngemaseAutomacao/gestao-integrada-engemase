@@ -1,11 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Clock, LogIn, LogOut, Loader2, WifiOff, Check, Building2, Camera, AlertTriangle, CheckCircle, User } from "lucide-react";
+import { Clock, LogIn, LogOut, Loader2, WifiOff, Check, MapPin } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,9 +10,10 @@ import { compressDataUrl } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
-import { PhotoCapture } from "@/components/PhotoCapture";
 import { geocodeAddress } from "@/lib/geocoding";
+import { PontoEntryCard } from "@/components/ponto/PontoEntryCard";
+import { PontoFormFields } from "@/components/ponto/PontoFormFields";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 const MAX_ENTRIES_PER_DAY = 3;
 const PONTO_CACHE_KEY = "engemase_ponto_today";
@@ -53,14 +50,6 @@ interface TimeEntry {
   is_offline?: boolean;
 }
 
-const ENTRY_TYPES = [
-  { value: "obra", label: "Por Obra", disabled: false },
-  { value: "cliente", label: "Por Cliente", disabled: false },
-  { value: "tecnico", label: "Por Técnico (Em breve)", disabled: true },
-  { value: "relatorio", label: "Relatório (Em breve)", disabled: true },
-  { value: "interno", label: "Uso Interno", disabled: false },
-];
-
 function getToday() {
   return format(new Date(), "yyyy-MM-dd");
 }
@@ -92,6 +81,10 @@ export default function PontoRegister() {
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
+
+  // Unsaved changes warning
+  const hasUnsavedData = !!(notes || constructionSite || clientName || photoConfirmed);
+  useUnsavedChanges(hasUnsavedData);
 
   // Load construction sites + clients
   useEffect(() => {
@@ -195,16 +188,27 @@ export default function PontoRegister() {
     toast.success("Foto confirmada!");
   };
 
+  const handlePhotoReset = () => {
+    setPhotoConfirmed(false);
+    setPhotoDataUrl(null);
+  };
+
+  const resetForm = () => {
+    setNotes("");
+    setConstructionSite("");
+    setClientName("");
+    setPhotoDataUrl(null);
+    setPhotoConfirmed(false);
+  };
+
   const handleClockIn = async () => {
     if (!user || !canClockIn) return;
 
-    // Validate mandatory photo
     if (!photoConfirmed || !photoDataUrl) {
       toast.error("Foto obrigatória", { description: "Tire uma foto antes de registrar o ponto." });
       return;
     }
 
-    // Validate conditional fields
     if (entryType === "obra" && !constructionSite) {
       toast.error("Selecione a obra");
       return;
@@ -281,11 +285,7 @@ export default function PontoRegister() {
       toast.success("Entrada registrada!", {
         description: `Ponto ${totalEntries + 1}/${MAX_ENTRIES_PER_DAY} registrado às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
-      setNotes("");
-      setConstructionSite("");
-      setClientName("");
-      setPhotoDataUrl(null);
-      setPhotoConfirmed(false);
+      resetForm();
       if (isOnline) await loadEntries();
     } catch (err: any) {
       const msg = err?.code === 1 ? "Permissão de localização negada. Ative nas configurações do navegador." : err?.message || "Erro ao registrar entrada";
@@ -348,9 +348,7 @@ export default function PontoRegister() {
       toast.success("Saída registrada!", {
         description: `Saída registrada às ${format(new Date(), "HH:mm")}${!isOnline ? " (offline)" : ""}`,
       });
-      setNotes("");
-      setPhotoDataUrl(null);
-      setPhotoConfirmed(false);
+      resetForm();
       if (isOnline) await loadEntries();
     } catch (err: any) {
       const msg = err?.code === 1 ? "Permissão de localização negada." : err?.message || "Erro ao registrar saída";
@@ -401,157 +399,30 @@ export default function PontoRegister() {
         <div className="space-y-2">
           <h2 className="text-sm font-medium text-muted-foreground">Registros de Hoje</h2>
           {todayEntries.map((entry, idx) => (
-            <Card key={entry.id} className={`${entry.status === "open" ? "border-primary/50 bg-primary/5" : ""} ${entry.location_alert ? "border-yellow-500/50" : ""}`}>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-muted-foreground">#{idx + 1}</span>
-                    <div className="flex items-center gap-1.5 text-sm">
-                      <LogIn className="w-3.5 h-3.5 text-green-600" />
-                      <span>{format(new Date(entry.clock_in), "HH:mm")}</span>
-                    </div>
-                    {entry.clock_out && (
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <LogOut className="w-3.5 h-3.5 text-red-600" />
-                        <span>{format(new Date(entry.clock_out), "HH:mm")}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {entry.location_alert && (
-                      <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-600">
-                        <AlertTriangle className="w-3 h-3 mr-1" />Fora da área
-                      </Badge>
-                    )}
-                    {entry.is_offline && (
-                      <Badge variant="outline" className="text-xs border-yellow-500 text-yellow-600">
-                        <WifiOff className="w-3 h-3 mr-1" />Offline
-                      </Badge>
-                    )}
-                    <Badge variant={entry.status === "open" ? "default" : "secondary"} className="text-xs">
-                      {entry.status === "open" ? "Aberto" : <><Check className="w-3 h-3 mr-1" />Fechado</>}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-1.5">
-                  <Badge variant="outline" className="text-xs">
-                    {ENTRY_TYPES.find(t => t.value === entry.entry_type)?.label || entry.entry_type}
-                  </Badge>
-                  {entry.clock_in_photo_url && <Badge variant="outline" className="text-xs text-green-600"><Camera className="w-3 h-3 mr-1" />Foto</Badge>}
-                </div>
-                {entry.construction_site && (
-                  <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1">
-                    <Building2 className="w-3 h-3 mt-0.5 shrink-0" />
-                    {entry.construction_site}
-                    {entry.distance_from_site_meters !== null && (
-                      <span className={entry.location_alert ? "text-yellow-600 font-medium" : "text-green-600"}>({entry.distance_from_site_meters}m)</span>
-                    )}
-                  </p>
-                )}
-                {entry.client_name && (
-                  <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1">
-                    <User className="w-3 h-3 mt-0.5 shrink-0" />{entry.client_name}
-                  </p>
-                )}
-                {entry.clock_in_address && (
-                  <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1">
-                    <MapPin className="w-3 h-3 mt-0.5 shrink-0" />{entry.clock_in_address.split(",").slice(0, 3).join(",")}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+            <PontoEntryCard key={entry.id} entry={entry} index={idx} />
           ))}
         </div>
       )}
 
-      {/* Entry type */}
-      <div className="space-y-2">
-        <Label>Tipo de Registro *</Label>
-        <Select value={entryType} onValueChange={(v) => { setEntryType(v); setConstructionSite(""); setClientName(""); }}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ENTRY_TYPES.map((t) => (
-              <SelectItem key={t.value} value={t.value} disabled={t.disabled}>{t.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Construction site - only for "obra" */}
-      {entryType === "obra" && (
-        <div className="space-y-2">
-          <Label className="flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5" />
-            Obra de Destino *
-          </Label>
-          <ConstructionSiteAutocomplete
-            sites={sites}
-            value={constructionSite}
-            onChange={setConstructionSite}
-            placeholder="Selecione a obra..."
-          />
-          {constructionSite && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              Localização será comparada com a obra (raio de {GEOFENCE_RADIUS_METERS}m)
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Client - only for "cliente" */}
-      {entryType === "cliente" && (
-        <div className="space-y-2">
-          <Label className="flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5" />
-            Cliente *
-          </Label>
-          {clients.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum cliente cadastrado. Peça ao administrador para cadastrar.</p>
-          ) : (
-            <Select value={clientName} onValueChange={setClientName}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o cliente..." />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      )}
-
-      {/* Photo Capture - MANDATORY */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Label>Foto de Registro *</Label>
-          {photoConfirmed && (
-            <Badge variant="secondary" className="gap-1">
-              <CheckCircle className="w-3 h-3" />Capturada
-            </Badge>
-          )}
-        </div>
-        {!photoConfirmed ? (
-          <PhotoCapture onCapture={handlePhotoCapture} title={openEntry ? "Foto de saída" : "Foto de entrada"} />
-        ) : (
-          <div className="relative">
-            <img src={photoDataUrl!} alt="Foto capturada" className="w-full h-48 object-cover rounded-lg" />
-            <Button type="button" variant="outline" size="sm" className="absolute top-2 right-2" onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}>
-              Refazer
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Notes */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Observações (opcional)</label>
-        <Textarea placeholder="Ex: Visita técnica na obra X..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
-      </div>
+      {/* Form fields */}
+      <PontoFormFields
+        entryType={entryType}
+        onEntryTypeChange={setEntryType}
+        constructionSite={constructionSite}
+        onConstructionSiteChange={setConstructionSite}
+        clientName={clientName}
+        onClientNameChange={setClientName}
+        sites={sites}
+        clients={clients}
+        notes={notes}
+        onNotesChange={setNotes}
+        photoDataUrl={photoDataUrl}
+        photoConfirmed={photoConfirmed}
+        onPhotoCapture={handlePhotoCapture}
+        onPhotoReset={handlePhotoReset}
+        photoTitle={openEntry ? "Foto de saída" : "Foto de entrada"}
+        showEntryType={!openEntry}
+      />
 
       {/* Action buttons */}
       {canClockIn ? (
