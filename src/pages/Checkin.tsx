@@ -16,6 +16,7 @@ import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
 
 import { PhotoCapture } from "@/components/PhotoCapture";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 interface Checkout {
   id: string;

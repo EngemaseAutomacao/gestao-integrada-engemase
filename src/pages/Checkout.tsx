@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
 import { Badge } from "@/components/ui/badge";
+import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 interface Tool {
   id: string;
