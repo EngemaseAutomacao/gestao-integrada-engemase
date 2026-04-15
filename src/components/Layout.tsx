@@ -48,6 +48,7 @@ import engemaseLogo from "@/assets/engemase-logo.png";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
 // Route-to-title mapping as module-level constant (avoids re-creation on every render)
