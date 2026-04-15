@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadDataUrlImage } from "@/lib/storageUtils";
+import { compressDataUrl } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
