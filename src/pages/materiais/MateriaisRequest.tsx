@@ -33,6 +33,9 @@ export default function MateriaisRequest() {
     { material_name: "", quantity: 1, unit: "un", notes: "" },
   ]);
 
+  const hasUnsavedData = !!(constructionSite || notes || items.some(i => i.material_name));
+  useUnsavedChanges(hasUnsavedData);
+
   useEffect(() => {
     supabase
       .from("construction_sites")
