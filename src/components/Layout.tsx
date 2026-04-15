@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation, NavLink, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 import { 
   Home, 
   Package, 
