@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Clock, Shield, Download, Package, Loader2, Building2 } from "lucide-react";
+import { Wrench, Car, Clock, Shield, Download, Package, Loader2, Building2, Share } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,7 +36,26 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
     }
   };
 
-  if (isIOS || !deferredPrompt) return null;
+  // iOS: show manual instructions
+  if (isIOS) {
+    return (
+      <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg border-dashed border-2">
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-3 bg-accent/20">
+            <Share className="w-6 h-6 text-accent-foreground" />
+          </div>
+          <CardTitle className="text-base">Instalar App</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center pt-0">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Toque em <strong>Compartilhar</strong> <Share className="w-3 h-3 inline" /> e depois em <strong>"Adicionar à Tela de Início"</strong>
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!deferredPrompt) return null;
 
   return (
     <Card
@@ -220,9 +239,11 @@ export default function Home() {
   const { toolBadgeCount, vehicleBadgeCount } = useUrgencyBadges();
 
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
     setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
   }, []);
 
   return (
@@ -294,7 +315,7 @@ export default function Home() {
         )}
 
         {!isStandalone && (
-          <InstallPWACard isIOS={false} />
+          <InstallPWACard isIOS={isIOS} />
         )}
       </div>
     </div>
