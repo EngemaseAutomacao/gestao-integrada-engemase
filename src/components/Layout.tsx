@@ -49,6 +49,54 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import { useState } from "react";
 
+// Route-to-title mapping as module-level constant (avoids re-creation on every render)
+const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
+  '/ferramentas': { title: 'Ferramentas', icon: Wrench },
+  '/ferramentas/dashboard': { title: 'Painel Geral', icon: Wrench },
+  '/ferramentas/lista': { title: 'Catálogo', icon: Package },
+  '/ferramentas/retirada': { title: 'Registrar Saída', icon: Upload },
+  '/ferramentas/devolucao': { title: 'Registrar Devolução', icon: LogIn },
+  '/ferramentas/historico': { title: 'Meu Histórico', icon: History },
+  '/checkout': { title: 'Registrar Saída', icon: Upload },
+  '/checkin': { title: 'Registrar Devolução', icon: LogIn },
+  '/history': { title: 'Meu Histórico', icon: History },
+  '/report-issue': { title: 'Reportar Problema', icon: AlertCircle },
+  '/veiculos': { title: 'Veículos', icon: Car },
+  '/veiculos/dashboard': { title: 'Painel Geral', icon: Car },
+  '/veiculos/lista': { title: 'Lista de Veículos', icon: Package },
+  '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
+  '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
+  '/veiculos/historico': { title: 'Meu Histórico', icon: History },
+  '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
+  '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
+  '/ponto': { title: 'Ponto Online', icon: MapPin },
+  '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
+  '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
+  '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
+  '/materiais': { title: 'Materiais', icon: Package },
+  '/materiais/solicitar': { title: 'Nova Solicitação', icon: ClipboardList },
+  '/materiais/historico': { title: 'Minhas Solicitações', icon: History },
+  '/materiais/admin': { title: 'Gerenciar Solicitações', icon: Users },
+  '/admin': { title: 'Administração', icon: Settings },
+  '/admin/users': { title: 'Usuários', icon: Users },
+  '/admin/tools': { title: 'Gerenciar Ferramentas', icon: Settings },
+  '/admin/maintenance': { title: 'Manutenções', icon: Wrench },
+  '/admin/issues': { title: 'Problemas', icon: AlertCircle },
+  '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
+  '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
+  '/admin/reports': { title: 'Relatórios', icon: FileText },
+  '/admin/notifications': { title: 'Notificações', icon: Bell },
+  '/admin/logs': { title: 'Logs', icon: ClipboardList },
+  '/admin/manual': { title: 'Entrada Manual', icon: Settings },
+  '/admin/gallery': { title: 'Galeria', icon: Package },
+  '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
+  '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
+  '/ajuda': { title: 'Ajuda', icon: HelpCircle },
+  '/changelog': { title: 'Notas de Atualização', icon: FileText },
+  '/change-password': { title: 'Alterar Senha', icon: Settings },
+  '/mobile-settings': { title: 'Menu Mobile', icon: Settings },
+};
+
 interface LayoutProps {
   children: React.ReactNode;
 }
