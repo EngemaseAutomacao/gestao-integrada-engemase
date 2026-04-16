@@ -3,7 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Loader2, Package, Clock, CheckCircle2, XCircle, FileDown } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -27,6 +30,9 @@ interface MaterialRequest {
   status: string;
   notes: string | null;
   created_at: string;
+  rejection_reason: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
   items: RequestItem[];
 }
 
@@ -41,6 +47,8 @@ export default function MateriaisAdmin() {
   const [requests, setRequests] = useState<MaterialRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [rejectDialog, setRejectDialog] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   useEffect(() => {
     if (profile?.role !== "admin") return;
@@ -79,10 +87,18 @@ export default function MateriaisAdmin() {
     setLoading(false);
   };
 
-  const updateStatus = async (requestId: string, newStatus: string) => {
+  const updateStatus = async (requestId: string, newStatus: string, reason?: string) => {
+    const updateData: any = {
+      status: newStatus,
+      updated_at: new Date().toISOString(),
+      approved_by: profile?.id,
+      approved_at: new Date().toISOString(),
+    };
+    if (reason) updateData.rejection_reason = reason;
+
     const { error } = await supabase
       .from("material_requests")
-      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .update(updateData)
       .eq("id", requestId);
 
     if (error) {
@@ -91,9 +107,18 @@ export default function MateriaisAdmin() {
     }
 
     toast.success(`Status atualizado para ${statusConfig[newStatus]?.label || newStatus}`);
-    setRequests((prev) =>
-      prev.map((r) => (r.id === requestId ? { ...r, status: newStatus } : r))
-    );
+    loadRequests();
+  };
+
+  const handleReject = () => {
+    if (!rejectDialog) return;
+    if (!rejectionReason.trim()) {
+      toast.error("Informe o motivo da rejeição");
+      return;
+    }
+    updateStatus(rejectDialog, "rejected", rejectionReason.trim());
+    setRejectDialog(null);
+    setRejectionReason("");
   };
 
   const exportToExcel = (req: MaterialRequest) => {
@@ -108,7 +133,6 @@ export default function MateriaisAdmin() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Materiais");
 
-    // Add header info
     XLSX.utils.sheet_add_aoa(ws, [
       [`Solicitação: ${req.id.slice(0, 8)}`],
       [`Solicitante: ${req.requested_by_name}`],
@@ -189,6 +213,11 @@ export default function MateriaisAdmin() {
                       <strong>Obs:</strong> {req.notes}
                     </p>
                   )}
+                  {req.rejection_reason && (
+                    <p className="text-sm text-destructive">
+                      <strong>Motivo da rejeição:</strong> {req.rejection_reason}
+                    </p>
+                  )}
                   <div className="border rounded-lg overflow-hidden">
                     <table className="w-full text-sm">
                       <thead className="bg-muted/50">
@@ -218,7 +247,7 @@ export default function MateriaisAdmin() {
                         <Button size="sm" onClick={() => updateStatus(req.id, "approved")}>
                           <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Aprovar
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => updateStatus(req.id, "rejected")}>
+                        <Button size="sm" variant="destructive" onClick={() => { setRejectDialog(req.id); setRejectionReason(""); }}>
                           <XCircle className="w-3.5 h-3.5 mr-1" /> Rejeitar
                         </Button>
                       </>
@@ -233,6 +262,28 @@ export default function MateriaisAdmin() {
           })}
         </div>
       )}
+
+      {/* Rejection Dialog */}
+      <Dialog open={!!rejectDialog} onOpenChange={() => setRejectDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Motivo da Rejeição</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>Informe o motivo da rejeição *</Label>
+            <Textarea
+              placeholder="Ex: Orçamento insuficiente, especificação incorreta..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialog(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleReject}>Confirmar Rejeição</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

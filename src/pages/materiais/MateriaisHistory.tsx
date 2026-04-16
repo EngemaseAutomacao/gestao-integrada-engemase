@@ -21,6 +21,8 @@ interface MaterialRequest {
   status: string;
   notes: string | null;
   created_at: string;
+  rejection_reason: string | null;
+  approved_at: string | null;
   items: RequestItem[];
 }
 
@@ -120,6 +122,16 @@ export default function MateriaisHistory() {
                   {req.notes && (
                     <p className="text-sm text-muted-foreground">
                       <strong>Obs:</strong> {req.notes}
+                    </p>
+                  )}
+                  {req.rejection_reason && (
+                    <p className="text-sm text-destructive">
+                      <strong>Motivo da rejeição:</strong> {req.rejection_reason}
+                    </p>
+                  )}
+                  {req.approved_at && (
+                    <p className="text-xs text-muted-foreground">
+                      {req.status === "approved" ? "Aprovado" : req.status === "rejected" ? "Rejeitado" : "Atualizado"} em {format(new Date(req.approved_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                     </p>
                   )}
                   <div className="border rounded-lg overflow-hidden">
