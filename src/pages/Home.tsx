@@ -217,19 +217,22 @@ function SummaryCards({ userId }: { userId: string }) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
-      {items.map((item) => (
-        <div
-          key={item.label}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${item.bgColor}`}
-        >
-          <span className={item.color}>{item.icon}</span>
-          <span className={`text-xs font-medium ${item.color}`}>
-            {typeof item.value === "number" ? `${item.value} ${item.label.toLowerCase()}` : `${item.label}: ${item.value}`}
-          </span>
-        </div>
-      ))}
-    </div>
+    <Link to="/meu-dia" className="block w-full">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full hover:opacity-80 transition-opacity">
+        {items.map((item) => (
+          <div
+            key={item.label}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${item.bgColor}`}
+          >
+            <span className={item.color}>{item.icon}</span>
+            <span className={`text-xs font-medium ${item.color}`}>
+              {typeof item.value === "number" ? `${item.value} ${item.label.toLowerCase()}` : `${item.label}: ${item.value}`}
+            </span>
+          </div>
+        ))}
+      </div>
+      <p className="text-center text-[10px] text-muted-foreground mt-1">Toque para ver seu histórico unificado →</p>
+    </Link>
   );
 }
 
