@@ -72,7 +72,7 @@ export default function VehicleCheckout() {
     } catch {
       toast.error("Não foi possível obter a localização. Verifique as permissões.");
     }
-  };
+  
   };
 
   const handleCalculateRoute = async () => {
