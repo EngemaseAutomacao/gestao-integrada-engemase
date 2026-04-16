@@ -34,7 +34,6 @@ async function checkForUpdates() {
       console.log('[SW] Version changed:', currentVersion, '→', newVersion);
       currentVersion = newVersion;
       await purgeAllCaches();
-      // Notify all clients to reload
       const clients = await self.clients.matchAll({ type: 'window' });
       clients.forEach(client => client.postMessage({ type: 'VERSION_UPDATED', version: newVersion }));
     }
@@ -47,7 +46,6 @@ async function purgeAllCaches() {
   const names = await caches.keys();
   await Promise.all(names.map(name => caches.delete(name)));
   console.log('[SW] All caches purged for new version');
-  // Re-populate static cache
   const cache = await caches.open(STATIC_CACHE);
   await cache.addAll(urlsToCache).catch(() => {});
 }
@@ -91,19 +89,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Only cache GET requests — Cache API doesn't support other methods
   if (event.request.method !== 'GET') {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Skip version.json — always network
   if (url.pathname === '/version.json') {
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // API requests: network-first
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(
       fetch(event.request)
@@ -120,7 +115,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // JS/CSS: network-first (prevents stale bundles)
   if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
     event.respondWith(
       fetch(event.request)
@@ -136,7 +130,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache first for other static assets (images, fonts, etc.)
   event.respondWith(
     caches.match(event.request)
       .then(cached => {
@@ -156,16 +149,29 @@ setInterval(() => {
   checkForUpdates();
 }, VERSION_CHECK_INTERVAL);
 
-// Also check on SW update
+// ---- Message handling ----
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CHECK_VERSION') {
     checkForUpdates();
   }
 });
 
+// ---- Background Sync ----
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-pending') {
+    event.waitUntil(
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then(clientList => {
+          for (const client of clientList) {
+            client.postMessage({ type: 'TRIGGER_SYNC' });
+          }
+        })
+    );
+  }
+});
+
 // ---- Push notifications ----
 self.addEventListener('push', (event) => {
-  // If no data at all, skip entirely
   if (!event.data) {
     console.log('[SW] Push received with no data, skipping');
     return;
@@ -175,7 +181,6 @@ self.addEventListener('push', (event) => {
 
   try {
     const payload = event.data.json();
-    // Validate payload has actual content
     if (!payload || typeof payload !== 'object') {
       console.log('[SW] Push payload is not a valid object, skipping');
       return;
@@ -190,13 +195,11 @@ self.addEventListener('push', (event) => {
     data = { title: 'Notificação', body: text };
   }
 
-  // Strict validation: must have a non-empty body
   if (!data.body || String(data.body).trim() === '') {
     console.log('[SW] Push body is empty, skipping notification');
     return;
   }
 
-  // Also skip if title is missing/empty
   if (!data.title || String(data.title).trim() === '') {
     console.log('[SW] Push title is empty, skipping notification');
     return;

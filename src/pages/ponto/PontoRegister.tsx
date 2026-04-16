@@ -256,9 +256,24 @@ export default function PontoRegister() {
         const { error } = await supabase.from("time_entries").insert(entryData);
         if (error) throw error;
       } else {
-        addPendingOperation("ponto_in", entryData);
+        const localId = crypto.randomUUID();
+        // Store photo in IndexedDB instead of base64 in localStorage
+        if (photoUrl) {
+          try {
+            const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
+            const response = await fetch(photoUrl);
+            const blob = await response.blob();
+            const file = new File([blob], "ponto_in.jpg", { type: "image/jpeg" });
+            const opId = addPendingOperation("ponto_in", { ...entryData, _local_id: localId, clock_in_photo_url: null });
+            await saveOfflinePhoto(opId, "clock_in", file);
+          } catch {
+            addPendingOperation("ponto_in", { ...entryData, _local_id: localId });
+          }
+        } else {
+          addPendingOperation("ponto_in", { ...entryData, _local_id: localId });
+        }
         const offlineEntry: TimeEntry = {
-          id: crypto.randomUUID(),
+          id: localId,
           clock_in: entryData.clock_in,
           clock_out: null,
           clock_in_address: address,
