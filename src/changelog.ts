@@ -182,67 +182,6 @@ export const changelog: ChangelogEntry[] = [
     ],
   },
   {
-    version: "1.12.1",
-    date: "2026-04-02",
-    title: "Correções na Sincronização",
-    description: "Ajustes na sincronização com planilha.",
-    changes: [
-      { type: "improvement", text: "Gestão de ferramentas via Google Sheets" },
-      { type: "fix", text: "Correções de quantidades incorretas" },
-    ],
-  },
-  {
-    version: "1.12.0",
-    date: "2026-04-02",
-    title: "Sincronização com Planilha",
-    description: "Ferramentas sincronizadas automaticamente.",
-    changes: [
-      { type: "feature", text: "Sincronização com Google Sheets" },
-      { type: "improvement", text: "Proteção de ferramentas em uso" },
-    ],
-  },
-  {
-    version: "1.11.2",
-    date: "2026-04-02",
-    title: "Correções de Notificações",
-    description: "Notificações mais confiáveis.",
-    changes: [
-      { type: "fix", text: "Correção de notificações duplicadas" },
-      { type: "improvement", text: "Maior confiabilidade no envio" },
-    ],
-  },
-  {
-    version: "1.11.0",
-    date: "2026-04-02",
-    title: "Fotos Offline",
-    description: "Fotos salvas offline e enviadas ao reconectar.",
-    changes: [
-      { type: "feature", text: "Fotos offline para veículos" },
-      { type: "improvement", text: "Melhorias no modo sem internet" },
-    ],
-  },
-  {
-    version: "1.10.9",
-    date: "2026-04-01",
-    title: "Dashboard de Veículos",
-    description: "Nova interface do módulo de veículos.",
-    changes: [
-      { type: "improvement", text: "Redesign do dashboard de veículos" },
-      { type: "fix", text: "Correções de notificações push" },
-    ],
-  },
-  {
-    version: "1.10.0",
-    date: "2026-03-31",
-    title: "Relatórios e Exportação",
-    description: "Relatórios exportáveis em PDF e Excel.",
-    changes: [
-      { type: "feature", text: "Relatórios com exportação em PDF e Excel" },
-      { type: "feature", text: "Filtros rápidos de período" },
-      { type: "improvement", text: "Melhorias no painel administrativo" },
-    ],
-  },
-  {
     version: "1.0.0",
     date: "2026-03-01",
     title: "Lançamento do Sistema",
