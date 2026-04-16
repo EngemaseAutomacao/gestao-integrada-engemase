@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -310,14 +310,22 @@ export default function VehicleDetail() {
 
       {/* Issues */}
       <Card>
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-            <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
-            Problemas Reportados
-          </CardTitle>
-          <CardDescription className="text-xs md:text-sm">
-            {issues.length} problemas registrados
-          </CardDescription>
+        <CardHeader className="p-4 md:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
+              Problemas Reportados
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
+              {issues.length} problemas registrados
+            </CardDescription>
+          </div>
+          <Button asChild size="sm" className="w-full sm:w-auto">
+            <Link to={`/veiculos/reportar-problema?vehicleId=${id}`}>
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Reportar Problema
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
           {issues.length === 0 ? (
