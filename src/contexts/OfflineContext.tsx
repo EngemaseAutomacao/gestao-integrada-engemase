@@ -334,12 +334,19 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       toast.warning("Você está offline. As operações serão sincronizadas quando a conexão for restaurada.");
     };
 
+    // Listen for Background Sync trigger from SW
+    const handleSwSync = () => {
+      if (navigator.onLine) syncPendingOperations();
+    };
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+    window.addEventListener("sw-trigger-sync", handleSwSync);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("sw-trigger-sync", handleSwSync);
     };
   }, [syncPendingOperations]);
 
