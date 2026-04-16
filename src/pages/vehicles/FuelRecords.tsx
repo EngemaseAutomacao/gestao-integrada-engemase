@@ -251,12 +251,13 @@ export default function FuelRecords() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Veículo</TableHead>
+                     <TableHead>Veículo</TableHead>
                     <TableHead>Combustível</TableHead>
                     <TableHead>Litros</TableHead>
                     <TableHead>R$/L</TableHead>
                     <TableHead>Total</TableHead>
                     <TableHead>KM</TableHead>
+                    <TableHead>km/l</TableHead>
                     <TableHead>Posto</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Responsável</TableHead>
