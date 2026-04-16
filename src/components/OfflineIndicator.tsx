@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useOffline } from "@/contexts/OfflineContext";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, WifiOff, Clock, Image } from "lucide-react";
+import { Wifi, WifiOff, Clock, Image, AlertTriangle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getOfflinePhotosCount } from "@/hooks/useOfflinePhotos";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/popover";
 
 export function OfflineIndicator() {
-  const { isOnline, pendingOperations, syncPendingOperations } = useOffline();
+  const { isOnline, pendingOperations, failedOperations, syncPendingOperations, dismissFailedOperation } = useOffline();
   const [offlinePhotosCount, setOfflinePhotosCount] = useState(0);
 
   useEffect(() => {
@@ -26,9 +26,24 @@ export function OfflineIndicator() {
     return () => clearInterval(interval);
   }, [pendingOperations]);
 
-  if (isOnline && pendingOperations.length === 0 && offlinePhotosCount === 0) {
+  const totalPending = pendingOperations.length + failedOperations.length;
+
+  if (isOnline && totalPending === 0 && offlinePhotosCount === 0) {
     return null;
   }
+
+  const opLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      checkout: "Retirada de ferramenta",
+      checkin: "Devolução de ferramenta",
+      issue: "Relato de problema",
+      ponto_in: "Registro de entrada (ponto)",
+      ponto_out: "Registro de saída (ponto)",
+      vehicle_checkout: "Saída de veículo",
+      vehicle_checkin: "Chegada de veículo",
+    };
+    return labels[type] || type;
+  };
 
   return (
     <Popover>
@@ -39,9 +54,9 @@ export function OfflineIndicator() {
           ) : (
             <WifiOff className="h-4 w-4 text-orange-500" />
           )}
-          {(pendingOperations.length > 0 || offlinePhotosCount > 0) && (
+          {totalPending > 0 && (
             <Badge variant="secondary" className="h-5 px-1.5">
-              {pendingOperations.length}
+              {totalPending}
             </Badge>
           )}
         </Button>
@@ -54,9 +69,7 @@ export function OfflineIndicator() {
                 <Wifi className="h-5 w-5 text-green-500" />
                 <div>
                   <p className="font-medium">Online</p>
-                  <p className="text-xs text-muted-foreground">
-                    Conectado à internet
-                  </p>
+                  <p className="text-xs text-muted-foreground">Conectado à internet</p>
                 </div>
               </>
             ) : (
@@ -73,48 +86,68 @@ export function OfflineIndicator() {
           </div>
 
           {pendingOperations.length > 0 && (
-            <>
-              <div className="border-t pt-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-sm font-medium">
-                    Operações Pendentes ({pendingOperations.length})
-                  </p>
-                </div>
-                <ul className="space-y-1 text-xs text-muted-foreground">
-                  {pendingOperations.map((op) => (
-                    <li key={op.id} className="flex items-start gap-2">
-                      <span className="inline-block w-2 h-2 mt-1 rounded-full bg-orange-500" />
-                      <span>
-                        {op.type === "checkout" && "Retirada de ferramenta"}
-                        {op.type === "checkin" && "Devolução de ferramenta"}
-                        {op.type === "issue" && "Relato de problema"}
-                        {op.type === "ponto_in" && "Registro de entrada (ponto)"}
-                        {op.type === "ponto_out" && "Registro de saída (ponto)"}
-                        {op.type === "vehicle_checkout" && "Saída de veículo"}
-                        {op.type === "vehicle_checkin" && "Chegada de veículo"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {offlinePhotosCount > 0 && (
-                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                    <Image className="h-3 w-3" />
-                    <span>{offlinePhotosCount} foto(s) salva(s) localmente</span>
-                  </div>
-                )}
+            <div className="border-t pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm font-medium">
+                  Pendentes ({pendingOperations.length})
+                </p>
               </div>
-
-              {isOnline && (
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={syncPendingOperations}
-                >
-                  Sincronizar Agora
-                </Button>
+              <ul className="space-y-1 text-xs text-muted-foreground">
+                {pendingOperations.map((op) => (
+                  <li key={op.id} className="flex items-start gap-2">
+                    <span className="inline-block w-2 h-2 mt-1 rounded-full bg-orange-500" />
+                    <span>
+                      {opLabel(op.type)}
+                      {op.retryCount > 0 && ` (tentativa ${op.retryCount}/${5})`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {offlinePhotosCount > 0 && (
+                <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                  <Image className="h-3 w-3" />
+                  <span>{offlinePhotosCount} foto(s) salva(s) localmente</span>
+                </div>
               )}
-            </>
+            </div>
+          )}
+
+          {failedOperations.length > 0 && (
+            <div className="border-t pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <p className="text-sm font-medium text-destructive">
+                  Falhas permanentes ({failedOperations.length})
+                </p>
+              </div>
+              <ul className="space-y-2 text-xs">
+                {failedOperations.map((op) => (
+                  <li key={op.id} className="flex items-start justify-between gap-2 bg-destructive/10 rounded p-2">
+                    <div>
+                      <span className="font-medium">{opLabel(op.type)}</span>
+                      {op.lastError && (
+                        <p className="text-muted-foreground mt-0.5 line-clamp-2">{op.lastError}</p>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 w-5 p-0 shrink-0"
+                      onClick={() => dismissFailedOperation(op.id)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {isOnline && pendingOperations.length > 0 && (
+            <Button size="sm" className="w-full" onClick={syncPendingOperations}>
+              Sincronizar Agora
+            </Button>
           )}
         </div>
       </PopoverContent>
