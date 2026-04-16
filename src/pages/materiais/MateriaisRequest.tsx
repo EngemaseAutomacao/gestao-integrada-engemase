@@ -61,6 +61,16 @@ export default function MateriaisRequest() {
   const hasUnsavedData = !!(constructionSite || notes || items.some(i => i.material_name));
   useUnsavedChanges(hasUnsavedData);
 
+  // Auto-save draft to localStorage
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (hasUnsavedData) {
+        saveDraft({ constructionSite, notes, items });
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [constructionSite, notes, items, hasUnsavedData]);
+
   useEffect(() => {
     supabase
       .from("construction_sites")
