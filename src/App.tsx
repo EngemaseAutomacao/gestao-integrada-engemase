@@ -69,6 +69,7 @@ const Help = lazy(() => import("./pages/Help"));
 const Changelog = lazy(() => import("./pages/Changelog"));
 const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
+const UnifiedHistory = lazy(() => import("./pages/UnifiedHistory"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -170,6 +171,7 @@ const App = () => (
                     <Route path="/materiais/historico" element={<Layout><MateriaisHistory /></Layout>} />
                     <Route path="/materiais/admin" element={<Layout><MateriaisAdmin /></Layout>} />
                     <Route path="/transferencias" element={<Layout><Transfers /></Layout>} />
+                    <Route path="/meu-dia" element={<Layout><UnifiedHistory /></Layout>} />
                     <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                     <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                     <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />
