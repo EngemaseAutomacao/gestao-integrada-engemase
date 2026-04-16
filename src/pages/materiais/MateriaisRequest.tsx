@@ -22,16 +22,41 @@ interface RequestItem {
 
 const UNITS = ["un", "m", "m²", "m³", "kg", "g", "l", "ml", "cx", "pc", "rolo", "saco", "par"];
 
+const DRAFT_KEY = "engemase_materiais_draft";
+
+interface Draft {
+  constructionSite: string;
+  notes: string;
+  items: RequestItem[];
+}
+
+function loadDraft(): Draft | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function saveDraft(draft: Draft) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+}
+
 export default function MateriaisRequest() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [constructionSite, setConstructionSite] = useState("");
-  const [notes, setNotes] = useState("");
+  const draft = loadDraft();
+  const [constructionSite, setConstructionSite] = useState(draft?.constructionSite || "");
+  const [notes, setNotes] = useState(draft?.notes || "");
   const [sites, setSites] = useState<{ id: string; name: string }[]>([]);
-  const [items, setItems] = useState<RequestItem[]>([
-    { material_name: "", quantity: 1, unit: "un", notes: "" },
-  ]);
+  const [items, setItems] = useState<RequestItem[]>(
+    draft?.items?.length ? draft.items : [{ material_name: "", quantity: 1, unit: "un", notes: "" }]
+  );
 
   const hasUnsavedData = !!(constructionSite || notes || items.some(i => i.material_name));
   useUnsavedChanges(hasUnsavedData);
