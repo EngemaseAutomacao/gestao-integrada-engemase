@@ -71,6 +71,10 @@ import { APP_VERSION } from "./version.ts";
         localStorage.setItem(VERSION_KEY, event.data.version);
         window.location.reload();
       }
+      // Background Sync trigger from SW
+      if (event.data?.type === "TRIGGER_SYNC") {
+        window.dispatchEvent(new CustomEvent("sw-trigger-sync"));
+      }
     });
   }
 })();
