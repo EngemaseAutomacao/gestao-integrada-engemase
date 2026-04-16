@@ -11,6 +11,31 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.25.0",
+    date: "2026-04-16",
+    title: "Modo Offline Robusto",
+    description: "Reescrita completa do sistema offline com sincronização confiável, retry inteligente e Background Sync.",
+    changes: [
+      { type: "fix", text: "Correção do bug de perda de dados ao registrar ponto offline (mapeamento de IDs)" },
+      { type: "feature", text: "Sincronização automática em segundo plano (Background Sync)" },
+      { type: "improvement", text: "Fotos offline agora usam IndexedDB em todos os módulos" },
+      { type: "improvement", text: "Retry inteligente com backoff exponencial e categorização de erros" },
+      { type: "improvement", text: "Indicador offline mostra idade dos dados e operações pendentes" },
+    ],
+  },
+  {
+    version: "1.24.0",
+    date: "2026-04-16",
+    title: "Melhorias de Usabilidade e Histórico Unificado",
+    description: "Botão devolver no card, rascunho automático de materiais e timeline consolidada.",
+    changes: [
+      { type: "feature", text: "Botão 'Devolver' direto no card da ferramenta em uso no Dashboard" },
+      { type: "feature", text: "Página 'Meu Dia' com timeline unificada de ferramentas, veículos e ponto" },
+      { type: "improvement", text: "Rascunho automático na solicitação de materiais" },
+      { type: "improvement", text: "Badges de atraso nos cards de ferramentas e veículos do Dashboard" },
+    ],
+  },
+  {
     version: "1.23.0",
     date: "2026-04-15",
     title: "Busca Global Mobile, Proteção de Formulários e Refatoração",
@@ -154,67 +179,6 @@ export const changelog: ChangelogEntry[] = [
       { type: "feature", text: "Módulo de solicitação de materiais" },
       { type: "feature", text: "Menus visuais para cada módulo" },
       { type: "improvement", text: "Navegação mobile simplificada" },
-    ],
-  },
-  {
-    version: "1.12.1",
-    date: "2026-04-02",
-    title: "Correções na Sincronização",
-    description: "Ajustes na sincronização com planilha.",
-    changes: [
-      { type: "improvement", text: "Gestão de ferramentas via Google Sheets" },
-      { type: "fix", text: "Correções de quantidades incorretas" },
-    ],
-  },
-  {
-    version: "1.12.0",
-    date: "2026-04-02",
-    title: "Sincronização com Planilha",
-    description: "Ferramentas sincronizadas automaticamente.",
-    changes: [
-      { type: "feature", text: "Sincronização com Google Sheets" },
-      { type: "improvement", text: "Proteção de ferramentas em uso" },
-    ],
-  },
-  {
-    version: "1.11.2",
-    date: "2026-04-02",
-    title: "Correções de Notificações",
-    description: "Notificações mais confiáveis.",
-    changes: [
-      { type: "fix", text: "Correção de notificações duplicadas" },
-      { type: "improvement", text: "Maior confiabilidade no envio" },
-    ],
-  },
-  {
-    version: "1.11.0",
-    date: "2026-04-02",
-    title: "Fotos Offline",
-    description: "Fotos salvas offline e enviadas ao reconectar.",
-    changes: [
-      { type: "feature", text: "Fotos offline para veículos" },
-      { type: "improvement", text: "Melhorias no modo sem internet" },
-    ],
-  },
-  {
-    version: "1.10.9",
-    date: "2026-04-01",
-    title: "Dashboard de Veículos",
-    description: "Nova interface do módulo de veículos.",
-    changes: [
-      { type: "improvement", text: "Redesign do dashboard de veículos" },
-      { type: "fix", text: "Correções de notificações push" },
-    ],
-  },
-  {
-    version: "1.10.0",
-    date: "2026-03-31",
-    title: "Relatórios e Exportação",
-    description: "Relatórios exportáveis em PDF e Excel.",
-    changes: [
-      { type: "feature", text: "Relatórios com exportação em PDF e Excel" },
-      { type: "feature", text: "Filtros rápidos de período" },
-      { type: "improvement", text: "Melhorias no painel administrativo" },
     ],
   },
   {
