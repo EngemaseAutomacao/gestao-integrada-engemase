@@ -263,7 +263,20 @@ export default function FuelRecords() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredRecords.map((record: any) => (
+                   {filteredRecords.map((record: any, idx: number) => {
+                    // Calculate km/l: find previous record for same vehicle
+                    let kmPerLiter: number | null = null;
+                    if (records) {
+                      const sameVehicleRecords = records
+                        .filter((r: any) => r.vehicle_id === record.vehicle_id)
+                        .sort((a: any, b: any) => new Date(b.refuel_date).getTime() - new Date(a.refuel_date).getTime());
+                      const currentIdx = sameVehicleRecords.findIndex((r: any) => r.id === record.id);
+                      const prevRecord = sameVehicleRecords[currentIdx + 1];
+                      if (prevRecord && record.km_at_refuel > prevRecord.km_at_refuel && parseFloat(record.liters) > 0) {
+                        kmPerLiter = (record.km_at_refuel - prevRecord.km_at_refuel) / parseFloat(record.liters);
+                      }
+                    }
+                    return (
                     <TableRow key={record.id}>
                       <TableCell className="font-medium">
                         {record.vehicles?.name}
@@ -277,11 +290,19 @@ export default function FuelRecords() {
                       <TableCell>{record.cost_per_liter ? `R$ ${parseFloat(record.cost_per_liter).toFixed(2)}` : "-"}</TableCell>
                       <TableCell className="font-medium">{record.total_cost ? `R$ ${parseFloat(record.total_cost).toFixed(2)}` : "-"}</TableCell>
                       <TableCell>{record.km_at_refuel.toLocaleString()}</TableCell>
+                      <TableCell>
+                        {kmPerLiter !== null ? (
+                          <Badge variant={kmPerLiter >= 8 ? "secondary" : "destructive"} className="text-xs">
+                            {kmPerLiter.toFixed(1)} km/l
+                          </Badge>
+                        ) : "-"}
+                      </TableCell>
                       <TableCell>{record.gas_station || "-"}</TableCell>
                       <TableCell>{format(new Date(record.refuel_date), "dd/MM/yyyy", { locale: ptBR })}</TableCell>
                       <TableCell>{record.profiles?.full_name || "-"}</TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

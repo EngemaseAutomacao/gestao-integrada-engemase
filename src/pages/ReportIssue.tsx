@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadDataUrlImage } from "@/lib/storageUtils";
+import { compressDataUrl } from "@/lib/imageCompression";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle } from "lucide-react";
+import { PhotoCapture } from "@/components/PhotoCapture";
 
 interface Tool {
   id: string;
@@ -23,7 +27,9 @@ export default function ReportIssue() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
-  
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [photoConfirmed, setPhotoConfirmed] = useState(false);
+
   const [formData, setFormData] = useState({
     toolId: searchParams.get("toolId") || "",
     checkoutId: searchParams.get("checkoutId") || "",
@@ -53,6 +59,12 @@ export default function ReportIssue() {
     }
   };
 
+  const handlePhotoCapture = (dataUrl: string) => {
+    setPhotoDataUrl(dataUrl);
+    setPhotoConfirmed(true);
+    toast.success("Foto capturada!");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -64,6 +76,12 @@ export default function ReportIssue() {
     setLoading(true);
 
     try {
+      let photoUrl: string | null = null;
+      if (photoDataUrl) {
+        const compressed = await compressDataUrl(photoDataUrl);
+        photoUrl = await uploadDataUrlImage(compressed, "photo", "ferramentas", "problemas");
+      }
+
       const issueData: any = {
         tool_id: formData.toolId,
         reported_by: user?.id,
@@ -71,6 +89,7 @@ export default function ReportIssue() {
         description: formData.description,
         severity: formData.severity,
         status: "open",
+        photo_url: photoUrl,
       };
 
       if (formData.checkoutId) {
@@ -176,6 +195,35 @@ export default function ReportIssue() {
                 rows={5}
                 required
               />
+            </div>
+
+            {/* Photo Capture */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label>Foto do Problema (opcional)</Label>
+                {photoConfirmed && (
+                  <Badge variant="secondary" className="gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Capturada
+                  </Badge>
+                )}
+              </div>
+              {!photoConfirmed ? (
+                <PhotoCapture onCapture={handlePhotoCapture} title="Registrar evidência do problema" />
+              ) : (
+                <div className="relative">
+                  <img src={photoDataUrl!} alt="Foto do problema" className="w-full h-48 object-cover rounded-lg" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}
+                  >
+                    Refazer
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2">
