@@ -138,6 +138,7 @@ export default function MateriaisRequest() {
 
       if (itemsError) throw itemsError;
 
+      clearDraft();
       toast.success("Solicitação enviada com sucesso!");
       navigate("/materiais/historico");
     } catch (error: any) {
