@@ -16,7 +16,7 @@ export const uploadDataUrlImage = async (
   dataUrl: string,
   type: "photo" | "signature",
   module: "ferramentas" | "veiculos",
-  direction: "saidas" | "entradas"
+  direction: "saidas" | "entradas" | "problemas"
 ): Promise<string | null> => {
   try {
     const mimeType = type === "photo" ? "image/jpeg" : "image/png";
@@ -25,7 +25,7 @@ export const uploadDataUrlImage = async (
 
     const seq = String(Date.now()).slice(-6);
     const dateFolder = new Date().toISOString().slice(0, 10);
-    const dirLabel = direction === "saidas" ? "saida" : "entrada";
+    const dirLabel = direction === "saidas" ? "saida" : direction === "entradas" ? "entrada" : "problema";
     const fileName = `${module}/${direction}/${dateFolder}/${dirLabel}_${type}_${seq}.${ext}`;
 
     const { error: uploadError } = await supabase.storage

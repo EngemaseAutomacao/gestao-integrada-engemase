@@ -343,10 +343,13 @@ export default function Dashboard() {
                  const userCheckout = pendingCheckouts?.find((c: any) => c.tool_id === tool.id);
                  const userHasTool = Boolean(userCheckout);
                  const isOverdue = Boolean(
-                   userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
-                 );
+                    userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
+                  );
+                  const overdueDays = isOverdue && userCheckout?.estimated_return_date
+                    ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
+                    : 0;
                 return (
-                <Card key={tool.id} className="cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate(`/tools/${tool.id}`)}>
+                <Card key={tool.id} className={cn("cursor-pointer hover:bg-accent/50 transition-colors", isOverdue && "border-destructive/50")} onClick={() => navigate(`/tools/${tool.id}`)}>
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
@@ -360,6 +363,11 @@ export default function Dashboard() {
                           {tool.employee_only && (
                             <Badge variant="outline" className="text-xs">
                               Apenas Funcionários
+                            </Badge>
+                          )}
+                          {isOverdue && (
+                            <Badge variant="destructive" className="text-xs gap-1">
+                              ⚠️ Atrasado {overdueDays}d
                             </Badge>
                           )}
                         </div>

@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Clock, Loader2, Calendar, Building2, AlertTriangle, Camera, Image, User } from "lucide-react";
+import { MapPin, Clock, Loader2, Calendar, Building2, AlertTriangle, Image, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { format, differenceInMinutes } from "date-fns";
+import { format, differenceInMinutes, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SignedImage } from "@/components/SignedImage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -47,6 +47,7 @@ export default function PontoHistory() {
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("all");
+  const [periodFilter, setPeriodFilter] = useState("all");
   const [photoDialog, setPhotoDialog] = useState<{ url: string; title: string } | null>(null);
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export default function PontoHistory() {
       .select("*")
       .eq("user_id", user!.id)
       .order("clock_in", { ascending: false })
-      .limit(50);
+      .limit(200);
 
     if (!error && data) {
       setEntries(data as TimeEntry[]);
@@ -67,7 +68,34 @@ export default function PontoHistory() {
     setLoading(false);
   };
 
-  const filtered = typeFilter === "all" ? entries : entries.filter(e => e.entry_type === typeFilter);
+  const getDateRange = () => {
+    const now = new Date();
+    switch (periodFilter) {
+      case "today": return { start: new Date(now.setHours(0, 0, 0, 0)), end: new Date() };
+      case "week": return { start: startOfWeek(now, { locale: ptBR }), end: endOfWeek(now, { locale: ptBR }) };
+      case "month": return { start: startOfMonth(now), end: endOfMonth(now) };
+      case "30d": return { start: subDays(now, 30), end: now };
+      default: return null;
+    }
+  };
+
+  const filtered = entries.filter(e => {
+    if (typeFilter !== "all" && e.entry_type !== typeFilter) return false;
+    const range = getDateRange();
+    if (range) {
+      const date = new Date(e.clock_in);
+      if (!isWithinInterval(date, range)) return false;
+    }
+    return true;
+  });
+
+  // Calculate total hours for filtered entries
+  const totalMinutes = filtered.reduce((sum, entry) => {
+    if (entry.clock_out) {
+      return sum + differenceInMinutes(new Date(entry.clock_out), new Date(entry.clock_in));
+    }
+    return sum;
+  }, 0);
 
   if (loading) {
     return (
@@ -84,8 +112,8 @@ export default function PontoHistory() {
         <p className="text-muted-foreground mt-1">Seus registros de entrada e saída</p>
       </div>
 
-      {/* Filter */}
-      <div className="shrink-0">
+      {/* Filters */}
+      <div className="shrink-0 flex flex-wrap gap-2">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Filtrar tipo" />
@@ -97,6 +125,40 @@ export default function PontoHistory() {
             ))}
           </SelectContent>
         </Select>
+        <Select value={periodFilter} onValueChange={setPeriodFilter}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Período" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todo o período</SelectItem>
+            <SelectItem value="today">Hoje</SelectItem>
+            <SelectItem value="week">Esta semana</SelectItem>
+            <SelectItem value="month">Este mês</SelectItem>
+            <SelectItem value="30d">Últimos 30 dias</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Hours Summary */}
+      <div className="shrink-0 grid grid-cols-2 gap-3">
+        <Card>
+          <CardContent className="pt-4 pb-4 flex items-center gap-3">
+            <Clock className="w-5 h-5 text-primary" />
+            <div>
+              <p className="text-2xl font-bold">{formatDuration(totalMinutes)}</p>
+              <p className="text-xs text-muted-foreground">Total de horas</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 pb-4 flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-primary" />
+            <div>
+              <p className="text-2xl font-bold">{filtered.length}</p>
+              <p className="text-xs text-muted-foreground">Registros</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {filtered.length === 0 ? (
@@ -181,7 +243,6 @@ export default function PontoHistory() {
                     </p>
                   )}
 
-                  {/* Photos */}
                   {(entry.clock_in_photo_url || entry.clock_out_photo_url) && (
                     <div className="flex gap-2 mt-2">
                       {entry.clock_in_photo_url && (
@@ -215,7 +276,6 @@ export default function PontoHistory() {
         </div>
       )}
 
-      {/* Photo Dialog */}
       <Dialog open={!!photoDialog} onOpenChange={() => setPhotoDialog(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
