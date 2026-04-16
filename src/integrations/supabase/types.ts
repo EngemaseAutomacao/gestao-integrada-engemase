@@ -411,30 +411,39 @@ export type Database = {
       }
       material_requests: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           construction_site: string | null
           created_at: string
           id: string
           notes: string | null
+          rejection_reason: string | null
           requested_by_name: string
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           construction_site?: string | null
           created_at?: string
           id?: string
           notes?: string | null
+          rejection_reason?: string | null
           requested_by_name: string
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           construction_site?: string | null
           created_at?: string
           id?: string
           notes?: string | null
+          rejection_reason?: string | null
           requested_by_name?: string
           status?: string
           updated_at?: string
@@ -774,6 +783,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          photo_url: string | null
           reported_by: string
           resolution_notes: string | null
           resolved_at: string | null
@@ -789,6 +799,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          photo_url?: string | null
           reported_by: string
           resolution_notes?: string | null
           resolved_at?: string | null
@@ -804,6 +815,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          photo_url?: string | null
           reported_by?: string
           resolution_notes?: string | null
           resolved_at?: string | null
