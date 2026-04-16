@@ -11,6 +11,31 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.25.0",
+    date: "2026-04-16",
+    title: "Modo Offline Robusto",
+    description: "Reescrita completa do sistema offline com sincronização confiável, retry inteligente e Background Sync.",
+    changes: [
+      { type: "fix", text: "Correção do bug de perda de dados ao registrar ponto offline (mapeamento de IDs)" },
+      { type: "feature", text: "Sincronização automática em segundo plano (Background Sync)" },
+      { type: "improvement", text: "Fotos offline agora usam IndexedDB em todos os módulos" },
+      { type: "improvement", text: "Retry inteligente com backoff exponencial e categorização de erros" },
+      { type: "improvement", text: "Indicador offline mostra idade dos dados e operações pendentes" },
+    ],
+  },
+  {
+    version: "1.24.0",
+    date: "2026-04-16",
+    title: "Melhorias de Usabilidade e Histórico Unificado",
+    description: "Botão devolver no card, rascunho automático de materiais e timeline consolidada.",
+    changes: [
+      { type: "feature", text: "Botão 'Devolver' direto no card da ferramenta em uso no Dashboard" },
+      { type: "feature", text: "Página 'Meu Dia' com timeline unificada de ferramentas, veículos e ponto" },
+      { type: "improvement", text: "Rascunho automático na solicitação de materiais" },
+      { type: "improvement", text: "Badges de atraso nos cards de ferramentas e veículos do Dashboard" },
+    ],
+  },
+  {
     version: "1.23.0",
     date: "2026-04-15",
     title: "Busca Global Mobile, Proteção de Formulários e Refatoração",
