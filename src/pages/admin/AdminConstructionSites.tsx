@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2 } from "lucide-react";
 
@@ -19,7 +20,11 @@ interface ConstructionSite {
   name: string;
   address: string | null;
   active: boolean;
+  client_id: string | null;
   created_at: string;
+  clients?: {
+    name: string;
+  } | null;
 }
 
 interface Client {
@@ -43,6 +48,12 @@ export default function AdminConstructionSites() {
   const [savingClient, setSavingClient] = useState(false);
   const [formName, setFormName] = useState("");
   const [formAddress, setFormAddress] = useState("");
+  
+  // Site state
+  const [siteDialogOpen, setSiteDialogOpen] = useState(false);
+  const [editingSite, setEditingSite] = useState<ConstructionSite | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | "none">("none");
+  const [savingSite, setSavingSite] = useState(false);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
@@ -54,7 +65,7 @@ export default function AdminConstructionSites() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("construction_sites")
-        .select("*")
+        .select("*, clients(name)")
         .order("name");
       if (error) throw error;
       return data as ConstructionSite[];
@@ -138,6 +149,33 @@ export default function AdminConstructionSites() {
     refetchClients();
   };
 
+  const openEditSite = (site: ConstructionSite) => {
+    setEditingSite(site);
+    setSelectedClientId(site.client_id || "none");
+    setSiteDialogOpen(true);
+  };
+
+  const handleSaveSite = async () => {
+    if (!editingSite) return;
+    setSavingSite(true);
+    
+    const { error } = await supabase
+      .from("construction_sites")
+      .update({ 
+        client_id: selectedClientId === "none" ? null : selectedClientId 
+      })
+      .eq("id", editingSite.id);
+
+    if (error) {
+      toast.error("Erro ao atualizar obra");
+    } else {
+      toast.success("Obra atualizada com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["construction-sites"] });
+      setSiteDialogOpen(false);
+    }
+    setSavingSite(false);
+  };
+
   const filteredClients = clients.filter((c) =>
     !clientSearch || c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
     c.contact_name?.toLowerCase().includes(clientSearch.toLowerCase())
@@ -197,19 +235,35 @@ export default function AdminConstructionSites() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Nome</TableHead>
+                        <TableHead>Cliente</TableHead>
                         <TableHead>Endereço</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {sites.map((site) => (
                         <TableRow key={site.id}>
                           <TableCell className="font-medium">{site.name}</TableCell>
+                          <TableCell>
+                            {site.clients?.name ? (
+                              <Badge variant="outline" className="font-normal">
+                                {site.clients.name}
+                              </Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-xs italic">Não vinculado</span>
+                            )}
+                          </TableCell>
                           <TableCell>{site.address || "-"}</TableCell>
                           <TableCell>
                             <Badge variant={site.active ? "default" : "secondary"}>
                               {site.active ? "Ativa" : "Inativa"}
                             </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm" onClick={() => openEditSite(site)}>
+                              <Pencil className="w-4 h-4" />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -304,6 +358,44 @@ export default function AdminConstructionSites() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Dialog de Obra */}
+      <Dialog open={siteDialogOpen} onOpenChange={setSiteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Vincular Cliente à Obra</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Obra</Label>
+              <Input value={editingSite?.name || ""} disabled />
+            </div>
+            <div className="space-y-2">
+              <Label>Cliente Responsável</Label>
+              <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum cliente</SelectItem>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSiteDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSaveSite} disabled={savingSite}>
+              {savingSite && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Salvar Vínculo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
