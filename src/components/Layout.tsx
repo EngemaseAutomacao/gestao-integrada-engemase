@@ -446,6 +446,10 @@ export default function Layout({ children }: LayoutProps) {
         onOpenChange={setLogoutDialogOpen} 
         onConfirm={signOut} 
       />
-    </div>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
   );
 }
