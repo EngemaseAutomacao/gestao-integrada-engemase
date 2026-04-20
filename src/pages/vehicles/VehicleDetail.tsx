@@ -321,7 +321,7 @@ export default function VehicleDetail() {
             </CardDescription>
           </div>
           <Button asChild size="sm" className="w-full sm:w-auto">
-            <Link to={`/veiculos/reportar-problema?vehicleId=${id}`}>
+            <Link to={`/veiculos/report-issue?vehicleId=${id}`}>
               <AlertCircle className="h-4 w-4 mr-2" />
               Reportar Problema
             </Link>
