@@ -306,7 +306,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(50%-1.5rem)]">
           <ModuleCard
             title="Transferências"
             description="Handover de ferramentas e veículos"
