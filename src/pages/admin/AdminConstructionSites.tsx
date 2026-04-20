@@ -567,34 +567,39 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA FERRAMENTAS ─── */}
         <TabsContent value="ferramentas" className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar ferramenta, TAG ou marca..." 
-                value={toolSearch} 
-                onChange={(e) => setToolSearch(e.target.value)} 
-                className="pl-10" 
-              />
-            </div>
-            <Button
-              variant="outline"
-              className="gap-2"
-              disabled={syncToolsMutation.isPending}
-              onClick={() => syncToolsMutation.mutate()}
-            >
-              <RefreshCw className={`w-4 h-4 ${syncToolsMutation.isPending ? "animate-spin" : ""}`} />
-              Sincronizar Planilha
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastToolSync)}</span>
-          </p>
-
           <Card>
-            <CardHeader>
-              <CardTitle>Inventário de Ferramentas</CardTitle>
-              <CardDescription>{tools.length} ferramentas catalogadas via Google Sheets</CardDescription>
+            <CardHeader className="space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1.5">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Wrench className="w-5 h-5 text-primary" />
+                    Inventário de Ferramentas
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {tools.length} ferramentas catalogadas · Última sincronização:{" "}
+                    <span className="font-medium text-foreground">{formatLastSync(lastToolSync)}</span>
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 w-full sm:w-auto shrink-0"
+                  disabled={syncToolsMutation.isPending}
+                  onClick={() => syncToolsMutation.mutate()}
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncToolsMutation.isPending ? "animate-spin" : ""}`} />
+                  Sincronizar Planilha
+                </Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar ferramenta, TAG ou marca..."
+                  value={toolSearch}
+                  onChange={(e) => setToolSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               {loadingTools ? (
