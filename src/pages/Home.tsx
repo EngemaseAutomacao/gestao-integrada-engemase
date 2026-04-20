@@ -292,6 +292,20 @@ export default function Home() {
           to="/ponto"
         />
 
+        <ModuleCard
+          title="Meu Histórico"
+          description="Veja todas as suas movimentações"
+          icon={<History className="w-6 h-6 text-primary" />}
+          to="/historico"
+        />
+
+        <ModuleCard
+          title="Transferências"
+          description="Handover de ferramentas e veículos"
+          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+          to="/transferencias"
+        />
+
 
         {isAdmin && (
           <div className="col-span-2 lg:col-span-1 flex justify-center">
