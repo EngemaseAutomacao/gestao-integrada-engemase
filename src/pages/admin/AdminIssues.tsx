@@ -22,12 +22,13 @@ interface Issue {
   created_at: string;
   resolved_at: string | null;
   resolution_notes: string | null;
+  photo_url: string | null;
   tool: {
     name: string;
-  };
+  } | null;
   reporter: {
     full_name: string;
-  };
+  } | null;
   resolver: {
     full_name: string;
   } | null;
