@@ -652,6 +652,83 @@ export default function AdminConstructionSites() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* ─── ABA VEÍCULOS ─── */}
+        <TabsContent value="veiculos" className="space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome, placa, marca ou modelo..."
+                value={vehicleSearch}
+                onChange={(e) => setVehicleSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button onClick={openNewVehicle} className="gap-2">
+              <Plus className="w-4 h-4" /> Novo Veículo
+            </Button>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Inventário de Veículos</CardTitle>
+              <CardDescription>{vehicles.length} veículos cadastrados</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingVehicles ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : filteredVehicles.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Nenhum veículo encontrado</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Placa</TableHead>
+                        <TableHead>Marca/Modelo</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredVehicles.map((v: any) => (
+                        <TableRow key={v.id}>
+                          <TableCell className="font-medium">{v.name}</TableCell>
+                          <TableCell className="font-mono text-xs">{v.plate}</TableCell>
+                          <TableCell>{[v.brand, v.model].filter(Boolean).join(" ") || "-"}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="gap-1">
+                              {v.vehicle_type === "platform" ? <Cog className="w-3 h-3" /> : <Car className="w-3 h-3" />}
+                              {v.vehicle_type === "platform" ? "Plataforma" : "Veículo"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={v.status === "available" ? "default" : "secondary"}>
+                              {v.status === "available" ? "Disponível" : "Em uso"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm" onClick={() => openEditVehicle(v)} aria-label="Editar veículo">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => { setDeletingVehicle(v); setDeleteVehicleOpen(true); }} aria-label="Excluir veículo">
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Dialog de Cliente */}
