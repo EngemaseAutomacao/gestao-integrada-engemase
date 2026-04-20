@@ -310,7 +310,8 @@ export default function VehicleCheckout() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Vehicle Selection */}
+        {/* Vehicle Selection - hidden when preselected from dashboard */}
+        {!isVehicleLocked && (
         <Card>
           <CardHeader>
             <CardTitle>Selecionar Veículo</CardTitle>
@@ -361,7 +362,7 @@ export default function VehicleCheckout() {
             )}
           </CardContent>
         </Card>
-
+        )}
         {/* Checkout Details */}
         {selectedVehicle && (
           <Card>
