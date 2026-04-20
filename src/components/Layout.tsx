@@ -197,7 +197,6 @@ export default function Layout({ children }: LayoutProps) {
       };
     }
     if (location.pathname.startsWith('/ponto')) {
-      if (!isAdmin) return null;
       return {
         title: "Ponto",
         icon: MapPin,
@@ -409,11 +408,7 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn("flex-1 min-h-0 overflow-auto p-3 sm:p-4 md:p-6", isMobile && "pb-20")}>
-        {/* Block non-admin from Ponto */}
-        {(location.pathname.startsWith('/ponto') && !isAdmin)
-          ? <Navigate to="/" />
-          : children
-        }
+        {children}
       </main>
 
       {/* Footer - hidden on mobile */}
