@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2 } from "lucide-react";
+import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2, Wrench, ExternalLink } from "lucide-react";
 
 interface ConstructionSite {
   id: string;
@@ -37,9 +37,24 @@ interface Client {
   active: boolean;
 }
 
+interface Tool {
+  id: string;
+  name: string;
+  description: string | null;
+  tag: string | null;
+  brand: string | null;
+  condition: string;
+  quantity_available: number;
+  quantity_total: number;
+  employee_only: boolean;
+}
+
 export default function AdminConstructionSites() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "obras";
 
   // Client state
   const [clientSearch, setClientSearch] = useState("");
@@ -54,6 +69,10 @@ export default function AdminConstructionSites() {
   const [editingSite, setEditingSite] = useState<ConstructionSite | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | "none">("none");
   const [savingSite, setSavingSite] = useState(false);
+
+  // Tools state
+  const [toolSearch, setToolSearch] = useState("");
+  const [syncingTools, setSyncingTools] = useState(false);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
@@ -97,6 +116,36 @@ export default function AdminConstructionSites() {
       if (error) throw error;
       return data as Client[];
     },
+  });
+
+  // ─── Ferramentas ───
+  const { data: tools = [], isLoading: loadingTools, refetch: refetchTools } = useQuery({
+    queryKey: ["admin-tools"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tools")
+        .select("*")
+        .order("name");
+      if (error) throw error;
+      return data as Tool[];
+    },
+  });
+
+  const syncToolsMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("sync-google-sheets");
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Erro desconhecido");
+      return data;
+    },
+    onSuccess: (data) => {
+      const s = data.summary;
+      toast.success("Sincronização concluída!", {
+        description: `${s.added} adicionada(s), ${s.updated} atualizada(s), ${s.deleted} removida(s) de ${s.total_sheet_rows} linhas.`,
+      });
+      refetchTools();
+    },
+    onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
 
   const openNewClient = () => {
@@ -181,15 +230,44 @@ export default function AdminConstructionSites() {
     c.contact_name?.toLowerCase().includes(clientSearch.toLowerCase())
   );
 
+  const filteredTools = tools.filter((tool) =>
+    !toolSearch || 
+    tool.name.toLowerCase().includes(toolSearch.toLowerCase()) ||
+    tool.tag?.toLowerCase().includes(toolSearch.toLowerCase()) ||
+    tool.brand?.toLowerCase().includes(toolSearch.toLowerCase())
+  );
+
+  const getConditionLabel = (condition: string) => {
+    const map: Record<string, string> = {
+      excellent: "Excelente",
+      good: "Bom",
+      fair: "Regular",
+      poor: "Ruim",
+      needs_maintenance: "Manutenção",
+    };
+    return map[condition] || condition;
+  };
+
+  const getConditionClass = (condition: string) => {
+    const map: Record<string, string> = {
+      excellent: "bg-green-500 text-white",
+      good: "bg-blue-500 text-white",
+      fair: "bg-yellow-500 text-white",
+      poor: "bg-orange-500 text-white",
+      needs_maintenance: "bg-red-500 text-white",
+    };
+    return map[condition] || "bg-red-500 text-white";
+  };
+
   return (
     <div className="space-y-6">
       <div className="hidden sm:block">
-        <h2 className="text-3xl font-bold tracking-tight">Obras e Clientes</h2>
-        <p className="text-muted-foreground">Gerencie obras e clientes da empresa</p>
+        <h2 className="text-3xl font-bold tracking-tight">Gestão Administrativa</h2>
+        <p className="text-muted-foreground">Gerencie obras, clientes e inventário de ferramentas</p>
       </div>
 
-      <Tabs defaultValue="obras" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="obras" className="gap-2">
             <Building2 className="w-4 h-4" />
             Obras
@@ -197,6 +275,10 @@ export default function AdminConstructionSites() {
           <TabsTrigger value="clientes" className="gap-2">
             <Users className="w-4 h-4" />
             Clientes
+          </TabsTrigger>
+          <TabsTrigger value="ferramentas" className="gap-2">
+            <Wrench className="w-4 h-4" />
+            Ferramentas
           </TabsTrigger>
         </TabsList>
 
@@ -330,6 +412,83 @@ export default function AdminConstructionSites() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* ─── ABA FERRAMENTAS ─── */}
+        <TabsContent value="ferramentas" className="space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar ferramenta, TAG ou marca..." 
+                value={toolSearch} 
+                onChange={(e) => setToolSearch(e.target.value)} 
+                className="pl-10" 
+              />
+            </div>
+            <Button
+              variant="outline"
+              className="gap-2"
+              disabled={syncToolsMutation.isPending}
+              onClick={() => syncToolsMutation.mutate()}
+            >
+              <RefreshCw className={`w-4 h-4 ${syncToolsMutation.isPending ? "animate-spin" : ""}`} />
+              Sincronizar Planilha
+            </Button>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Inventário de Ferramentas</CardTitle>
+              <CardDescription>{tools.length} ferramentas catalogadas via Google Sheets</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingTools ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : filteredTools.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Nenhuma ferramenta encontrada</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>TAG</TableHead>
+                        <TableHead>Marca</TableHead>
+                        <TableHead>Condição</TableHead>
+                        <TableHead>Qtd. Disp/Total</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredTools.map((tool) => (
+                        <TableRow key={tool.id}>
+                          <TableCell className="font-medium">{tool.name}</TableCell>
+                          <TableCell>{tool.tag || "-"}</TableCell>
+                          <TableCell>{tool.brand || "-"}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={getConditionClass(tool.condition)}>
+                              {getConditionLabel(tool.condition)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {tool.quantity_available}/{tool.quantity_total}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm" onClick={() => navigate(`/ferramentas/${tool.id}`)}>
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

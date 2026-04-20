@@ -47,8 +47,8 @@ export default function AdminDashboard() {
     { title: "Logs", description: "Histórico do sistema", icon: <ClipboardList className="w-5 h-5 text-orange-500" />, to: "/admin/logs" },
     { title: "Entrada Manual", description: "Registros manuais", icon: <Settings className="w-5 h-5 text-orange-500" />, to: "/admin/manual" },
     { title: "Galeria de Imagens", description: "Visualizar fotos do sistema", icon: <Images className="w-5 h-5 text-orange-500" />, to: "/admin/gallery" },
-    { title: "Obras e Clientes", description: "Gerenciar obras e clientes", icon: <Building2 className="w-5 h-5 text-orange-500" />, to: "/admin/construction-sites" },
-    { title: "Ferramentas por Obra", description: "Localização atual das ferramentas", icon: <Package className="w-5 h-5 text-orange-500" />, to: "/admin/site-tools" },
+    { title: "Gestão Administrativa", description: "Obras, Clientes e Ferramentas", icon: <Building2 className="w-5 h-5 text-orange-500" />, to: "/admin/construction-sites" },
+
     { title: "Retenção de Dados", description: "Controle de limpeza automática", icon: <Database className="w-5 h-5 text-orange-500" />, to: "/admin/data-retention" },
     { title: "Auditoria", description: "Registro detalhado de ações", icon: <Shield className="w-5 h-5 text-orange-500" />, to: "/admin/audit" },
   ];
