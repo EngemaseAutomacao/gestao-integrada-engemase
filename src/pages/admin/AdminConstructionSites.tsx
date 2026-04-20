@@ -104,31 +104,23 @@ export default function AdminConstructionSites() {
     },
   });
 
-  // Last sync timestamps (proxy: most recent updated_at)
+  // Last sync timestamps from cron job run details (shows last execution even if no data changed)
   const { data: lastSiteSync } = useQuery({
     queryKey: ["last-site-sync"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("construction_sites")
-        .select("updated_at")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return data?.updated_at as string | undefined;
+      const { data } = await (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-trello-every-5min" });
+      return data as string | undefined;
     },
+    refetchInterval: 60000,
   });
 
   const { data: lastToolSync } = useQuery({
     queryKey: ["last-tool-sync"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("tools")
-        .select("updated_at")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return data?.updated_at as string | undefined;
+      const { data } = await (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-google-sheets-daily" });
+      return data as string | undefined;
     },
+    refetchInterval: 60000,
   });
 
   const formatLastSync = (iso?: string) => {

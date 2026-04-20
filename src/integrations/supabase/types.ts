@@ -1267,6 +1267,7 @@ export type Database = {
         }[]
       }
       get_email_from_username: { Args: { _username: string }; Returns: string }
+      get_last_cron_run: { Args: { _jobname: string }; Returns: string }
       get_tool_usage_history: {
         Args: { tool_uuid: string }
         Returns: {
