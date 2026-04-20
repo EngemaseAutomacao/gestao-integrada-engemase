@@ -91,6 +91,45 @@ export default function AdminConstructionSites() {
     },
   });
 
+  // Last sync timestamps (proxy: most recent updated_at)
+  const { data: lastSiteSync } = useQuery({
+    queryKey: ["last-site-sync"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("construction_sites")
+        .select("updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data?.updated_at as string | undefined;
+    },
+  });
+
+  const { data: lastToolSync } = useQuery({
+    queryKey: ["last-tool-sync"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("tools")
+        .select("updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data?.updated_at as string | undefined;
+    },
+  });
+
+  const formatLastSync = (iso?: string) => {
+    if (!iso) return "Nunca sincronizado";
+    try {
+      return new Date(iso).toLocaleString("pt-BR", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+      });
+    } catch {
+      return "—";
+    }
+  };
+
   const syncMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("sync-trello");

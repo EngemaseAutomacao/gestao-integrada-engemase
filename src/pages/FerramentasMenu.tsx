@@ -99,16 +99,10 @@ export default function FerramentasMenu() {
         {isAdmin && (
           <>
             <MenuCard
-              title="Gerenciar Ferramentas"
-              description="Adicionar, editar e excluir"
+              title="Sincronizações"
+              description="Obras, clientes e ferramentas"
               icon={<Settings className="w-6 h-6 text-primary" />}
-              to="/admin/tools"
-            />
-            <MenuCard
-              title="Manutenções"
-              description="Registros de manutenção"
-              icon={<Wrench className="w-6 h-6 text-primary" />}
-              to="/admin/maintenance"
+              to="/admin/construction-sites"
             />
             <MenuCard
               title="Problemas"
@@ -121,12 +115,6 @@ export default function FerramentasMenu() {
               description="Todas as movimentações"
               icon={<ClipboardList className="w-6 h-6 text-primary" />}
               to="/admin/history"
-            />
-            <MenuCard
-              title="Ferramentas por Obra"
-              description="Localização atual por obra"
-              icon={<Package className="w-6 h-6 text-primary" />}
-              to="/admin/site-tools"
             />
           </>
         )}
