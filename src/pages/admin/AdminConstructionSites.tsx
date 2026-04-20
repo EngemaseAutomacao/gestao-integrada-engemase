@@ -299,6 +299,8 @@ export default function AdminConstructionSites() {
       toast.error("Erro ao excluir", { description: err.message });
     }
   };
+
+  const openNewClient = () => {
     setEditingClient(null);
     setFormName(""); setFormAddress("");
     setClientDialogOpen(true);
