@@ -122,7 +122,7 @@ export function AppSidebar() {
               { title: "Problemas Veículos", url: "/admin/vehicle-issues", icon: AlertCircle },
               { title: "Obras e Clientes", url: "/admin/construction-sites", icon: Building2 },
               { title: "Analytics Geral", url: "/admin/analytics", icon: BarChart3 },
-              { title: "Analytics Veículos", url: "/veiculos/analytics", icon: BarChart3 },
+              { title: "Analytics de Veículos", url: "/veiculos/analytics", icon: BarChart3 },
               { title: "Relatórios", url: "/admin/reports", icon: FileText },
               { title: "Notificações", url: "/admin/notifications", icon: Bell },
               { title: "Galeria", url: "/admin/gallery", icon: ImageIcon },
