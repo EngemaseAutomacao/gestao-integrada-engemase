@@ -44,7 +44,7 @@ const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
-const ManualEntry = lazy(() => import("./pages/admin/ManualEntry"));
+
 const AdminIssues = lazy(() => import("./pages/admin/AdminIssues"));
 const AdminConstructionSites = lazy(() => import("./pages/admin/AdminConstructionSites"));
 const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
@@ -158,7 +158,7 @@ const App = () => (
                     <Route path="/admin/notifications" element={<Layout><AdminNotifications /></Layout>} />
                     <Route path="/admin/maintenance" element={<Navigate to="/admin" replace />} />
                     <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
-                    <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
+                    <Route path="/admin/manual" element={<Navigate to="/admin" replace />} />
                     <Route path="/admin/issues" element={<Navigate to="/admin/problemas?tab=ferramentas" replace />} />
                     <Route path="/admin/vehicle-issues" element={<Navigate to="/admin/problemas?tab=veiculos" replace />} />
                     <Route path="/admin/problemas" element={<Layout><AdminProblemas /></Layout>} />

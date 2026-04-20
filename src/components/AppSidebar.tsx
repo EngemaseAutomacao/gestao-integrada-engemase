@@ -116,7 +116,7 @@ export function AppSidebar() {
               { title: "Galeria", url: "/admin/gallery", icon: ImageIcon },
               { title: "Auditoria & Logs", url: "/admin/auditoria", icon: ShieldCheck },
               { title: "Retenção de Dados", url: "/admin/data-retention", icon: Database },
-              { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
+              
             ],
           },
         ]
