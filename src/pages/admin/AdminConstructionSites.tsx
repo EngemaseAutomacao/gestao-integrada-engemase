@@ -13,7 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2, Wrench, ExternalLink } from "lucide-react";
+import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2, Wrench, ExternalLink, Car, Cog } from "lucide-react";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface ConstructionSite {
   id: string;
