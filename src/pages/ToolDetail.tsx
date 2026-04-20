@@ -492,7 +492,17 @@ export default function ToolDetail() {
                            issue.severity === "high" ? "Alta" : "Crítica"}
                         </Badge>
                       </div>
-                      <p className="text-xs md:text-sm">{issue.description}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground whitespace-pre-wrap">{issue.description}</p>
+                      {issue.photo_url && (
+                        <div className="mt-2">
+                          <img 
+                            src={supabase.storage.from("imagens").getPublicUrl(issue.photo_url).data.publicUrl} 
+                            alt="Foto do problema" 
+                            className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-md cursor-pointer hover:opacity-90"
+                            onClick={() => window.open(supabase.storage.from("imagens").getPublicUrl(issue.photo_url!).data.publicUrl, "_blank")}
+                          />
+                        </div>
+                      )}
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <User className="w-3.5 h-3.5" />
