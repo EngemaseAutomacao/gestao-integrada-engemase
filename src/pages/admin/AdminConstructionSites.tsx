@@ -740,48 +740,86 @@ export default function AdminConstructionSites() {
               ) : filteredVehicles.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Nenhum veículo encontrado</p>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Placa</TableHead>
-                        <TableHead>Marca/Modelo</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredVehicles.map((v: any) => (
-                        <TableRow key={v.id}>
-                          <TableCell className="font-medium">{v.name}</TableCell>
-                          <TableCell className="font-mono text-xs">{v.plate}</TableCell>
-                          <TableCell>{[v.brand, v.model].filter(Boolean).join(" ") || "-"}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="gap-1">
+                <>
+                  {/* Mobile cards */}
+                  <div className="space-y-2 sm:hidden">
+                    {filteredVehicles.map((v: any) => (
+                      <div key={v.id} className="border rounded-lg p-3 space-y-2 bg-card">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{v.name}</p>
+                            <p className="text-[11px] text-muted-foreground font-mono truncate">{v.plate}</p>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEditVehicle(v)} aria-label="Editar veículo">
+                              <Pencil className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { setDeletingVehicle(v); setDeleteVehicleOpen(true); }} aria-label="Excluir veículo">
+                              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <span className="text-[11px] text-muted-foreground truncate">
+                            {[v.brand, v.model].filter(Boolean).join(" ") || "-"}
+                          </span>
+                          <div className="flex gap-1.5">
+                            <Badge variant="outline" className="gap-1 text-[10px]">
                               {v.vehicle_type === "platform" ? <Cog className="w-3 h-3" /> : <Car className="w-3 h-3" />}
                               {v.vehicle_type === "platform" ? "Plataforma" : "Veículo"}
                             </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={v.status === "available" ? "default" : "secondary"}>
+                            <Badge variant={v.status === "available" ? "default" : "secondary"} className="text-[10px]">
                               {v.status === "available" ? "Disponível" : "Em uso"}
                             </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="sm" onClick={() => openEditVehicle(v)} aria-label="Editar veículo">
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => { setDeletingVehicle(v); setDeleteVehicleOpen(true); }} aria-label="Excluir veículo">
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
-                          </TableCell>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop table */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>Placa</TableHead>
+                          <TableHead className="hidden md:table-cell">Marca/Modelo</TableHead>
+                          <TableHead className="hidden lg:table-cell">Tipo</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredVehicles.map((v: any) => (
+                          <TableRow key={v.id}>
+                            <TableCell className="font-medium">{v.name}</TableCell>
+                            <TableCell className="font-mono text-xs">{v.plate}</TableCell>
+                            <TableCell className="hidden md:table-cell">{[v.brand, v.model].filter(Boolean).join(" ") || "-"}</TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              <Badge variant="outline" className="gap-1">
+                                {v.vehicle_type === "platform" ? <Cog className="w-3 h-3" /> : <Car className="w-3 h-3" />}
+                                {v.vehicle_type === "platform" ? "Plataforma" : "Veículo"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={v.status === "available" ? "default" : "secondary"}>
+                                {v.status === "available" ? "Disponível" : "Em uso"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm" onClick={() => openEditVehicle(v)} aria-label="Editar veículo">
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => { setDeletingVehicle(v); setDeleteVehicleOpen(true); }} aria-label="Excluir veículo">
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
