@@ -317,26 +317,7 @@ export default function VehicleList() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Foto do Veículo</Label>
-              <div>
-                <input id="v-image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                <Button type="button" variant="outline" className="gap-2" onClick={() => document.getElementById("v-image")?.click()}>
-                  <Upload className="h-4 w-4" />
-                  Escolher Foto
-                </Button>
-              </div>
-              {imagePreview && (
-                <div className="relative inline-block mt-2">
-                  <img src={imagePreview} alt="Preview" className="h-32 w-32 object-cover rounded-lg border cursor-pointer" onClick={() => setEnlargedImage(imagePreview)} />
-                  <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={saving} className="flex-1">
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingId ? "Atualizar" : "Cadastrar"}
