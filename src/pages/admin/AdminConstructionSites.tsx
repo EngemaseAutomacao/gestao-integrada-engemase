@@ -510,12 +510,12 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA CLIENTES ─── */}
         <TabsContent value="clientes" className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Buscar cliente..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-10" />
             </div>
-            <Button onClick={openNewClient} className="gap-2">
+            <Button onClick={openNewClient} size="sm" className="gap-2 w-full sm:w-auto shrink-0">
               <Plus className="w-4 h-4" />Novo Cliente
             </Button>
           </div>
