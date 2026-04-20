@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
