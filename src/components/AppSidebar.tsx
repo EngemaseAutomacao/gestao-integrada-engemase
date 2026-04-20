@@ -85,7 +85,7 @@ export function AppSidebar() {
     {
       label: "Veículos",
       items: [
-        { title: "Painel & Lista", url: "/veiculos/dashboard", icon: Package, badge: vehicleBadgeCount },
+        { title: "Painel & Catálogo", url: "/veiculos/dashboard", icon: Package, badge: vehicleBadgeCount },
         ...(isAdmin
           ? [
               { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
