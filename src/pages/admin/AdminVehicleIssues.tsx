@@ -98,6 +98,14 @@ export default function AdminVehicleIssues() {
   };
 
   const handleUpdateStatus = async (issueId: string, newStatus: string) => {
+    if (newStatus === "resolved") {
+      const issue = issues.find(i => i.id === issueId);
+      if (issue) {
+        setSelectedIssue(issue);
+        return;
+      }
+    }
+
     try {
       const { error } = await supabase
         .from("vehicle_issues" as any)
