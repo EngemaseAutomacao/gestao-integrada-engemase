@@ -87,7 +87,7 @@ export function PontoFormFields({
         </div>
       )}
 
-      {entryType === "obra" && (
+      {entryType === "obra" && !hideContextFields && (
         <div className="space-y-2">
           <Label className="flex items-center gap-1.5">
             <Building2 className="w-3.5 h-3.5" />
