@@ -34,7 +34,7 @@ export default function VehicleList() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<VehicleForm>(emptyForm);
-  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
   const isAdmin = profile?.role === "admin";
@@ -328,17 +328,6 @@ export default function VehicleList() {
         </DialogContent>
       </Dialog>
 
-      {/* Enlarged Image Dialog */}
-      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
-        <DialogContent className="max-w-3xl p-2">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Foto do veículo</DialogTitle>
-          </DialogHeader>
-          {enlargedImage && (
-            <img src={enlargedImage} alt="Foto ampliada" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
-          )}
-        </DialogContent>
-      </Dialog>
 
       <DeleteWithReasonDialog
         open={deleteDialogOpen}
