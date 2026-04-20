@@ -294,14 +294,6 @@ export default function Home() {
           comingSoon={!isAdmin}
         />
 
-        <ModuleCard
-          title="Materiais"
-          description={isAdmin ? "Solicite e gerencie requisições de materiais" : "Acesso restrito — solicite permissão ao administrador"}
-          icon={<Package className="w-6 h-6 text-primary" />}
-          to={isAdmin ? "/materiais" : undefined}
-          disabled={!isAdmin}
-          comingSoon={!isAdmin}
-        />
 
         {isAdmin && (
           <div className="col-span-2 lg:col-span-1 flex justify-center">

@@ -60,10 +60,6 @@ const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
 const PontoRegister = lazy(() => import("./pages/ponto/PontoRegister"));
 const PontoHistory = lazy(() => import("./pages/ponto/PontoHistory"));
 const PontoAdmin = lazy(() => import("./pages/ponto/PontoAdmin"));
-const MateriaisDashboard = lazy(() => import("./pages/materiais/MateriaisDashboard"));
-const MateriaisRequest = lazy(() => import("./pages/materiais/MateriaisRequest"));
-const MateriaisHistory = lazy(() => import("./pages/materiais/MateriaisHistory"));
-const MateriaisAdmin = lazy(() => import("./pages/materiais/MateriaisAdmin"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Help = lazy(() => import("./pages/Help"));
 const Changelog = lazy(() => import("./pages/Changelog"));
@@ -168,11 +164,7 @@ const App = () => (
                     <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
                     <Route path="/ponto/historico" element={<Navigate to="/historico?tipo=ponto" replace />} />
                     <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
-                    {/* Materiais Routes */}
-                    <Route path="/materiais" element={<Layout><MateriaisDashboard /></Layout>} />
-                    <Route path="/materiais/solicitar" element={<Layout><MateriaisRequest /></Layout>} />
-                    <Route path="/materiais/historico" element={<Navigate to="/historico?tipo=material" replace />} />
-                    <Route path="/materiais/admin" element={<Layout><MateriaisAdmin /></Layout>} />
+                    {/* Materiais module removed */}
                     <Route path="/transferencias" element={<Layout><Transfers /></Layout>} />
                     <Route path="/meu-dia" element={<Navigate to="/historico" replace />} />
                     <Route path="/historico" element={<Layout><Historico /></Layout>} />

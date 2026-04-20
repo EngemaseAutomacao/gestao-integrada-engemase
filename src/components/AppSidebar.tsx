@@ -100,12 +100,6 @@ export function AppSidebar() {
             ],
           },
           {
-            label: "Materiais",
-            items: [
-              { title: "Painel & Catálogo", url: "/materiais", icon: Package },
-            ],
-          },
-          {
             label: "Administração",
             items: [
               { title: "Dashboard", url: "/admin", icon: Shield },
