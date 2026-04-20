@@ -478,8 +478,10 @@ export default function AdminConstructionSites() {
             >
               <RefreshCw className={`w-4 h-4 ${syncToolsMutation.isPending ? "animate-spin" : ""}`} />
               Sincronizar Planilha
-            </Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastToolSync)}</span>
+          </p>
 
           <Card>
             <CardHeader>
