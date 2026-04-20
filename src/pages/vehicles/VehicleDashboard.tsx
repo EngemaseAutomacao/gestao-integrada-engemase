@@ -260,7 +260,7 @@ export default function VehicleDashboard() {
                             <Button
                               size="sm"
                               className="text-xs gap-1"
-                              onClick={(e) => { e.stopPropagation(); navigate("/veiculos/saida"); }}
+                              onClick={(e) => { e.stopPropagation(); navigate(`/veiculos/saida?vehicleId=${vehicle.id}`); }}
                             >
                               Registrar Saída
                             </Button>
