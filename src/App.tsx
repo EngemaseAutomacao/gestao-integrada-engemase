@@ -167,15 +167,16 @@ const App = () => (
                     {/* Ponto Online Routes */}
                     <Route path="/ponto" element={<Layout><PontoDashboard /></Layout>} />
                     <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
-                    <Route path="/ponto/historico" element={<Layout><PontoHistory /></Layout>} />
+                    <Route path="/ponto/historico" element={<Navigate to="/historico?tipo=ponto" replace />} />
                     <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
                     {/* Materiais Routes */}
                     <Route path="/materiais" element={<Layout><MateriaisDashboard /></Layout>} />
                     <Route path="/materiais/solicitar" element={<Layout><MateriaisRequest /></Layout>} />
-                    <Route path="/materiais/historico" element={<Layout><MateriaisHistory /></Layout>} />
+                    <Route path="/materiais/historico" element={<Navigate to="/historico?tipo=material" replace />} />
                     <Route path="/materiais/admin" element={<Layout><MateriaisAdmin /></Layout>} />
                     <Route path="/transferencias" element={<Layout><Transfers /></Layout>} />
                     <Route path="/meu-dia" element={<Layout><UnifiedHistory /></Layout>} />
+                    <Route path="/historico" element={<Layout><Historico /></Layout>} />
                     <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                     <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                     <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />
