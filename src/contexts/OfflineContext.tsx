@@ -88,6 +88,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   isOnlineRef.current = isOnline;
 
   const isSyncing = useRef(false);
+  const syncPendingOperationsRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
     saveToStorage(STORAGE_KEY, pendingOperations);
@@ -176,8 +177,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     // Correct folder: checkout/ponto_in = saidas; checkin/ponto_out = entradas
     const isReturn = op.type === "checkin" || op.type === "ponto_out";
     const folder = isReturn ? "entradas" : "saidas";
-    const bucket = op.type.startsWith("ponto") ? "ponto" : "ferramentas";
-    const url = await uploadFn(blob, "photo", bucket, folder);
+    const url = await uploadFn(blob, "photo", "ferramentas", folder);
     await deletePhotosByOperation(op.id);
     return url;
   }, []);
