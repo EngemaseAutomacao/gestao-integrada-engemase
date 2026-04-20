@@ -106,6 +106,14 @@ export default function AdminIssues() {
   };
 
   const handleUpdateStatus = async (issueId: string, newStatus: "open" | "in_progress" | "resolved" | "closed") => {
+    if (newStatus === "resolved") {
+      const issue = issues.find(i => i.id === issueId);
+      if (issue) {
+        setSelectedIssue(issue);
+        return;
+      }
+    }
+
     try {
       const { error } = await supabase
         .from("tool_issues")
