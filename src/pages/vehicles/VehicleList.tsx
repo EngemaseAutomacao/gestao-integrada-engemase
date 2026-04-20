@@ -95,6 +95,7 @@ export default function VehicleList() {
       model: vehicle.model || "",
       year: vehicle.year?.toString() || "",
       color: vehicle.color || "",
+      vehicle_type: (vehicle.vehicle_type as "vehicle" | "platform") || "vehicle",
     });
     setImagePreview(vehicle.image_url);
     setDialogOpen(true);
@@ -140,6 +141,7 @@ export default function VehicleList() {
         year: formData.year ? parseInt(formData.year) : null,
         color: formData.color || null,
         image_url: imageUrl,
+        vehicle_type: formData.vehicle_type,
       };
 
       if (editingId) {
@@ -235,10 +237,19 @@ export default function VehicleList() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                      <Car className="w-6 h-6 text-muted-foreground" />
+                      {vehicle.vehicle_type === "platform" ? (
+                        <Cog className="w-6 h-6 text-muted-foreground" />
+                      ) : (
+                        <Car className="w-6 h-6 text-muted-foreground" />
+                      )}
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{vehicle.name}</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-lg">{vehicle.name}</CardTitle>
+                        {vehicle.vehicle_type === "platform" && (
+                          <Badge variant="outline" className="text-xs">Plataforma</Badge>
+                        )}
+                      </div>
                       <CardDescription className="font-mono">{vehicle.plate}</CardDescription>
                     </div>
                   </div>
@@ -288,13 +299,33 @@ export default function VehicleList() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="v-type">Tipo *</Label>
+              <Select
+                value={formData.vehicle_type}
+                onValueChange={(v: "vehicle" | "platform") => setFormData({ ...formData, vehicle_type: v })}
+              >
+                <SelectTrigger id="v-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vehicle">Veículo</SelectItem>
+                  <SelectItem value="platform">Plataforma</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {formData.vehicle_type === "platform"
+                  ? "Plataformas exigem fotos extras (controle + 4 rodas) e registro de carregamentos"
+                  : "Veículo padrão com 4 fotos + painel"}
+              </p>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="v-name">Nome *</Label>
                 <Input id="v-name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="v-plate">Placa *</Label>
+                <Label htmlFor="v-plate">{formData.vehicle_type === "platform" ? "Identificação *" : "Placa *"}</Label>
                 <Input id="v-plate" value={formData.plate} onChange={(e) => setFormData({ ...formData, plate: e.target.value })} required />
               </div>
             </div>
