@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,10 +33,12 @@ export default function UnifiedHistory({
   description = "Visão unificada de ferramentas, veículos, ponto e materiais",
 }: UnifiedHistoryProps) {
   const { profile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialType = searchParams.get("tipo") || "all";
   const [events, setEvents] = useState<UnifiedEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodFilter, setPeriodFilter] = useState("7d");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState(initialType);
 
   useEffect(() => {
     if (profile?.id) loadAll();
