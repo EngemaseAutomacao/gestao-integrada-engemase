@@ -117,6 +117,11 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       }).catch(() => {});
     }
 
+    // If we're online, trigger sync immediately (next tick to ensure state is committed)
+    if (isOnlineRef.current) {
+      setTimeout(() => syncPendingOperationsRef.current?.(), 100);
+    }
+
     return id;
   }, []);
 
@@ -168,8 +173,11 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     const photo = photos[0];
     const blob = new File([photo.blob], photo.fileName, { type: photo.blob.type || "image/jpeg" });
     const { uploadFileImage: uploadFn } = await import("@/lib/storageUtils");
-    const folder = op.type === "ponto_out" ? "entradas" : "saidas";
-    const url = await uploadFn(blob, "photo", "ferramentas", folder);
+    // Correct folder: checkout/ponto_in = saidas; checkin/ponto_out = entradas
+    const isReturn = op.type === "checkin" || op.type === "ponto_out";
+    const folder = isReturn ? "entradas" : "saidas";
+    const bucket = op.type.startsWith("ponto") ? "ponto" : "ferramentas";
+    const url = await uploadFn(blob, "photo", bucket, folder);
     await deletePhotosByOperation(op.id);
     return url;
   }, []);
@@ -295,18 +303,19 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       setPendingOperations(retryOps);
     } else {
       clearPendingOperations();
-      // Clean up ID map if everything synced
+      // Clean up ID map only if NO failures (pending or permanent)
       if (newFailed.length === 0) {
         clearIdMap();
-      }
-      try {
-        const remainingPhotos = await getOfflinePhotosCount();
-        if (remainingPhotos > 0) {
-          await clearAllOfflinePhotos();
-          console.log("IndexedDB photos cleaned up after full sync");
+        // Only clear ALL photos when nothing pending/failed remains
+        try {
+          const remainingPhotos = await getOfflinePhotosCount();
+          if (remainingPhotos > 0) {
+            await clearAllOfflinePhotos();
+            console.log("IndexedDB photos cleaned up after full sync");
+          }
+        } catch (e) {
+          console.error("Error cleaning IndexedDB:", e);
         }
-      } catch (e) {
-        console.error("Error cleaning IndexedDB:", e);
       }
     }
 
