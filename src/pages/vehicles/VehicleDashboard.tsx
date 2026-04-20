@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Plus, Pencil, Trash2, Upload, Loader2, Cog } from "lucide-react";
+import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Plus, Pencil, Trash2, Loader2, Cog } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,6 @@ import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { SignedImage } from "@/components/SignedImage";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface VehicleForm {
@@ -148,10 +147,8 @@ export default function VehicleDashboard() {
       color: vehicle.color || "",
       vehicle_type: (vehicle.vehicle_type as "vehicle" | "platform") || "vehicle",
     });
-    
     setDialogOpen(true);
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -419,20 +416,11 @@ export default function VehicleDashboard() {
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex gap-3 flex-1 min-w-0">
-                          <div
-                            className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center"
-                            onClick={(e) => { if (vehicle.image_url) { e.stopPropagation(); setEnlargedImage(vehicle.image_url); } }}
-                          >
-                            {vehicle.image_url ? (
-                              vehicle.image_url.startsWith("http") ? (
-                                <img src={vehicle.image_url} alt={vehicle.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <SignedImage storagePath={vehicle.image_url} alt={vehicle.name} className="w-full h-full object-cover" />
-                              )
-                            ) : vehicle.vehicle_type === "platform" ? (
-                              <Cog className="w-6 h-6 text-muted-foreground" />
+                          <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                            {vehicle.vehicle_type === "platform" ? (
+                              <Cog className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
                             ) : (
-                              <Car className="w-6 h-6 text-muted-foreground" />
+                              <Car className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -536,24 +524,7 @@ export default function VehicleDashboard() {
                 <Input id="v-color" value={formData.color} onChange={(e) => setFormData({ ...formData, color: e.target.value })} />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Foto do Veículo</Label>
-              <div>
-                <input id="v-image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                <Button type="button" variant="outline" className="gap-2" onClick={() => document.getElementById("v-image")?.click()}>
-                  <Upload className="h-4 w-4" /> Escolher Foto
-                </Button>
-              </div>
-              {imagePreview && (
-                <div className="relative inline-block mt-2">
-                  <img src={imagePreview} alt="Preview" className="h-32 w-32 object-cover rounded-lg border cursor-pointer" onClick={() => setEnlargedImage(imagePreview)} />
-                  <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={saving} className="flex-1">
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingId ? "Atualizar" : "Cadastrar"}
@@ -563,7 +534,6 @@ export default function VehicleDashboard() {
           </form>
         </DialogContent>
       </Dialog>
-
 
       <DeleteWithReasonDialog
         open={deleteDialogOpen}
