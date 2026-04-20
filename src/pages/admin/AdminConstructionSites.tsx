@@ -432,28 +432,28 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA OBRAS ─── */}
         <TabsContent value="obras" className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p className="text-xs text-muted-foreground">
-              Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastSiteSync)}</span>
-            </p>
-            <Button
-              variant="outline"
-              className="gap-2"
-              disabled={syncMutation.isPending}
-              onClick={() => syncMutation.mutate()}
-            >
-              <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-              Sincronizar Trello
-            </Button>
-          </div>
-
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                Obras Cadastradas
-              </CardTitle>
-              <CardDescription>{sites?.length || 0} obras no sistema</CardDescription>
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between space-y-0">
+              <div className="space-y-1.5">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  Obras Cadastradas
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {sites?.length || 0} obras no sistema · Última sincronização:{" "}
+                  <span className="font-medium text-foreground">{formatLastSync(lastSiteSync)}</span>
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 w-full sm:w-auto shrink-0"
+                disabled={syncMutation.isPending}
+                onClick={() => syncMutation.mutate()}
+              >
+                <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+                Sincronizar Trello
+              </Button>
             </CardHeader>
             <CardContent>
               {loadingSites ? (
@@ -510,12 +510,12 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA CLIENTES ─── */}
         <TabsContent value="clientes" className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Buscar cliente..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-10" />
             </div>
-            <Button onClick={openNewClient} className="gap-2">
+            <Button onClick={openNewClient} size="sm" className="gap-2 w-full sm:w-auto shrink-0">
               <Plus className="w-4 h-4" />Novo Cliente
             </Button>
           </div>
@@ -567,34 +567,39 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA FERRAMENTAS ─── */}
         <TabsContent value="ferramentas" className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input 
-                placeholder="Buscar ferramenta, TAG ou marca..." 
-                value={toolSearch} 
-                onChange={(e) => setToolSearch(e.target.value)} 
-                className="pl-10" 
-              />
-            </div>
-            <Button
-              variant="outline"
-              className="gap-2"
-              disabled={syncToolsMutation.isPending}
-              onClick={() => syncToolsMutation.mutate()}
-            >
-              <RefreshCw className={`w-4 h-4 ${syncToolsMutation.isPending ? "animate-spin" : ""}`} />
-              Sincronizar Planilha
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastToolSync)}</span>
-          </p>
-
           <Card>
-            <CardHeader>
-              <CardTitle>Inventário de Ferramentas</CardTitle>
-              <CardDescription>{tools.length} ferramentas catalogadas via Google Sheets</CardDescription>
+            <CardHeader className="space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1.5">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Wrench className="w-5 h-5 text-primary" />
+                    Inventário de Ferramentas
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {tools.length} ferramentas catalogadas · Última sincronização:{" "}
+                    <span className="font-medium text-foreground">{formatLastSync(lastToolSync)}</span>
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 w-full sm:w-auto shrink-0"
+                  disabled={syncToolsMutation.isPending}
+                  onClick={() => syncToolsMutation.mutate()}
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncToolsMutation.isPending ? "animate-spin" : ""}`} />
+                  Sincronizar Planilha
+                </Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar ferramenta, TAG ou marca..."
+                  value={toolSearch}
+                  onChange={(e) => setToolSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               {loadingTools ? (
@@ -647,25 +652,29 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA VEÍCULOS ─── */}
         <TabsContent value="veiculos" className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome, placa, marca ou modelo..."
-                value={vehicleSearch}
-                onChange={(e) => setVehicleSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button onClick={openNewVehicle} className="gap-2">
-              <Plus className="w-4 h-4" /> Novo Veículo
-            </Button>
-          </div>
-
           <Card>
-            <CardHeader>
-              <CardTitle>Inventário de Veículos</CardTitle>
-              <CardDescription>{vehicles.length} veículos cadastrados</CardDescription>
+            <CardHeader className="space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-1.5">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Car className="w-5 h-5 text-primary" />
+                    Inventário de Veículos
+                  </CardTitle>
+                  <CardDescription className="text-xs">{vehicles.length} veículos cadastrados</CardDescription>
+                </div>
+                <Button onClick={openNewVehicle} size="sm" className="gap-2 w-full sm:w-auto shrink-0">
+                  <Plus className="w-4 h-4" /> Novo Veículo
+                </Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, placa, marca ou modelo..."
+                  value={vehicleSearch}
+                  onChange={(e) => setVehicleSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </CardHeader>
             <CardContent>
               {loadingVehicles ? (
