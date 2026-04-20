@@ -164,7 +164,7 @@ const App = () => (
                     <Route path="/admin/audit" element={<Layout><AdminAudit /></Layout>} />
                     
                     {/* Ponto Online Routes */}
-                    <Route path="/ponto" element={<Layout><PontoDashboard /></Layout>} />
+                    <Route path="/ponto" element={<Navigate to="/ponto/registrar" replace />} />
                     <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
                     <Route path="/ponto/historico" element={<Navigate to="/historico?tipo=ponto" replace />} />
                     <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />

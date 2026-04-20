@@ -96,7 +96,6 @@ export function AppSidebar() {
           {
             label: "Ponto Online",
             items: [
-              { title: "Painel", url: "/ponto", icon: Clock },
               { title: "Registrar", url: "/ponto/registrar", icon: Clock },
               { title: "Gerenciar", url: "/ponto/admin", icon: Users },
             ],
