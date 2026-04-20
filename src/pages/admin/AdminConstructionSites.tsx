@@ -636,42 +636,71 @@ export default function AdminConstructionSites() {
               ) : filteredTools.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Nenhuma ferramenta encontrada</p>
               ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>TAG</TableHead>
-                        <TableHead>Marca</TableHead>
-                        <TableHead>Condição</TableHead>
-                        <TableHead>Qtd. Disp/Total</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredTools.map((tool) => (
-                        <TableRow key={tool.id}>
-                          <TableCell className="font-medium">{tool.name}</TableCell>
-                          <TableCell>{tool.tag || "-"}</TableCell>
-                          <TableCell>{tool.brand || "-"}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={getConditionClass(tool.condition)}>
-                              {getConditionLabel(tool.condition)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
+                <>
+                  {/* Mobile cards */}
+                  <div className="space-y-2 sm:hidden">
+                    {filteredTools.map((tool) => (
+                      <div key={tool.id} className="border rounded-lg p-3 space-y-2 bg-card">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{tool.name}</p>
+                            <p className="text-[11px] text-muted-foreground truncate">
+                              {[tool.brand, tool.tag].filter(Boolean).join(" · ") || "-"}
+                            </p>
+                          </div>
+                          <Button variant="ghost" size="sm" className="h-7 px-2 shrink-0" onClick={() => navigate(`/ferramentas/${tool.id}`)}>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge variant="outline" className={`${getConditionClass(tool.condition)} text-[10px]`}>
+                            {getConditionLabel(tool.condition)}
+                          </Badge>
+                          <span className="text-[11px] text-muted-foreground">
                             {tool.quantity_available}/{tool.quantity_total}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="sm" onClick={() => navigate(`/ferramentas/${tool.id}`)}>
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                          </TableCell>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop table */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>TAG</TableHead>
+                          <TableHead className="hidden md:table-cell">Marca</TableHead>
+                          <TableHead>Condição</TableHead>
+                          <TableHead className="hidden lg:table-cell">Qtd. Disp/Total</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredTools.map((tool) => (
+                          <TableRow key={tool.id}>
+                            <TableCell className="font-medium">{tool.name}</TableCell>
+                            <TableCell>{tool.tag || "-"}</TableCell>
+                            <TableCell className="hidden md:table-cell">{tool.brand || "-"}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={getConditionClass(tool.condition)}>
+                                {getConditionLabel(tool.condition)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              {tool.quantity_available}/{tool.quantity_total}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm" onClick={() => navigate(`/ferramentas/${tool.id}`)}>
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
