@@ -305,31 +305,22 @@ export default function VehicleDashboard() {
                   <Card key={vehicle.id} className="hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => navigate(`/veiculos/${vehicle.id}`)}>
                     <CardContent className="p-3 sm:p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex gap-3 flex-1 min-w-0">
-                          <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                            {vehicle.vehicle_type === "platform" ? (
-                              <Cog className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
-                            ) : (
-                              <Car className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-sm sm:text-base">{vehicle.name}</h3>
+                            <Badge variant="secondary" className="text-xs font-mono">{vehicle.plate}</Badge>
+                            {vehicle.vehicle_type === "platform" && (
+                              <Badge variant="outline" className="text-xs">Plataforma</Badge>
                             )}
+                            <span className={`text-xs font-medium ${isAvailable ? "text-success" : "text-warning"}`}>
+                              {isAvailable ? "Disponível" : "Em uso"}
+                            </span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-sm sm:text-base">{vehicle.name}</h3>
-                              <Badge variant="secondary" className="text-xs font-mono">{vehicle.plate}</Badge>
-                              {vehicle.vehicle_type === "platform" && (
-                                <Badge variant="outline" className="text-xs">Plataforma</Badge>
-                              )}
-                              <span className={`text-xs font-medium ${isAvailable ? "text-success" : "text-warning"}`}>
-                                {isAvailable ? "Disponível" : "Em uso"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground">
-                              {vehicle.brand && <span>{vehicle.brand}</span>}
-                              {vehicle.model && <span>• {vehicle.model}</span>}
-                              {vehicle.color && <span>• {vehicle.color}</span>}
-                              {vehicle.year && <span>• {vehicle.year}</span>}
-                            </div>
+                          <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground">
+                            {vehicle.brand && <span>{vehicle.brand}</span>}
+                            {vehicle.model && <span>• {vehicle.model}</span>}
+                            {vehicle.color && <span>• {vehicle.color}</span>}
+                            {vehicle.year && <span>• {vehicle.year}</span>}
                           </div>
                         </div>
                         <div className="flex gap-2 shrink-0 flex-wrap" onClick={(e) => e.stopPropagation()}>
