@@ -20,7 +20,7 @@ import { reverseGeocode, geocodeAddress, calculateRoute } from "@/lib/geocoding"
 import type { RouteEstimate as RouteEstimateType } from "@/lib/geocoding";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+import VehiclePhotoCapture, { getRequiredPhotoKeys } from "@/components/VehiclePhotoCapture";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
@@ -46,8 +46,8 @@ export default function VehicleCheckout() {
   const [routeEstimate, setRouteEstimate] = useState<RouteEstimateType | null>(null);
   const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
-  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
-  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+  const [photos, setPhotos] = useState<Record<string, File | null>>({});
+  const [previews, setPreviews] = useState<Record<string, string | null>>({});
 
   const hasUnsavedData = !!(selectedVehicle || destination || notes || Object.values(photos).some(Boolean));
   useUnsavedChanges(hasUnsavedData);
@@ -56,8 +56,6 @@ export default function VehicleCheckout() {
     setPhotos(prev => ({ ...prev, [key]: file }));
     setPreviews(prev => ({ ...prev, [key]: preview }));
   };
-
-  const allPhotos = Object.values(photos).every(Boolean);
 
   const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
 
