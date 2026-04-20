@@ -13,7 +13,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2, Wrench, ExternalLink } from "lucide-react";
+import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2, Wrench, ExternalLink, Car, Cog } from "lucide-react";
+import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface ConstructionSite {
   id: string;
@@ -73,6 +74,18 @@ export default function AdminConstructionSites() {
   // Tools state
   const [toolSearch, setToolSearch] = useState("");
   const [syncingTools, setSyncingTools] = useState(false);
+
+  // Vehicles state
+  const [vehicleSearch, setVehicleSearch] = useState("");
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const [savingVehicle, setSavingVehicle] = useState(false);
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+  const [vehicleForm, setVehicleForm] = useState({
+    name: "", plate: "", brand: "", model: "", year: "", color: "",
+    vehicle_type: "vehicle" as "vehicle" | "platform",
+  });
+  const [deleteVehicleOpen, setDeleteVehicleOpen] = useState(false);
+  const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
@@ -188,6 +201,104 @@ export default function AdminConstructionSites() {
     },
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
+
+  // ─── Veículos ───
+  const { data: vehicles = [], isLoading: loadingVehicles, refetch: refetchVehicles } = useQuery({
+    queryKey: ["admin-vehicles"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("vehicles").select("*").order("name");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const filteredVehicles = vehicles.filter((v: any) =>
+    !vehicleSearch ||
+    v.name.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+    v.plate?.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+    v.brand?.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+    v.model?.toLowerCase().includes(vehicleSearch.toLowerCase())
+  );
+
+  const resetVehicleForm = () => {
+    setEditingVehicleId(null);
+    setVehicleForm({ name: "", plate: "", brand: "", model: "", year: "", color: "", vehicle_type: "vehicle" });
+  };
+
+  const openNewVehicle = () => {
+    resetVehicleForm();
+    setVehicleDialogOpen(true);
+  };
+
+  const openEditVehicle = (v: any) => {
+    setEditingVehicleId(v.id);
+    setVehicleForm({
+      name: v.name,
+      plate: v.plate,
+      brand: v.brand || "",
+      model: v.model || "",
+      year: v.year?.toString() || "",
+      color: v.color || "",
+      vehicle_type: (v.vehicle_type as "vehicle" | "platform") || "vehicle",
+    });
+    setVehicleDialogOpen(true);
+  };
+
+  const handleSaveVehicle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingVehicle(true);
+    try {
+      const payload = {
+        name: vehicleForm.name,
+        plate: vehicleForm.plate.toUpperCase(),
+        brand: vehicleForm.brand || null,
+        model: vehicleForm.model || null,
+        year: vehicleForm.year ? parseInt(vehicleForm.year) : null,
+        color: vehicleForm.color || null,
+        vehicle_type: vehicleForm.vehicle_type,
+      };
+      if (editingVehicleId) {
+        const { error } = await supabase.from("vehicles").update(payload).eq("id", editingVehicleId);
+        if (error) throw error;
+        toast.success("Veículo atualizado!");
+      } else {
+        const { error } = await supabase.from("vehicles").insert({ ...payload, created_by: profile!.id });
+        if (error) throw error;
+        toast.success("Veículo cadastrado!");
+      }
+      setVehicleDialogOpen(false);
+      resetVehicleForm();
+      refetchVehicles();
+      queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
+    } catch (err: any) {
+      toast.error("Erro ao salvar", { description: err.message });
+    } finally {
+      setSavingVehicle(false);
+    }
+  };
+
+  const handleDeleteVehicleConfirm = async (reason: string) => {
+    if (!deletingVehicle) return;
+    try {
+      await supabase.from("system_logs").insert({
+        action: "delete_reason",
+        entity_type: "vehicle",
+        entity_id: deletingVehicle.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: { vehicle_name: deletingVehicle.name, plate: deletingVehicle.plate, reason },
+      });
+      const { error } = await supabase.from("vehicles").delete().eq("id", deletingVehicle.id);
+      if (error) throw error;
+      toast.success("Veículo excluído!");
+      refetchVehicles();
+      queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
+    } catch (err: any) {
+      toast.error("Erro ao excluir", { description: err.message });
+    }
+  };
 
   const openNewClient = () => {
     setEditingClient(null);
@@ -308,7 +419,7 @@ export default function AdminConstructionSites() {
       </div>
 
       <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="obras" className="gap-2">
             <Building2 className="w-4 h-4" />
             Obras
@@ -320,6 +431,10 @@ export default function AdminConstructionSites() {
           <TabsTrigger value="ferramentas" className="gap-2">
             <Wrench className="w-4 h-4" />
             Ferramentas
+          </TabsTrigger>
+          <TabsTrigger value="veiculos" className="gap-2">
+            <Car className="w-4 h-4" />
+            Veículos
           </TabsTrigger>
         </TabsList>
 
@@ -537,6 +652,83 @@ export default function AdminConstructionSites() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* ─── ABA VEÍCULOS ─── */}
+        <TabsContent value="veiculos" className="space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome, placa, marca ou modelo..."
+                value={vehicleSearch}
+                onChange={(e) => setVehicleSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button onClick={openNewVehicle} className="gap-2">
+              <Plus className="w-4 h-4" /> Novo Veículo
+            </Button>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Inventário de Veículos</CardTitle>
+              <CardDescription>{vehicles.length} veículos cadastrados</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingVehicles ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : filteredVehicles.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Nenhum veículo encontrado</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Placa</TableHead>
+                        <TableHead>Marca/Modelo</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredVehicles.map((v: any) => (
+                        <TableRow key={v.id}>
+                          <TableCell className="font-medium">{v.name}</TableCell>
+                          <TableCell className="font-mono text-xs">{v.plate}</TableCell>
+                          <TableCell>{[v.brand, v.model].filter(Boolean).join(" ") || "-"}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="gap-1">
+                              {v.vehicle_type === "platform" ? <Cog className="w-3 h-3" /> : <Car className="w-3 h-3" />}
+                              {v.vehicle_type === "platform" ? "Plataforma" : "Veículo"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={v.status === "available" ? "default" : "secondary"}>
+                              {v.status === "available" ? "Disponível" : "Em uso"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="sm" onClick={() => openEditVehicle(v)} aria-label="Editar veículo">
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => { setDeletingVehicle(v); setDeleteVehicleOpen(true); }} aria-label="Excluir veículo">
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Dialog de Cliente */}
@@ -601,6 +793,73 @@ export default function AdminConstructionSites() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Veículo */}
+      <Dialog open={vehicleDialogOpen} onOpenChange={(open) => { setVehicleDialogOpen(open); if (!open) resetVehicleForm(); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingVehicleId ? "Editar Veículo" : "Novo Veículo"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveVehicle} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Tipo *</Label>
+              <Select value={vehicleForm.vehicle_type} onValueChange={(v: "vehicle" | "platform") => setVehicleForm({ ...vehicleForm, vehicle_type: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vehicle">Veículo</SelectItem>
+                  <SelectItem value="platform">Plataforma</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nome *</Label>
+                <Input value={vehicleForm.name} onChange={(e) => setVehicleForm({ ...vehicleForm, name: e.target.value })} required />
+              </div>
+              <div className="space-y-2">
+                <Label>{vehicleForm.vehicle_type === "platform" ? "Identificação *" : "Placa *"}</Label>
+                <Input value={vehicleForm.plate} onChange={(e) => setVehicleForm({ ...vehicleForm, plate: e.target.value })} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Marca</Label>
+                <Input value={vehicleForm.brand} onChange={(e) => setVehicleForm({ ...vehicleForm, brand: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Modelo</Label>
+                <Input value={vehicleForm.model} onChange={(e) => setVehicleForm({ ...vehicleForm, model: e.target.value })} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Ano</Label>
+                <Input type="number" value={vehicleForm.year} onChange={(e) => setVehicleForm({ ...vehicleForm, year: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Cor</Label>
+                <Input value={vehicleForm.color} onChange={(e) => setVehicleForm({ ...vehicleForm, color: e.target.value })} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setVehicleDialogOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={savingVehicle}>
+                {savingVehicle && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {editingVehicleId ? "Salvar" : "Cadastrar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteVehicleOpen}
+        onOpenChange={setDeleteVehicleOpen}
+        onConfirm={handleDeleteVehicleConfirm}
+        title="Excluir Veículo"
+        description="Esta ação não pode ser desfeita. Informe o motivo para registro de auditoria."
+        itemName={deletingVehicle ? `${deletingVehicle.name} (${deletingVehicle.plate})` : ""}
+      />
 
     </div>
   );

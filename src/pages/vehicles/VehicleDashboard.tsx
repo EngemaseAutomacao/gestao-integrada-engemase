@@ -1,12 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Plus, Pencil, Trash2, Loader2, Cog } from "lucide-react";
+import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Cog } from "lucide-react";
 import { toast } from "sonner";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMemo, useState } from "react";
@@ -14,26 +13,10 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
-
-interface VehicleForm {
-  name: string;
-  plate: string;
-  brand: string;
-  model: string;
-  year: string;
-  color: string;
-  vehicle_type: "vehicle" | "platform";
-}
-
-const emptyForm: VehicleForm = { name: "", plate: "", brand: "", model: "", year: "", color: "", vehicle_type: "vehicle" };
 
 export default function VehicleDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const isAdmin = profile?.role === "admin";
 
   const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,14 +24,6 @@ export default function VehicleDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
-
-  // Admin CRUD state
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<VehicleForm>(emptyForm);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
 
   const { data: stats } = useQuery({
     queryKey: ["vehicle-stats"],
@@ -124,86 +99,6 @@ export default function VehicleDashboard() {
   const myActiveVehicleIds = new Set(
     (myVehicleCheckouts || []).map((c: any) => c.vehicle_id)
   );
-
-  // Admin CRUD handlers
-  const resetForm = () => {
-    setEditingId(null);
-    setFormData(emptyForm);
-  };
-
-  const openNew = () => {
-    resetForm();
-    setDialogOpen(true);
-  };
-
-  const openEdit = (vehicle: any) => {
-    setEditingId(vehicle.id);
-    setFormData({
-      name: vehicle.name,
-      plate: vehicle.plate,
-      brand: vehicle.brand || "",
-      model: vehicle.model || "",
-      year: vehicle.year?.toString() || "",
-      color: vehicle.color || "",
-      vehicle_type: (vehicle.vehicle_type as "vehicle" | "platform") || "vehicle",
-    });
-    setDialogOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      const payload = {
-        name: formData.name,
-        plate: formData.plate.toUpperCase(),
-        brand: formData.brand || null,
-        model: formData.model || null,
-        year: formData.year ? parseInt(formData.year) : null,
-        color: formData.color || null,
-        vehicle_type: formData.vehicle_type,
-      };
-
-      if (editingId) {
-        const { error } = await supabase.from("vehicles").update(payload).eq("id", editingId);
-        if (error) throw error;
-        toast.success("Veículo atualizado!");
-      } else {
-        const { error } = await supabase.from("vehicles").insert({ ...payload, created_by: profile!.id });
-        if (error) throw error;
-        toast.success("Veículo cadastrado!");
-      }
-      setDialogOpen(false);
-      resetForm();
-      queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
-    } catch (error: any) {
-      toast.error("Erro ao salvar", { description: error.message });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDeleteConfirm = async (reason: string) => {
-    if (!deletingVehicle) return;
-    try {
-      await supabase.from("system_logs").insert({
-        action: "delete_reason",
-        entity_type: "vehicle",
-        entity_id: deletingVehicle.id,
-        user_id: profile!.id,
-        user_name: profile!.full_name,
-        details: { vehicle_name: deletingVehicle.name, plate: deletingVehicle.plate, reason },
-      });
-      const { error } = await supabase.from("vehicles").delete().eq("id", deletingVehicle.id);
-      if (error) throw error;
-      toast.success("Veículo excluído!");
-      queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
-      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
-    } catch (error: any) {
-      toast.error("Erro ao excluir", { description: error.message });
-    }
-  };
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -293,11 +188,6 @@ export default function VehicleDashboard() {
               </CardDescription>
             </div>
             <div className="flex gap-1 flex-wrap">
-              {isAdmin && (
-                <Button size="sm" className="text-xs gap-1" onClick={openNew}>
-                  <Plus className="w-3.5 h-3.5" /> Adicionar
-                </Button>
-              )}
               <Button
                 size="sm" variant="outline" className="text-xs gap-1"
                 onClick={() => {
@@ -453,16 +343,6 @@ export default function VehicleDashboard() {
                               Registrar Devolução
                             </Button>
                           )}
-                          {isAdmin && (
-                            <>
-                              <Button size="sm" variant="ghost" onClick={() => openEdit(vehicle)} aria-label="Editar veículo">
-                                <Pencil className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button size="sm" variant="ghost" onClick={() => { setDeletingVehicle(vehicle); setDeleteDialogOpen(true); }} aria-label="Excluir veículo">
-                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                              </Button>
-                            </>
-                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -473,76 +353,6 @@ export default function VehicleDashboard() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Add/Edit Dialog (admin) */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{editingId ? "Editar Veículo" : "Adicionar Veículo"}</DialogTitle>
-            <DialogDescription>
-              {editingId ? "Atualize os dados do veículo" : "Cadastre um novo veículo no sistema"}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="v-type">Tipo *</Label>
-              <Select value={formData.vehicle_type} onValueChange={(v: "vehicle" | "platform") => setFormData({ ...formData, vehicle_type: v })}>
-                <SelectTrigger id="v-type"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="vehicle">Veículo</SelectItem>
-                  <SelectItem value="platform">Plataforma</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="v-name">Nome *</Label>
-                <Input id="v-name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="v-plate">{formData.vehicle_type === "platform" ? "Identificação *" : "Placa *"}</Label>
-                <Input id="v-plate" value={formData.plate} onChange={(e) => setFormData({ ...formData, plate: e.target.value })} required />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="v-brand">Marca</Label>
-                <Input id="v-brand" value={formData.brand} onChange={(e) => setFormData({ ...formData, brand: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="v-model">Modelo</Label>
-                <Input id="v-model" value={formData.model} onChange={(e) => setFormData({ ...formData, model: e.target.value })} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="v-year">Ano</Label>
-                <Input id="v-year" type="number" value={formData.year} onChange={(e) => setFormData({ ...formData, year: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="v-color">Cor</Label>
-                <Input id="v-color" value={formData.color} onChange={(e) => setFormData({ ...formData, color: e.target.value })} />
-              </div>
-            </div>
-            <div className="flex gap-3 pt-2">
-              <Button type="submit" disabled={saving} className="flex-1">
-                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {editingId ? "Atualizar" : "Cadastrar"}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <DeleteWithReasonDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDeleteConfirm}
-        title="Excluir Veículo"
-        description="Esta ação não pode ser desfeita. Informe o motivo para registro de auditoria."
-        itemName={deletingVehicle ? `${deletingVehicle.name} (${deletingVehicle.plate})` : ""}
-      />
     </div>
   );
 }
