@@ -794,6 +794,73 @@ export default function AdminConstructionSites() {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog de Veículo */}
+      <Dialog open={vehicleDialogOpen} onOpenChange={(open) => { setVehicleDialogOpen(open); if (!open) resetVehicleForm(); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingVehicleId ? "Editar Veículo" : "Novo Veículo"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveVehicle} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Tipo *</Label>
+              <Select value={vehicleForm.vehicle_type} onValueChange={(v: "vehicle" | "platform") => setVehicleForm({ ...vehicleForm, vehicle_type: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vehicle">Veículo</SelectItem>
+                  <SelectItem value="platform">Plataforma</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Nome *</Label>
+                <Input value={vehicleForm.name} onChange={(e) => setVehicleForm({ ...vehicleForm, name: e.target.value })} required />
+              </div>
+              <div className="space-y-2">
+                <Label>{vehicleForm.vehicle_type === "platform" ? "Identificação *" : "Placa *"}</Label>
+                <Input value={vehicleForm.plate} onChange={(e) => setVehicleForm({ ...vehicleForm, plate: e.target.value })} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Marca</Label>
+                <Input value={vehicleForm.brand} onChange={(e) => setVehicleForm({ ...vehicleForm, brand: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Modelo</Label>
+                <Input value={vehicleForm.model} onChange={(e) => setVehicleForm({ ...vehicleForm, model: e.target.value })} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Ano</Label>
+                <Input type="number" value={vehicleForm.year} onChange={(e) => setVehicleForm({ ...vehicleForm, year: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Cor</Label>
+                <Input value={vehicleForm.color} onChange={(e) => setVehicleForm({ ...vehicleForm, color: e.target.value })} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setVehicleDialogOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={savingVehicle}>
+                {savingVehicle && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {editingVehicleId ? "Salvar" : "Cadastrar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteWithReasonDialog
+        open={deleteVehicleOpen}
+        onOpenChange={setDeleteVehicleOpen}
+        onConfirm={handleDeleteVehicleConfirm}
+        title="Excluir Veículo"
+        description="Esta ação não pode ser desfeita. Informe o motivo para registro de auditoria."
+        itemName={deletingVehicle ? `${deletingVehicle.name} (${deletingVehicle.plate})` : ""}
+      />
+
     </div>
   );
 }
