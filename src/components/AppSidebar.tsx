@@ -91,14 +91,17 @@ export function AppSidebar() {
           : []),
       ],
     },
+    {
+      label: "Ponto Online",
+      items: [
+        { title: "Registrar", url: "/ponto/registrar", icon: Clock },
+        ...(isAdmin
+          ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }]
+          : []),
+      ],
+    },
     ...(isAdmin
       ? [
-          {
-            label: "Ponto Online",
-            items: [
-              { title: "Registrar", url: "/ponto/registrar", icon: Clock },
-            ],
-          },
           {
             label: "Administração",
             items: [
