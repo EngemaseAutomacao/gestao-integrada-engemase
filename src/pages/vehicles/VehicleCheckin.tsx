@@ -122,24 +122,30 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
+      if (!isPlatform && refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
-      const currentCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+      const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
 
       const updateData: any = {
         status: "checked_in",
         checkin_date: new Date().toISOString(),
-        km_checkin: manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0),
         checked_in_by: user.id,
         notes: notes || undefined,
-        refueled: refueled === "yes",
       };
+
+      if (isPlatform) {
+        if (chargesDuringUse.trim()) {
+          updateData.charges_during_use = parseInt(chargesDuringUse) || 0;
+        }
+      } else {
+        updateData.km_checkin = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+        updateData.refueled = refueled === "yes";
+      }
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
-        const photoKeys = ["front", "back", "left", "right", "dashboard"];
         let photosSaved = 0;
-        for (const key of photoKeys) {
+        for (const key of requiredPhotoKeys) {
           if (photos[key]) {
             try {
               const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
@@ -165,24 +171,30 @@ export default function VehicleCheckin() {
         return;
       }
 
-      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
+      if (!allPhotos) {
+        throw new Error(isPlatform
+          ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
+          : "Tire todas as fotos do veículo (incluindo painel)");
+      }
 
-      // Skip re-uploading if photos were already uploaded (retry after manual km)
+      // Upload all required photos in parallel (skip if already uploaded - retry after manual km)
       let urls = uploadedPhotoUrls;
       if (!urls) {
-        const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
-          uploadPhoto(photos.front!, "front_in"),
-          uploadPhoto(photos.back!, "back_in"),
-          uploadPhoto(photos.left!, "left_in"),
-          uploadPhoto(photos.right!, "right_in"),
-          uploadPhoto(photos.dashboard!, "dashboard_in"),
-        ]);
-        urls = { front: frontUrl, back: backUrl, left: leftUrl, right: rightUrl, dashboard: dashboardUrl };
+        const uploadResults = await Promise.all(
+          requiredPhotoKeys.map(async (key) => {
+            const url = await uploadPhoto(photos[key]!, `${key}_in`);
+            return { key, url };
+          })
+        );
+        urls = {};
+        for (const { key, url } of uploadResults) {
+          urls[key] = url;
+        }
         setUploadedPhotoUrls(urls);
       }
 
-      // Try to estimate km from dashboard photos (only on first attempt)
-      if (!odometerResult && !showManualKm && currentCheckoutData?.photo_dashboard_checkout) {
+      // Try to estimate km from dashboard photos (only for vehicles, not platforms)
+      if (!isPlatform && !odometerResult && !showManualKm && currentCheckoutData?.photo_dashboard_checkout && urls.dashboard) {
         setIsEstimatingKm(true);
         try {
           const { data: odometerData, error: odometerError } = await supabase.functions.invoke("read-odometer", {
@@ -206,7 +218,7 @@ export default function VehicleCheckin() {
             } else {
               setShowManualKm(true);
               toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente.");
-              return; // Stop - user needs to enter km manually and resubmit
+              return;
             }
           }
         } catch (e) {
@@ -219,28 +231,25 @@ export default function VehicleCheckin() {
             notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
           });
           toast.warning("Não foi possível estimar a quilometragem. Informe manualmente.");
-          return; // Stop - user needs to enter km manually and resubmit
+          return;
         }
       }
 
-      // If manual km was provided, use it
-      if (manualKm) {
+      if (!isPlatform && manualKm) {
         updateData.km_checkin = parseInt(manualKm);
+      }
+
+      // Apply photo URLs to update payload
+      const finalUpdate: any = { ...updateData };
+      for (const key of requiredPhotoKeys) {
+        const col = photoColumnMap[key];
+        if (col && urls[key]) finalUpdate[col] = urls[key];
       }
 
       const { error } = await supabase
         .from("vehicle_checkouts")
-        .update({
-          ...updateData,
-          photo_front_checkin: urls.front,
-          photo_back_checkin: urls.back,
-          photo_left_checkin: urls.left,
-          photo_right_checkin: urls.right,
-          photo_dashboard_checkin: urls.dashboard,
-        })
+        .update(finalUpdate)
         .eq("id", selectedCheckout);
-
-      if (error) throw error;
 
       if (error) throw error;
     },
@@ -268,7 +277,7 @@ export default function VehicleCheckin() {
     checkinMutation.mutate();
   };
 
-  const selectedCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+  // selectedCheckoutData defined above
 
   const confidenceBadge = (confidence: string) => {
     switch (confidence) {
