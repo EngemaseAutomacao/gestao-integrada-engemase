@@ -434,6 +434,7 @@ export default function PontoRegister() {
         onPhotoReset={handlePhotoReset}
         photoTitle={openEntry ? "Foto de saída" : "Foto de entrada"}
         showEntryType={!openEntry}
+        hideContextFields={!!openEntry}
       />
 
       {/* Action buttons */}

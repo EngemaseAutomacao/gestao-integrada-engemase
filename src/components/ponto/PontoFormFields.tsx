@@ -47,6 +47,7 @@ interface PontoFormFieldsProps {
   onPhotoReset: () => void;
   photoTitle: string;
   showEntryType?: boolean;
+  hideContextFields?: boolean;
 }
 
 export function PontoFormFields({
@@ -66,10 +67,11 @@ export function PontoFormFields({
   onPhotoReset,
   photoTitle,
   showEntryType = true,
+  hideContextFields = false,
 }: PontoFormFieldsProps) {
   return (
     <>
-      {showEntryType && (
+      {showEntryType && !hideContextFields && (
         <div className="space-y-2">
           <Label>Tipo de Registro *</Label>
           <Select value={entryType} onValueChange={(v) => { onEntryTypeChange(v); onConstructionSiteChange(""); onClientNameChange(""); }}>
@@ -85,7 +87,7 @@ export function PontoFormFields({
         </div>
       )}
 
-      {entryType === "obra" && (
+      {entryType === "obra" && !hideContextFields && (
         <div className="space-y-2">
           <Label className="flex items-center gap-1.5">
             <Building2 className="w-3.5 h-3.5" />
@@ -106,7 +108,7 @@ export function PontoFormFields({
         </div>
       )}
 
-      {entryType === "cliente" && (
+      {entryType === "cliente" && !hideContextFields && (
         <div className="space-y-2">
           <Label className="flex items-center gap-1.5">
             <User className="w-3.5 h-3.5" />
