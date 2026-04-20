@@ -119,7 +119,7 @@ const App = () => (
                     {/* Ferramentas Routes */}
                     <Route path="/ferramentas" element={<Navigate to="/ferramentas/dashboard" replace />} />
                     <Route path="/ferramentas/dashboard" element={<Layout><Dashboard /></Layout>} />
-                    <Route path="/ferramentas/lista" element={<Layout><Tools /></Layout>} />
+                    <Route path="/ferramentas/lista" element={<Navigate to="/ferramentas/dashboard" replace />} />
                     <Route path="/ferramentas/:id" element={<Layout><ToolDetail /></Layout>} />
                     <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
                     <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
@@ -129,7 +129,7 @@ const App = () => (
                     {/* Veículos Routes */}
                     <Route path="/veiculos" element={<Navigate to="/veiculos/dashboard" replace />} />
                     <Route path="/veiculos/dashboard" element={<Layout><VehicleDashboard /></Layout>} />
-                    <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
+                    <Route path="/veiculos/lista" element={<Navigate to="/veiculos/dashboard" replace />} />
                     <Route path="/veiculos/:id" element={<Layout><VehicleDetail /></Layout>} />
                     <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                     <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />

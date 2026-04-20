@@ -79,8 +79,7 @@ export function AppSidebar() {
     {
       label: "Ferramentas",
       items: [
-        { title: "Painel", url: "/ferramentas/dashboard", icon: BarChart3 },
-        { title: "Catálogo", url: "/ferramentas/lista", icon: Package },
+        { title: "Painel & Catálogo", url: "/ferramentas/dashboard", icon: Package },
         { title: "Registrar Saída", url: "/ferramentas/retirada", icon: Upload },
         {
           title: "Registrar Devolução",
@@ -93,8 +92,7 @@ export function AppSidebar() {
     {
       label: "Veículos",
       items: [
-        { title: "Painel", url: "/veiculos/dashboard", icon: BarChart3 },
-        { title: "Lista", url: "/veiculos/lista", icon: Package },
+        { title: "Painel & Lista", url: "/veiculos/dashboard", icon: Package },
         { title: "Registrar Saída", url: "/veiculos/saida", icon: Upload },
         {
           title: "Registrar Devolução",
