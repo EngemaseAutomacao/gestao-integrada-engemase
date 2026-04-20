@@ -197,7 +197,6 @@ export default function Layout({ children }: LayoutProps) {
       };
     }
     if (location.pathname.startsWith('/ponto')) {
-      if (!isAdmin) return null;
       return {
         title: "Ponto",
         icon: MapPin,

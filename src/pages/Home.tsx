@@ -287,11 +287,9 @@ export default function Home() {
 
         <ModuleCard
           title="Ponto Online"
-          description={isAdmin ? "Registre pontos em atividades externas" : "Acesso restrito — solicite permissão ao administrador"}
+          description="Registre pontos em atividades externas"
           icon={<Clock className="w-6 h-6 text-primary" />}
-          to={isAdmin ? "/ponto" : undefined}
-          disabled={!isAdmin}
-          comingSoon={!isAdmin}
+          to="/ponto"
         />
 
 
