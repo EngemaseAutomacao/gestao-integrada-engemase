@@ -564,18 +564,6 @@ export default function VehicleDashboard() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
-        <DialogContent className="max-w-3xl p-2">
-          <DialogHeader className="sr-only"><DialogTitle>Foto do veículo</DialogTitle></DialogHeader>
-          {enlargedImage && (
-            enlargedImage.startsWith("http") || enlargedImage.startsWith("data:") ? (
-              <img src={enlargedImage} alt="Foto ampliada" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
-            ) : (
-              <SignedImage storagePath={enlargedImage} alt="Foto ampliada" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
-            )
-          )}
-        </DialogContent>
-      </Dialog>
 
       <DeleteWithReasonDialog
         open={deleteDialogOpen}
