@@ -36,7 +36,6 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
     }
   };
 
-  // iOS: show manual instructions
   if (isIOS) {
     return (
       <Card className="relative overflow-hidden transition-all duration-300 hover:shadow-lg border-dashed border-2">
@@ -88,11 +87,11 @@ interface ModuleCardProps {
 
 function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount }: ModuleCardProps) {
   const isAdmin = variant === "admin";
-  
+
   const content = (
     <Card className={`relative overflow-hidden transition-all duration-300 ${
-      disabled 
-        ? 'opacity-60 cursor-not-allowed' 
+      disabled
+        ? 'opacity-60 cursor-not-allowed'
         : 'hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary'
     } ${isAdmin ? 'border-orange-500/50 bg-orange-500/5' : ''}`}>
       {comingSoon && (
@@ -268,61 +267,70 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-5xl w-full">
-        <ModuleCard
-          title="Ferramentas"
-          description="Retiradas, devoluções e manutenções"
-          icon={<Wrench className="w-6 h-6 text-primary" />}
-          to="/ferramentas"
-          badgeCount={toolBadgeCount}
-        />
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-6 max-w-5xl w-full">
+        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <ModuleCard
+            title="Ferramentas"
+            description="Retiradas, devoluções e manutenções"
+            icon={<Wrench className="w-6 h-6 text-primary" />}
+            to="/ferramentas"
+            badgeCount={toolBadgeCount}
+          />
+        </div>
 
-        <ModuleCard
-          title="Veículos"
-          description="Entradas e saídas de veículos"
-          icon={<Car className="w-6 h-6 text-primary" />}
-          to="/veiculos"
-          badgeCount={vehicleBadgeCount}
-        />
+        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <ModuleCard
+            title="Veículos"
+            description="Entradas e saídas de veículos"
+            icon={<Car className="w-6 h-6 text-primary" />}
+            to="/veiculos"
+            badgeCount={vehicleBadgeCount}
+          />
+        </div>
 
-        <ModuleCard
-          title="Ponto Online"
-          description="Registre pontos em atividades externas"
-          icon={<Clock className="w-6 h-6 text-primary" />}
-          to="/ponto"
-        />
+        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <ModuleCard
+            title="Ponto Online"
+            description="Registre pontos em atividades externas"
+            icon={<Clock className="w-6 h-6 text-primary" />}
+            to="/ponto"
+          />
+        </div>
 
-        <ModuleCard
-          title="Meu Histórico"
-          description="Veja todas as suas movimentações"
-          icon={<History className="w-6 h-6 text-primary" />}
-          to="/historico"
-        />
+        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <ModuleCard
+            title="Meu Histórico"
+            description="Veja todas as suas movimentações"
+            icon={<History className="w-6 h-6 text-primary" />}
+            to="/historico"
+          />
+        </div>
 
-        <ModuleCard
-          title="Transferências"
-          description="Handover de ferramentas e veículos"
-          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
-          to="/transferencias"
-        />
-
+        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <ModuleCard
+            title="Transferências"
+            description="Handover de ferramentas e veículos"
+            icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+            to="/transferencias"
+          />
+        </div>
 
         {isAdmin && (
-          <div className="col-span-2 lg:col-span-1 flex justify-center">
-            <div className="w-1/2 lg:w-full">
-              <ModuleCard
-                title="Administração"
-                description="Usuários, relatórios e configurações"
-                icon={<Shield className="w-6 h-6 text-orange-500" />}
-                to="/admin"
-                variant="admin"
-              />
-            </div>
+          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+            <ModuleCard
+              title="Administração"
+              description="Usuários, relatórios e configurações"
+              icon={<Shield className="w-6 h-6 text-orange-500" />}
+              to="/admin"
+              variant="admin"
+            />
           </div>
         )}
 
         {!isStandalone && (
-          <InstallPWACard isIOS={isIOS} />
+          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+            <InstallPWACard isIOS={isIOS} />
+          </div>
         )}
       </div>
     </div>
