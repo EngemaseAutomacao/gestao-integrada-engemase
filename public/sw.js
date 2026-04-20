@@ -100,6 +100,14 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.hostname.includes('supabase.co')) {
+    // Do NOT cache authenticated API calls (PostgREST, auth, functions, realtime)
+    // Only cache public storage assets that are safe to share
+    const isPublicStorage = url.pathname.startsWith('/storage/v1/object/public/');
+    if (!isPublicStorage) {
+      // Network only — never serve stale auth/data responses
+      event.respondWith(fetch(event.request).catch(() => new Response(null, { status: 503 })));
+      return;
+    }
     event.respondWith(
       fetch(event.request)
         .then(response => {
