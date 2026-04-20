@@ -432,28 +432,28 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA OBRAS ─── */}
         <TabsContent value="obras" className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p className="text-xs text-muted-foreground">
-              Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastSiteSync)}</span>
-            </p>
-            <Button
-              variant="outline"
-              className="gap-2"
-              disabled={syncMutation.isPending}
-              onClick={() => syncMutation.mutate()}
-            >
-              <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-              Sincronizar Trello
-            </Button>
-          </div>
-
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                Obras Cadastradas
-              </CardTitle>
-              <CardDescription>{sites?.length || 0} obras no sistema</CardDescription>
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between space-y-0">
+              <div className="space-y-1.5">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  Obras Cadastradas
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {sites?.length || 0} obras no sistema · Última sincronização:{" "}
+                  <span className="font-medium text-foreground">{formatLastSync(lastSiteSync)}</span>
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 w-full sm:w-auto shrink-0"
+                disabled={syncMutation.isPending}
+                onClick={() => syncMutation.mutate()}
+              >
+                <RefreshCw className={`w-4 h-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+                Sincronizar Trello
+              </Button>
             </CardHeader>
             <CardContent>
               {loadingSites ? (
