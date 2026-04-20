@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Car, Search, Plus, Loader2, Pencil, Trash2, Upload, X, Cog } from "lucide-react";
+import { Car, Search, Plus, Loader2, Pencil, Trash2, Cog } from "lucide-react";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 import { SignedImage } from "@/components/SignedImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
