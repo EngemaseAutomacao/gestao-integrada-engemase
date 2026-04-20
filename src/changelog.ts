@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.26.0",
+    date: "2026-04-20",
+    title: "Painel Administrativo Responsivo",
+    description: "Layout do painel de Obras, Clientes, Ferramentas e Veículos totalmente adaptado para mobile, tablet e desktop.",
+    changes: [
+      { type: "improvement", text: "Cards no mobile e tabelas no desktop nas abas administrativas" },
+      { type: "improvement", text: "Cabeçalhos padronizados com busca e ações alinhadas" },
+      { type: "improvement", text: "Exibição da última sincronização real do Trello e Google Sheets" },
+      { type: "fix", text: "Correção de desalinhamentos visuais nas abas de gerenciamento" },
+    ],
+  },
+  {
     version: "1.25.0",
     date: "2026-04-16",
     title: "Modo Offline Robusto",
