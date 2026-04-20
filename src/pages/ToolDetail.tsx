@@ -60,9 +60,10 @@ interface ToolIssue {
   severity: string;
   status: string;
   created_at: string;
+  photo_url: string | null;
   reporter: {
     full_name: string;
-  };
+  } | null;
 }
 
 const conditionLabels: Record<string, string> = {
