@@ -158,7 +158,7 @@ export default function Layout({ children }: LayoutProps) {
     
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
     { title: "Logs", url: "/admin/logs", icon: ClipboardList },
-    { title: "Entrada Manual", url: "/admin/manual", icon: Settings },
+    
   ];
 
   
