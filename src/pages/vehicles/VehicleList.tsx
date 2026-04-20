@@ -75,8 +75,6 @@ export default function VehicleList() {
   const resetForm = () => {
     setEditingId(null);
     setFormData(emptyForm);
-    setImageFile(null);
-    setImagePreview(null);
   };
 
   const openNew = () => {
