@@ -202,7 +202,103 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
 
-  const openNewClient = () => {
+  // ─── Veículos ───
+  const { data: vehicles = [], isLoading: loadingVehicles, refetch: refetchVehicles } = useQuery({
+    queryKey: ["admin-vehicles"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("vehicles").select("*").order("name");
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const filteredVehicles = vehicles.filter((v: any) =>
+    !vehicleSearch ||
+    v.name.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+    v.plate?.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+    v.brand?.toLowerCase().includes(vehicleSearch.toLowerCase()) ||
+    v.model?.toLowerCase().includes(vehicleSearch.toLowerCase())
+  );
+
+  const resetVehicleForm = () => {
+    setEditingVehicleId(null);
+    setVehicleForm({ name: "", plate: "", brand: "", model: "", year: "", color: "", vehicle_type: "vehicle" });
+  };
+
+  const openNewVehicle = () => {
+    resetVehicleForm();
+    setVehicleDialogOpen(true);
+  };
+
+  const openEditVehicle = (v: any) => {
+    setEditingVehicleId(v.id);
+    setVehicleForm({
+      name: v.name,
+      plate: v.plate,
+      brand: v.brand || "",
+      model: v.model || "",
+      year: v.year?.toString() || "",
+      color: v.color || "",
+      vehicle_type: (v.vehicle_type as "vehicle" | "platform") || "vehicle",
+    });
+    setVehicleDialogOpen(true);
+  };
+
+  const handleSaveVehicle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingVehicle(true);
+    try {
+      const payload = {
+        name: vehicleForm.name,
+        plate: vehicleForm.plate.toUpperCase(),
+        brand: vehicleForm.brand || null,
+        model: vehicleForm.model || null,
+        year: vehicleForm.year ? parseInt(vehicleForm.year) : null,
+        color: vehicleForm.color || null,
+        vehicle_type: vehicleForm.vehicle_type,
+      };
+      if (editingVehicleId) {
+        const { error } = await supabase.from("vehicles").update(payload).eq("id", editingVehicleId);
+        if (error) throw error;
+        toast.success("Veículo atualizado!");
+      } else {
+        const { error } = await supabase.from("vehicles").insert({ ...payload, created_by: profile!.id });
+        if (error) throw error;
+        toast.success("Veículo cadastrado!");
+      }
+      setVehicleDialogOpen(false);
+      resetVehicleForm();
+      refetchVehicles();
+      queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
+    } catch (err: any) {
+      toast.error("Erro ao salvar", { description: err.message });
+    } finally {
+      setSavingVehicle(false);
+    }
+  };
+
+  const handleDeleteVehicleConfirm = async (reason: string) => {
+    if (!deletingVehicle) return;
+    try {
+      await supabase.from("system_logs").insert({
+        action: "delete_reason",
+        entity_type: "vehicle",
+        entity_id: deletingVehicle.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: { vehicle_name: deletingVehicle.name, plate: deletingVehicle.plate, reason },
+      });
+      const { error } = await supabase.from("vehicles").delete().eq("id", deletingVehicle.id);
+      if (error) throw error;
+      toast.success("Veículo excluído!");
+      refetchVehicles();
+      queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
+    } catch (err: any) {
+      toast.error("Erro ao excluir", { description: err.message });
+    }
+  };
     setEditingClient(null);
     setFormName(""); setFormAddress("");
     setClientDialogOpen(true);
