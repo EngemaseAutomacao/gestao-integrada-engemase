@@ -260,14 +260,11 @@ export default function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <SidebarProvider defaultOpen>
-      <div className="h-screen flex w-full bg-background overflow-hidden">
-        <PermissionsRequest />
-        {!isMobile && <AppSidebar />}
-        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+    <div className="h-screen flex w-full bg-background overflow-hidden">
+      <PermissionsRequest />
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
       {/* Header */}
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
-        {!isMobile && <SidebarTrigger className="mr-1" aria-label="Alternar menu lateral" />}
         <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
           {/* Mobile: Back button when inside a module */}
           {isMobile && !isHomePage && (
@@ -425,6 +422,6 @@ export default function Layout({ children }: LayoutProps) {
       />
         </div>
       </div>
-    </SidebarProvider>
   );
 }
+
