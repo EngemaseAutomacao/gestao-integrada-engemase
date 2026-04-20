@@ -157,18 +157,6 @@ export default function VehicleDashboard() {
     e.preventDefault();
     setSaving(true);
     try {
-      let imageUrl = editingId ? (imagePreview?.startsWith("data:") ? null : imagePreview) : null;
-      if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const seq = String(Date.now()).slice(-6);
-        const dateFolder = new Date().toISOString().slice(0, 10);
-        const filePath = `veiculos/catalogo/${dateFolder}/veiculo_${seq}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from("imagens").upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        imageUrl = filePath;
-      }
-      if (!imagePreview && !imageFile) imageUrl = null;
-
       const payload = {
         name: formData.name,
         plate: formData.plate.toUpperCase(),
@@ -176,7 +164,6 @@ export default function VehicleDashboard() {
         model: formData.model || null,
         year: formData.year ? parseInt(formData.year) : null,
         color: formData.color || null,
-        image_url: imageUrl,
         vehicle_type: formData.vehicle_type,
       };
 
