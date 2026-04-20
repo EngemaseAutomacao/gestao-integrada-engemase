@@ -91,6 +91,45 @@ export default function AdminConstructionSites() {
     },
   });
 
+  // Last sync timestamps (proxy: most recent updated_at)
+  const { data: lastSiteSync } = useQuery({
+    queryKey: ["last-site-sync"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("construction_sites")
+        .select("updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data?.updated_at as string | undefined;
+    },
+  });
+
+  const { data: lastToolSync } = useQuery({
+    queryKey: ["last-tool-sync"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("tools")
+        .select("updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data?.updated_at as string | undefined;
+    },
+  });
+
+  const formatLastSync = (iso?: string) => {
+    if (!iso) return "Nunca sincronizado";
+    try {
+      return new Date(iso).toLocaleString("pt-BR", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+      });
+    } catch {
+      return "—";
+    }
+  };
+
   const syncMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("sync-trello");
@@ -100,6 +139,7 @@ export default function AdminConstructionSites() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["construction-sites"] });
+      queryClient.invalidateQueries({ queryKey: ["last-site-sync"] });
       toast.success(`Sincronização concluída! ${data.summary.added} novas, ${data.summary.reactivated} reativadas, ${data.summary.deactivated} desativadas.`);
     },
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
@@ -144,6 +184,7 @@ export default function AdminConstructionSites() {
         description: `${s.added} adicionada(s), ${s.updated} atualizada(s), ${s.deleted} removida(s) de ${s.total_sheet_rows} linhas.`,
       });
       refetchTools();
+      queryClient.invalidateQueries({ queryKey: ["last-tool-sync"] });
     },
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
@@ -284,7 +325,10 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA OBRAS ─── */}
         <TabsContent value="obras" className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastSiteSync)}</span>
+            </p>
             <Button
               variant="outline"
               className="gap-2"
@@ -436,6 +480,9 @@ export default function AdminConstructionSites() {
               Sincronizar Planilha
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastToolSync)}</span>
+          </p>
 
           <Card>
             <CardHeader>
