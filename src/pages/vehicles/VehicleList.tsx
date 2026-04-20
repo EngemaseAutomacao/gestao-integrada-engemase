@@ -93,18 +93,7 @@ export default function VehicleList() {
       color: vehicle.color || "",
       vehicle_type: (vehicle.vehicle_type as "vehicle" | "platform") || "vehicle",
     });
-    setImagePreview(vehicle.image_url);
     setDialogOpen(true);
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
