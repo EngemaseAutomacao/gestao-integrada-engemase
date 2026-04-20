@@ -22,12 +22,13 @@ interface Issue {
   created_at: string;
   resolved_at: string | null;
   resolution_notes: string | null;
+  photo_url: string | null;
   tool: {
     name: string;
-  };
+  } | null;
   reporter: {
     full_name: string;
-  };
+  } | null;
   resolver: {
     full_name: string;
   } | null;
@@ -105,6 +106,14 @@ export default function AdminIssues() {
   };
 
   const handleUpdateStatus = async (issueId: string, newStatus: "open" | "in_progress" | "resolved" | "closed") => {
+    if (newStatus === "resolved") {
+      const issue = issues.find(i => i.id === issueId);
+      if (issue) {
+        setSelectedIssue(issue);
+        return;
+      }
+    }
+
     try {
       const { error } = await supabase
         .from("tool_issues")
@@ -156,7 +165,7 @@ export default function AdminIssues() {
     const matchesSearch =
       issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       issue.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      issue.tool.name.toLowerCase().includes(searchQuery.toLowerCase());
+      (issue.tool?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || issue.status === statusFilter;
     const matchesSeverity = severityFilter === "all" || issue.severity === severityFilter;
@@ -229,24 +238,34 @@ export default function AdminIssues() {
               filteredIssues.map((issue) => (
                 <Card key={issue.id} className="cursor-pointer hover:bg-accent/50 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
                           {getStatusIcon(issue.status)}
                           <h3 className="font-semibold">{issue.title}</h3>
                           {getSeverityBadge(issue.severity)}
                         </div>
-                        <p className="text-sm text-muted-foreground">{issue.description}</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{issue.description}</p>
                         <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                          <span>Ferramenta: <strong>{issue.tool.name}</strong></span>
-                          <span>Reportado por: <strong>{issue.reporter.full_name}</strong></span>
+                          <span>Ferramenta: <strong>{issue.tool?.name || "N/A"}</strong></span>
+                          <span>Reportado por: <strong>{issue.reporter?.full_name || "N/A"}</strong></span>
                           <span>Data: {new Date(issue.created_at).toLocaleDateString("pt-BR")}</span>
                         </div>
+                        {issue.photo_url && (
+                          <div className="mt-2">
+                            <img 
+                              src={supabase.storage.from("imagens").getPublicUrl(issue.photo_url).data.publicUrl} 
+                              alt="Evidência do problema" 
+                              className="w-full max-w-sm h-48 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(supabase.storage.from("imagens").getPublicUrl(issue.photo_url!).data.publicUrl, "_blank")}
+                            />
+                          </div>
+                        )}
                         {issue.resolved_at && (
-                          <div className="text-sm text-muted-foreground">
-                            <span>Resolvido por: <strong>{issue.resolver?.full_name}</strong></span>
+                          <div className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-md">
+                            <span>Resolvido por: <strong>{issue.resolver?.full_name || "N/A"}</strong> em {new Date(issue.resolved_at).toLocaleDateString("pt-BR")}</span>
                             {issue.resolution_notes && (
-                              <p className="mt-1">Notas: {issue.resolution_notes}</p>
+                              <p className="mt-1"><strong>Notas de resolução:</strong> {issue.resolution_notes}</p>
                             )}
                           </div>
                         )}
