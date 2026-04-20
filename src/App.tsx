@@ -57,6 +57,8 @@ const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssu
 const AdminVehicleIssues = lazy(() => import("./pages/admin/AdminVehicleIssues"));
 const AdminProblemas = lazy(() => import("./pages/admin/AdminProblemas"));
 const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
+const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
+const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 // AdminSiteTools removed
 
 const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
