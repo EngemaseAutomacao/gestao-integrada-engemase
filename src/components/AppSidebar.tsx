@@ -97,14 +97,12 @@ export function AppSidebar() {
             label: "Ponto Online",
             items: [
               { title: "Registrar", url: "/ponto/registrar", icon: Clock },
-              { title: "Gerenciar", url: "/ponto/admin", icon: Users },
             ],
           },
           {
             label: "Materiais",
             items: [
               { title: "Painel & Catálogo", url: "/materiais", icon: Package },
-              { title: "Gerenciar", url: "/materiais/admin", icon: Users },
             ],
           },
           {
