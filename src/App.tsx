@@ -70,6 +70,7 @@ const Changelog = lazy(() => import("./pages/Changelog"));
 const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
 const UnifiedHistory = lazy(() => import("./pages/UnifiedHistory"));
+const Historico = lazy(() => import("./pages/Historico"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -117,21 +118,24 @@ const App = () => (
                     <Route path="/change-password" element={<ChangePassword />} />
                     <Route path="/" element={<Layout><Home /></Layout>} />
                     {/* Ferramentas Routes */}
-                    <Route path="/ferramentas" element={<Layout><FerramentasMenu /></Layout>} />
+                    <Route path="/ferramentas" element={<Navigate to="/ferramentas/dashboard" replace />} />
                     <Route path="/ferramentas/dashboard" element={<Layout><Dashboard /></Layout>} />
                     <Route path="/ferramentas/lista" element={<Layout><Tools /></Layout>} />
                     <Route path="/ferramentas/:id" element={<Layout><ToolDetail /></Layout>} />
                     <Route path="/ferramentas/retirada" element={<Layout><Checkout /></Layout>} />
                     <Route path="/ferramentas/devolucao" element={<Layout><Checkin /></Layout>} />
-                    <Route path="/ferramentas/historico" element={<Layout><UserHistory /></Layout>} />
+                    <Route path="/ferramentas/historico" element={<Navigate to="/historico?tipo=tool" replace />} />
+                    {/* Old menu kept for direct access if needed */}
+                    <Route path="/ferramentas/menu" element={<Layout><FerramentasMenu /></Layout>} />
                     {/* Veículos Routes */}
-                    <Route path="/veiculos" element={<Layout><VeiculosMenu /></Layout>} />
+                    <Route path="/veiculos" element={<Navigate to="/veiculos/dashboard" replace />} />
                     <Route path="/veiculos/dashboard" element={<Layout><VehicleDashboard /></Layout>} />
                     <Route path="/veiculos/lista" element={<Layout><VehicleList /></Layout>} />
                     <Route path="/veiculos/:id" element={<Layout><VehicleDetail /></Layout>} />
                     <Route path="/veiculos/saida" element={<Layout><VehicleCheckout /></Layout>} />
                     <Route path="/veiculos/chegada" element={<Layout><VehicleCheckin /></Layout>} />
-                    <Route path="/veiculos/historico" element={<Layout><VehicleHistory /></Layout>} />
+                    <Route path="/veiculos/historico" element={<Navigate to="/historico?tipo=vehicle" replace />} />
+                    <Route path="/veiculos/menu" element={<Layout><VeiculosMenu /></Layout>} />
                     <Route path="/veiculos/combustivel" element={<Layout><FuelRecords /></Layout>} />
                     <Route path="/veiculos/analytics" element={<Layout><VehicleAnalytics /></Layout>} />
                     <Route path="/admin/vehicle-history" element={<Layout><AdminVehicleHistory /></Layout>} />
@@ -163,15 +167,16 @@ const App = () => (
                     {/* Ponto Online Routes */}
                     <Route path="/ponto" element={<Layout><PontoDashboard /></Layout>} />
                     <Route path="/ponto/registrar" element={<Layout><PontoRegister /></Layout>} />
-                    <Route path="/ponto/historico" element={<Layout><PontoHistory /></Layout>} />
+                    <Route path="/ponto/historico" element={<Navigate to="/historico?tipo=ponto" replace />} />
                     <Route path="/ponto/admin" element={<Layout><PontoAdmin /></Layout>} />
                     {/* Materiais Routes */}
                     <Route path="/materiais" element={<Layout><MateriaisDashboard /></Layout>} />
                     <Route path="/materiais/solicitar" element={<Layout><MateriaisRequest /></Layout>} />
-                    <Route path="/materiais/historico" element={<Layout><MateriaisHistory /></Layout>} />
+                    <Route path="/materiais/historico" element={<Navigate to="/historico?tipo=material" replace />} />
                     <Route path="/materiais/admin" element={<Layout><MateriaisAdmin /></Layout>} />
                     <Route path="/transferencias" element={<Layout><Transfers /></Layout>} />
                     <Route path="/meu-dia" element={<Layout><UnifiedHistory /></Layout>} />
+                    <Route path="/historico" element={<Layout><Historico /></Layout>} />
                     <Route path="/report-issue" element={<Layout><ReportIssue /></Layout>} />
                     <Route path="/changelog" element={<Layout><Changelog /></Layout>} />
                     <Route path="/mobile-settings" element={<Layout><MobileNavSettings /></Layout>} />

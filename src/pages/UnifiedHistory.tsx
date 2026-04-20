@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wrench, Car, Clock, Package, X } from "lucide-react";
-import { format, subDays, subMonths, isAfter, startOfDay } from "date-fns";
+import { Loader2, Wrench, Car, Clock, Package } from "lucide-react";
+import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface UnifiedEvent {
   id: string;
-  type: "tool" | "vehicle" | "ponto";
+  type: "tool" | "vehicle" | "ponto" | "material";
   date: string;
   title: string;
   subtitle: string;
@@ -19,15 +19,30 @@ interface UnifiedEvent {
   endDate?: string | null;
 }
 
-export default function UnifiedHistory() {
+interface UnifiedHistoryProps {
+  /** When true, omits the page title (use when embedded in another page). */
+  embedded?: boolean;
+  /** Default heading shown above the filters. */
+  title?: string;
+  description?: string;
+}
+
+export default function UnifiedHistory({
+  embedded = false,
+  title = "Meu Dia",
+  description = "Visão unificada de ferramentas, veículos, ponto e materiais",
+}: UnifiedHistoryProps) {
   const { profile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialType = searchParams.get("tipo") || "all";
   const [events, setEvents] = useState<UnifiedEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodFilter, setPeriodFilter] = useState("7d");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState(initialType);
 
   useEffect(() => {
     if (profile?.id) loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id, periodFilter]);
 
   const getStartDate = () => {
@@ -46,7 +61,7 @@ export default function UnifiedHistory() {
     setLoading(true);
     const since = getStartDate();
 
-    const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
+    const [toolsRes, vehiclesRes, pontoRes, materialsRes] = await Promise.all([
       supabase
         .from("tool_checkouts")
         .select("id, checkout_date, checkin_date, status, construction_site, tools(name)")
@@ -67,6 +82,13 @@ export default function UnifiedHistory() {
         .eq("user_id", profile.id)
         .gte("clock_in", since)
         .order("clock_in", { ascending: false })
+        .limit(200),
+      supabase
+        .from("material_requests")
+        .select("id, created_at, status, construction_site, requested_by_name")
+        .eq("user_id", profile.id)
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
         .limit(200),
     ]);
 
@@ -112,26 +134,44 @@ export default function UnifiedHistory() {
       });
     });
 
+    const materialStatusMap: Record<string, string> = {
+      pending: "Pendente",
+      approved: "Aprovado",
+      rejected: "Rejeitado",
+      delivered: "Entregue",
+    };
+    (materialsRes.data || []).forEach((m: any) => {
+      unified.push({
+        id: `material-${m.id}`,
+        type: "material",
+        date: m.created_at,
+        title: "Solicitação de materiais",
+        subtitle: m.construction_site || "Sem obra",
+        status: materialStatusMap[m.status] || m.status,
+      });
+    });
+
     unified.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setEvents(unified);
     setLoading(false);
   };
 
   const iconMap = {
-    tool: <Wrench className="w-4 h-4" />,
-    vehicle: <Car className="w-4 h-4" />,
-    ponto: <Clock className="w-4 h-4" />,
+    tool: <Wrench className="w-4 h-4" aria-hidden="true" />,
+    vehicle: <Car className="w-4 h-4" aria-hidden="true" />,
+    ponto: <Clock className="w-4 h-4" aria-hidden="true" />,
+    material: <Package className="w-4 h-4" aria-hidden="true" />,
   };
 
   const colorMap = {
     tool: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     vehicle: "bg-green-500/10 text-green-600 dark:text-green-400",
     ponto: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+    material: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
   };
 
   const filtered = typeFilter === "all" ? events : events.filter((e) => e.type === typeFilter);
 
-  // Group by date
   const grouped = filtered.reduce<Record<string, UnifiedEvent[]>>((acc, ev) => {
     const day = format(new Date(ev.date), "yyyy-MM-dd");
     if (!acc[day]) acc[day] = [];
@@ -140,19 +180,26 @@ export default function UnifiedHistory() {
   }, {});
 
   if (loading) {
-    return <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+    return (
+      <div className="flex items-center justify-center py-12" role="status" aria-live="polite">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" aria-hidden="true" />
+        <span className="sr-only">Carregando histórico</span>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-4 max-w-3xl mx-auto">
-      <div className="hidden sm:block">
-        <h1 className="text-3xl font-bold text-foreground">Meu Dia</h1>
-        <p className="text-muted-foreground mt-1">Visão unificada de ferramentas, veículos e ponto</p>
-      </div>
+    <div className="space-y-4 max-w-3xl mx-auto animate-fade-in">
+      {!embedded && (
+        <div className="hidden sm:block">
+          <h1 className="text-3xl font-bold text-foreground">{title}</h1>
+          <p className="text-muted-foreground mt-1">{description}</p>
+        </div>
+      )}
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap" role="group" aria-label="Filtros do histórico">
         <Select value={periodFilter} onValueChange={setPeriodFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-[140px]" aria-label="Filtrar por período">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -164,14 +211,15 @@ export default function UnifiedHistory() {
         </Select>
 
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-[160px]" aria-label="Filtrar por módulo">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="all">Todos os módulos</SelectItem>
             <SelectItem value="tool">Ferramentas</SelectItem>
             <SelectItem value="vehicle">Veículos</SelectItem>
             <SelectItem value="ponto">Ponto</SelectItem>
+            <SelectItem value="material">Materiais</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -189,7 +237,7 @@ export default function UnifiedHistory() {
               {format(new Date(day), "EEEE, dd 'de' MMMM", { locale: ptBR })}
             </h3>
             {dayEvents.map((ev) => (
-              <Card key={ev.id} className="p-3">
+              <Card key={ev.id} className="p-3 transition-shadow hover:shadow-soft">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
                     {iconMap[ev.type]}
@@ -202,7 +250,14 @@ export default function UnifiedHistory() {
                       <span>• {ev.subtitle}</span>
                     </div>
                   </div>
-                  <Badge variant={ev.status === "Em uso" || ev.status === "Aberto" ? "default" : "secondary"} className="text-xs shrink-0">
+                  <Badge
+                    variant={
+                      ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
+                        ? "default"
+                        : "secondary"
+                    }
+                    className="text-xs shrink-0"
+                  >
                     {ev.status}
                   </Badge>
                 </div>
