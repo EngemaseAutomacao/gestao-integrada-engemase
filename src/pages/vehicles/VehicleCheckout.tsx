@@ -57,6 +57,9 @@ export default function VehicleCheckout() {
     setPreviews(prev => ({ ...prev, [key]: preview }));
   };
 
+  // Platform-specific state
+  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
+
   const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
 
   const handleGetLocation = async () => {
