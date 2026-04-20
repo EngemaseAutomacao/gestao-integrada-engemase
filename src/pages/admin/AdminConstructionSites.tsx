@@ -404,29 +404,29 @@ export default function AdminConstructionSites() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="hidden sm:block">
-        <h2 className="text-3xl font-bold tracking-tight">Gestão Administrativa</h2>
-        <p className="text-muted-foreground">Gerencie obras, clientes e inventário de ferramentas</p>
+        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Gestão Administrativa</h2>
+        <p className="text-sm text-muted-foreground">Gerencie obras, clientes e inventário de ferramentas</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="obras" className="gap-2">
-            <Building2 className="w-4 h-4" />
-            Obras
+        <TabsList className="grid w-full grid-cols-4 h-auto">
+          <TabsTrigger value="obras" className="gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm">
+            <Building2 className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline sm:inline">Obras</span>
           </TabsTrigger>
-          <TabsTrigger value="clientes" className="gap-2">
-            <Users className="w-4 h-4" />
-            Clientes
+          <TabsTrigger value="clientes" className="gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm">
+            <Users className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline sm:inline">Clientes</span>
           </TabsTrigger>
-          <TabsTrigger value="ferramentas" className="gap-2">
-            <Wrench className="w-4 h-4" />
-            Ferramentas
+          <TabsTrigger value="ferramentas" className="gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm">
+            <Wrench className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline sm:inline">Ferramentas</span>
           </TabsTrigger>
-          <TabsTrigger value="veiculos" className="gap-2">
-            <Car className="w-4 h-4" />
-            Veículos
+          <TabsTrigger value="veiculos" className="gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-xs sm:text-sm">
+            <Car className="w-4 h-4 shrink-0" />
+            <span className="hidden xs:inline sm:inline">Veículos</span>
           </TabsTrigger>
         </TabsList>
 
