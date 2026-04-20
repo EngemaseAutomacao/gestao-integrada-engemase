@@ -159,17 +159,28 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
+    <Sidebar
+      collapsible="icon"
+      className="border-r"
+      aria-label="Navegação principal"
+    >
       <SidebarHeader className="border-b">
         <NavLink
           to="/"
           className={cn(
-            "flex items-center gap-2 px-2 py-2 rounded-md hover:bg-sidebar-accent transition-colors",
+            "flex items-center gap-2 px-2 py-2 rounded-md transition-all duration-200",
+            "hover:bg-sidebar-accent hover:scale-[1.02]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-1",
             collapsed && "justify-center px-0"
           )}
           aria-label="Ir para a página inicial"
         >
-          <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto shrink-0" />
+          <img
+            src={engemaseLogo}
+            alt=""
+            aria-hidden="true"
+            className="h-7 w-auto shrink-0"
+          />
           {!collapsed && (
             <span className="text-sm font-semibold truncate">Engemase</span>
           )}
@@ -179,39 +190,70 @@ export function AppSidebar() {
       <SidebarContent>
         {groups.map((group) => (
           <SidebarGroup key={group.label}>
-            {!collapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+            {!collapsed && (
+              <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/60">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => {
                   const active = isActive(item.url);
                   const Icon = item.icon;
+                  const hasBadge = !!(item.badge && item.badge > 0);
+                  const badgeLabel = hasBadge
+                    ? `, ${item.badge} ${item.badge === 1 ? "pendente" : "pendentes"}`
+                    : "";
                   return (
                     <SidebarMenuItem key={item.url}>
                       <SidebarMenuButton
                         asChild
                         isActive={active}
-                        tooltip={collapsed ? item.title : undefined}
+                        tooltip={
+                          collapsed
+                            ? hasBadge
+                              ? `${item.title} (${item.badge})`
+                              : item.title
+                            : undefined
+                        }
+                        className={cn(
+                          "transition-colors duration-150",
+                          "focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-1"
+                        )}
                       >
                         <NavLink
                           to={item.url}
                           className={cn(
-                            "flex items-center gap-2 w-full",
-                            active && "font-medium text-sidebar-primary-foreground"
+                            "flex items-center gap-2 w-full rounded-md",
+                            active && "font-medium"
                           )}
                           aria-current={active ? "page" : undefined}
+                          aria-label={`${item.title}${badgeLabel}`}
                         >
-                          <Icon className="h-4 w-4 shrink-0" />
+                          <Icon
+                            className={cn(
+                              "h-4 w-4 shrink-0 transition-transform duration-150",
+                              active && "scale-110"
+                            )}
+                            aria-hidden="true"
+                          />
                           {!collapsed && (
                             <span className="flex-1 truncate">{item.title}</span>
                           )}
-                          {!collapsed && item.badge && item.badge > 0 ? (
+                          {!collapsed && hasBadge ? (
                             <Badge
                               variant="destructive"
-                              className="h-5 min-w-5 px-1.5 text-[10px]"
-                              aria-label={`${item.badge} pendentes`}
+                              className="h-5 min-w-5 px-1.5 text-[10px] font-semibold animate-fade-in"
+                              aria-hidden="true"
                             >
-                              {item.badge > 99 ? "99+" : item.badge}
+                              {item.badge! > 99 ? "99+" : item.badge}
                             </Badge>
+                          ) : null}
+                          {collapsed && hasBadge ? (
+                            <span
+                              className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-sidebar"
+                              aria-hidden="true"
+                            />
                           ) : null}
                         </NavLink>
                       </SidebarMenuButton>
