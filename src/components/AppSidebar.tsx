@@ -72,8 +72,7 @@ export function AppSidebar() {
       label: "Principal",
       items: [
         { title: "Início", url: "/", icon: Home },
-        { title: "Meu Dia", url: "/meu-dia", icon: CalendarDays },
-        { title: "Histórico", url: "/historico", icon: History },
+        { title: "Meu Histórico", url: "/historico", icon: History },
         { title: "Transferências", url: "/transferencias", icon: ArrowRightLeft },
       ],
     },
