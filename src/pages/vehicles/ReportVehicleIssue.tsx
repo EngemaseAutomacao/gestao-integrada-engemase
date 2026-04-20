@@ -170,6 +170,34 @@ export default function ReportVehicleIssue() {
                 </SelectContent>
               </Select>
             </div>
+            {/* Photo Capture */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label>Foto do Problema (opcional)</Label>
+                {photoConfirmed && (
+                  <Badge variant="secondary" className="gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Capturada
+                  </Badge>
+                )}
+              </div>
+              {!photoConfirmed ? (
+                <PhotoCapture onCapture={handlePhotoCapture} title="Registrar evidência do problema" />
+              ) : (
+                <div className="relative">
+                  <img src={photoDataUrl!} alt="Foto do problema" className="w-full h-48 object-cover rounded-lg" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}
+                  >
+                    Refazer
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="title">Título do Problema *</Label>
