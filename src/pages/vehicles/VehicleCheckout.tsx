@@ -367,14 +367,14 @@ export default function VehicleCheckout() {
         {selectedVehicle && (
           <Card>
             <CardHeader>
-              <CardTitle>Detalhes da Saída</CardTitle>
+              <CardTitle>{isPlatform ? "Detalhes do Uso" : "Detalhes da Saída"}</CardTitle>
               <CardDescription>
-                Veículo selecionado: {selectedVehicleData?.name} ({selectedVehicleData?.plate})
+                {isPlatform ? "Plataforma" : "Veículo"} selecionado: {selectedVehicleData?.name} ({selectedVehicleData?.plate})
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="destination">Obra de Destino *</Label>
+                <Label htmlFor="destination">{isPlatform ? "Obra de Uso *" : "Obra de Destino *"}</Label>
                 <ConstructionSiteAutocomplete
                   sites={constructionSites || []}
                   value={destination}
@@ -385,7 +385,7 @@ export default function VehicleCheckout() {
               <div className="space-y-2">
                 <Label htmlFor="estimatedReturnTime" className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  Hora Estimada de Retorno *
+                  {isPlatform ? "Hora Estimada de Uso *" : "Hora Estimada de Retorno *"}
                 </Label>
                 <Input
                   id="estimatedReturnTime"
@@ -396,7 +396,8 @@ export default function VehicleCheckout() {
                 />
               </div>
 
-              {/* Outside City Toggle */}
+              {/* Outside City Toggle - irrelevant for platforms */}
+              {!isPlatform && (
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
                   <Label className="text-base font-medium flex items-center gap-2">
@@ -420,7 +421,7 @@ export default function VehicleCheckout() {
                   }}
                 />
               </div>
-
+              )}
               {/* Outside City Details */}
               {isOutsideCity && (
                 <Card className="border-dashed">
