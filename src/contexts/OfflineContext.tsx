@@ -331,6 +331,11 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     }
   }, [syncPhotosForOperation, syncGenericPhotos, clearPendingOperations]);
 
+  // Keep ref in sync so addPendingOperation can trigger immediate sync
+  useEffect(() => {
+    syncPendingOperationsRef.current = syncPendingOperations;
+  }, [syncPendingOperations]);
+
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
