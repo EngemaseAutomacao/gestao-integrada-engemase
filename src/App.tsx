@@ -44,7 +44,7 @@ const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
-const ManualEntry = lazy(() => import("./pages/admin/ManualEntry"));
+
 const AdminIssues = lazy(() => import("./pages/admin/AdminIssues"));
 const AdminConstructionSites = lazy(() => import("./pages/admin/AdminConstructionSites"));
 const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
