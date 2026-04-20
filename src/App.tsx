@@ -55,6 +55,8 @@ const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory
 const ReportIssue = lazy(() => import("./pages/ReportIssue"));
 const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssue"));
 const AdminVehicleIssues = lazy(() => import("./pages/admin/AdminVehicleIssues"));
+const AdminProblemas = lazy(() => import("./pages/admin/AdminProblemas"));
+const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
 // AdminSiteTools removed
 
 const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
@@ -148,17 +150,20 @@ const App = () => (
                     <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
                     <Route path="/admin/tools" element={<Navigate to="/admin/construction-sites?tab=ferramentas" replace />} />
                     <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
-                    <Route path="/admin/logs" element={<Layout><AdminLogs /></Layout>} />
+                    <Route path="/admin/logs" element={<Navigate to="/admin/auditoria?tab=logs" replace />} />
                     <Route path="/admin/analytics" element={<Layout><AdminAnalytics /></Layout>} />
                     <Route path="/admin/notifications" element={<Layout><AdminNotifications /></Layout>} />
-                    <Route path="/admin/maintenance" element={<Layout><AdminMaintenance /></Layout>} />
+                    <Route path="/admin/maintenance" element={<Navigate to="/admin" replace />} />
                     <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
                     <Route path="/admin/manual" element={<Layout><ManualEntry /></Layout>} />
-                    <Route path="/admin/issues" element={<Layout><AdminIssues /></Layout>} />
+                    <Route path="/admin/issues" element={<Navigate to="/admin/problemas?tab=ferramentas" replace />} />
+                    <Route path="/admin/vehicle-issues" element={<Navigate to="/admin/problemas?tab=veiculos" replace />} />
+                    <Route path="/admin/problemas" element={<Layout><AdminProblemas /></Layout>} />
                     <Route path="/admin/construction-sites" element={<Layout><AdminConstructionSites /></Layout>} />
                     <Route path="/admin/gallery" element={<Layout><AdminGallery /></Layout>} />
                     <Route path="/admin/data-retention" element={<Layout><AdminDataRetention /></Layout>} />
-                    <Route path="/admin/audit" element={<Layout><AdminAudit /></Layout>} />
+                    <Route path="/admin/audit" element={<Navigate to="/admin/auditoria?tab=auditoria" replace />} />
+                    <Route path="/admin/auditoria" element={<Layout><AdminAuditoria /></Layout>} />
                     {/* AdminSiteTools route removed */}
                     
                     {/* Ponto Online Routes */}

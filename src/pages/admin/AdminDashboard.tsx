@@ -44,13 +44,12 @@ export default function AdminDashboard() {
     { title: "Analytics de Veículos", description: "Estatísticas da frota", icon: <BarChart3 className="w-5 h-5 text-orange-500" />, to: "/veiculos/analytics" },
     { title: "Relatórios", description: "Gerar e exportar relatórios", icon: <FileText className="w-5 h-5 text-orange-500" />, to: "/admin/reports" },
     { title: "Notificações", description: "Configurar alertas", icon: <Bell className="w-5 h-5 text-orange-500" />, to: "/admin/notifications" },
-    { title: "Logs", description: "Histórico do sistema", icon: <ClipboardList className="w-5 h-5 text-orange-500" />, to: "/admin/logs" },
+    { title: "Problemas", description: "Ferramentas e veículos", icon: <AlertCircle className="w-5 h-5 text-orange-500" />, to: "/admin/problemas" },
     { title: "Entrada Manual", description: "Registros manuais", icon: <Settings className="w-5 h-5 text-orange-500" />, to: "/admin/manual" },
     { title: "Galeria de Imagens", description: "Visualizar fotos do sistema", icon: <Images className="w-5 h-5 text-orange-500" />, to: "/admin/gallery" },
     { title: "Gestão Administrativa", description: "Obras, Clientes e Ferramentas", icon: <Building2 className="w-5 h-5 text-orange-500" />, to: "/admin/construction-sites" },
-
     { title: "Retenção de Dados", description: "Controle de limpeza automática", icon: <Database className="w-5 h-5 text-orange-500" />, to: "/admin/data-retention" },
-    { title: "Auditoria", description: "Registro detalhado de ações", icon: <Shield className="w-5 h-5 text-orange-500" />, to: "/admin/audit" },
+    { title: "Auditoria & Logs", description: "Registro detalhado de ações", icon: <Shield className="w-5 h-5 text-orange-500" />, to: "/admin/auditoria" },
   ];
 
   return (
