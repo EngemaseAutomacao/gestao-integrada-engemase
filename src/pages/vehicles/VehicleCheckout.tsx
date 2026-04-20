@@ -145,8 +145,28 @@ export default function VehicleCheckout() {
 
   const { data: constructionSites } = useActiveConstructionSites();
 
+  const selectedVehicleData = availableVehicles?.find((v: any) => v.id === selectedVehicle);
+  const vehicleType: "vehicle" | "platform" = (selectedVehicleData?.vehicle_type as any) || "vehicle";
+  const isPlatform = vehicleType === "platform";
+  const requiredPhotoKeys = getRequiredPhotoKeys(vehicleType, true);
+  const allPhotos = requiredPhotoKeys.every((k) => !!photos[k]);
+
   const uploadPhoto = async (file: File, prefix: string) => {
     return uploadFileImage(file, prefix, "veiculos", "saidas");
+  };
+
+  // Map photo key -> DB column for checkout
+  const photoColumnMap: Record<string, string> = {
+    front: "photo_front_checkout",
+    back: "photo_back_checkout",
+    left: "photo_left_checkout",
+    right: "photo_right_checkout",
+    dashboard: "photo_dashboard_checkout",
+    control: "photo_control_checkout",
+    wheel_fl: "photo_wheel_fl_checkout",
+    wheel_fr: "photo_wheel_fr_checkout",
+    wheel_rl: "photo_wheel_rl_checkout",
+    wheel_rr: "photo_wheel_rr_checkout",
   };
 
   const checkoutMutation = useMutation({
