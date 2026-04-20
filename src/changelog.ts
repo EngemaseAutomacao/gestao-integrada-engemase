@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.27.0",
+    date: "2026-04-20",
+    title: "Modo Offline Mais Confiável",
+    description: "Correções importantes na sincronização offline e no cache para evitar perda de fotos e dados desatualizados.",
+    changes: [
+      { type: "fix", text: "Fotos do ponto de saída agora vão para a pasta correta" },
+      { type: "fix", text: "Fotos pendentes não são mais apagadas quando há falhas de sincronização" },
+      { type: "improvement", text: "Sincronização imediata ao registrar operação com conexão ativa" },
+      { type: "security", text: "Cache do app não armazena mais respostas autenticadas que poderiam exibir dados de outros usuários" },
+    ],
+  },
+  {
     version: "1.26.0",
     date: "2026-04-20",
     title: "Painel Administrativo Responsivo",
