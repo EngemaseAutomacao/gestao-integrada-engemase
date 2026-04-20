@@ -506,7 +506,7 @@ export default function ToolDetail() {
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <User className="w-3.5 h-3.5" />
-                          <span>{issue.reporter.full_name}</span>
+                          <span>{issue.reporter?.full_name || "N/A"}</span>
                         </div>
                         <span>{format(new Date(issue.created_at), "dd/MM/yyyy", { locale: ptBR })}</span>
                         <Badge variant="outline" className="text-xs">
