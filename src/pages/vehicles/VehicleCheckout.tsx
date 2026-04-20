@@ -32,8 +32,11 @@ export default function VehicleCheckout() {
   const { data: cachedVehicles, saveToCache: saveVehiclesCache } = useOfflineStorage<any[]>("available-vehicles", []);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
-  const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [searchParams] = useSearchParams();
+  const vehicleIdFromParam = searchParams.get("vehicleId") || "";
+
+  const [selectedVehicle, setSelectedVehicle] = useState(vehicleIdFromParam);
+  const isVehicleLocked = !!vehicleIdFromParam;
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
   const [estimatedReturnTime, setEstimatedReturnTime] = useState("");
