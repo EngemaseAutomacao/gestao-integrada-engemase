@@ -60,6 +60,12 @@ export default function ReportVehicleIssue() {
     }
   };
 
+  const handlePhotoCapture = (dataUrl: string) => {
+    setPhotoDataUrl(dataUrl);
+    setPhotoConfirmed(true);
+    toast.success("Foto capturada!");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -71,6 +77,12 @@ export default function ReportVehicleIssue() {
     setLoading(true);
 
     try {
+      let photoUrl: string | null = null;
+      if (photoDataUrl) {
+        const compressed = await compressDataUrl(photoDataUrl);
+        photoUrl = await uploadDataUrlImage(compressed, "photo", "veiculos", "problemas");
+      }
+
       const issueData: Record<string, unknown> = {
         vehicle_id: formData.vehicleId,
         reported_by: user?.id,
@@ -78,6 +90,7 @@ export default function ReportVehicleIssue() {
         description: formData.description,
         severity: formData.severity,
         status: "open",
+        photo_url: photoUrl,
       };
 
       if (formData.checkoutId) {
