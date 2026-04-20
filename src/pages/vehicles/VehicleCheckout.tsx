@@ -206,12 +206,17 @@ export default function VehicleCheckout() {
         insertData.estimated_duration_minutes = routeEstimate?.duration_minutes;
       }
 
+      if (isPlatform) {
+        if (chargesDuringUse.trim()) {
+          insertData.charges_during_use = parseInt(chargesDuringUse) || 0;
+        }
+      }
+
       if (!isOnline) {
         const opId = crypto.randomUUID();
         // Save photos to IndexedDB if available
-        const photoKeys = ["front", "back", "left", "right", "dashboard"];
         let photosSaved = 0;
-        for (const key of photoKeys) {
+        for (const key of requiredPhotoKeys) {
           if (photos[key]) {
             try {
               const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
@@ -223,7 +228,6 @@ export default function VehicleCheckout() {
           }
         }
         addPendingOperation("vehicle_checkout", insertData);
-        // Update the operation ID to match
         const ops = JSON.parse(localStorage.getItem("engemase_pending_operations") || "[]");
         if (ops.length > 0) {
           ops[ops.length - 1].id = opId;
@@ -235,21 +239,24 @@ export default function VehicleCheckout() {
         return;
       }
 
-      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
+      if (!allPhotos) {
+        throw new Error(isPlatform
+          ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
+          : "Tire todas as fotos do veículo (incluindo painel)");
+      }
 
-      const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
-        uploadPhoto(photos.front!, "front_out"),
-        uploadPhoto(photos.back!, "back_out"),
-        uploadPhoto(photos.left!, "left_out"),
-        uploadPhoto(photos.right!, "right_out"),
-        uploadPhoto(photos.dashboard!, "dashboard_out"),
-      ]);
+      // Upload all required photos in parallel
+      const uploadResults = await Promise.all(
+        requiredPhotoKeys.map(async (key) => {
+          const url = await uploadPhoto(photos[key]!, `${key}_out`);
+          return { key, url };
+        })
+      );
 
-      insertData.photo_front_checkout = frontUrl;
-      insertData.photo_back_checkout = backUrl;
-      insertData.photo_left_checkout = leftUrl;
-      insertData.photo_right_checkout = rightUrl;
-      insertData.photo_dashboard_checkout = dashboardUrl;
+      for (const { key, url } of uploadResults) {
+        const col = photoColumnMap[key];
+        if (col) insertData[col] = url;
+      }
 
       const { error } = await supabase.from("vehicle_checkouts").insert(insertData);
 
@@ -277,7 +284,7 @@ export default function VehicleCheckout() {
     checkoutMutation.mutate();
   };
 
-  const selectedVehicleData = availableVehicles?.find(v => v.id === selectedVehicle);
+  // selectedVehicleData defined above
 
   const formatDuration = (minutes: number) => {
     const h = Math.floor(minutes / 60);
