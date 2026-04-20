@@ -419,7 +419,7 @@ export default function AdminConstructionSites() {
       </div>
 
       <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="obras" className="gap-2">
             <Building2 className="w-4 h-4" />
             Obras
@@ -431,6 +431,10 @@ export default function AdminConstructionSites() {
           <TabsTrigger value="ferramentas" className="gap-2">
             <Wrench className="w-4 h-4" />
             Ferramentas
+          </TabsTrigger>
+          <TabsTrigger value="veiculos" className="gap-2">
+            <Car className="w-4 h-4" />
+            Veículos
           </TabsTrigger>
         </TabsList>
 
