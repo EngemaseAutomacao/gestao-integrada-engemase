@@ -18,15 +18,35 @@ const BASE_ANGLES: PhotoAngle[] = [
 
 const DASHBOARD_ANGLE: PhotoAngle = { key: "dashboard", label: "Painel do Veículo" };
 
+const PLATFORM_EXTRA_ANGLES: PhotoAngle[] = [
+  { key: "control", label: "Controle da Plataforma" },
+  { key: "wheel_fl", label: "Roda Dianteira Esquerda" },
+  { key: "wheel_fr", label: "Roda Dianteira Direita" },
+  { key: "wheel_rl", label: "Roda Traseira Esquerda" },
+  { key: "wheel_rr", label: "Roda Traseira Direita" },
+];
+
+export type VehicleKind = "vehicle" | "platform";
+
 interface VehiclePhotoCaptureProps {
   photos: Record<string, File | null>;
   previews: Record<string, string | null>;
   onPhotoChange: (key: string, file: File | null, preview: string | null) => void;
   includeDashboard?: boolean;
+  vehicleType?: VehicleKind;
 }
 
-export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false }: VehiclePhotoCaptureProps) {
-  const ANGLES = includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES;
+export function getRequiredPhotoKeys(vehicleType: VehicleKind = "vehicle", includeDashboard = false): string[] {
+  if (vehicleType === "platform") {
+    return [...BASE_ANGLES.map(a => a.key), ...PLATFORM_EXTRA_ANGLES.map(a => a.key)];
+  }
+  return includeDashboard ? [...BASE_ANGLES.map(a => a.key), DASHBOARD_ANGLE.key] : BASE_ANGLES.map(a => a.key);
+}
+
+export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false, vehicleType = "vehicle" }: VehiclePhotoCaptureProps) {
+  const ANGLES: PhotoAngle[] = vehicleType === "platform"
+    ? [...BASE_ANGLES, ...PLATFORM_EXTRA_ANGLES]
+    : (includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -41,12 +61,16 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
 
   const allCaptured = ANGLES.every((a) => previews[a.key]);
 
+  const headerLabel = vehicleType === "platform"
+    ? "Fotos da Plataforma (4 lados + controle + 4 rodas)"
+    : `Fotos do Veículo (${includeDashboard ? "4 ângulos + painel" : "4 ângulos"})`;
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-semibold">Fotos do Veículo ({includeDashboard ? "4 ângulos + painel" : "4 ângulos"}) *</Label>
+        <Label className="text-base font-semibold">{headerLabel} *</Label>
         {allCaptured && (
-          <span className="text-sm text-green-600 flex items-center gap-1">
+          <span className="text-sm text-success flex items-center gap-1">
             <Check className="w-4 h-4" /> Todas capturadas
           </span>
         )}
@@ -91,7 +115,6 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
                 variant="outline"
                 className="w-full h-28 flex flex-col gap-1 border-dashed"
                 onClick={() => {
-                  // Reset input value to allow re-selecting same file
                   if (inputRefs.current[angle.key]) {
                     inputRefs.current[angle.key]!.value = "";
                   }

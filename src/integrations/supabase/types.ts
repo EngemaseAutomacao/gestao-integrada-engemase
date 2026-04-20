@@ -925,6 +925,7 @@ export type Database = {
       }
       vehicle_checkouts: {
         Row: {
+          charges_during_use: number | null
           checked_in_by: string | null
           checked_out_by: string
           checkin_date: string | null
@@ -945,6 +946,8 @@ export type Database = {
           origin_longitude: number | null
           photo_back_checkin: string | null
           photo_back_checkout: string | null
+          photo_control_checkin: string | null
+          photo_control_checkout: string | null
           photo_dashboard_checkin: string | null
           photo_dashboard_checkout: string | null
           photo_front_checkin: string | null
@@ -953,6 +956,14 @@ export type Database = {
           photo_left_checkout: string | null
           photo_right_checkin: string | null
           photo_right_checkout: string | null
+          photo_wheel_fl_checkin: string | null
+          photo_wheel_fl_checkout: string | null
+          photo_wheel_fr_checkin: string | null
+          photo_wheel_fr_checkout: string | null
+          photo_wheel_rl_checkin: string | null
+          photo_wheel_rl_checkout: string | null
+          photo_wheel_rr_checkin: string | null
+          photo_wheel_rr_checkout: string | null
           purpose: string | null
           refueled: boolean | null
           status: string | null
@@ -961,6 +972,7 @@ export type Database = {
           vehicle_id: string
         }
         Insert: {
+          charges_during_use?: number | null
           checked_in_by?: string | null
           checked_out_by: string
           checkin_date?: string | null
@@ -981,6 +993,8 @@ export type Database = {
           origin_longitude?: number | null
           photo_back_checkin?: string | null
           photo_back_checkout?: string | null
+          photo_control_checkin?: string | null
+          photo_control_checkout?: string | null
           photo_dashboard_checkin?: string | null
           photo_dashboard_checkout?: string | null
           photo_front_checkin?: string | null
@@ -989,6 +1003,14 @@ export type Database = {
           photo_left_checkout?: string | null
           photo_right_checkin?: string | null
           photo_right_checkout?: string | null
+          photo_wheel_fl_checkin?: string | null
+          photo_wheel_fl_checkout?: string | null
+          photo_wheel_fr_checkin?: string | null
+          photo_wheel_fr_checkout?: string | null
+          photo_wheel_rl_checkin?: string | null
+          photo_wheel_rl_checkout?: string | null
+          photo_wheel_rr_checkin?: string | null
+          photo_wheel_rr_checkout?: string | null
           purpose?: string | null
           refueled?: boolean | null
           status?: string | null
@@ -997,6 +1019,7 @@ export type Database = {
           vehicle_id: string
         }
         Update: {
+          charges_during_use?: number | null
           checked_in_by?: string | null
           checked_out_by?: string
           checkin_date?: string | null
@@ -1017,6 +1040,8 @@ export type Database = {
           origin_longitude?: number | null
           photo_back_checkin?: string | null
           photo_back_checkout?: string | null
+          photo_control_checkin?: string | null
+          photo_control_checkout?: string | null
           photo_dashboard_checkin?: string | null
           photo_dashboard_checkout?: string | null
           photo_front_checkin?: string | null
@@ -1025,6 +1050,14 @@ export type Database = {
           photo_left_checkout?: string | null
           photo_right_checkin?: string | null
           photo_right_checkout?: string | null
+          photo_wheel_fl_checkin?: string | null
+          photo_wheel_fl_checkout?: string | null
+          photo_wheel_fr_checkin?: string | null
+          photo_wheel_fr_checkout?: string | null
+          photo_wheel_rl_checkin?: string | null
+          photo_wheel_rl_checkout?: string | null
+          photo_wheel_rr_checkin?: string | null
+          photo_wheel_rr_checkout?: string | null
           purpose?: string | null
           refueled?: boolean | null
           status?: string | null
@@ -1153,6 +1186,7 @@ export type Database = {
           plate: string
           status: string | null
           updated_at: string
+          vehicle_type: string
           year: number | null
         }
         Insert: {
@@ -1167,6 +1201,7 @@ export type Database = {
           plate: string
           status?: string | null
           updated_at?: string
+          vehicle_type?: string
           year?: number | null
         }
         Update: {
@@ -1181,6 +1216,7 @@ export type Database = {
           plate?: string
           status?: string | null
           updated_at?: string
+          vehicle_type?: string
           year?: number | null
         }
         Relationships: [

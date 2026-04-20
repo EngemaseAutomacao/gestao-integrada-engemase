@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+import VehiclePhotoCapture, { getRequiredPhotoKeys } from "@/components/VehiclePhotoCapture";
 import { Badge } from "@/components/ui/badge";
 
 interface OdometerResult {
@@ -47,8 +47,9 @@ export default function VehicleCheckin() {
   const [showManualKm, setShowManualKm] = useState(false);
   const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<Record<string, string> | null>(null);
 
-  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
-  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+  const [photos, setPhotos] = useState<Record<string, File | null>>({});
+  const [previews, setPreviews] = useState<Record<string, string | null>>({});
+  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
 
   const hasUnsavedData = !!(selectedCheckout || notes || Object.values(photos).some(Boolean));
   useUnsavedChanges(hasUnsavedData);
@@ -56,15 +57,12 @@ export default function VehicleCheckin() {
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
     setPreviews(prev => ({ ...prev, [key]: preview }));
-    // Reset odometer result when dashboard photo changes
     if (key === "dashboard") {
       setOdometerResult(null);
       setShowManualKm(false);
       setManualKm("");
     }
   };
-
-  const allPhotos = Object.values(photos).every(Boolean);
 
   const { data: activeCheckouts, isLoading } = useQuery({
     queryKey: ["active-vehicle-checkouts"],
@@ -84,7 +82,7 @@ export default function VehicleCheckin() {
           km_checkout,
           destination,
           photo_dashboard_checkout,
-          vehicles!inner(id, name, plate, brand, model),
+          vehicles!inner(id, name, plate, brand, model, vehicle_type),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
         .eq("status", "checked_out")
@@ -100,29 +98,54 @@ export default function VehicleCheckin() {
     return uploadFileImage(file, prefix, "veiculos", "entradas");
   };
 
+  const selectedCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
+  const vehicleType: "vehicle" | "platform" = (selectedCheckoutData?.vehicles?.vehicle_type as any) || "vehicle";
+  const isPlatform = vehicleType === "platform";
+  const requiredPhotoKeys = getRequiredPhotoKeys(vehicleType, true);
+  const allPhotos = requiredPhotoKeys.every((k) => !!photos[k]);
+
+  const photoColumnMap: Record<string, string> = {
+    front: "photo_front_checkin",
+    back: "photo_back_checkin",
+    left: "photo_left_checkin",
+    right: "photo_right_checkin",
+    dashboard: "photo_dashboard_checkin",
+    control: "photo_control_checkin",
+    wheel_fl: "photo_wheel_fl_checkin",
+    wheel_fr: "photo_wheel_fr_checkin",
+    wheel_rl: "photo_wheel_rl_checkin",
+    wheel_rr: "photo_wheel_rr_checkin",
+  };
+
 
   const checkinMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (refueled === null) throw new Error("Informe se o veículo foi abastecido");
+      if (!isPlatform && refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
-      const currentCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+      const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
 
       const updateData: any = {
         status: "checked_in",
         checkin_date: new Date().toISOString(),
-        km_checkin: manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0),
         checked_in_by: user.id,
         notes: notes || undefined,
-        refueled: refueled === "yes",
       };
+
+      if (isPlatform) {
+        if (chargesDuringUse.trim()) {
+          updateData.charges_during_use = parseInt(chargesDuringUse) || 0;
+        }
+      } else {
+        updateData.km_checkin = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+        updateData.refueled = refueled === "yes";
+      }
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
-        const photoKeys = ["front", "back", "left", "right", "dashboard"];
         let photosSaved = 0;
-        for (const key of photoKeys) {
+        for (const key of requiredPhotoKeys) {
           if (photos[key]) {
             try {
               const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
@@ -148,24 +171,30 @@ export default function VehicleCheckin() {
         return;
       }
 
-      if (!allPhotos) throw new Error("Tire todas as fotos do veículo (incluindo painel)");
+      if (!allPhotos) {
+        throw new Error(isPlatform
+          ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
+          : "Tire todas as fotos do veículo (incluindo painel)");
+      }
 
-      // Skip re-uploading if photos were already uploaded (retry after manual km)
+      // Upload all required photos in parallel (skip if already uploaded - retry after manual km)
       let urls = uploadedPhotoUrls;
       if (!urls) {
-        const [frontUrl, backUrl, leftUrl, rightUrl, dashboardUrl] = await Promise.all([
-          uploadPhoto(photos.front!, "front_in"),
-          uploadPhoto(photos.back!, "back_in"),
-          uploadPhoto(photos.left!, "left_in"),
-          uploadPhoto(photos.right!, "right_in"),
-          uploadPhoto(photos.dashboard!, "dashboard_in"),
-        ]);
-        urls = { front: frontUrl, back: backUrl, left: leftUrl, right: rightUrl, dashboard: dashboardUrl };
+        const uploadResults = await Promise.all(
+          requiredPhotoKeys.map(async (key) => {
+            const url = await uploadPhoto(photos[key]!, `${key}_in`);
+            return { key, url };
+          })
+        );
+        urls = {};
+        for (const { key, url } of uploadResults) {
+          urls[key] = url;
+        }
         setUploadedPhotoUrls(urls);
       }
 
-      // Try to estimate km from dashboard photos (only on first attempt)
-      if (!odometerResult && !showManualKm && currentCheckoutData?.photo_dashboard_checkout) {
+      // Try to estimate km from dashboard photos (only for vehicles, not platforms)
+      if (!isPlatform && !odometerResult && !showManualKm && currentCheckoutData?.photo_dashboard_checkout && urls.dashboard) {
         setIsEstimatingKm(true);
         try {
           const { data: odometerData, error: odometerError } = await supabase.functions.invoke("read-odometer", {
@@ -189,7 +218,7 @@ export default function VehicleCheckin() {
             } else {
               setShowManualKm(true);
               toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente.");
-              return; // Stop - user needs to enter km manually and resubmit
+              return;
             }
           }
         } catch (e) {
@@ -202,28 +231,25 @@ export default function VehicleCheckin() {
             notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
           });
           toast.warning("Não foi possível estimar a quilometragem. Informe manualmente.");
-          return; // Stop - user needs to enter km manually and resubmit
+          return;
         }
       }
 
-      // If manual km was provided, use it
-      if (manualKm) {
+      if (!isPlatform && manualKm) {
         updateData.km_checkin = parseInt(manualKm);
+      }
+
+      // Apply photo URLs to update payload
+      const finalUpdate: any = { ...updateData };
+      for (const key of requiredPhotoKeys) {
+        const col = photoColumnMap[key];
+        if (col && urls[key]) finalUpdate[col] = urls[key];
       }
 
       const { error } = await supabase
         .from("vehicle_checkouts")
-        .update({
-          ...updateData,
-          photo_front_checkin: urls.front,
-          photo_back_checkin: urls.back,
-          photo_left_checkin: urls.left,
-          photo_right_checkin: urls.right,
-          photo_dashboard_checkin: urls.dashboard,
-        })
+        .update(finalUpdate)
         .eq("id", selectedCheckout);
-
-      if (error) throw error;
 
       if (error) throw error;
     },
@@ -251,7 +277,7 @@ export default function VehicleCheckin() {
     checkinMutation.mutate();
   };
 
-  const selectedCheckoutData = activeCheckouts?.find(c => c.id === selectedCheckout);
+  // selectedCheckoutData defined above
 
   const confidenceBadge = (confidence: string) => {
     switch (confidence) {
