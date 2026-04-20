@@ -28,6 +28,8 @@ export default function ReportVehicleIssue() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [photoConfirmed, setPhotoConfirmed] = useState(false);
 
   const [formData, setFormData] = useState({
     vehicleId: searchParams.get("vehicleId") || "",
