@@ -315,17 +315,7 @@ export default function Home() {
           />
         </div>
 
-        {isAdmin && (
-          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
-            <ModuleCard
-              title="Administração"
-              description="Usuários, relatórios e configurações"
-              icon={<Shield className="w-6 h-6 text-orange-500" />}
-              to="/admin"
-              variant="admin"
-            />
-          </div>
-        )}
+        {/* Removing admin */}
 
         {!isStandalone && (
           <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
