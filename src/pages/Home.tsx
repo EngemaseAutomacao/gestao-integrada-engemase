@@ -268,7 +268,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-5xl w-full">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 max-w-5xl w-full justify-items-center [&>*]:w-full">
         <ModuleCard
           title="Ferramentas"
           description="Retiradas, devoluções e manutenções"
