@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import VehiclePhotoCapture from "@/components/VehiclePhotoCapture";
+import VehiclePhotoCapture, { getRequiredPhotoKeys } from "@/components/VehiclePhotoCapture";
 import { Badge } from "@/components/ui/badge";
 
 interface OdometerResult {
@@ -47,8 +47,9 @@ export default function VehicleCheckin() {
   const [showManualKm, setShowManualKm] = useState(false);
   const [uploadedPhotoUrls, setUploadedPhotoUrls] = useState<Record<string, string> | null>(null);
 
-  const [photos, setPhotos] = useState<Record<string, File | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
-  const [previews, setPreviews] = useState<Record<string, string | null>>({ front: null, back: null, left: null, right: null, dashboard: null });
+  const [photos, setPhotos] = useState<Record<string, File | null>>({});
+  const [previews, setPreviews] = useState<Record<string, string | null>>({});
+  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
 
   const hasUnsavedData = !!(selectedCheckout || notes || Object.values(photos).some(Boolean));
   useUnsavedChanges(hasUnsavedData);
@@ -56,15 +57,12 @@ export default function VehicleCheckin() {
   const handlePhotoChange = (key: string, file: File | null, preview: string | null) => {
     setPhotos(prev => ({ ...prev, [key]: file }));
     setPreviews(prev => ({ ...prev, [key]: preview }));
-    // Reset odometer result when dashboard photo changes
     if (key === "dashboard") {
       setOdometerResult(null);
       setShowManualKm(false);
       setManualKm("");
     }
   };
-
-  const allPhotos = Object.values(photos).every(Boolean);
 
   const { data: activeCheckouts, isLoading } = useQuery({
     queryKey: ["active-vehicle-checkouts"],
