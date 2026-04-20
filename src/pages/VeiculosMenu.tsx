@@ -118,12 +118,6 @@ export default function VeiculosMenu() {
               icon={<ClipboardList className="w-6 h-6 text-primary" />}
               to="/admin/vehicle-history"
             />
-            <MenuCard
-              title="Analytics"
-              description="Estatísticas da frota"
-              icon={<BarChart3 className="w-6 h-6 text-primary" />}
-              to="/veiculos/analytics"
-            />
           </>
         )}
       </div>

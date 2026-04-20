@@ -151,14 +151,14 @@ export default function Layout({ children }: LayoutProps) {
     ...(isAdmin ? [
       { title: "Problemas", url: "/admin/vehicle-issues", icon: AlertCircle },
       { title: "Histórico Geral", url: "/admin/vehicle-history", icon: ClipboardList },
-      { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
     ] : []),
   ];
 
   const adminMenuItems = [
     { title: "Dashboard", url: "/admin", icon: BarChart3 },
     { title: "Usuários", url: "/admin/users", icon: Users },
-    { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+    { title: "Analytics Geral", url: "/admin/analytics", icon: BarChart3 },
+    { title: "Analytics de Veículos", url: "/veiculos/analytics", icon: BarChart3 },
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
     
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
