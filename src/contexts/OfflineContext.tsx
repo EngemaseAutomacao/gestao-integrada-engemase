@@ -88,6 +88,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
   isOnlineRef.current = isOnline;
 
   const isSyncing = useRef(false);
+  const syncPendingOperationsRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
     saveToStorage(STORAGE_KEY, pendingOperations);
@@ -115,6 +116,11 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       navigator.serviceWorker.ready.then(sw => {
         (sw as any).sync?.register?.("sync-pending").catch(() => {});
       }).catch(() => {});
+    }
+
+    // If we're online, trigger sync immediately (next tick to ensure state is committed)
+    if (isOnlineRef.current) {
+      setTimeout(() => syncPendingOperationsRef.current?.(), 100);
     }
 
     return id;
@@ -168,7 +174,9 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     const photo = photos[0];
     const blob = new File([photo.blob], photo.fileName, { type: photo.blob.type || "image/jpeg" });
     const { uploadFileImage: uploadFn } = await import("@/lib/storageUtils");
-    const folder = op.type === "ponto_out" ? "entradas" : "saidas";
+    // Correct folder: checkout/ponto_in = saidas; checkin/ponto_out = entradas
+    const isReturn = op.type === "checkin" || op.type === "ponto_out";
+    const folder = isReturn ? "entradas" : "saidas";
     const url = await uploadFn(blob, "photo", "ferramentas", folder);
     await deletePhotosByOperation(op.id);
     return url;
@@ -295,18 +303,19 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       setPendingOperations(retryOps);
     } else {
       clearPendingOperations();
-      // Clean up ID map if everything synced
+      // Clean up ID map only if NO failures (pending or permanent)
       if (newFailed.length === 0) {
         clearIdMap();
-      }
-      try {
-        const remainingPhotos = await getOfflinePhotosCount();
-        if (remainingPhotos > 0) {
-          await clearAllOfflinePhotos();
-          console.log("IndexedDB photos cleaned up after full sync");
+        // Only clear ALL photos when nothing pending/failed remains
+        try {
+          const remainingPhotos = await getOfflinePhotosCount();
+          if (remainingPhotos > 0) {
+            await clearAllOfflinePhotos();
+            console.log("IndexedDB photos cleaned up after full sync");
+          }
+        } catch (e) {
+          console.error("Error cleaning IndexedDB:", e);
         }
-      } catch (e) {
-        console.error("Error cleaning IndexedDB:", e);
       }
     }
 
@@ -321,6 +330,11 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
       }, delay);
     }
   }, [syncPhotosForOperation, syncGenericPhotos, clearPendingOperations]);
+
+  // Keep ref in sync so addPendingOperation can trigger immediate sync
+  useEffect(() => {
+    syncPendingOperationsRef.current = syncPendingOperations;
+  }, [syncPendingOperations]);
 
   useEffect(() => {
     const handleOnline = () => {

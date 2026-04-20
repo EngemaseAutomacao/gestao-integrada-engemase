@@ -2,8 +2,8 @@
 // Service Worker with version-aware cache invalidation
 // ============================================================
 
-const STATIC_CACHE = 'engemase-static-v8';
-const DYNAMIC_CACHE = 'engemase-dynamic-v8';
+const STATIC_CACHE = 'engemase-static-v9';
+const DYNAMIC_CACHE = 'engemase-dynamic-v9';
 const MAX_CACHE_SIZE = 50;
 const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
@@ -100,6 +100,14 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.hostname.includes('supabase.co')) {
+    // Do NOT cache authenticated API calls (PostgREST, auth, functions, realtime)
+    // Only cache public storage assets that are safe to share
+    const isPublicStorage = url.pathname.startsWith('/storage/v1/object/public/');
+    if (!isPublicStorage) {
+      // Network only — never serve stale auth/data responses
+      event.respondWith(fetch(event.request).catch(() => new Response(null, { status: 503 })));
+      return;
+    }
     event.respondWith(
       fetch(event.request)
         .then(response => {
