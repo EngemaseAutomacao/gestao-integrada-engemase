@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Car, Search, Plus, Loader2, Pencil, Trash2, Upload, X, Cog } from "lucide-react";
+import { Car, Search, Plus, Loader2, Pencil, Trash2, Cog } from "lucide-react";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 import { SignedImage } from "@/components/SignedImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -34,9 +34,7 @@ export default function VehicleList() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<VehicleForm>(emptyForm);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
   const isAdmin = profile?.role === "admin";
@@ -77,8 +75,6 @@ export default function VehicleList() {
   const resetForm = () => {
     setEditingId(null);
     setFormData(emptyForm);
-    setImageFile(null);
-    setImagePreview(null);
   };
 
   const openNew = () => {
@@ -97,18 +93,7 @@ export default function VehicleList() {
       color: vehicle.color || "",
       vehicle_type: (vehicle.vehicle_type as "vehicle" | "platform") || "vehicle",
     });
-    setImagePreview(vehicle.image_url);
     setDialogOpen(true);
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,23 +101,6 @@ export default function VehicleList() {
     setSaving(true);
 
     try {
-      let imageUrl = editingId ? (imagePreview?.startsWith("data:") ? null : imagePreview) : null;
-
-      if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const seq = String(Date.now()).slice(-6);
-        const dateFolder = new Date().toISOString().slice(0, 10);
-        const filePath = `veiculos/catalogo/${dateFolder}/veiculo_${seq}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from("imagens").upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        imageUrl = filePath;
-      }
-
-      // If image was removed
-      if (!imagePreview && !imageFile) {
-        imageUrl = null;
-      }
-
       const payload = {
         name: formData.name,
         plate: formData.plate.toUpperCase(),
@@ -140,7 +108,6 @@ export default function VehicleList() {
         model: formData.model || null,
         year: formData.year ? parseInt(formData.year) : null,
         color: formData.color || null,
-        image_url: imageUrl,
         vehicle_type: formData.vehicle_type,
       };
 
@@ -350,26 +317,7 @@ export default function VehicleList() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Foto do Veículo</Label>
-              <div>
-                <input id="v-image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                <Button type="button" variant="outline" className="gap-2" onClick={() => document.getElementById("v-image")?.click()}>
-                  <Upload className="h-4 w-4" />
-                  Escolher Foto
-                </Button>
-              </div>
-              {imagePreview && (
-                <div className="relative inline-block mt-2">
-                  <img src={imagePreview} alt="Preview" className="h-32 w-32 object-cover rounded-lg border cursor-pointer" onClick={() => setEnlargedImage(imagePreview)} />
-                  <Button type="button" variant="destructive" size="icon" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={saving} className="flex-1">
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editingId ? "Atualizar" : "Cadastrar"}
@@ -380,17 +328,6 @@ export default function VehicleList() {
         </DialogContent>
       </Dialog>
 
-      {/* Enlarged Image Dialog */}
-      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
-        <DialogContent className="max-w-3xl p-2">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Foto do veículo</DialogTitle>
-          </DialogHeader>
-          {enlargedImage && (
-            <img src={enlargedImage} alt="Foto ampliada" className="w-full h-auto max-h-[80vh] object-contain rounded-lg" />
-          )}
-        </DialogContent>
-      </Dialog>
 
       <DeleteWithReasonDialog
         open={deleteDialogOpen}
