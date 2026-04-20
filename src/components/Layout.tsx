@@ -79,7 +79,7 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
   '/admin': { title: 'Administração', icon: Settings },
   '/admin/users': { title: 'Usuários', icon: Users },
-  '/admin/tools': { title: 'Gerenciar Ferramentas', icon: Settings },
+  '/admin/tools': { title: 'Gestão Administrativa', icon: Settings },
   '/admin/maintenance': { title: 'Manutenções', icon: Wrench },
   '/admin/issues': { title: 'Problemas', icon: AlertCircle },
   '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
@@ -109,7 +109,7 @@ export default function Layout({ children }: LayoutProps) {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   
   const isHomePage = location.pathname === '/';
-  const adminToolRoutes = ['/admin/tools', '/admin/maintenance', '/admin/issues', '/admin/history'];
+  const adminToolRoutes = ['/admin/construction-sites?tab=ferramentas', '/admin/maintenance', '/admin/issues', '/admin/history'];
   const isAdminToolRoute = adminToolRoutes.some(r => location.pathname.startsWith(r));
   const isFerramentasModule = location.pathname.startsWith('/ferramentas') || 
                                location.pathname.startsWith('/tools') ||
@@ -130,7 +130,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Catálogo", url: "/ferramentas/lista", icon: Package },
     { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
     ...(isAdmin ? [
-      { title: "Gerenciar Ferramentas", url: "/admin/tools", icon: Settings },
+      { title: "Gerenciar Ferramentas", url: "/admin/construction-sites?tab=ferramentas", icon: Settings },
       { title: "Manutenções", url: "/admin/maintenance", icon: Wrench },
       { title: "Problemas", url: "/admin/issues", icon: AlertCircle },
       { title: "Histórico Geral", url: "/admin/history", icon: ClipboardList },
