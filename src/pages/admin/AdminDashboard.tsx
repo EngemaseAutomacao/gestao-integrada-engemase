@@ -40,8 +40,8 @@ export default function AdminDashboard() {
 
   const adminItems = [
     { title: "Usuários", description: "Gerenciar contas e permissões", icon: <Users className="w-5 h-5 text-orange-500" />, to: "/admin/users" },
-    { title: "Analytics", description: "Dashboard analítico", icon: <BarChart3 className="w-5 h-5 text-orange-500" />, to: "/admin/analytics" },
-    { title: "Analytics de Veículos", description: "Estatísticas da frota", icon: <BarChart3 className="w-5 h-5 text-orange-500" />, to: "/veiculos/analytics" },
+    { title: "Analytics", description: "Ferramentas e veículos", icon: <BarChart3 className="w-5 h-5 text-orange-500" />, to: "/admin/analytics-hub" },
+    { title: "Histórico Geral", description: "Ferramentas e veículos", icon: <ClipboardList className="w-5 h-5 text-orange-500" />, to: "/admin/historico" },
     { title: "Relatórios", description: "Gerar e exportar relatórios", icon: <FileText className="w-5 h-5 text-orange-500" />, to: "/admin/reports" },
     { title: "Notificações", description: "Configurar alertas", icon: <Bell className="w-5 h-5 text-orange-500" />, to: "/admin/notifications" },
     { title: "Problemas", description: "Ferramentas e veículos", icon: <AlertCircle className="w-5 h-5 text-orange-500" />, to: "/admin/problemas" },

@@ -138,8 +138,8 @@ const App = () => (
                     <Route path="/veiculos/menu" element={<Layout><VeiculosMenu /></Layout>} />
                     <Route path="/veiculos/combustivel" element={<Layout><FuelRecords /></Layout>} />
                     <Route path="/veiculos/analytics" element={<Layout><VehicleAnalytics /></Layout>} />
-                    <Route path="/admin/vehicle-history" element={<Layout><AdminVehicleHistory /></Layout>} />
-                    <Route path="/admin/vehicle-issues" element={<Layout><AdminVehicleIssues /></Layout>} />
+                    <Route path="/admin/vehicle-history" element={<Navigate to="/admin/historico?tab=veiculos" replace />} />
+                    <Route path="/admin/vehicle-issues" element={<Navigate to="/admin/problemas?tab=veiculos" replace />} />
                     <Route path="/veiculos/report-issue" element={<Layout><ReportVehicleIssue /></Layout>} />
                     {/* Legacy routes - redirect to new paths */}
                     <Route path="/tools" element={<Navigate to="/ferramentas/lista" replace />} />
@@ -151,9 +151,11 @@ const App = () => (
                     <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
                     <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
                     <Route path="/admin/tools" element={<Navigate to="/admin/construction-sites?tab=ferramentas" replace />} />
-                    <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
+                    <Route path="/admin/history" element={<Navigate to="/admin/historico?tab=ferramentas" replace />} />
+                    <Route path="/admin/historico" element={<Layout><AdminHistorico /></Layout>} />
                     <Route path="/admin/logs" element={<Navigate to="/admin/auditoria?tab=logs" replace />} />
-                    <Route path="/admin/analytics" element={<Layout><AdminAnalytics /></Layout>} />
+                    <Route path="/admin/analytics" element={<Navigate to="/admin/analytics-hub?tab=ferramentas" replace />} />
+                    <Route path="/admin/analytics-hub" element={<Layout><AdminAnalyticsHub /></Layout>} />
                     <Route path="/admin/notifications" element={<Layout><AdminNotifications /></Layout>} />
                     <Route path="/admin/maintenance" element={<Navigate to="/admin" replace />} />
                     <Route path="/admin/reports" element={<Layout><AdminReports /></Layout>} />
