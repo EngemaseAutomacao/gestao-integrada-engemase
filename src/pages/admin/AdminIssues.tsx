@@ -165,7 +165,7 @@ export default function AdminIssues() {
     const matchesSearch =
       issue.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       issue.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      issue.tool.name.toLowerCase().includes(searchQuery.toLowerCase());
+      (issue.tool?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || issue.status === statusFilter;
     const matchesSeverity = severityFilter === "all" || issue.severity === severityFilter;
