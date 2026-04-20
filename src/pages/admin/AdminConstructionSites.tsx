@@ -75,6 +75,18 @@ export default function AdminConstructionSites() {
   const [toolSearch, setToolSearch] = useState("");
   const [syncingTools, setSyncingTools] = useState(false);
 
+  // Vehicles state
+  const [vehicleSearch, setVehicleSearch] = useState("");
+  const [vehicleDialogOpen, setVehicleDialogOpen] = useState(false);
+  const [savingVehicle, setSavingVehicle] = useState(false);
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+  const [vehicleForm, setVehicleForm] = useState({
+    name: "", plate: "", brand: "", model: "", year: "", color: "",
+    vehicle_type: "vehicle" as "vehicle" | "platform",
+  });
+  const [deleteVehicleOpen, setDeleteVehicleOpen] = useState(false);
+  const [deletingVehicle, setDeletingVehicle] = useState<any>(null);
+
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
