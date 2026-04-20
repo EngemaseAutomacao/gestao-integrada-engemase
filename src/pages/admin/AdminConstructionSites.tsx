@@ -184,6 +184,7 @@ export default function AdminConstructionSites() {
         description: `${s.added} adicionada(s), ${s.updated} atualizada(s), ${s.deleted} removida(s) de ${s.total_sheet_rows} linhas.`,
       });
       refetchTools();
+      queryClient.invalidateQueries({ queryKey: ["last-tool-sync"] });
     },
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
