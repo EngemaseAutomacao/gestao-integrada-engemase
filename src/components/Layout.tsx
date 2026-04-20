@@ -50,6 +50,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 // Route-to-title mapping as module-level constant (avoids re-creation on every render)
 const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
