@@ -104,8 +104,7 @@ export function AppSidebar() {
           {
             label: "Materiais",
             items: [
-              { title: "Painel", url: "/materiais", icon: Package },
-              { title: "Solicitar", url: "/materiais/solicitar", icon: ClipboardList },
+              { title: "Painel & Catálogo", url: "/materiais", icon: Package },
               { title: "Gerenciar", url: "/materiais/admin", icon: Users },
             ],
           },
