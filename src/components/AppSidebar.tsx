@@ -79,27 +79,13 @@ export function AppSidebar() {
     {
       label: "Ferramentas",
       items: [
-        { title: "Painel & Catálogo", url: "/ferramentas/dashboard", icon: Package },
-        { title: "Registrar Saída", url: "/ferramentas/retirada", icon: Upload },
-        {
-          title: "Registrar Devolução",
-          url: "/ferramentas/devolucao",
-          icon: LogIn,
-          badge: toolBadgeCount,
-        },
+        { title: "Painel & Catálogo", url: "/ferramentas/dashboard", icon: Package, badge: toolBadgeCount },
       ],
     },
     {
       label: "Veículos",
       items: [
-        { title: "Painel & Lista", url: "/veiculos/dashboard", icon: Package },
-        { title: "Registrar Saída", url: "/veiculos/saida", icon: Upload },
-        {
-          title: "Registrar Devolução",
-          url: "/veiculos/chegada",
-          icon: LogIn,
-          badge: vehicleBadgeCount,
-        },
+        { title: "Painel & Lista", url: "/veiculos/dashboard", icon: Package, badge: vehicleBadgeCount },
         ...(isAdmin
           ? [
               { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
