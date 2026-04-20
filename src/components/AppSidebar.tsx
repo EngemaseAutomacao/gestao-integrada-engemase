@@ -88,7 +88,6 @@ export function AppSidebar() {
         { title: "Painel & Lista", url: "/veiculos/dashboard", icon: Package, badge: vehicleBadgeCount },
         ...(isAdmin
           ? [
-              { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
               { title: "Analytics", url: "/veiculos/analytics", icon: BarChart3 },
             ]
           : []),
