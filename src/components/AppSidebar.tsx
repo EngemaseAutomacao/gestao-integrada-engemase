@@ -73,6 +73,7 @@ export function AppSidebar() {
       items: [
         { title: "Início", url: "/", icon: Home },
         { title: "Meu Dia", url: "/meu-dia", icon: CalendarDays },
+        { title: "Histórico", url: "/historico", icon: History },
         { title: "Transferências", url: "/transferencias", icon: ArrowRightLeft },
       ],
     },
@@ -88,7 +89,6 @@ export function AppSidebar() {
           icon: LogIn,
           badge: toolBadgeCount,
         },
-        { title: "Meu Histórico", url: "/ferramentas/historico", icon: History },
       ],
     },
     {
@@ -103,7 +103,6 @@ export function AppSidebar() {
           icon: LogIn,
           badge: vehicleBadgeCount,
         },
-        { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
         ...(isAdmin
           ? [
               { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
@@ -119,7 +118,6 @@ export function AppSidebar() {
             items: [
               { title: "Painel", url: "/ponto", icon: Clock },
               { title: "Registrar", url: "/ponto/registrar", icon: Clock },
-              { title: "Histórico", url: "/ponto/historico", icon: History },
               { title: "Gerenciar", url: "/ponto/admin", icon: Users },
             ],
           },
@@ -128,7 +126,6 @@ export function AppSidebar() {
             items: [
               { title: "Painel", url: "/materiais", icon: Package },
               { title: "Solicitar", url: "/materiais/solicitar", icon: ClipboardList },
-              { title: "Histórico", url: "/materiais/historico", icon: History },
               { title: "Gerenciar", url: "/materiais/admin", icon: Users },
             ],
           },
