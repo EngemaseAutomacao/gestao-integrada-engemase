@@ -317,11 +317,7 @@ export default function Home() {
 
         {/* Removing admin */}
 
-        {!isStandalone && (
-          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
-            <InstallPWACard isIOS={isIOS} />
-          </div>
-        )}
+        {/* PWA install card removed as per request for cleaner bottom alignment */}
       </div>
     </div>
   );
