@@ -55,6 +55,7 @@ const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory
 const ReportIssue = lazy(() => import("./pages/ReportIssue"));
 const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssue"));
 const AdminVehicleIssues = lazy(() => import("./pages/admin/AdminVehicleIssues"));
+const AdminSiteTools = lazy(() => import("./pages/admin/AdminSiteTools"));
 
 const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
 const PontoRegister = lazy(() => import("./pages/ponto/PontoRegister"));
@@ -158,6 +159,7 @@ const App = () => (
                     <Route path="/admin/gallery" element={<Layout><AdminGallery /></Layout>} />
                     <Route path="/admin/data-retention" element={<Layout><AdminDataRetention /></Layout>} />
                     <Route path="/admin/audit" element={<Layout><AdminAudit /></Layout>} />
+                    <Route path="/admin/site-tools" element={<Layout><AdminSiteTools /></Layout>} />
                     
                     {/* Ponto Online Routes */}
                     <Route path="/ponto" element={<Navigate to="/ponto/registrar" replace />} />
