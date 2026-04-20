@@ -82,7 +82,7 @@ export default function VehicleCheckin() {
           km_checkout,
           destination,
           photo_dashboard_checkout,
-          vehicles!inner(id, name, plate, brand, model),
+          vehicles!inner(id, name, plate, brand, model, vehicle_type),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
         .eq("status", "checked_out")
@@ -96,6 +96,25 @@ export default function VehicleCheckin() {
 
   const uploadPhoto = async (file: File, prefix: string) => {
     return uploadFileImage(file, prefix, "veiculos", "entradas");
+  };
+
+  const selectedCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
+  const vehicleType: "vehicle" | "platform" = (selectedCheckoutData?.vehicles?.vehicle_type as any) || "vehicle";
+  const isPlatform = vehicleType === "platform";
+  const requiredPhotoKeys = getRequiredPhotoKeys(vehicleType, true);
+  const allPhotos = requiredPhotoKeys.every((k) => !!photos[k]);
+
+  const photoColumnMap: Record<string, string> = {
+    front: "photo_front_checkin",
+    back: "photo_back_checkin",
+    left: "photo_left_checkin",
+    right: "photo_right_checkin",
+    dashboard: "photo_dashboard_checkin",
+    control: "photo_control_checkin",
+    wheel_fl: "photo_wheel_fl_checkin",
+    wheel_fr: "photo_wheel_fr_checkin",
+    wheel_rl: "photo_wheel_rl_checkin",
+    wheel_rr: "photo_wheel_rr_checkin",
   };
 
 
