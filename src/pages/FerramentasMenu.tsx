@@ -122,6 +122,12 @@ export default function FerramentasMenu() {
               icon={<ClipboardList className="w-6 h-6 text-primary" />}
               to="/admin/history"
             />
+            <MenuCard
+              title="Ferramentas por Obra"
+              description="Localização atual por obra"
+              icon={<Package className="w-6 h-6 text-primary" />}
+              to="/admin/site-tools"
+            />
           </>
         )}
       </div>

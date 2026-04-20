@@ -165,6 +165,7 @@ export type Database = {
         Row: {
           active: boolean
           address: string | null
+          client_id: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -176,6 +177,7 @@ export type Database = {
         Insert: {
           active?: boolean
           address?: string | null
+          client_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -187,6 +189,7 @@ export type Database = {
         Update: {
           active?: boolean
           address?: string | null
+          client_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -196,6 +199,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "construction_sites_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "construction_sites_created_by_fkey"
             columns: ["created_by"]
