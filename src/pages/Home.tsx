@@ -315,9 +315,6 @@ export default function Home() {
           />
         </div>
 
-        {/* Removing admin */}
-
-        {/* PWA install card removed as per request for cleaner bottom alignment */}
       </div>
     </div>
   );
