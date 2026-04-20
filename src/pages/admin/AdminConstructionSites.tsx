@@ -325,7 +325,10 @@ export default function AdminConstructionSites() {
 
         {/* ─── ABA OBRAS ─── */}
         <TabsContent value="obras" className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className="text-xs text-muted-foreground">
+              Última sincronização: <span className="font-medium text-foreground">{formatLastSync(lastSiteSync)}</span>
+            </p>
             <Button
               variant="outline"
               className="gap-2"
