@@ -217,7 +217,7 @@ function SummaryCards({ userId }: { userId: string }) {
   ];
 
   return (
-    <Link to="/meu-dia" className="block w-full">
+    <Link to="/historico" className="block w-full">
       <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full hover:opacity-80 transition-opacity">
         {items.map((item) => (
           <div
