@@ -38,7 +38,7 @@ const VehicleAnalytics = lazy(() => import("./pages/vehicles/VehicleAnalytics"))
 const FuelRecords = lazy(() => import("./pages/vehicles/FuelRecords"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminTools = lazy(() => import("./pages/admin/AdminTools"));
+// AdminTools removed - integrated into AdminConstructionSites
 const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
@@ -55,7 +55,7 @@ const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory
 const ReportIssue = lazy(() => import("./pages/ReportIssue"));
 const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssue"));
 const AdminVehicleIssues = lazy(() => import("./pages/admin/AdminVehicleIssues"));
-const AdminSiteTools = lazy(() => import("./pages/admin/AdminSiteTools"));
+// AdminSiteTools removed
 
 const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
 const PontoRegister = lazy(() => import("./pages/ponto/PontoRegister"));
@@ -146,7 +146,7 @@ const App = () => (
                     {/* Admin Routes */}
                     <Route path="/admin" element={<Layout><AdminDashboard /></Layout>} />
                     <Route path="/admin/users" element={<Layout><AdminUsers /></Layout>} />
-                    <Route path="/admin/tools" element={<Layout><AdminTools /></Layout>} />
+                    <Route path="/admin/tools" element={<Navigate to="/admin/construction-sites?tab=ferramentas" replace />} />
                     <Route path="/admin/history" element={<Layout><AdminHistory /></Layout>} />
                     <Route path="/admin/logs" element={<Layout><AdminLogs /></Layout>} />
                     <Route path="/admin/analytics" element={<Layout><AdminAnalytics /></Layout>} />
@@ -159,7 +159,7 @@ const App = () => (
                     <Route path="/admin/gallery" element={<Layout><AdminGallery /></Layout>} />
                     <Route path="/admin/data-retention" element={<Layout><AdminDataRetention /></Layout>} />
                     <Route path="/admin/audit" element={<Layout><AdminAudit /></Layout>} />
-                    <Route path="/admin/site-tools" element={<Layout><AdminSiteTools /></Layout>} />
+                    {/* AdminSiteTools route removed */}
                     
                     {/* Ponto Online Routes */}
                     <Route path="/ponto" element={<Navigate to="/ponto/registrar" replace />} />

@@ -104,7 +104,7 @@ export function AppSidebar() {
             items: [
               { title: "Dashboard", url: "/admin", icon: Shield },
               { title: "Usuários", url: "/admin/users", icon: Users },
-              { title: "Ferramentas", url: "/admin/tools", icon: Wrench },
+              { title: "Ferramentas", url: "/admin/construction-sites?tab=ferramentas", icon: Wrench },
               { title: "Manutenções", url: "/admin/maintenance", icon: Settings },
               { title: "Problemas Ferramentas", url: "/admin/issues", icon: AlertCircle },
               { title: "Histórico Ferramentas", url: "/admin/history", icon: ClipboardList },
