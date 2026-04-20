@@ -5,13 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wrench, Car, Clock, Package } from "lucide-react";
+import { Loader2, Wrench, Car, Clock } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 interface UnifiedEvent {
   id: string;
-  type: "tool" | "vehicle" | "ponto" | "material";
+  type: "tool" | "vehicle" | "ponto";
   date: string;
   title: string;
   subtitle: string;
@@ -30,7 +30,7 @@ interface UnifiedHistoryProps {
 export default function UnifiedHistory({
   embedded = false,
   title = "Meu Dia",
-  description = "Visão unificada de ferramentas, veículos, ponto e materiais",
+  description = "Visão unificada de ferramentas, veículos e ponto",
 }: UnifiedHistoryProps) {
   const { profile } = useAuth();
   const [searchParams] = useSearchParams();
@@ -61,7 +61,7 @@ export default function UnifiedHistory({
     setLoading(true);
     const since = getStartDate();
 
-    const [toolsRes, vehiclesRes, pontoRes, materialsRes] = await Promise.all([
+    const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
       supabase
         .from("tool_checkouts")
         .select("id, checkout_date, checkin_date, status, construction_site, tools(name)")
@@ -82,13 +82,6 @@ export default function UnifiedHistory({
         .eq("user_id", profile.id)
         .gte("clock_in", since)
         .order("clock_in", { ascending: false })
-        .limit(200),
-      supabase
-        .from("material_requests")
-        .select("id, created_at, status, construction_site, requested_by_name")
-        .eq("user_id", profile.id)
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
         .limit(200),
     ]);
 
@@ -134,22 +127,6 @@ export default function UnifiedHistory({
       });
     });
 
-    const materialStatusMap: Record<string, string> = {
-      pending: "Pendente",
-      approved: "Aprovado",
-      rejected: "Rejeitado",
-      delivered: "Entregue",
-    };
-    (materialsRes.data || []).forEach((m: any) => {
-      unified.push({
-        id: `material-${m.id}`,
-        type: "material",
-        date: m.created_at,
-        title: "Solicitação de materiais",
-        subtitle: m.construction_site || "Sem obra",
-        status: materialStatusMap[m.status] || m.status,
-      });
-    });
 
     unified.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setEvents(unified);
@@ -160,14 +137,12 @@ export default function UnifiedHistory({
     tool: <Wrench className="w-4 h-4" aria-hidden="true" />,
     vehicle: <Car className="w-4 h-4" aria-hidden="true" />,
     ponto: <Clock className="w-4 h-4" aria-hidden="true" />,
-    material: <Package className="w-4 h-4" aria-hidden="true" />,
   };
 
   const colorMap = {
     tool: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     vehicle: "bg-green-500/10 text-green-600 dark:text-green-400",
     ponto: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-    material: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
   };
 
   const filtered = typeFilter === "all" ? events : events.filter((e) => e.type === typeFilter);
@@ -219,7 +194,7 @@ export default function UnifiedHistory({
             <SelectItem value="tool">Ferramentas</SelectItem>
             <SelectItem value="vehicle">Veículos</SelectItem>
             <SelectItem value="ponto">Ponto</SelectItem>
-            <SelectItem value="material">Materiais</SelectItem>
+            
           </SelectContent>
         </Select>
       </div>

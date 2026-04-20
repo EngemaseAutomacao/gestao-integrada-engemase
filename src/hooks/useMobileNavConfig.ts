@@ -14,7 +14,7 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
   { id: "ferramentas", label: "Ferramentas", icon: Wrench, path: "/ferramentas" },
   { id: "veiculos", label: "Veículos", icon: Car, path: "/veiculos" },
   { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto", adminOnly: true },
-  { id: "materiais", label: "Materiais", icon: Package, path: "/materiais", adminOnly: true },
+  
   { id: "admin", label: "Admin", icon: Shield, path: "/admin", adminOnly: true },
 ];
 
