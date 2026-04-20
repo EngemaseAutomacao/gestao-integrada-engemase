@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Clock, Shield, Download, Package, Loader2, Building2, Share } from "lucide-react";
+import { Wrench, Car, Clock, Shield, Download, Package, Loader2, Building2, Share, History, ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -290,6 +290,20 @@ export default function Home() {
           description="Registre pontos em atividades externas"
           icon={<Clock className="w-6 h-6 text-primary" />}
           to="/ponto"
+        />
+
+        <ModuleCard
+          title="Meu Histórico"
+          description="Veja todas as suas movimentações"
+          icon={<History className="w-6 h-6 text-primary" />}
+          to="/historico"
+        />
+
+        <ModuleCard
+          title="Transferências"
+          description="Handover de ferramentas e veículos"
+          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+          to="/transferencias"
         />
 
 
