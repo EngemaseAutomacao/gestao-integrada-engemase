@@ -43,35 +43,22 @@ import { APP_VERSION } from "./version.ts";
   if (!stored) {
     localStorage.setItem(VERSION_KEY, APP_VERSION);
   } else if (stored !== APP_VERSION) {
-    console.log(`[Version] Update: ${stored} → ${APP_VERSION}`);
+    // Just record the new version. DO NOT auto-reload here — the UpdatePrompt
+    // banner is responsible for showing the user a button to update.
+    console.log(`[Version] Bundle updated: ${stored} → ${APP_VERSION}`);
     localStorage.setItem(VERSION_KEY, APP_VERSION);
-
-    clearAllCaches();
-    unregisterAllServiceWorkers();
-
-    window.location.reload();
-    return; // don't mount React if we're going to reload
   }
 
-  // Outside editor preview, keep SW auto-update behavior for PWA
+  // Outside editor preview, keep SW alive for PWA but DO NOT auto-reload.
+  // The UpdatePrompt component shows a banner and lets the user click "Atualizar".
   if (!isEditorPreview && "serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.ready.then((reg) => {
       reg.update().catch(() => {});
     });
 
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      console.log("[SW] New version activated, reloading...");
-      window.location.reload();
-    });
-
-    // Listen for version update messages from SW
+    // Listen for SW messages, but only forward sync triggers.
+    // VERSION_UPDATED is handled by UpdatePrompt to show the update banner.
     navigator.serviceWorker.addEventListener("message", (event) => {
-      if (event.data?.type === "VERSION_UPDATED") {
-        console.log("[SW] Version updated to:", event.data.version);
-        localStorage.setItem(VERSION_KEY, event.data.version);
-        window.location.reload();
-      }
-      // Background Sync trigger from SW
       if (event.data?.type === "TRIGGER_SYNC") {
         window.dispatchEvent(new CustomEvent("sw-trigger-sync"));
       }
