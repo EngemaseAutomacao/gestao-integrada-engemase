@@ -1258,6 +1258,13 @@ export type Database = {
         Args: { transfer_id: string }
         Returns: undefined
       }
+      get_active_clients_basic: {
+        Args: never
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
       get_approved_users: {
         Args: never
         Returns: {
