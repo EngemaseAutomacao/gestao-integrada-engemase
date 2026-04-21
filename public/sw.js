@@ -33,7 +33,8 @@ async function checkForUpdates() {
     if (newVersion !== currentVersion) {
       console.log('[SW] Version changed:', currentVersion, '→', newVersion);
       currentVersion = newVersion;
-      await purgeAllCaches();
+      // DO NOT purge caches here — wait for the user to click "Atualizar" in the banner.
+      // Purging now would break currently-loaded chunks before the reload happens.
       const clients = await self.clients.matchAll({ type: 'window' });
       clients.forEach(client => client.postMessage({ type: 'VERSION_UPDATED', version: newVersion }));
     }
