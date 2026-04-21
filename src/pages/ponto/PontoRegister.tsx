@@ -97,10 +97,7 @@ export default function PontoRegister() {
       .then(({ data }) => { if (data) setSites(data as ConstructionSiteWithCoords[]); });
 
     supabase
-      .from("clients")
-      .select("id, name")
-      .eq("active", true)
-      .order("name")
+      .rpc("get_active_clients_basic")
       .then(({ data }) => { if (data) setClients(data); });
   }, []);
 
