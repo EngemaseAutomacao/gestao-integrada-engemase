@@ -54,7 +54,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto w-48 h-auto">
-            <img src={engemaseLogo} alt="Engemase Engenharia" className="w-full h-auto" />
+            <img src={engemaseLogo} alt="Engemase Engenharia" width={672} height={294} fetchPriority="high" decoding="async" className="w-full h-auto" />
           </div>
           <CardTitle className="text-2xl">Sistema de Gestão de Ativos</CardTitle>
           <CardDescription>
