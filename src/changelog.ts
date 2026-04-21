@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.29.0",
+    date: "2026-04-21",
+    title: "Navegação Mais Rápida e Acessibilidade Aprimorada",
+    description: "Transição entre páginas quase instantânea e melhorias visuais para legibilidade e SEO.",
+    changes: [
+      { type: "improvement", text: "Troca de páginas muito mais rápida: o layout (menu, cabeçalho e notificações) não recarrega mais a cada navegação" },
+      { type: "improvement", text: "Logo otimizada para carregamento mais rápido na tela de login" },
+      { type: "improvement", text: "Cor primária ajustada para melhor contraste e leitura conforme padrões de acessibilidade" },
+      { type: "improvement", text: "Link 'Criar conta' agora aparece sublinhado para melhor distinção visual" },
+    ],
+  },
+  {
     version: "1.28.0",
     date: "2026-04-21",
     title: "Reforço de Segurança e Privacidade",
