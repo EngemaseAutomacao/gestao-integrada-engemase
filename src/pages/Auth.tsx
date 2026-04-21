@@ -97,7 +97,7 @@ export default function Auth() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             Não tem uma conta?{" "}
-            <Link to="/register" className="text-primary hover:underline">
+            <Link to="/register" className="text-primary underline font-medium">
               Criar conta
             </Link>
           </p>
