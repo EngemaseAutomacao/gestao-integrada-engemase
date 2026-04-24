@@ -74,7 +74,7 @@ export default function PontoRegister() {
   const [notes, setNotes] = useState("");
   const [constructionSite, setConstructionSite] = useState("");
   const [clientName, setClientName] = useState("");
-  const [entryType, setEntryType] = useState("obra");
+  const [entryType, setEntryType] = useState("interno");
   const [sites, setSites] = useState<ConstructionSiteWithCoords[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
