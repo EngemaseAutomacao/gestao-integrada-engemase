@@ -10,7 +10,6 @@ import { compressDataUrl } from "@/lib/imageCompression";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { geocodeAddress } from "@/lib/geocoding";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { PontoEntryCard } from "@/components/ponto/PontoEntryCard";
 import { PontoFormFields } from "@/components/ponto/PontoFormFields";
@@ -18,20 +17,6 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
 const MAX_ENTRIES_PER_DAY = 3;
 const PONTO_CACHE_KEY = "engemase_ponto_today";
-const GEOFENCE_RADIUS_METERS = 500;
-
-interface ConstructionSiteWithCoords {
-  id: string;
-  name: string;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-}
-
-interface ClientOption {
-  id: string;
-  name: string;
-}
 
 interface TimeEntry {
   id: string;
@@ -55,15 +40,6 @@ function getToday() {
   return format(new Date(), "yyyy-MM-dd");
 }
 
-function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
 export default function PontoRegister() {
   const { user } = useAuth();
   const { isOnline, addPendingOperation } = useOffline();
@@ -72,11 +48,7 @@ export default function PontoRegister() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState("");
-  const [constructionSite, setConstructionSite] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [entryType, setEntryType] = useState("obra");
-  const [sites, setSites] = useState<ConstructionSiteWithCoords[]>([]);
-  const [clients, setClients] = useState<ClientOption[]>([]);
+  const [entryType, setEntryType] = useState("interno");
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Photo state
@@ -84,22 +56,8 @@ export default function PontoRegister() {
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
 
   // Unsaved changes warning
-  const hasUnsavedData = !!(notes || constructionSite || clientName || photoConfirmed);
+  const hasUnsavedData = !!(notes || photoConfirmed);
   useUnsavedChanges(hasUnsavedData);
-
-  // Load construction sites + clients
-  useEffect(() => {
-    supabase
-      .from("construction_sites")
-      .select("id, name, address, latitude, longitude")
-      .eq("active", true)
-      .order("name")
-      .then(({ data }) => { if (data) setSites(data as ConstructionSiteWithCoords[]); });
-
-    supabase
-      .rpc("get_active_clients_basic")
-      .then(({ data }) => { if (data) setClients(data); });
-  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -155,27 +113,6 @@ export default function PontoRegister() {
     return reverseGeo(lat, lng);
   };
 
-  const getSiteCoords = async (siteName: string): Promise<{ lat: number; lon: number } | null> => {
-    const site = sites.find((s) => s.name === siteName);
-    if (!site) return null;
-    if (site.latitude && site.longitude) return { lat: site.latitude, lon: site.longitude };
-    if (site.address) {
-      const coords = await geocodeAddress(site.address);
-      if (coords) {
-        supabase.from("construction_sites").update({ latitude: coords.lat, longitude: coords.lon }).eq("id", site.id).then(() => {});
-        return coords;
-      }
-    }
-    return null;
-  };
-
-  const checkGeofence = async (userLat: number, userLon: number, siteName: string): Promise<{ alert: boolean; distance: number | null }> => {
-    const siteCoords = await getSiteCoords(siteName);
-    if (!siteCoords) return { alert: false, distance: null };
-    const distance = haversineDistance(userLat, userLon, siteCoords.lat, siteCoords.lon);
-    return { alert: distance > GEOFENCE_RADIUS_METERS, distance: Math.round(distance) };
-  };
-
   const handlePhotoCapture = (dataUrl: string) => {
     setPhotoDataUrl(dataUrl);
     setPhotoConfirmed(true);
@@ -189,8 +126,6 @@ export default function PontoRegister() {
 
   const resetForm = () => {
     setNotes("");
-    setConstructionSite("");
-    setClientName("");
     setPhotoDataUrl(null);
     setPhotoConfirmed(false);
   };
@@ -203,15 +138,6 @@ export default function PontoRegister() {
       return;
     }
 
-    if (entryType === "obra" && !constructionSite) {
-      toast.error("Selecione a obra");
-      return;
-    }
-    if (entryType === "cliente" && !clientName) {
-      toast.error("Selecione o cliente");
-      return;
-    }
-
     setSubmitting(true);
     try {
       const coords = await getLocation();
@@ -221,17 +147,6 @@ export default function PontoRegister() {
       const compressedPhoto = await compressDataUrl(photoDataUrl, 1280, 0.7);
       const photoUrl = await uploadDataUrlImage(compressedPhoto, "photo", "ferramentas", "saidas");
 
-      let locationAlert = false;
-      let distanceFromSite: number | null = null;
-      if (entryType === "obra" && constructionSite) {
-        const geofence = await checkGeofence(coords.latitude, coords.longitude, constructionSite);
-        locationAlert = geofence.alert;
-        distanceFromSite = geofence.distance;
-        if (locationAlert) {
-          toast.warning(`⚠️ Você está a ${distanceFromSite}m da obra "${constructionSite}". Um alerta será registrado.`, { duration: 6000 });
-        }
-      }
-
       const entryData = {
         user_id: user.id,
         entry_date: getToday(),
@@ -240,13 +155,13 @@ export default function PontoRegister() {
         clock_in_longitude: coords.longitude,
         clock_in_address: address,
         clock_in_photo_url: photoUrl,
-        construction_site: entryType === "obra" ? constructionSite || null : null,
-        client_name: entryType === "cliente" ? clientName || null : null,
+        construction_site: null,
+        client_name: null,
         entry_type: entryType,
         notes: notes || null,
         status: "open",
-        location_alert: locationAlert,
-        distance_from_site_meters: distanceFromSite,
+        location_alert: false,
+        distance_from_site_meters: null,
       };
 
       if (isOnline) {
@@ -254,7 +169,6 @@ export default function PontoRegister() {
         if (error) throw error;
       } else {
         const localId = crypto.randomUUID();
-        // Store photo in IndexedDB instead of base64 in localStorage
         if (photoUrl) {
           try {
             const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
@@ -277,13 +191,13 @@ export default function PontoRegister() {
           clock_out_address: null,
           clock_in_photo_url: photoUrl,
           clock_out_photo_url: null,
-          construction_site: entryData.construction_site,
-          client_name: entryData.client_name,
+          construction_site: null,
+          client_name: null,
           notes: entryData.notes,
           status: "open",
           entry_type: entryType,
-          location_alert: locationAlert,
-          distance_from_site_meters: distanceFromSite,
+          location_alert: false,
+          distance_from_site_meters: null,
           is_offline: true,
         };
         const updated = [...todayEntries, offlineEntry];
@@ -321,17 +235,6 @@ export default function PontoRegister() {
       const compressedPhoto = await compressDataUrl(photoDataUrl, 1280, 0.7);
       const photoUrl = await uploadDataUrlImage(compressedPhoto, "photo", "ferramentas", "entradas");
 
-      let locationAlert = openEntry.location_alert;
-      let distanceFromSite = openEntry.distance_from_site_meters;
-      if (openEntry.construction_site) {
-        const geofence = await checkGeofence(coords.latitude, coords.longitude, openEntry.construction_site);
-        if (geofence.alert) {
-          locationAlert = true;
-          distanceFromSite = geofence.distance;
-          toast.warning(`⚠️ Saída registrada a ${geofence.distance}m da obra. Alerta registrado.`, { duration: 6000 });
-        }
-      }
-
       const updateData = {
         clock_out: new Date().toISOString(),
         clock_out_latitude: coords.latitude,
@@ -340,8 +243,8 @@ export default function PontoRegister() {
         clock_out_photo_url: photoUrl,
         status: "closed",
         notes: notes || openEntry.notes,
-        location_alert: locationAlert,
-        distance_from_site_meters: distanceFromSite,
+        location_alert: openEntry.location_alert,
+        distance_from_site_meters: openEntry.distance_from_site_meters,
       };
 
       if (isOnline && !openEntry.is_offline) {
@@ -417,12 +320,6 @@ export default function PontoRegister() {
       <PontoFormFields
         entryType={entryType}
         onEntryTypeChange={setEntryType}
-        constructionSite={constructionSite}
-        onConstructionSiteChange={setConstructionSite}
-        clientName={clientName}
-        onClientNameChange={setClientName}
-        sites={sites}
-        clients={clients}
         notes={notes}
         onNotesChange={setNotes}
         photoDataUrl={photoDataUrl}
