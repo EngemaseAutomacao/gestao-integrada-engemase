@@ -329,12 +329,6 @@ export default function PontoRegister() {
         photoTitle={openEntry ? "Foto de saída" : "Foto de entrada"}
         showEntryType={!openEntry}
         hideContextFields={!!openEntry}
-        constructionSite=""
-        onConstructionSiteChange={() => {}}
-        clientName=""
-        onClientNameChange={() => {}}
-        sites={[]}
-        clients={[]}
       />
 
       {/* Action buttons */}
