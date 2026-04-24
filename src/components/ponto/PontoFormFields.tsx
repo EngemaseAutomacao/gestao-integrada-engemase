@@ -6,19 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CheckCircle } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
 
-interface ConstructionSiteWithCoords {
-  id: string;
-  name: string;
-  address: string | null;
-  latitude: number | null;
-  longitude: number | null;
-}
-
-interface ClientOption {
-  id: string;
-  name: string;
-}
-
 const ENTRY_TYPES = [
   { value: "interno", label: "Uso Interno", disabled: false },
 ];
@@ -26,12 +13,6 @@ const ENTRY_TYPES = [
 interface PontoFormFieldsProps {
   entryType: string;
   onEntryTypeChange: (v: string) => void;
-  constructionSite: string;
-  onConstructionSiteChange: (v: string) => void;
-  clientName: string;
-  onClientNameChange: (v: string) => void;
-  sites: ConstructionSiteWithCoords[];
-  clients: ClientOption[];
   notes: string;
   onNotesChange: (v: string) => void;
   photoDataUrl: string | null;
