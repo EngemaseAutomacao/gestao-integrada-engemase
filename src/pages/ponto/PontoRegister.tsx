@@ -72,11 +72,7 @@ export default function PontoRegister() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState("");
-  const [constructionSite, setConstructionSite] = useState("");
-  const [clientName, setClientName] = useState("");
   const [entryType, setEntryType] = useState("interno");
-  const [sites, setSites] = useState<ConstructionSiteWithCoords[]>([]);
-  const [clients, setClients] = useState<ClientOption[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Photo state
