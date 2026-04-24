@@ -3,8 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, MapPin, User, CheckCircle } from "lucide-react";
-import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
+import { CheckCircle } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
 
 interface ConstructionSiteWithCoords {
@@ -23,8 +22,6 @@ interface ClientOption {
 const ENTRY_TYPES = [
   { value: "interno", label: "Uso Interno", disabled: false },
 ];
-
-const GEOFENCE_RADIUS_METERS = 500;
 
 interface PontoFormFieldsProps {
   entryType: string;
@@ -49,12 +46,6 @@ interface PontoFormFieldsProps {
 export function PontoFormFields({
   entryType,
   onEntryTypeChange,
-  constructionSite,
-  onConstructionSiteChange,
-  clientName,
-  onClientNameChange,
-  sites,
-  clients,
   notes,
   onNotesChange,
   photoDataUrl,
@@ -70,7 +61,7 @@ export function PontoFormFields({
       {showEntryType && !hideContextFields && (
         <div className="space-y-2">
           <Label>Tipo de Registro *</Label>
-          <Select value={entryType} onValueChange={(v) => { onEntryTypeChange(v); onConstructionSiteChange(""); onClientNameChange(""); }}>
+          <Select value={entryType} onValueChange={onEntryTypeChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -80,50 +71,6 @@ export function PontoFormFields({
               ))}
             </SelectContent>
           </Select>
-        </div>
-      )}
-
-      {entryType === "obra" && !hideContextFields && (
-        <div className="space-y-2">
-          <Label className="flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5" />
-            Obra de Destino *
-          </Label>
-          <ConstructionSiteAutocomplete
-            sites={sites}
-            value={constructionSite}
-            onChange={onConstructionSiteChange}
-            placeholder="Selecione a obra..."
-          />
-          {constructionSite && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              Localização será comparada com a obra (raio de {GEOFENCE_RADIUS_METERS}m)
-            </p>
-          )}
-        </div>
-      )}
-
-      {entryType === "cliente" && !hideContextFields && (
-        <div className="space-y-2">
-          <Label className="flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5" />
-            Cliente *
-          </Label>
-          {clients.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum cliente cadastrado. Peça ao administrador para cadastrar.</p>
-          ) : (
-            <Select value={clientName} onValueChange={onClientNameChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o cliente..." />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((c) => (
-                  <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
         </div>
       )}
 
@@ -152,7 +99,7 @@ export function PontoFormFields({
       {/* Notes */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">Observações (opcional)</label>
-        <Textarea placeholder="Ex: Visita técnica na obra X..." value={notes} onChange={(e) => onNotesChange(e.target.value)} rows={3} />
+        <Textarea placeholder="Ex: Registro de atividade interna..." value={notes} onChange={(e) => onNotesChange(e.target.value)} rows={3} />
       </div>
     </>
   );
