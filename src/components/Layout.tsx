@@ -300,14 +300,14 @@ export default function Layout({ children }: LayoutProps) {
           )}
 
           {/* Desktop: Back button */}
-          {!isHomePage && !isMobile && (
+          {location.pathname !== '/ponto/registrar' && !isMobile && (
             <>
               <div className="h-5 w-px bg-border hidden sm:block" />
               
-              <NavLink to="/">
-                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar ao menu principal">
+              <NavLink to="/ponto/registrar">
+                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar">
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline text-xs">Menu</span>
+                  <span className="hidden sm:inline text-xs">Voltar</span>
                 </Button>
               </NavLink>
             </>
