@@ -270,9 +270,9 @@ export default function Layout({ children }: LayoutProps) {
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
         <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
           {/* Mobile: Back button when inside a module */}
-          {isMobile && !isHomePage && (
-            <NavLink to="/">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar ao menu">
+          {isMobile && location.pathname !== '/ponto/registrar' && (
+            <NavLink to="/ponto/registrar">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </NavLink>
@@ -294,20 +294,20 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
           {!isMobile && (
-            <NavLink to="/" className="flex items-center gap-2 shrink-0">
+            <NavLink to="/ponto/registrar" className="flex items-center gap-2 shrink-0">
               <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
             </NavLink>
           )}
 
           {/* Desktop: Back button */}
-          {!isHomePage && !isMobile && (
+          {location.pathname !== '/ponto/registrar' && !isMobile && (
             <>
               <div className="h-5 w-px bg-border hidden sm:block" />
               
-              <NavLink to="/">
-                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar ao menu principal">
+              <NavLink to="/ponto/registrar">
+                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar">
                   <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline text-xs">Menu</span>
+                  <span className="hidden sm:inline text-xs">Voltar</span>
                 </Button>
               </NavLink>
             </>
@@ -323,7 +323,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Mobile: Centered page title */}
         {isMobile && (() => {
-          if (isHomePage) {
+          if (location.pathname === '/ponto/registrar') {
             return (
               <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
                 <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto" />

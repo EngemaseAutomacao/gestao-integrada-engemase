@@ -119,7 +119,7 @@ const App = () => (
 
                     {/* Authenticated routes share a single Layout instance (no remount on navigation) */}
                     <Route element={<Layout><Outlet /></Layout>}>
-                      <Route path="/" element={<Home />} />
+                      <Route path="/" element={<Navigate to="/ponto/registrar" replace />} />
                       {/* Ferramentas Routes */}
                       <Route path="/ferramentas" element={<Navigate to="/ferramentas/dashboard" replace />} />
                       <Route path="/ferramentas/dashboard" element={<Dashboard />} />
