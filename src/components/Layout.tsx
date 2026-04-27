@@ -294,7 +294,7 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
           {!isMobile && (
-            <NavLink to="/" className="flex items-center gap-2 shrink-0">
+            <NavLink to="/ponto/registrar" className="flex items-center gap-2 shrink-0">
               <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
             </NavLink>
           )}
