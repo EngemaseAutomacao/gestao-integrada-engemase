@@ -270,9 +270,9 @@ export default function Layout({ children }: LayoutProps) {
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
         <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
           {/* Mobile: Back button when inside a module */}
-          {isMobile && !isHomePage && (
-            <NavLink to="/">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar ao menu">
+          {isMobile && location.pathname !== '/ponto/registrar' && (
+            <NavLink to="/ponto/registrar">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar">
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             </NavLink>
