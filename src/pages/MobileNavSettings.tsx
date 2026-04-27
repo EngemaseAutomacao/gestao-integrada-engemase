@@ -46,8 +46,8 @@ export default function MobileNavSettings() {
 
   const handleReset = () => {
     const defaults = isAdmin 
-      ? ["ponto", "ferramentas", "veiculos", "admin"]
-      : ["ponto", "ferramentas", "veiculos"];
+      ? ["home", "ferramentas", "veiculos", "admin"]
+      : ["home", "ferramentas", "veiculos"];
     reset();
     setDraft(defaults);
   };
