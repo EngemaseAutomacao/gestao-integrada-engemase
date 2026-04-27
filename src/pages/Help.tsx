@@ -1,4 +1,4 @@
-import { HelpCircle, Wrench, Car, MapPin, Shield, Bell, Search } from "lucide-react";
+import { HelpCircle, Wrench, Car, MapPin, Shield, Bell, Search, ArrowLeftRight } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -50,6 +50,24 @@ const faqSections = [
       {
         q: "Como ver meu histórico de ponto?",
         a: "Acesse 'Histórico de Ponto' no módulo Ponto Online para visualizar todos os seus registros com datas, horários e localizações."
+      },
+    ]
+  },
+  {
+    title: "Transferências",
+    icon: ArrowLeftRight,
+    questions: [
+      {
+        q: "Como transferir uma ferramenta ou veículo para outro usuário?",
+        a: "No Dashboard ou na lista de itens, localize o item que está com você e use a opção 'Transferir'. Selecione o usuário de destino e confirme. O outro usuário precisará aceitar a transferência."
+      },
+      {
+        q: "Como aceitar uma transferência?",
+        a: "Acesse o módulo de 'Transferências' ou clique na notificação recebida. Você verá os itens pendentes de aceite. Basta conferir e confirmar o recebimento."
+      },
+      {
+        q: "Posso cancelar uma transferência?",
+        a: "Sim, enquanto o destinatário não aceitar, quem iniciou a transferência pode cancelá-la na tela de 'Transferências Pendentes'."
       },
     ]
   },
