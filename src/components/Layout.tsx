@@ -323,7 +323,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* Mobile: Centered page title */}
         {isMobile && (() => {
-          if (isHomePage) {
+          if (location.pathname === '/ponto/registrar') {
             return (
               <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
                 <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto" />
