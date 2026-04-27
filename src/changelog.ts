@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.30.0",
+    date: "2026-04-27",
+    title: "Notificações Mais Rápidas e Ponto Simplificado",
+    description: "Redução no tempo de entrega de alertas e simplificação do registro de ponto para uso interno.",
+    changes: [
+      { type: "improvement", text: "Alertas automáticos agora são verificados a cada 10 minutos (antes era a cada 1 hora)" },
+      { type: "improvement", text: "Módulo de Ponto simplificado: agora focado exclusivamente em 'Uso Interno'" },
+      { type: "improvement", text: "Removida necessidade de selecionar obra ou cliente no registro de ponto" },
+      { type: "improvement", text: "Removida validação de geofence (GPS) para maior agilidade no registro" },
+    ],
+  },
+  {
     version: "1.29.0",
     date: "2026-04-21",
     title: "Navegação Mais Rápida e Acessibilidade Aprimorada",

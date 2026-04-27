@@ -45,7 +45,7 @@ const faqSections = [
     questions: [
       {
         q: "Como registrar meu ponto?",
-        a: "Acesse o módulo Ponto Online e clique em 'Registrar Ponto'. O sistema capturará sua localização automaticamente. Confirme para registrar a entrada ou saída."
+        a: "Acesse o módulo Ponto Online e clique em 'Registrar Ponto'. O sistema agora registra automaticamente como 'Uso Interno' para maior agilidade. Confirme para registrar a entrada ou saída."
       },
       {
         q: "Como ver meu histórico de ponto?",
