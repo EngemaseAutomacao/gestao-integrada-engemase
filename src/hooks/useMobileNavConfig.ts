@@ -10,16 +10,13 @@ export interface NavTabItem {
 }
 
 export const ALL_TAB_OPTIONS: NavTabItem[] = [
-  { id: "home", label: "Início", icon: Home, path: "/" },
+  { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto" },
   { id: "ferramentas", label: "Ferramentas", icon: Wrench, path: "/ferramentas" },
   { id: "veiculos", label: "Veículos", icon: Car, path: "/veiculos" },
-  { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto" },
-  
   { id: "admin", label: "Admin", icon: Shield, path: "/admin", adminOnly: true },
 ];
 
-
-const DEFAULT_TAB_IDS = ["home", "ferramentas", "veiculos", "admin"];
+const DEFAULT_TAB_IDS = ["ponto", "ferramentas", "veiculos", "admin"];
 const STORAGE_KEY = "mobile-tab-config";
 const SYNC_EVENT = "mobile-tab-config-changed";
 const MAX_TABS = 8;
