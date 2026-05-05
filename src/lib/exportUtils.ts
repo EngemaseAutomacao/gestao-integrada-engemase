@@ -171,12 +171,8 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
   // Extra sections (rendered after main table)
   if (opts.extraSections && opts.extraSections.length > 0) {
     for (const section of opts.extraSections) {
-      const lastY = (doc as any).lastAutoTable?.finalY ?? 35;
-      let startY = lastY + 10;
-      if (startY > pageHeight - 40) {
-        doc.addPage();
-        startY = 40;
-      }
+      doc.addPage();
+      const startY = 40;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
