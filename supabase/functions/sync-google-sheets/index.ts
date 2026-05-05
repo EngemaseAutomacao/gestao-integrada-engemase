@@ -60,13 +60,14 @@ Deno.serve(async (req) => {
         const tag = (row[2] || "").trim() || null;
         const brand = (row[3] || "").trim() || null;
         const rawCondition = (row[4] || "").trim().toLowerCase();
-        const condition = conditionMap[rawCondition] || "good";
-        const parsedQty = parseInt(row[5] || "0", 10);
-        const quantityTotal = isNaN(parsedQty) ? 1 : parsedQty;
+        const condition = rawCondition ? (conditionMap[rawCondition] || null) : null;
+        const rawQty = (row[5] || "").trim();
+        const parsedQty = parseInt(rawQty, 10);
+        const quantityTotal = rawQty === "" || isNaN(parsedQty) ? null : parsedQty;
         const employeeOnlyRaw = (row[6] || "").trim().toLowerCase();
         const employeeOnly = ["sim", "yes", "true", "1", "x"].includes(employeeOnlyRaw);
 
-        return { name, description, tag, brand, condition, quantity_total: quantityTotal, quantity_available: quantityTotal, employee_only: employeeOnly };
+        return { name, description, tag, brand, condition, quantity_total: quantityTotal, employee_only: employeeOnly };
       });
 
     // Get existing tools from DB
@@ -81,6 +82,7 @@ Deno.serve(async (req) => {
     let added = 0;
     let updated = 0;
     let deleted = 0;
+    const errors: string[] = [];
 
     // Add or update tools from sheet
     for (const tool of sheetTools) {
@@ -88,20 +90,36 @@ Deno.serve(async (req) => {
       const existingTool = existingMap.get(key);
 
       if (!existingTool) {
-        // Insert new tool
-        const { error } = await supabase.from("tools").insert(tool);
-        if (!error) added++;
+        // Insert new tool — apply defaults when sheet cells are blank
+        const insertPayload = {
+          name: tool.name,
+          description: tool.description,
+          tag: tool.tag,
+          brand: tool.brand,
+          condition: tool.condition ?? "good",
+          quantity_total: tool.quantity_total ?? 1,
+          quantity_available: tool.quantity_total ?? 1,
+          employee_only: tool.employee_only,
+        };
+        const { error } = await supabase.from("tools").insert(insertPayload);
+        if (error) {
+          errors.push(`insert "${tool.name}": ${error.message}`);
+        } else {
+          added++;
+        }
       } else {
-        // Update if any field changed
+        // Preserve existing values when sheet cell is blank
+        const finalCondition = tool.condition ?? existingTool.condition;
+        const finalQtyTotal = tool.quantity_total ?? existingTool.quantity_total;
         const checkedOutCount = existingTool.quantity_total - existingTool.quantity_available;
-        const newAvailable = Math.max(tool.quantity_total - checkedOutCount, 0);
+        const newAvailable = Math.max(finalQtyTotal - checkedOutCount, 0);
 
         const needsUpdate =
           existingTool.description !== tool.description ||
           existingTool.tag !== tool.tag ||
           existingTool.brand !== tool.brand ||
-          existingTool.condition !== tool.condition ||
-          existingTool.quantity_total !== tool.quantity_total ||
+          existingTool.condition !== finalCondition ||
+          existingTool.quantity_total !== finalQtyTotal ||
           existingTool.employee_only !== tool.employee_only;
 
         if (needsUpdate) {
@@ -111,13 +129,17 @@ Deno.serve(async (req) => {
               description: tool.description,
               tag: tool.tag,
               brand: tool.brand,
-              condition: tool.condition,
-              quantity_total: tool.quantity_total,
+              condition: finalCondition,
+              quantity_total: finalQtyTotal,
               quantity_available: newAvailable,
               employee_only: tool.employee_only,
             })
             .eq("id", existingTool.id);
-          if (!error) updated++;
+          if (error) {
+            errors.push(`update "${tool.name}": ${error.message}`);
+          } else {
+            updated++;
+          }
         }
       }
     }
@@ -125,7 +147,6 @@ Deno.serve(async (req) => {
     // Delete tools not in sheet (only if they have no active checkouts)
     for (const tool of existing || []) {
       if (!sheetNamesLower.has(tool.name.toLowerCase())) {
-        // Check for active checkouts before deleting
         const { data: activeCheckouts } = await supabase
           .from("tool_checkouts")
           .select("id")
@@ -135,16 +156,28 @@ Deno.serve(async (req) => {
 
         if (!activeCheckouts || activeCheckouts.length === 0) {
           const { error } = await supabase.from("tools").delete().eq("id", tool.id);
-          if (!error) deleted++;
+          if (error) {
+            errors.push(`delete "${tool.name}": ${error.message}`);
+          } else {
+            deleted++;
+          }
         }
       }
     }
 
+    const summary = { total_sheet_rows: sheetTools.length, added, updated, deleted, errors };
+
+    // Record last successful run for UI ("Última sincronização")
+    await supabase
+      .from("sync_state")
+      .upsert({ key: "sync-google-sheets", last_run_at: new Date().toISOString(), summary });
+
+    if (errors.length > 0) {
+      console.error("sync-google-sheets partial errors:", errors);
+    }
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        summary: { total_sheet_rows: sheetTools.length, added, updated, deleted },
-      }),
+      JSON.stringify({ success: true, summary }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {

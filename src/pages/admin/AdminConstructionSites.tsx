@@ -117,8 +117,15 @@ export default function AdminConstructionSites() {
   const { data: lastToolSync } = useQuery({
     queryKey: ["last-tool-sync"],
     queryFn: async () => {
-      const { data } = await (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-google-sheets-daily" });
-      return data as string | undefined;
+      const [{ data: cronData }, { data: manualData }] = await Promise.all([
+        (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-google-sheets-daily" }),
+        (supabase as any).from("sync_state").select("last_run_at").eq("key", "sync-google-sheets").maybeSingle(),
+      ]);
+      const cron = cronData as string | undefined;
+      const manual = (manualData as any)?.last_run_at as string | undefined;
+      if (!cron) return manual;
+      if (!manual) return cron;
+      return new Date(manual) > new Date(cron) ? manual : cron;
     },
     refetchInterval: 60000,
   });
@@ -185,9 +192,16 @@ export default function AdminConstructionSites() {
     },
     onSuccess: (data) => {
       const s = data.summary;
-      toast.success("Sincronização concluída!", {
-        description: `${s.added} adicionada(s), ${s.updated} atualizada(s), ${s.deleted} removida(s) de ${s.total_sheet_rows} linhas.`,
-      });
+      const errs: string[] = s.errors || [];
+      const baseDesc = `${s.added} adicionada(s), ${s.updated} atualizada(s), ${s.deleted} removida(s) de ${s.total_sheet_rows} linhas.`;
+      if (errs.length > 0) {
+        toast.warning("Sincronização concluída com avisos", {
+          description: `${baseDesc}\n${errs.length} item(ns) com erro: ${errs.slice(0, 3).join("; ")}${errs.length > 3 ? "…" : ""}`,
+          duration: 10000,
+        });
+      } else {
+        toast.success("Sincronização concluída!", { description: baseDesc });
+      }
       refetchTools();
       queryClient.invalidateQueries({ queryKey: ["last-tool-sync"] });
     },
