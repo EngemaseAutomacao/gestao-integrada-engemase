@@ -587,6 +587,24 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_state: {
+        Row: {
+          key: string
+          last_run_at: string
+          summary: Json | null
+        }
+        Insert: {
+          key: string
+          last_run_at?: string
+          summary?: Json | null
+        }
+        Update: {
+          key?: string
+          last_run_at?: string
+          summary?: Json | null
+        }
+        Relationships: []
+      }
       system_logs: {
         Row: {
           action: string
