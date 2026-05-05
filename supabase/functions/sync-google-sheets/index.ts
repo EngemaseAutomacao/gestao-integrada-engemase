@@ -60,13 +60,14 @@ Deno.serve(async (req) => {
         const tag = (row[2] || "").trim() || null;
         const brand = (row[3] || "").trim() || null;
         const rawCondition = (row[4] || "").trim().toLowerCase();
-        const condition = conditionMap[rawCondition] || "good";
-        const parsedQty = parseInt(row[5] || "0", 10);
-        const quantityTotal = isNaN(parsedQty) ? 1 : parsedQty;
+        const condition = rawCondition ? (conditionMap[rawCondition] || null) : null;
+        const rawQty = (row[5] || "").trim();
+        const parsedQty = parseInt(rawQty, 10);
+        const quantityTotal = rawQty === "" || isNaN(parsedQty) ? null : parsedQty;
         const employeeOnlyRaw = (row[6] || "").trim().toLowerCase();
         const employeeOnly = ["sim", "yes", "true", "1", "x"].includes(employeeOnlyRaw);
 
-        return { name, description, tag, brand, condition, quantity_total: quantityTotal, quantity_available: quantityTotal, employee_only: employeeOnly };
+        return { name, description, tag, brand, condition, quantity_total: quantityTotal, employee_only: employeeOnly };
       });
 
     // Get existing tools from DB
