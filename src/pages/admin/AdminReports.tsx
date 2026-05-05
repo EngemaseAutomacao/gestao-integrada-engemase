@@ -455,17 +455,21 @@ export default function AdminReports() {
           break;
       }
 
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-
-      // Auto-size columns
-      const maxWidth = data.reduce((w: any, r: any) => {
-        return Math.max(w, ...Object.keys(r).map(k => String(r[k]).length));
-      }, 10);
-      worksheet["!cols"] = Object.keys(data[0] || {}).map(() => ({ wch: maxWidth }));
-
-      XLSX.writeFile(workbook, `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+      const headers = data.length > 0 ? Object.keys(data[0]) : [];
+      const rows = data.map((r: any) => headers.map((h) => r[h] ?? "-"));
+      let subtitle = "";
+      if (filters.startDate || filters.endDate) {
+        subtitle = "Período: ";
+        if (filters.startDate) subtitle += format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR });
+        if (filters.endDate) subtitle += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
+      }
+      exportXlsxUtil({
+        title: `Relatório — ${sheetName}`,
+        subtitle: subtitle || undefined,
+        headers,
+        rows,
+        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
+      });
       toast.success("Relatório Excel gerado com sucesso!");
     } catch (error: any) {
       toast.error("Erro ao gerar relatório", {
