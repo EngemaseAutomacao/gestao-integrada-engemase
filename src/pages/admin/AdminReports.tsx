@@ -12,6 +12,7 @@ import { FileText, Download, Loader2, FileSpreadsheet, Calendar } from "lucide-r
 import { format, subDays, subMonths, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { exportToPDF as exportPdfUtil, exportToExcel as exportXlsxUtil } from "@/lib/exportUtils";
+import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
 
 interface ReportFilters {
   startDate: string;
