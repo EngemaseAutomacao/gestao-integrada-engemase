@@ -5,6 +5,12 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BRAND } from "./brandConfig";
 
+export interface ExportSection {
+  title: string;
+  headers: string[];
+  rows: (string | number)[][];
+}
+
 export interface ExportOptions {
   title: string;
   subtitle?: string;
@@ -13,6 +19,7 @@ export interface ExportOptions {
   filename: string; // sem extensão
   orientation?: "portrait" | "landscape";
   generatedBy?: string;
+  extraSections?: ExportSection[];
 }
 
 // ---------- Logo cache ----------
