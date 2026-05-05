@@ -510,12 +510,43 @@ export default function AdminReports() {
         if (filters.startDate) subtitle += format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR });
         if (filters.endDate) subtitle += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
       }
+
+      const extraSections: any[] = [];
+      if (filters.reportType === "vehicle_checkouts") {
+        const allVehicles = await supabase.from("vehicles").select("id, name, plate").order("name");
+        const kmByVehicleName = new Map<string, number>();
+        const tripsByVehicleName = new Map<string, number>();
+        data.forEach((r: any) => {
+          const key = `${r.Veículo}||${r.Placa}`;
+          tripsByVehicleName.set(key, (tripsByVehicleName.get(key) || 0) + 1);
+          const km = typeof r["KM Rodado"] === "number" ? r["KM Rodado"] : 0;
+          if (km > 0) kmByVehicleName.set(key, (kmByVehicleName.get(key) || 0) + km);
+        });
+        const vehicleRows: (string | number)[][] = (allVehicles.data || []).map((v: any) => {
+          const key = `${v.name}||${v.plate}`;
+          return [
+            v.name || "-",
+            v.plate || "-",
+            tripsByVehicleName.get(key) || 0,
+            kmByVehicleName.get(key) || 0,
+          ];
+        });
+        const totalKm = Array.from(kmByVehicleName.values()).reduce((a, b) => a + b, 0);
+        vehicleRows.push(["TOTAL", "", "", totalKm]);
+        extraSections.push({
+          title: "KM Total por Veículo",
+          headers: ["Veículo", "Placa", "Viagens", "KM Rodado"],
+          rows: vehicleRows,
+        });
+      }
+
       exportXlsxUtil({
         title: `Relatório — ${sheetName}`,
         subtitle: subtitle || undefined,
         headers,
         rows,
         filename: `Relatorio-${reportTypeFileLabel(filters.reportType)}-${format(new Date(), "yyyy-MM-dd")}`,
+        extraSections,
       });
       toast.success("Relatório Excel gerado com sucesso!");
     } catch (error: any) {
