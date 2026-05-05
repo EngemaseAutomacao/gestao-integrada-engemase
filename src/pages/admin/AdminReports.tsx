@@ -328,12 +328,46 @@ export default function AdminReports() {
         }
       }
 
+      // Extra section for vehicle_checkouts: KM total por veículo no período
+      const extraSections: any[] = [];
+      if (filters.reportType === "vehicle_checkouts") {
+        const allVehicles = await supabase
+          .from("vehicles")
+          .select("id, name, plate")
+          .order("name");
+        const kmByVehicle = new Map<string, number>();
+        const tripsByVehicle = new Map<string, number>();
+        data.forEach((item: any) => {
+          const vid = item.vehicle_id;
+          if (!vid) return;
+          if (item.km_checkin != null && item.km_checkout != null) {
+            const km = Number(item.km_checkin) - Number(item.km_checkout);
+            if (km > 0) kmByVehicle.set(vid, (kmByVehicle.get(vid) || 0) + km);
+          }
+          tripsByVehicle.set(vid, (tripsByVehicle.get(vid) || 0) + 1);
+        });
+        const vehicleRows: (string | number)[][] = (allVehicles.data || []).map((v: any) => [
+          v.name || "-",
+          v.plate || "-",
+          (tripsByVehicle.get(v.id) || 0).toString(),
+          (kmByVehicle.get(v.id) || 0).toLocaleString("pt-BR") + " km",
+        ]);
+        const totalKm = Array.from(kmByVehicle.values()).reduce((a, b) => a + b, 0);
+        vehicleRows.push(["TOTAL", "", "", totalKm.toLocaleString("pt-BR") + " km"]);
+        extraSections.push({
+          title: "KM Total Rodado por Veículo (no período)",
+          headers: ["Veículo", "Placa", "Viagens", "KM Rodado"],
+          rows: vehicleRows,
+        });
+      }
+
       await exportPdfUtil({
         title,
         subtitle: subtitle || undefined,
         headers: columns,
         rows,
         filename: `Relatorio-${reportTypeFileLabel(filters.reportType)}-${format(new Date(), "yyyy-MM-dd")}`,
+        extraSections,
       });
       toast.success("Relatório PDF gerado com sucesso!");
     } catch (error: any) {
