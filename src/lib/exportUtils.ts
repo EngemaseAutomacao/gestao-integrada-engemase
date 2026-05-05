@@ -314,5 +314,24 @@ export function exportToExcel(opts: ExportOptions): void {
   ws["!ref"] = `A1:${lastColLetter}${5 + opts.rows.length}`;
 
   XLSX.utils.book_append_sheet(wb, ws, "Relatório");
+
+  // Extra sections as additional sheets
+  if (opts.extraSections && opts.extraSections.length > 0) {
+    opts.extraSections.forEach((section, idx) => {
+      const ws2 = XLSX.utils.aoa_to_sheet([section.headers, ...section.rows]);
+      const colCount2 = section.headers.length;
+      for (let c = 0; c < colCount2; c++) {
+        const addr = `${XLSX.utils.encode_col(c)}1`;
+        if (ws2[addr]) ws2[addr].s = headerCellStyle;
+      }
+      ws2["!cols"] = section.headers.map((h, i) => {
+        const maxData = section.rows.reduce((m, r) => Math.max(m, String(r[i] ?? "").length), h.length);
+        return { wch: Math.min(Math.max(maxData + 2, 10), 50) };
+      });
+      const sheetName = (section.title || `Seção ${idx + 1}`).slice(0, 31).replace(/[\\/:*?[\]]/g, "-");
+      XLSX.utils.book_append_sheet(wb, ws2, sheetName);
+    });
+  }
+
   XLSX.writeFile(wb, `${sanitizeFilename(opts.filename)}.xlsx`);
 }
