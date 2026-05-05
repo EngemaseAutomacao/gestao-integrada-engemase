@@ -26,6 +26,15 @@ interface Tool {
   name: string;
 }
 
+const reportTypeFileLabel = (t: string) => ({
+  checkouts: "Retiradas-Devolucoes-Ferramentas",
+  maintenance: "Manutencao-Ferramentas",
+  inventory: "Inventario-Ferramentas",
+  usage_summary: "Resumo-Uso-Ferramentas",
+  vehicle_checkouts: "Movimentacao-Veiculos",
+  fuel_records: "Abastecimentos-Veiculos",
+}[t] || "Geral");
+
 export default function AdminReports() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -319,8 +328,7 @@ export default function AdminReports() {
         subtitle: subtitle || undefined,
         headers: columns,
         rows,
-        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
-        orientation: columns.length > 6 ? "landscape" : "portrait",
+        filename: `Relatorio-${reportTypeFileLabel(filters.reportType)}-${format(new Date(), "yyyy-MM-dd")}`,
       });
       toast.success("Relatório PDF gerado com sucesso!");
     } catch (error: any) {
@@ -468,7 +476,7 @@ export default function AdminReports() {
         subtitle: subtitle || undefined,
         headers,
         rows,
-        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
+        filename: `Relatorio-${reportTypeFileLabel(filters.reportType)}-${format(new Date(), "yyyy-MM-dd")}`,
       });
       toast.success("Relatório Excel gerado com sucesso!");
     } catch (error: any) {
