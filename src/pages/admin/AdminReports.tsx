@@ -319,8 +319,7 @@ export default function AdminReports() {
         subtitle: subtitle || undefined,
         headers: columns,
         rows,
-        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
-        orientation: columns.length > 6 ? "landscape" : "portrait",
+        filename: `Relatorio-${reportTypeFileLabel(filters.reportType)}-${format(new Date(), "yyyy-MM-dd")}`,
       });
       toast.success("Relatório PDF gerado com sucesso!");
     } catch (error: any) {
