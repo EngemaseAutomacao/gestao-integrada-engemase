@@ -467,7 +467,7 @@ export default function AdminReports() {
         subtitle: subtitle || undefined,
         headers,
         rows,
-        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
+        filename: `Relatorio-${reportTypeFileLabel(filters.reportType)}-${format(new Date(), "yyyy-MM-dd")}`,
       });
       toast.success("Relatório Excel gerado com sucesso!");
     } catch (error: any) {
