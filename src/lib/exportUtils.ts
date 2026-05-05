@@ -124,15 +124,16 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(46);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
-      // Watermarks aligned along the top-left → bottom-right diagonal
-      const steps = 6;
+      // Watermarks aligned along the top-left → bottom-right diagonal,
+      // text rotated 45° (reads bottom-to-top), well spaced apart
+      const steps = 4;
       for (let i = 0; i < steps; i++) {
         const t = (i + 0.5) / steps;
         const x = pageWidth * t;
         const y = pageHeight * t;
         doc.text(BRAND.watermarkText, x, y, {
           align: "center",
-          angle: -45,
+          angle: 45,
         });
       }
       anyDoc.restoreGraphicsState?.();
