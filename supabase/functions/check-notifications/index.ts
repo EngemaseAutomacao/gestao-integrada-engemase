@@ -23,7 +23,6 @@ Deno.serve(async (req) => {
     // Run all notification checks (these create notifications via RPCs)
     const checks = [
       { name: 'overdue tools', fn: 'check_overdue_tools' },
-      { name: 'low stock', fn: 'check_low_stock' },
       { name: 'return reminders', fn: 'check_return_reminders' },
       { name: 'maintenance reminders', fn: 'check_maintenance_reminders' },
       { name: 'prolonged vehicle use', fn: 'check_prolonged_vehicle_use' },
