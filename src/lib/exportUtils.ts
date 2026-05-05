@@ -124,15 +124,15 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(46);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
-      // Staircase pattern: marks distributed diagonally across the page
+      // Staircase pattern aligned along the top-left → bottom-right diagonal
       const steps = 6;
       for (let i = 0; i < steps; i++) {
         const t = (i + 0.5) / steps;
-        const x = pageWidth * (0.18 + t * 0.64);
-        const y = pageHeight * (0.12 + t * 0.78);
+        const x = pageWidth * (0.15 + t * 0.7);
+        const y = pageHeight * (0.1 + t * 0.8);
         doc.text(BRAND.watermarkText, x, y, {
           align: "center",
-          angle: 45,
+          angle: -45,
         });
       }
       anyDoc.restoreGraphicsState?.();
