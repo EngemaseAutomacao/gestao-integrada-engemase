@@ -124,8 +124,8 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(60);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
-      // Three diagonal watermarks for full coverage
-      const positions = [pageHeight / 4, pageHeight / 2, (pageHeight / 4) * 3];
+      // Five diagonal watermarks for full coverage
+      const positions = [1, 2, 3, 4, 5].map((i) => (pageHeight / 6) * i);
       positions.forEach((y) => {
         doc.text(BRAND.watermarkText, pageWidth / 2, y, {
           align: "center",
