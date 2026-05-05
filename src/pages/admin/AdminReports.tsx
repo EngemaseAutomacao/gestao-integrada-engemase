@@ -333,7 +333,8 @@ export default function AdminReports() {
       if (filters.reportType === "vehicle_checkouts") {
         const allVehicles = await supabase
           .from("vehicles")
-          .select("id, name, plate")
+          .select("id, name, plate, vehicle_type")
+          .neq("vehicle_type", "platform")
           .order("name");
         const kmByVehicle = new Map<string, number>();
         const tripsByVehicle = new Map<string, number>();
