@@ -11,9 +11,7 @@ import { toast } from "sonner";
 import { FileText, Download, Loader2, FileSpreadsheet, Calendar } from "lucide-react";
 import { format, subDays, subMonths, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+import { exportToPDF as exportPdfUtil, exportToExcel as exportXlsxUtil } from "@/lib/exportUtils";
 
 interface ReportFilters {
   startDate: string;
