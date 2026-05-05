@@ -12,6 +12,7 @@ import { FileText, Download, Loader2, FileSpreadsheet, Calendar } from "lucide-r
 import { format, subDays, subMonths, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { exportToPDF as exportPdfUtil, exportToExcel as exportXlsxUtil } from "@/lib/exportUtils";
+import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
 
 interface ReportFilters {
   startDate: string;
@@ -39,6 +40,7 @@ export default function AdminReports() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [tools, setTools] = useState<Tool[]>([]);
+  const { data: activeSites = [] } = useActiveConstructionSites();
   const [filters, setFilters] = useState<ReportFilters>({
     startDate: "",
     endDate: "",
@@ -148,6 +150,9 @@ export default function AdminReports() {
 
     if (filters.startDate) query = query.gte("checkout_date", filters.startDate);
     if (filters.endDate) query = query.lte("checkout_date", filters.endDate);
+    if (filters.constructionSite && filters.constructionSite.trim()) {
+      query = query.ilike("destination", `%${filters.constructionSite.trim()}%`);
+    }
 
     query = query.order("checkout_date", { ascending: false }).limit(5000);
     const { data, error } = await query;
@@ -524,22 +529,24 @@ export default function AdminReports() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="toolId">Ferramenta Específica</Label>
-              <Select value={filters.toolId} onValueChange={(value) => setFilters({ ...filters, toolId: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas as ferramentas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as ferramentas</SelectItem>
-                  {tools.map((tool) => (
-                    <SelectItem key={tool.id} value={tool.id}>
-                      {tool.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {filters.reportType !== "vehicle_checkouts" && (
+              <div className="space-y-2">
+                <Label htmlFor="toolId">Ferramenta Específica</Label>
+                <Select value={filters.toolId} onValueChange={(value) => setFilters({ ...filters, toolId: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas as ferramentas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as ferramentas</SelectItem>
+                    {tools.map((tool) => (
+                      <SelectItem key={tool.id} value={tool.id}>
+                        {tool.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {filters.reportType === "checkouts" && (
               <div className="space-y-2">
@@ -550,6 +557,28 @@ export default function AdminReports() {
                   onChange={(e) => setFilters({ ...filters, constructionSite: e.target.value })}
                   placeholder="Filtrar por obra..."
                 />
+              </div>
+            )}
+
+            {filters.reportType === "vehicle_checkouts" && (
+              <div className="space-y-2">
+                <Label htmlFor="constructionSiteVehicle">Obra (Trello)</Label>
+                <Select
+                  value={filters.constructionSite || "all"}
+                  onValueChange={(v) => setFilters({ ...filters, constructionSite: v === "all" ? "" : v })}
+                >
+                  <SelectTrigger id="constructionSiteVehicle">
+                    <SelectValue placeholder="Todas as obras" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as obras</SelectItem>
+                    {activeSites.map((s) => (
+                      <SelectItem key={s.id} value={s.name}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
