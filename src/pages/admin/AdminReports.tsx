@@ -40,6 +40,7 @@ export default function AdminReports() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [tools, setTools] = useState<Tool[]>([]);
+  const { data: activeSites = [] } = useActiveConstructionSites();
   const [filters, setFilters] = useState<ReportFilters>({
     startDate: "",
     endDate: "",
