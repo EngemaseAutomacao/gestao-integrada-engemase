@@ -550,13 +550,23 @@ export default function AdminReports() {
 
             {filters.reportType === "checkouts" && (
               <div className="space-y-2">
-                <Label htmlFor="constructionSite">Obra</Label>
-                <Input
-                  id="constructionSite"
-                  value={filters.constructionSite}
-                  onChange={(e) => setFilters({ ...filters, constructionSite: e.target.value })}
-                  placeholder="Filtrar por obra..."
-                />
+                <Label htmlFor="constructionSiteTool">Obra (Trello)</Label>
+                <Select
+                  value={filters.constructionSite || "all"}
+                  onValueChange={(v) => setFilters({ ...filters, constructionSite: v === "all" ? "" : v })}
+                >
+                  <SelectTrigger id="constructionSiteTool">
+                    <SelectValue placeholder="Todas as obras" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as obras</SelectItem>
+                    {activeSites.map((s) => (
+                      <SelectItem key={s.id} value={s.name}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
