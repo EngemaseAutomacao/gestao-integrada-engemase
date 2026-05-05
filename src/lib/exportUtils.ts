@@ -168,6 +168,36 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
     },
   });
 
+  // Extra sections (rendered after main table)
+  if (opts.extraSections && opts.extraSections.length > 0) {
+    for (const section of opts.extraSections) {
+      const lastY = (doc as any).lastAutoTable?.finalY ?? 35;
+      let startY = lastY + 10;
+      if (startY > pageHeight - 40) {
+        doc.addPage();
+        startY = 40;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
+      doc.text(section.title, 14, startY);
+      doc.setTextColor(0, 0, 0);
+      autoTable(doc, {
+        head: [section.headers],
+        body: section.rows.map((r) => r.map((c) => (c == null ? "-" : String(c)))),
+        startY: startY + 3,
+        margin: { top: 35, bottom: 18, left: 14, right: 14 },
+        styles: { fontSize: 8, cellPadding: 2.5, overflow: "linebreak" },
+        headStyles: { fillColor: BRAND.primary, textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
+        didDrawPage: () => {
+          drawWatermark();
+          drawHeader();
+        },
+      });
+    }
+  }
+
   // Footer (second pass for page X of Y)
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
