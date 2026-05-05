@@ -46,8 +46,23 @@ async function getLogoDataUrl(): Promise<{ dataUrl: string; w: number; h: number
   }
 }
 
+function toTitleCase(s: string): string {
+  return s
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join("-");
+}
+
 function sanitizeFilename(name: string): string {
-  return name.replace(/[\\/:*?"<>|]/g, "-");
+  const dateStr = format(new Date(), "yyyy-MM-dd");
+  // Strip any existing trailing date (yyyy-MM-dd or dd-MM-yyyy)
+  let base = name.replace(/[_-]?\d{4}-\d{2}-\d{2}$/, "").replace(/[_-]?\d{2}-\d{2}-\d{4}$/, "");
+  // Strip leading "Engemase" if user already included it
+  base = base.replace(/^engemase[_-]?/i, "");
+  const pretty = toTitleCase(base) || "Relatorio";
+  const finalName = `Engemase_${pretty}_${dateStr}`;
+  return finalName.replace(/[\\/:*?"<>|]/g, "-");
 }
 
 // ---------- PDF ----------
