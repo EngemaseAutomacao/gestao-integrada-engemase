@@ -182,46 +182,43 @@ export default function AdminAudit() {
     setPeriodFilter("all");
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     if (filteredLogs.length === 0) { toast.error("Nenhum registro para exportar"); return; }
-    const doc = new jsPDF({ orientation: "landscape" });
-    doc.setFontSize(18);
-    doc.text("Painel de Auditoria", 14, 20);
-    doc.setFontSize(11);
-    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
-    doc.text(`Total: ${filteredLogs.length} registros`, 14, 34);
-
-    autoTable(doc, {
-      head: [["Data/Hora", "Usuário", "Ação", "Tipo", "Descrição"]],
-      body: filteredLogs.map((l) => [
-        format(new Date(l.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }),
-        l.user_name || "Sistema",
-        ACTION_LABELS[l.action] || l.action,
-        ENTITY_LABELS[l.entity_type] || l.entity_type,
-        buildDescription(l),
-      ]),
-      startY: 40,
-      styles: { fontSize: 7 },
-      headStyles: { fillColor: [79, 70, 229] },
+    const headers = ["Data/Hora", "Usuário", "Ação", "Tipo", "Descrição"];
+    const rows = filteredLogs.map((l) => [
+      format(new Date(l.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }),
+      l.user_name || "Sistema",
+      ACTION_LABELS[l.action] || l.action,
+      ENTITY_LABELS[l.entity_type] || l.entity_type,
+      buildDescription(l),
+    ]);
+    await exportToPDF({
+      title: "Painel de Auditoria",
+      subtitle: `Total: ${filteredLogs.length} registros`,
+      headers, rows,
+      filename: `auditoria-${format(new Date(), "yyyy-MM-dd")}`,
+      orientation: "landscape",
     });
-    doc.save(`auditoria-${format(new Date(), "yyyy-MM-dd")}.pdf`);
     toast.success("PDF exportado!");
   };
 
   const exportExcel = () => {
     if (filteredLogs.length === 0) { toast.error("Nenhum registro para exportar"); return; }
-    const rows = filteredLogs.map((l) => ({
-      "Data/Hora": format(new Date(l.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }),
-      "Usuário": l.user_name || "Sistema",
-      "Ação": ACTION_LABELS[l.action] || l.action,
-      "Tipo": ENTITY_LABELS[l.entity_type] || l.entity_type,
-      "Descrição": buildDescription(l),
-      "Detalhes": JSON.stringify(l.details),
-    }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Auditoria");
-    XLSX.writeFile(wb, `auditoria-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    const headers = ["Data/Hora", "Usuário", "Ação", "Tipo", "Descrição", "Detalhes"];
+    const rows = filteredLogs.map((l) => [
+      format(new Date(l.created_at), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }),
+      l.user_name || "Sistema",
+      ACTION_LABELS[l.action] || l.action,
+      ENTITY_LABELS[l.entity_type] || l.entity_type,
+      buildDescription(l),
+      JSON.stringify(l.details),
+    ]);
+    exportToExcel({
+      title: "Painel de Auditoria",
+      subtitle: `Total: ${filteredLogs.length} registros`,
+      headers, rows,
+      filename: `auditoria-${format(new Date(), "yyyy-MM-dd")}`,
+    });
     toast.success("Excel exportado!");
   };
 
