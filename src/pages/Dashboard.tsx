@@ -332,7 +332,7 @@ export default function Dashboard() {
                 size="sm"
                 variant="outline"
                 className="text-xs gap-1"
-                onClick={() => {
+                onClick={async () => {
                   const headers = ["Nome", "Tag", "Marca", "Disponível", "Total", "Em Uso"];
                   const rows = filteredTools.map(t => [
                     t.name,
@@ -342,7 +342,7 @@ export default function Dashboard() {
                     String(t.quantity_total),
                     String(t.quantity_total - t.quantity_available),
                   ]);
-                  exportToPDF("Relatório de Ferramentas", headers, rows, "ferramentas.pdf");
+                  await exportToPDF({ title: "Relatório de Ferramentas", headers, rows, filename: "ferramentas", generatedBy: profile?.full_name });
                   toast.success("PDF exportado!");
                 }}
               >
@@ -362,7 +362,7 @@ export default function Dashboard() {
                     String(t.quantity_total),
                     String(t.quantity_total - t.quantity_available),
                   ]);
-                  exportToExcel("Ferramentas", headers, rows, "ferramentas.xlsx");
+                  exportToExcel({ title: "Relatório de Ferramentas", headers, rows, filename: "ferramentas", generatedBy: profile?.full_name });
                   toast.success("Excel exportado!");
                 }}
               >

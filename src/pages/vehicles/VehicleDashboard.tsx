@@ -190,13 +190,13 @@ export default function VehicleDashboard() {
             <div className="flex gap-1 flex-wrap">
               <Button
                 size="sm" variant="outline" className="text-xs gap-1"
-                onClick={() => {
+                onClick={async () => {
                   const headers = ["Nome", "Placa", "Marca", "Modelo", "Cor", "Status"];
                   const rows = filteredVehicles.map((v: any) => [
                     v.name, v.plate, v.brand || "-", v.model || "-", v.color || "-",
                     v.status === "available" ? "Disponível" : "Em uso",
                   ]);
-                  exportToPDF("Relatório de Veículos", headers, rows, "veiculos.pdf");
+                  await exportToPDF({ title: "Relatório de Veículos", headers, rows, filename: "veiculos", generatedBy: profile?.full_name });
                   toast.success("PDF exportado!");
                 }}
               >
@@ -210,7 +210,7 @@ export default function VehicleDashboard() {
                     v.name, v.plate, v.brand || "-", v.model || "-", v.color || "-",
                     v.status === "available" ? "Disponível" : "Em uso",
                   ]);
-                  exportToExcel("Veículos", headers, rows, "veiculos.xlsx");
+                  exportToExcel({ title: "Relatório de Veículos", headers, rows, filename: "veiculos", generatedBy: profile?.full_name });
                   toast.success("Excel exportado!");
                 }}
               >

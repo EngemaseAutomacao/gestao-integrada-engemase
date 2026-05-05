@@ -10,9 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -133,29 +131,19 @@ export default function VehicleAnalytics() {
 
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     if (!data) return;
-    const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Relatório de Veículos - KM por Veículo", 14, 20);
-    doc.setFontSize(11);
-    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
-    autoTable(doc, {
-      head: [["Veículo", "Placa", "KM Total", "Viagens", "Média KM/Viagem"]],
-      body: data.kmData.map(v => [v.name, v.plate, v.totalKm.toLocaleString(), v.trips.toString(), v.trips > 0 ? Math.round(v.totalKm / v.trips).toLocaleString() : "0"]),
-      startY: 34, styles: { fontSize: 9 }, headStyles: { fillColor: [79, 70, 229] },
-    });
-    doc.save(`relatorio-veiculos-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    const headers = ["Veículo", "Placa", "KM Total", "Viagens", "Média KM/Viagem"];
+    const rows = data.kmData.map(v => [v.name, v.plate, v.totalKm.toLocaleString(), v.trips.toString(), v.trips > 0 ? Math.round(v.totalKm / v.trips).toLocaleString() : "0"]);
+    await exportToPDF({ title: "Relatório de Veículos — KM por Veículo", headers, rows, filename: `relatorio-veiculos-${format(new Date(), "yyyy-MM-dd")}` });
     toast.success("PDF exportado!");
   };
 
   const exportExcel = () => {
     if (!data) return;
-    const rows = data.kmData.map(v => ({ Veículo: v.name, Placa: v.plate, "KM Total": v.totalKm, Viagens: v.trips, "Média KM": v.trips > 0 ? Math.round(v.totalKm / v.trips) : 0 }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "KM por Veículo");
-    XLSX.writeFile(wb, `relatorio-veiculos-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    const headers = ["Veículo", "Placa", "KM Total", "Viagens", "Média KM"];
+    const rows = data.kmData.map(v => [v.name, v.plate, v.totalKm, v.trips, v.trips > 0 ? Math.round(v.totalKm / v.trips) : 0]);
+    exportToExcel({ title: "Relatório de Veículos — KM por Veículo", headers, rows, filename: `relatorio-veiculos-${format(new Date(), "yyyy-MM-dd")}` });
     toast.success("Excel exportado!");
   };
 

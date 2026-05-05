@@ -11,9 +11,7 @@ import { toast } from "sonner";
 import { FileText, Download, Loader2, FileSpreadsheet, Calendar } from "lucide-react";
 import { format, subDays, subMonths, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+import { exportToPDF as exportPdfUtil, exportToExcel as exportXlsxUtil } from "@/lib/exportUtils";
 
 interface ReportFilters {
   startDate: string;
@@ -305,35 +303,25 @@ export default function AdminReports() {
           break;
       }
 
-      const doc = new jsPDF();
-      
-      // Header
-      doc.setFontSize(18);
-      doc.text(title, 14, 20);
-      doc.setFontSize(11);
-      doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
-      
+      let subtitle = "";
       if (filters.startDate || filters.endDate) {
-        let periodText = "Período: ";
+        subtitle = "Período: ";
         if (filters.startDate) {
-          periodText += `${format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR })}`;
+          subtitle += format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR });
         }
         if (filters.endDate) {
-          periodText += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
+          subtitle += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
         }
-        doc.text(periodText, 14, 34);
       }
 
-      // Table
-      autoTable(doc, {
-        head: [columns],
-        body: rows,
-        startY: filters.startDate || filters.endDate ? 40 : 34,
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [79, 70, 229] },
+      await exportPdfUtil({
+        title,
+        subtitle: subtitle || undefined,
+        headers: columns,
+        rows,
+        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
+        orientation: columns.length > 6 ? "landscape" : "portrait",
       });
-
-      doc.save(`relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}.pdf`);
       toast.success("Relatório PDF gerado com sucesso!");
     } catch (error: any) {
       toast.error("Erro ao gerar relatório", {
@@ -467,17 +455,21 @@ export default function AdminReports() {
           break;
       }
 
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-
-      // Auto-size columns
-      const maxWidth = data.reduce((w: any, r: any) => {
-        return Math.max(w, ...Object.keys(r).map(k => String(r[k]).length));
-      }, 10);
-      worksheet["!cols"] = Object.keys(data[0] || {}).map(() => ({ wch: maxWidth }));
-
-      XLSX.writeFile(workbook, `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+      const headers = data.length > 0 ? Object.keys(data[0]) : [];
+      const rows = data.map((r: any) => headers.map((h) => r[h] ?? "-"));
+      let subtitle = "";
+      if (filters.startDate || filters.endDate) {
+        subtitle = "Período: ";
+        if (filters.startDate) subtitle += format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR });
+        if (filters.endDate) subtitle += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
+      }
+      exportXlsxUtil({
+        title: `Relatório — ${sheetName}`,
+        subtitle: subtitle || undefined,
+        headers,
+        rows,
+        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
+      });
       toast.success("Relatório Excel gerado com sucesso!");
     } catch (error: any) {
       toast.error("Erro ao gerar relatório", {
