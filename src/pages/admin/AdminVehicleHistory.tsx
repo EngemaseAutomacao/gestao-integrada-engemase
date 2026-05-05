@@ -298,37 +298,31 @@ export default function AdminVehicleHistory() {
     }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     if (filteredHistory.length === 0) {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const doc = new jsPDF({ orientation: "landscape" });
-    doc.setFontSize(18);
-    doc.text("Histórico de Veículos", 14, 20);
-    doc.setFontSize(11);
-    doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
-    doc.text(`Total: ${filteredHistory.length} registros`, 14, 34);
-
-    autoTable(doc, {
-      head: [["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Status"]],
-      body: filteredHistory.map((e) => [
-        e.vehicles.name,
-        e.vehicles.plate,
-        e.profiles.full_name,
-        e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
-        e.destination || "-",
-        format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
-        e.km_checkout.toLocaleString(),
-        e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
-        e.km_checkin !== null ? e.km_checkin.toLocaleString() : "-",
-        e.status === "checked_out" ? "Em Uso" : "Devolvido",
-      ]),
-      startY: 40,
-      styles: { fontSize: 7 },
-      headStyles: { fillColor: [79, 70, 229] },
+    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Status"];
+    const rows = filteredHistory.map((e) => [
+      e.vehicles.name,
+      e.vehicles.plate,
+      e.profiles.full_name,
+      e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      e.destination || "-",
+      format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      e.km_checkout.toLocaleString(),
+      e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      e.km_checkin !== null ? e.km_checkin.toLocaleString() : "-",
+      e.status === "checked_out" ? "Em Uso" : "Devolvido",
+    ]);
+    await exportToPDF({
+      title: "Histórico de Veículos",
+      subtitle: `Total: ${filteredHistory.length} registros`,
+      headers, rows,
+      filename: `historico-veiculos-${format(new Date(), "yyyy-MM-dd")}`,
+      orientation: "landscape",
     });
-    doc.save(`historico-veiculos-${format(new Date(), "yyyy-MM-dd")}.pdf`);
     toast.success("PDF exportado!");
   };
 
@@ -337,27 +331,30 @@ export default function AdminVehicleHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const rows = filteredHistory.map((e) => ({
-      Veículo: e.vehicles.name,
-      Placa: e.vehicles.plate,
-      Usuário: e.profiles.full_name,
-      Categoria: e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
-      Destino: e.destination || "-",
-      Saída: format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
-      "KM Saída": e.km_checkout,
-      Chegada: e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
-      "KM Chegada": e.km_checkin !== null ? e.km_checkin : "-",
-      "KM Percorridos": e.km_checkin !== null ? e.km_checkin - e.km_checkout : "-",
-      Abastecido: e.refueled === null ? "-" : e.refueled ? "Sim" : "Não",
-      Status: e.status === "checked_out" ? "Em Uso" : "Devolvido",
-      "Retirado por": e.checked_out_by_profile?.full_name || "-",
-      "Devolvido por": e.checked_in_by_profile?.full_name || "-",
-      Observações: e.notes || "-",
-    }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Histórico Veículos");
-    XLSX.writeFile(wb, `historico-veiculos-${format(new Date(), "yyyy-MM-dd")}.xlsx`);
+    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "KM Percorridos", "Abastecido", "Status", "Retirado por", "Devolvido por", "Observações"];
+    const rows = filteredHistory.map((e) => [
+      e.vehicles.name,
+      e.vehicles.plate,
+      e.profiles.full_name,
+      e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      e.destination || "-",
+      format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      e.km_checkout,
+      e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      e.km_checkin !== null ? e.km_checkin : "-",
+      e.km_checkin !== null ? e.km_checkin - e.km_checkout : "-",
+      e.refueled === null ? "-" : e.refueled ? "Sim" : "Não",
+      e.status === "checked_out" ? "Em Uso" : "Devolvido",
+      e.checked_out_by_profile?.full_name || "-",
+      e.checked_in_by_profile?.full_name || "-",
+      e.notes || "-",
+    ]);
+    exportToExcel({
+      title: "Histórico de Veículos",
+      subtitle: `Total: ${filteredHistory.length} registros`,
+      headers, rows,
+      filename: `historico-veiculos-${format(new Date(), "yyyy-MM-dd")}`,
+    });
     toast.success("Excel exportado!");
   };
 
