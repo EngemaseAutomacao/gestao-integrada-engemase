@@ -122,16 +122,19 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
         anyDoc.setGState(new anyDoc.GState({ opacity: 0.06 }));
       }
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(60);
+      doc.setFontSize(46);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
-      // Five diagonal watermarks for full coverage
-      const positions = [1, 2, 3, 4, 5].map((i) => (pageHeight / 6) * i);
-      positions.forEach((y) => {
-        doc.text(BRAND.watermarkText, pageWidth / 2, y, {
+      // Staircase pattern: marks distributed diagonally across the page
+      const steps = 6;
+      for (let i = 0; i < steps; i++) {
+        const t = (i + 0.5) / steps;
+        const x = pageWidth * (0.18 + t * 0.64);
+        const y = pageHeight * (0.12 + t * 0.78);
+        doc.text(BRAND.watermarkText, x, y, {
           align: "center",
           angle: 45,
         });
-      });
+      }
       anyDoc.restoreGraphicsState?.();
       doc.setTextColor(0, 0, 0);
     } catch {
