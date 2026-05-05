@@ -70,13 +70,20 @@ Deno.serve(async (req) => {
         return { name, description, tag, brand, condition, quantity_total: quantityTotal, employee_only: employeeOnly };
       });
 
-    // Get existing tools from DB
+    // Get existing tools from DB (ordered so oldest is kept on duplicates)
     const { data: existing, error: fetchErr } = await supabase
       .from("tools")
-      .select("id, name, description, tag, brand, condition, quantity_total, quantity_available, employee_only");
+      .select("id, name, description, tag, brand, condition, quantity_total, quantity_available, employee_only, created_at")
+      .order("created_at", { ascending: true });
     if (fetchErr) throw fetchErr;
 
-    const existingMap = new Map((existing || []).map((t: any) => [t.name.toLowerCase(), t]));
+    // Group existing rows by name (lowercased) to detect duplicates
+    const existingByName = new Map<string, any[]>();
+    for (const t of existing || []) {
+      const k = t.name.toLowerCase();
+      if (!existingByName.has(k)) existingByName.set(k, []);
+      existingByName.get(k)!.push(t);
+    }
     const sheetNamesLower = new Set(sheetTools.map((t) => t.name.toLowerCase()));
 
     let added = 0;
@@ -87,7 +94,28 @@ Deno.serve(async (req) => {
     // Add or update tools from sheet
     for (const tool of sheetTools) {
       const key = tool.name.toLowerCase();
-      const existingTool = existingMap.get(key);
+      const group = existingByName.get(key) || [];
+      const existingTool = group[0]; // oldest
+
+      // If duplicates exist for this name in DB, remove the extras (only if no active checkouts)
+      for (const dup of group.slice(1)) {
+        const { data: activeCheckouts } = await supabase
+          .from("tool_checkouts")
+          .select("id")
+          .eq("tool_id", dup.id)
+          .eq("status", "checked_out")
+          .limit(1);
+        if (!activeCheckouts || activeCheckouts.length === 0) {
+          const { error } = await supabase.from("tools").delete().eq("id", dup.id);
+          if (error) {
+            errors.push(`dedupe "${dup.name}": ${error.message}`);
+          } else {
+            deleted++;
+          }
+        } else {
+          errors.push(`dedupe "${dup.name}": possui retiradas ativas, não removida`);
+        }
+      }
 
       if (!existingTool) {
         // Insert new tool — apply defaults when sheet cells are blank
