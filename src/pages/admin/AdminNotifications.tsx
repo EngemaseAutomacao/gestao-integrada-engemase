@@ -99,7 +99,7 @@ export default function AdminNotifications() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Este sistema verifica automaticamente ferramentas atrasadas, estoque baixo e envia lembretes de devolução.
+          Este sistema verifica automaticamente ferramentas atrasadas e envia lembretes de devolução.
           Notificações com mais de 7 dias são removidas automaticamente.
         </AlertDescription>
       </Alert>
@@ -179,25 +179,6 @@ export default function AdminNotifications() {
               <li>• Verifica a cada execução</li>
               <li>• Notifica apenas uma vez por dia</li>
               <li>• Baseado na data de devolução estimada</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-warning" />
-              Estoque Baixo
-            </CardTitle>
-            <CardDescription>
-              Alerta administradores quando ferramentas estão com estoque crítico
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Quantidade disponível ≤ 2</li>
-              <li>• Ou menos de 30% do total</li>
-              <li>• Notifica a cada 7 dias</li>
             </ul>
           </CardContent>
         </Card>
