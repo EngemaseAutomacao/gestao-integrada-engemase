@@ -125,8 +125,8 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
       doc.setFontSize(46);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
       // Watermarks aligned along the top-left → bottom-right diagonal,
-      // text rotated 45° (reads bottom-to-top), well spaced apart
-      const steps = 4;
+      // text rotated 45° (reads bottom-to-top), tighter spacing
+      const steps = 5;
       for (let i = 0; i < steps; i++) {
         const t = (i + 0.5) / steps;
         const x = pageWidth * t;
