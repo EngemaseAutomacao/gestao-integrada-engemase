@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.32.0",
+    date: "2026-05-05",
+    title: "Resumo de KM nos Relatórios de Veículos",
+    description: "Relatórios de veículos agora incluem um resumo com a quilometragem total rodada por veículo no período.",
+    changes: [
+      { type: "feature", text: "Nova seção de resumo no relatório de veículos com KM total rodado e quantidade de viagens por veículo" },
+      { type: "improvement", text: "Resumo é exibido em página separada no PDF e em aba adicional no Excel" },
+      { type: "improvement", text: "Plataformas são automaticamente excluídas do resumo (não possuem registro de KM)" },
+      { type: "improvement", text: "Marca d'água 'Engemase' ajustada na diagonal dos relatórios PDF" },
+    ],
+  },
+  {
     version: "1.30.0",
     date: "2026-04-27",
     title: "Notificações Mais Rápidas e Ponto Simplificado",
