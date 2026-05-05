@@ -148,6 +148,9 @@ export default function AdminReports() {
 
     if (filters.startDate) query = query.gte("checkout_date", filters.startDate);
     if (filters.endDate) query = query.lte("checkout_date", filters.endDate);
+    if (filters.constructionSite && filters.constructionSite.trim()) {
+      query = query.ilike("destination", `%${filters.constructionSite.trim()}%`);
+    }
 
     query = query.order("checkout_date", { ascending: false }).limit(5000);
     const { data, error } = await query;
