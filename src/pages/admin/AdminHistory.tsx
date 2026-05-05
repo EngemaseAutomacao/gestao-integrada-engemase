@@ -14,9 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, CalendarIcon, X, List, Clock } from "lucide-react";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
