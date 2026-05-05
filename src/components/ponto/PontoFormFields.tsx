@@ -55,6 +55,12 @@ export function PontoFormFields({
         </div>
       )}
 
+      {/* Notes */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">Observações (opcional)</label>
+        <Textarea placeholder="Ex: Registro de atividade interna..." value={notes} onChange={(e) => onNotesChange(e.target.value)} rows={3} />
+      </div>
+
       {/* Photo Capture - MANDATORY */}
       <div className="space-y-2">
         <div className="flex items-center gap-2">
@@ -75,12 +81,6 @@ export function PontoFormFields({
             </Button>
           </div>
         )}
-      </div>
-
-      {/* Notes */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Observações (opcional)</label>
-        <Textarea placeholder="Ex: Registro de atividade interna..." value={notes} onChange={(e) => onNotesChange(e.target.value)} rows={3} />
       </div>
     </>
   );
