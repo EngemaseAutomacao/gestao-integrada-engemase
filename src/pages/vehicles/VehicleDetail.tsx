@@ -269,45 +269,6 @@ export default function VehicleDetail() {
         </CardContent>
       </Card>
 
-      {/* Fuel Records */}
-      <Card>
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-            <Fuel className="w-4 h-4 md:w-5 md:h-5" />
-            Abastecimentos
-          </CardTitle>
-          <CardDescription className="text-xs md:text-sm">
-            {fuelRecords.length} registros de combustível
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
-          {fuelRecords.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6 text-sm">Nenhum abastecimento registrado</p>
-          ) : (
-            <div className="space-y-3">
-              {fuelRecords.map((record) => (
-                <Card key={record.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">{record.liters}L - {record.fuel_type}</p>
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          <span>{format(new Date(record.refuel_date), "dd/MM/yyyy", { locale: ptBR })}</span>
-                          <span>KM: {record.km_at_refuel}</span>
-                          {record.gas_station && <span>• {record.gas_station}</span>}
-                        </div>
-                      </div>
-                      {record.total_cost && (
-                        <span className="text-sm font-semibold shrink-0">R$ {record.total_cost.toFixed(2)}</span>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Issues */}
       <Card>
