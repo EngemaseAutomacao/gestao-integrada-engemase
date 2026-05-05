@@ -520,7 +520,7 @@ export default function AdminReports() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="checkouts">Retiradas/Devoluções (Ferramentas)</SelectItem>
-                  <SelectItem value="maintenance">Manutenções</SelectItem>
+                  
                   <SelectItem value="inventory">Inventário Atual</SelectItem>
                   <SelectItem value="usage_summary">Resumo de Uso (Ferramentas)</SelectItem>
                   <SelectItem value="vehicle_checkouts">Movimentação de Veículos</SelectItem>
@@ -550,13 +550,23 @@ export default function AdminReports() {
 
             {filters.reportType === "checkouts" && (
               <div className="space-y-2">
-                <Label htmlFor="constructionSite">Obra</Label>
-                <Input
-                  id="constructionSite"
-                  value={filters.constructionSite}
-                  onChange={(e) => setFilters({ ...filters, constructionSite: e.target.value })}
-                  placeholder="Filtrar por obra..."
-                />
+                <Label htmlFor="constructionSiteTool">Obra (Trello)</Label>
+                <Select
+                  value={filters.constructionSite || "all"}
+                  onValueChange={(v) => setFilters({ ...filters, constructionSite: v === "all" ? "" : v })}
+                >
+                  <SelectTrigger id="constructionSiteTool">
+                    <SelectValue placeholder="Todas as obras" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as obras</SelectItem>
+                    {activeSites.map((s) => (
+                      <SelectItem key={s.id} value={s.name}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
@@ -660,19 +670,6 @@ export default function AdminReports() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Manutenções</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                <ul className="space-y-1">
-                  <li>• Registro de todas as manutenções</li>
-                  <li>• Custos e peças substituídas</li>
-                  <li>• Condição antes e depois</li>
-                  <li>• Responsável pela manutenção</li>
-                </ul>
-              </CardContent>
-            </Card>
 
             <Card>
               <CardHeader>
