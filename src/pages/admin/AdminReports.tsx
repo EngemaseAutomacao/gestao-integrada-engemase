@@ -514,7 +514,7 @@ export default function AdminReports() {
 
       const extraSections: any[] = [];
       if (filters.reportType === "vehicle_checkouts") {
-        const allVehicles = await supabase.from("vehicles").select("id, name, plate").order("name");
+        const allVehicles = await supabase.from("vehicles").select("id, name, plate, vehicle_type").neq("vehicle_type", "platform").order("name");
         const kmByVehicleName = new Map<string, number>();
         const tripsByVehicleName = new Map<string, number>();
         data.forEach((r: any) => {
