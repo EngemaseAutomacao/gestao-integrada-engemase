@@ -519,7 +519,7 @@ export default function AdminReports() {
                   <SelectItem value="inventory">Inventário Atual</SelectItem>
                   <SelectItem value="usage_summary">Resumo de Uso (Ferramentas)</SelectItem>
                   <SelectItem value="vehicle_checkouts">Movimentação de Veículos</SelectItem>
-                  <SelectItem value="fuel_records">Abastecimento</SelectItem>
+                  
                 </SelectContent>
               </Select>
             </div>
