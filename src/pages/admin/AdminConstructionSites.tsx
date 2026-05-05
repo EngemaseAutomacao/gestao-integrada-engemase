@@ -117,8 +117,15 @@ export default function AdminConstructionSites() {
   const { data: lastToolSync } = useQuery({
     queryKey: ["last-tool-sync"],
     queryFn: async () => {
-      const { data } = await (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-google-sheets-daily" });
-      return data as string | undefined;
+      const [{ data: cronData }, { data: manualData }] = await Promise.all([
+        (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-google-sheets-daily" }),
+        (supabase as any).from("sync_state").select("last_run_at").eq("key", "sync-google-sheets").maybeSingle(),
+      ]);
+      const cron = cronData as string | undefined;
+      const manual = (manualData as any)?.last_run_at as string | undefined;
+      if (!cron) return manual;
+      if (!manual) return cron;
+      return new Date(manual) > new Date(cron) ? manual : cron;
     },
     refetchInterval: 60000,
   });
