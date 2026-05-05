@@ -5,6 +5,12 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BRAND } from "./brandConfig";
 
+export interface ExportSection {
+  title: string;
+  headers: string[];
+  rows: (string | number)[][];
+}
+
 export interface ExportOptions {
   title: string;
   subtitle?: string;
@@ -13,6 +19,7 @@ export interface ExportOptions {
   filename: string; // sem extensão
   orientation?: "portrait" | "landscape";
   generatedBy?: string;
+  extraSections?: ExportSection[];
 }
 
 // ---------- Logo cache ----------
@@ -161,6 +168,36 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
     },
   });
 
+  // Extra sections (rendered after main table)
+  if (opts.extraSections && opts.extraSections.length > 0) {
+    for (const section of opts.extraSections) {
+      const lastY = (doc as any).lastAutoTable?.finalY ?? 35;
+      let startY = lastY + 10;
+      if (startY > pageHeight - 40) {
+        doc.addPage();
+        startY = 40;
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
+      doc.text(section.title, 14, startY);
+      doc.setTextColor(0, 0, 0);
+      autoTable(doc, {
+        head: [section.headers],
+        body: section.rows.map((r) => r.map((c) => (c == null ? "-" : String(c)))),
+        startY: startY + 3,
+        margin: { top: 35, bottom: 18, left: 14, right: 14 },
+        styles: { fontSize: 8, cellPadding: 2.5, overflow: "linebreak" },
+        headStyles: { fillColor: BRAND.primary, textColor: 255, fontStyle: "bold" },
+        alternateRowStyles: { fillColor: [245, 247, 250] },
+        didDrawPage: () => {
+          drawWatermark();
+          drawHeader();
+        },
+      });
+    }
+  }
+
   // Footer (second pass for page X of Y)
   const totalPages = doc.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
@@ -277,5 +314,24 @@ export function exportToExcel(opts: ExportOptions): void {
   ws["!ref"] = `A1:${lastColLetter}${5 + opts.rows.length}`;
 
   XLSX.utils.book_append_sheet(wb, ws, "Relatório");
+
+  // Extra sections as additional sheets
+  if (opts.extraSections && opts.extraSections.length > 0) {
+    opts.extraSections.forEach((section, idx) => {
+      const ws2 = XLSX.utils.aoa_to_sheet([section.headers, ...section.rows]);
+      const colCount2 = section.headers.length;
+      for (let c = 0; c < colCount2; c++) {
+        const addr = `${XLSX.utils.encode_col(c)}1`;
+        if (ws2[addr]) ws2[addr].s = headerCellStyle;
+      }
+      ws2["!cols"] = section.headers.map((h, i) => {
+        const maxData = section.rows.reduce((m, r) => Math.max(m, String(r[i] ?? "").length), h.length);
+        return { wch: Math.min(Math.max(maxData + 2, 10), 50) };
+      });
+      const sheetName = (section.title || `Seção ${idx + 1}`).slice(0, 31).replace(/[\\/:*?[\]]/g, "-");
+      XLSX.utils.book_append_sheet(wb, ws2, sheetName);
+    });
+  }
+
   XLSX.writeFile(wb, `${sanitizeFilename(opts.filename)}.xlsx`);
 }
