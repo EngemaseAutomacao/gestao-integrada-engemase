@@ -303,35 +303,25 @@ export default function AdminReports() {
           break;
       }
 
-      const doc = new jsPDF();
-      
-      // Header
-      doc.setFontSize(18);
-      doc.text(title, 14, 20);
-      doc.setFontSize(11);
-      doc.text(`Gerado em: ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`, 14, 28);
-      
+      let subtitle = "";
       if (filters.startDate || filters.endDate) {
-        let periodText = "Período: ";
+        subtitle = "Período: ";
         if (filters.startDate) {
-          periodText += `${format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR })}`;
+          subtitle += format(new Date(filters.startDate), "dd/MM/yyyy", { locale: ptBR });
         }
         if (filters.endDate) {
-          periodText += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
+          subtitle += ` até ${format(new Date(filters.endDate), "dd/MM/yyyy", { locale: ptBR })}`;
         }
-        doc.text(periodText, 14, 34);
       }
 
-      // Table
-      autoTable(doc, {
-        head: [columns],
-        body: rows,
-        startY: filters.startDate || filters.endDate ? 40 : 34,
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [79, 70, 229] },
+      await exportPdfUtil({
+        title,
+        subtitle: subtitle || undefined,
+        headers: columns,
+        rows,
+        filename: `relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}`,
+        orientation: columns.length > 6 ? "landscape" : "portrait",
       });
-
-      doc.save(`relatorio-${filters.reportType}-${format(new Date(), "yyyy-MM-dd")}.pdf`);
       toast.success("Relatório PDF gerado com sucesso!");
     } catch (error: any) {
       toast.error("Erro ao gerar relatório", {
