@@ -670,19 +670,6 @@ export default function AdminReports() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Manutenções</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">
-                <ul className="space-y-1">
-                  <li>• Registro de todas as manutenções</li>
-                  <li>• Custos e peças substituídas</li>
-                  <li>• Condição antes e depois</li>
-                  <li>• Responsável pela manutenção</li>
-                </ul>
-              </CardContent>
-            </Card>
 
             <Card>
               <CardHeader>
