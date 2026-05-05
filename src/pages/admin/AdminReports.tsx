@@ -520,7 +520,7 @@ export default function AdminReports() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="checkouts">Retiradas/Devoluções (Ferramentas)</SelectItem>
-                  <SelectItem value="maintenance">Manutenções</SelectItem>
+                  
                   <SelectItem value="inventory">Inventário Atual</SelectItem>
                   <SelectItem value="usage_summary">Resumo de Uso (Ferramentas)</SelectItem>
                   <SelectItem value="vehicle_checkouts">Movimentação de Veículos</SelectItem>
