@@ -122,9 +122,14 @@ export async function exportToPDF(opts: ExportOptions): Promise<void> {
         anyDoc.setGState(new anyDoc.GState({ opacity: 0.06 }));
       }
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(80);
+      doc.setFontSize(70);
       doc.setTextColor(BRAND.primary[0], BRAND.primary[1], BRAND.primary[2]);
-      doc.text(BRAND.watermarkText, pageWidth / 2, pageHeight / 2, {
+      // Two diagonal watermarks for better coverage
+      doc.text(BRAND.watermarkText, pageWidth / 2, pageHeight / 3, {
+        align: "center",
+        angle: 45,
+      });
+      doc.text(BRAND.watermarkText, pageWidth / 2, (pageHeight / 3) * 2, {
         align: "center",
         angle: 45,
       });
