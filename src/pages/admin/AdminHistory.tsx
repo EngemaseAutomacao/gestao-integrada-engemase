@@ -410,8 +410,10 @@ export default function AdminHistory() {
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
                             <span>{entry.tools.name}</span>
-                            {entry.selected_tag && (
-                              <span className="text-[10px] font-mono text-muted-foreground">TAG: {entry.selected_tag}</span>
+                            {(entry.selected_tag || entry.tools.tag) && (
+                              <span className="text-[10px] font-mono text-muted-foreground uppercase">
+                                TAG: {entry.selected_tag || entry.tools.tag}
+                              </span>
                             )}
                           </div>
                         </TableCell>
