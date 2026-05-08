@@ -49,9 +49,8 @@ export default function UpdatePrompt() {
   const checkForUpdate = useCallback(async () => {
     try {
       // Don't show in Lovable preview/editor to avoid duplicate UI issues
-      // Only exclude the actual editor domain, not the project preview domains
-      const isEditorPreview = window.location.hostname === "lovable.app" || 
-                             window.location.hostname === "lovableproject.com";
+      // Remove blocking to allow testing in preview
+      const isEditorPreview = window.location.hostname === "lovable.app";
       if (isEditorPreview) return;
 
       console.log(`[Update] Verificando versão... (atual: ${APP_VERSION})`);
