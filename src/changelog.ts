@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.40.0",
+    date: "2026-05-08",
+    title: "Sistema de Atualização Robusto",
+    description: "Reestruturação completa do sistema de detecção de versões para garantir atualizações imediatas em dispositivos móveis.",
+    changes: [
+      { type: "improvement", text: "Nova arquitetura de verificação de versão que ignora caches agressivos do navegador" },
+      { type: "improvement", text: "Sincronização imediata entre Service Worker e interface do usuário" },
+      { type: "improvement", text: "Correção de bloqueios em URLs de visualização externa (lovableproject.com)" },
+      { type: "fix", text: "Eliminação de falhas que impediam a exibição do banner de atualização no celular" },
+    ],
+  },
+  {
     version: "1.37.0",
     date: "2026-05-08",
     title: "Melhorias no Fluxo de Devolução",
