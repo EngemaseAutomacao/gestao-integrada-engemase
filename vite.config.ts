@@ -11,6 +11,17 @@ function getAppVersion() {
   return match ? match[1] : "0.0.0";
 }
 
+// Plugin to generate version.json in public/ at build time
+function versionJsonPlugin() {
+  const version = getAppVersion();
+  return {
+    name: "version-json",
+    buildStart() {
+      const versionData = JSON.stringify({ version, buildDate: new Date().toISOString() });
+      fs.writeFileSync(path.resolve(__dirname, "public/version.json"), versionData);
+    },
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -21,7 +32,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), versionJsonPlugin(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

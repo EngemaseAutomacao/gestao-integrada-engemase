@@ -40,7 +40,7 @@ export default function FerramentasMenu() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
 
-  const { toolPending, toolIssuesOpen } = useUrgencyBadges();
+  const { toolOverdue, toolIssuesOpen } = useUrgencyBadges();
 
   return (
     <div className="space-y-6">
@@ -75,7 +75,7 @@ export default function FerramentasMenu() {
           description="Devolver uma ferramenta"
           icon={<LogIn className="w-6 h-6 text-primary" />}
           to="/ferramentas/devolucao"
-          badgeCount={toolPending}
+          badgeCount={toolOverdue}
         />
         <MenuCard
           title="Meu Histórico"

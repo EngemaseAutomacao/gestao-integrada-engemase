@@ -28,15 +28,12 @@ interface HistoryEntry {
   status: string;
   construction_site: string | null;
   estimated_return_date: string | null;
-  selected_tag: string | null;
   checkout_photo_url: string | null;
   checkin_photo_url: string | null;
   checkout_signature_url: string | null;
   checkin_signature_url: string | null;
   tools: {
     name: string;
-    tag: string | null;
-    brand: string | null;
   };
   profiles: {
     full_name: string;
@@ -115,13 +112,12 @@ export default function AdminHistory() {
           status,
           construction_site,
           estimated_return_date,
-          selected_tag,
           notes,
           checkout_photo_url,
           checkin_photo_url,
           checkout_signature_url,
           checkin_signature_url,
-          tools (name, tag, brand),
+          tools (name),
           profiles!tool_checkouts_user_id_fkey (full_name, category),
           checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name),
           checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name)
@@ -455,13 +451,6 @@ export default function AdminHistory() {
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                         <p className="font-semibold">{selectedEntry.tools.name}</p>
-                                        {selectedEntry.tools.brand && (
-                                          <p className="text-xs text-muted-foreground">{selectedEntry.tools.brand}</p>
-                                        )}
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">TAG</p>
-                                        <p className="font-mono text-sm">{selectedEntry.selected_tag || selectedEntry.tools.tag || "-"}</p>
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Usuário</p>
@@ -477,12 +466,6 @@ export default function AdminHistory() {
                                           {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
                                         </Badge>
                                       </div>
-                                      {selectedEntry.estimated_return_date && (
-                                        <div>
-                                          <p className="text-sm font-medium text-muted-foreground">Devolução Prevista</p>
-                                          <p>{format(new Date(selectedEntry.estimated_return_date), "dd/MM/yyyy", { locale: ptBR })}</p>
-                                        </div>
-                                      )}
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
                                       <div>
@@ -626,13 +609,6 @@ export default function AdminHistory() {
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                       <p className="font-semibold">{selectedEntry.tools.name}</p>
-                                      {selectedEntry.tools.brand && (
-                                        <p className="text-xs text-muted-foreground">{selectedEntry.tools.brand}</p>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-muted-foreground">TAG</p>
-                                      <p className="font-mono text-sm">{selectedEntry.selected_tag || selectedEntry.tools.tag || "-"}</p>
                                     </div>
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Usuário</p>

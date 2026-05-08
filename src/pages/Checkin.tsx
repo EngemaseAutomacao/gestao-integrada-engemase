@@ -8,7 +8,6 @@ import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,16 +37,10 @@ export default function Checkin() {
   const navigate = useNavigate();
   const [checkouts, setCheckouts] = useState<Checkout[]>(cachedCheckouts || []);
   const [selectedCheckoutId, setSelectedCheckoutId] = useState<string>("");
-  const [bulkCheckoutIds, setBulkCheckoutIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
-  
   const toolIdParam = searchParams.get("toolId");
-  const checkoutIdParam = searchParams.get("checkoutId");
-  const checkoutIdsParam = searchParams.get("checkoutIds");
-  const isBulk = bulkCheckoutIds.length > 0;
-  const isLocked = !!(checkoutIdParam || (toolIdParam && selectedCheckoutId));
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
@@ -92,16 +85,7 @@ export default function Checkin() {
       setCheckouts(data || []);
       saveToCache(data || []);
 
-      if (checkoutIdsParam && data) {
-        const ids = checkoutIdsParam.split(",").filter(Boolean);
-        const valid = ids.filter(id => data.some(c => c.id === id));
-        setBulkCheckoutIds(valid);
-      } else if (checkoutIdParam && data) {
-        const checkout = data.find(c => c.id === checkoutIdParam);
-        if (checkout) {
-          setSelectedCheckoutId(checkout.id);
-        }
-      } else if (toolIdParam && data) {
+      if (toolIdParam && data) {
         const checkout = data.find(c => c.tool_id === toolIdParam);
         if (checkout) {
           setSelectedCheckoutId(checkout.id);
@@ -123,16 +107,13 @@ export default function Checkin() {
 
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isBulk && !selectedCheckoutId) {
+    
+    if (!selectedCheckoutId) {
       toast.error("Selecione uma retirada");
       return;
     }
 
-    if (isBulk && bulkCheckoutIds.length === 0) {
-      toast.error("Nenhuma ferramenta selecionada");
-      return;
-    }
+    // Photo is optional for checkin
 
     setLoading(true);
 
@@ -143,37 +124,16 @@ export default function Checkin() {
         photoUrl = await uploadImage(photoDataUrl, "photo");
       }
 
-      const updates = {
-        status: "checked_in" as const,
-        checkin_date: new Date().toISOString(),
-        checked_in_by: profile!.id,
-        notes: notes.trim() ? notes : null,
-        checkin_photo_url: photoUrl,
+      const checkinData = {
+        checkoutId: selectedCheckoutId,
+        updates: {
+          status: "checked_in" as const,
+          checkin_date: new Date().toISOString(),
+          checked_in_by: profile!.id,
+          notes: notes.trim() ? notes : null,
+          checkin_photo_url: photoUrl,
+        },
       };
-
-      if (isBulk) {
-        if (!isOnline) {
-          for (const id of bulkCheckoutIds) {
-            addPendingOperation("checkin", { checkoutId: id, updates });
-          }
-          toast.success(`${bulkCheckoutIds.length} devoluções registradas (offline)!`);
-          navigate("/ferramentas");
-          return;
-        }
-
-        const { error } = await supabase
-          .from("tool_checkouts")
-          .update(updates)
-          .in("id", bulkCheckoutIds);
-
-        if (error) throw error;
-
-        toast.success(`${bulkCheckoutIds.length} ferramentas devolvidas com sucesso!`);
-        navigate("/ferramentas");
-        return;
-      }
-
-      const checkinData = { checkoutId: selectedCheckoutId, updates };
 
       if (!isOnline) {
         addPendingOperation("checkin", checkinData);
@@ -184,7 +144,7 @@ export default function Checkin() {
 
       const { error } = await supabase
         .from("tool_checkouts")
-        .update(updates)
+        .update(checkinData.updates)
         .eq("id", selectedCheckoutId);
 
       if (error) throw error;
@@ -215,7 +175,7 @@ export default function Checkin() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Registrar Devolução</CardTitle>
+          <CardTitle>Devolver Ferramenta</CardTitle>
           <CardDescription>Registre a devolução de uma ferramenta</CardDescription>
         </CardHeader>
         <CardContent>
@@ -224,79 +184,31 @@ export default function Checkin() {
               Você não possui ferramentas para devolver
             </p>
           ) : (
-            <form onSubmit={handleCheckin} className="space-y-6">
-              {isBulk ? (
-                <div className="space-y-2">
-                  <Label>Ferramentas selecionadas ({bulkCheckoutIds.length})</Label>
-                  <div className="space-y-2 max-h-[280px] overflow-y-auto rounded-md border p-2 bg-muted/30">
-                    {bulkCheckoutIds.map((id) => {
-                      const c = checkouts.find(ck => ck.id === id);
-                      if (!c) return null;
-                      const isOverdue = c.estimated_return_date && new Date(c.estimated_return_date) < new Date();
+            <form onSubmit={handleCheckin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="checkout">Ferramenta Retirada *</Label>
+                <Select
+                  value={selectedCheckoutId}
+                  onValueChange={setSelectedCheckoutId}
+                  disabled={loadingCheckouts}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a ferramenta para devolver" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {checkouts.map((checkout) => {
+                      const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
                       return (
-                        <div key={id} className="flex items-center justify-between gap-2 p-2 rounded bg-background">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{c.tools.name}</p>
-                            {c.construction_site && (
-                              <p className="text-xs text-muted-foreground truncate">{c.construction_site}</p>
-                            )}
-                          </div>
-                          {isOverdue && (
-                            <Badge variant="destructive" className="text-[10px] shrink-0">Atrasado</Badge>
-                          )}
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 px-2 text-xs"
-                            onClick={() => setBulkCheckoutIds(bulkCheckoutIds.filter(x => x !== id))}
-                          >
-                            Remover
-                          </Button>
-                        </div>
+                        <SelectItem key={checkout.id} value={checkout.id}>
+                          {checkout.tools.name}
+                          {checkout.construction_site && ` - ${checkout.construction_site}`}
+                          {isOverdue && " ⚠️ ATRASADO"}
+                        </SelectItem>
                       );
                     })}
-                  </div>
-                  <p className="text-xs text-muted-foreground">As observações e a foto abaixo serão aplicadas a todas as ferramentas selecionadas.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="checkout">Ferramenta Retirada *</Label>
-                    <Select
-                      value={selectedCheckoutId}
-                      onValueChange={setSelectedCheckoutId}
-                      disabled={loadingCheckouts || isLocked}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a ferramenta para devolver" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {checkouts.map((checkout) => {
-                          const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                          return (
-                            <SelectItem key={checkout.id} value={checkout.id}>
-                              {checkout.tools.name}
-                              {checkout.construction_site && ` - ${checkout.construction_site}`}
-                              {isOverdue && " ⚠️ ATRASADO"}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="site">Obra de Origem</Label>
-                    <Input
-                      id="site"
-                      value={checkouts.find(c => c.id === selectedCheckoutId)?.construction_site || "Nenhuma obra informada"}
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                </div>
-              )}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações (opcional)</Label>
@@ -338,17 +250,17 @@ export default function Checkin() {
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button type="submit" disabled={loading || (!isBulk && !selectedCheckoutId) || (isBulk && bulkCheckoutIds.length === 0)} className="flex-1">
+              <div className="flex flex-col gap-3">
+                <Button type="submit" disabled={loading || !selectedCheckoutId} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isBulk ? `Registrar Devolução (${bulkCheckoutIds.length})` : "Registrar Devolução"}
+                  Confirmar Devolução
                 </Button>
-                {!isBulk && selectedCheckoutId && (
+                {selectedCheckoutId && (
                   <Button
                     type="button"
                     variant="outline"
                     asChild
-                    className="flex-1"
+                    className="w-full"
                   >
                     <Link to={`/report-issue?checkoutId=${selectedCheckoutId}`}>
                       <AlertCircle className="h-4 w-4 mr-2" />
@@ -356,7 +268,7 @@ export default function Checkin() {
                     </Link>
                   </Button>
                 )}
-                <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="flex-1">
+                <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="w-full">
                   Cancelar
                 </Button>
               </div>

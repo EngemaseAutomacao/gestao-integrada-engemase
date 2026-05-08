@@ -83,11 +83,9 @@ interface ModuleCardProps {
   comingSoon?: boolean;
   variant?: "default" | "admin";
   badgeCount?: number;
-  pendingCount?: number;
-  overdueCount?: number;
 }
 
-function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount, pendingCount, overdueCount }: ModuleCardProps) {
+function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount }: ModuleCardProps) {
   const isAdmin = variant === "admin";
 
   const content = (
@@ -102,16 +100,9 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
           Em Breve
         </div>
       )}
-      
-      {pendingCount !== undefined && pendingCount > 0 && (
-        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-950 text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10 shadow-sm border border-yellow-500/20" title="Pendentes">
-          {pendingCount}
-        </div>
-      )}
-
-      {(overdueCount !== undefined && overdueCount > 0) || (badgeCount !== undefined && badgeCount > 0) ? (
-        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10 shadow-sm" title="Atrasados">
-          {overdueCount || badgeCount}
+      {badgeCount && badgeCount > 0 ? (
+        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+          {badgeCount}
         </div>
       ) : null}
       <CardHeader className="text-center pb-1 px-3 pt-4">
@@ -247,7 +238,7 @@ function SummaryCards({ userId }: { userId: string }) {
 export default function Home() {
   const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
-  const { toolOverdue, toolPending, vehicleOverdue, vehiclePending } = useUrgencyBadges();
+  const { toolBadgeCount, vehicleBadgeCount } = useUrgencyBadges();
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -283,8 +274,7 @@ export default function Home() {
             description="Retiradas, devoluções e manutenções"
             icon={<Wrench className="w-6 h-6 text-primary" />}
             to="/ferramentas"
-            pendingCount={toolPending - toolOverdue}
-            overdueCount={toolOverdue}
+            badgeCount={toolBadgeCount}
           />
         </div>
 
@@ -294,8 +284,7 @@ export default function Home() {
             description="Entradas e saídas de veículos"
             icon={<Car className="w-6 h-6 text-primary" />}
             to="/veiculos"
-            pendingCount={vehiclePending - vehicleOverdue}
-            overdueCount={vehicleOverdue}
+            badgeCount={vehicleBadgeCount}
           />
         </div>
 
