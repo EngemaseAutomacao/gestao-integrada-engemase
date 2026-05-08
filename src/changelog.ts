@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.35.1",
+    date: "2026-05-08",
+    title: "Pré-seleção na Devolução",
+    description: "Ao clicar em 'Registrar Devolução' no painel, a ferramenta agora vem selecionada automaticamente na próxima tela.",
+    changes: [
+      { type: "fix", text: "Corrigido fluxo que perdia a ferramenta selecionada ao redirecionar para a página de devolução" },
+    ],
+  },
+  {
     version: "1.35.0",
     date: "2026-05-08",
     title: "Novo Layout de Devolução",
