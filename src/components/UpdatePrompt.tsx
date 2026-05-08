@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { RefreshCw, X } from "lucide-react";
 import { APP_VERSION } from "@/version";
 
-const CHECK_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const CHECK_INTERVAL = 30 * 1000; // 30 seconds for faster detection during testing
 const NOTIFIED_VERSION_KEY = "engemase_notified_version";
 
 export default function UpdatePrompt() {
@@ -50,7 +50,7 @@ export default function UpdatePrompt() {
     try {
       // Don't show in Lovable preview/editor to avoid duplicate UI issues
       // Remove blocking to allow testing in preview
-      const isEditorPreview = window.location.hostname === "lovable.app";
+      const isEditorPreview = window.location.hostname === "lovable.app" || window.location.hostname.includes("id-preview");
       if (isEditorPreview) return;
 
       console.log(`[Update] Iniciando verificação... Bundle: ${APP_VERSION}, URL: ${window.location.hostname}`);
@@ -78,7 +78,7 @@ export default function UpdatePrompt() {
 
   useEffect(() => {
     // Check immediately after mount
-    const timeout = setTimeout(checkForUpdate, 5000);
+    const timeout = setTimeout(checkForUpdate, 2000);
     const interval = setInterval(checkForUpdate, CHECK_INTERVAL);
 
     // Listen for SW version messages

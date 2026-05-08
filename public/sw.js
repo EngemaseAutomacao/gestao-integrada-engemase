@@ -5,7 +5,7 @@
 const STATIC_CACHE = 'engemase-static-v10';
 const DYNAMIC_CACHE = 'engemase-dynamic-v10';
 const MAX_CACHE_SIZE = 50;
-const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const VERSION_CHECK_INTERVAL = 30 * 1000; // 30 seconds
 
 const urlsToCache = [
   '/',
@@ -19,7 +19,10 @@ let currentVersion = null;
 
 async function checkForUpdates() {
   try {
-    const response = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
+    const response = await fetch('/version.json?sw_t=' + Date.now(), { 
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    });
     if (!response.ok) return;
     const data = await response.json();
     const newVersion = data.version;
