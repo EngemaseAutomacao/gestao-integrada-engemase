@@ -210,13 +210,13 @@ export default function Checkin() {
                     value={selectedToolName}
                     onValueChange={(val) => {
                       setSelectedToolName(val);
-                      // Auto-select tag and site if there's only one option
+                      // Auto-select tag and site if there's only one option for this tool
                       const toolCheckouts = checkouts.filter(c => c.tools.name === val);
                       if (toolCheckouts.length === 1) {
                         const c = toolCheckouts[0];
                         setSelectedCheckoutId(c.id);
-                        setSelectedTag(c.selected_tag || "");
-                        setSelectedSite(c.construction_site || "");
+                        setSelectedTag(c.selected_tag || "no-tag");
+                        setSelectedSite(c.construction_site || "no-site");
                       } else {
                         setSelectedCheckoutId("");
                         setSelectedTag("");
@@ -242,13 +242,19 @@ export default function Checkin() {
                     value={selectedSite}
                     onValueChange={(val) => {
                       setSelectedSite(val);
+                      const siteVal = val === "no-site" ? "" : val;
                       const filtered = checkouts.filter(c => 
                         c.tools.name === selectedToolName && 
-                        (c.construction_site || "") === val
+                        (c.construction_site || "") === siteVal
                       );
+                      
                       if (filtered.length === 1) {
-                        setSelectedCheckoutId(filtered[0].id);
-                        setSelectedTag(filtered[0].selected_tag || "");
+                        const c = filtered[0];
+                        setSelectedCheckoutId(c.id);
+                        setSelectedTag(c.selected_tag || "no-tag");
+                      } else {
+                        setSelectedCheckoutId("");
+                        setSelectedTag("");
                       }
                     }}
                     disabled={!selectedToolName || loadingCheckouts || !!checkoutIdParam || !!toolIdParam}
@@ -262,7 +268,9 @@ export default function Checkin() {
                           .filter(c => c.tools.name === selectedToolName)
                           .map(c => c.construction_site || "")
                       )).map(site => (
-                        <SelectItem key={site || "no-site"} value={site}>{site || "Sem obra"}</SelectItem>
+                        <SelectItem key={site || "no-site"} value={site || "no-site"}>
+                          {site || "Sem obra"}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -274,26 +282,29 @@ export default function Checkin() {
                     value={selectedTag}
                     onValueChange={(val) => {
                       setSelectedTag(val);
+                      const tagVal = val === "no-tag" ? "" : val;
+                      const siteVal = selectedSite === "no-site" ? "" : selectedSite;
                       const filtered = checkouts.filter(c => 
                         c.tools.name === selectedToolName && 
-                        (c.construction_site || "") === selectedSite &&
-                        (c.selected_tag || "") === val
+                        (c.construction_site || "") === siteVal &&
+                        (c.selected_tag || "") === tagVal
                       );
                       if (filtered.length === 1) {
                         setSelectedCheckoutId(filtered[0].id);
                       }
                     }}
-                    disabled={!selectedToolName || loadingCheckouts || !!checkoutIdParam || !!toolIdParam}
+                    disabled={!selectedSite || loadingCheckouts || !!checkoutIdParam || !!toolIdParam}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a TAG" />
                     </SelectTrigger>
                     <SelectContent>
                       {checkouts
-                        .filter(c => 
-                          c.tools.name === selectedToolName && 
-                          (c.construction_site || "") === selectedSite
-                        )
+                        .filter(c => {
+                          const siteVal = selectedSite === "no-site" ? "" : selectedSite;
+                          return c.tools.name === selectedToolName && 
+                                 (c.construction_site || "") === siteVal;
+                        })
                         .map(c => (
                           <SelectItem key={c.id} value={c.selected_tag || "no-tag"}>
                             {c.selected_tag ? `TAG ${c.selected_tag}` : "Sem TAG"}
