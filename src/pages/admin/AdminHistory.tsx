@@ -455,6 +455,13 @@ export default function AdminHistory() {
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                         <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                        {selectedEntry.tools.brand && (
+                                          <p className="text-xs text-muted-foreground">{selectedEntry.tools.brand}</p>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-muted-foreground">TAG</p>
+                                        <p className="font-mono text-sm">{selectedEntry.selected_tag || selectedEntry.tools.tag || "-"}</p>
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Usuário</p>
@@ -470,6 +477,12 @@ export default function AdminHistory() {
                                           {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
                                         </Badge>
                                       </div>
+                                      {selectedEntry.estimated_return_date && (
+                                        <div>
+                                          <p className="text-sm font-medium text-muted-foreground">Devolução Prevista</p>
+                                          <p>{format(new Date(selectedEntry.estimated_return_date), "dd/MM/yyyy", { locale: ptBR })}</p>
+                                        </div>
+                                      )}
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
                                       <div>
