@@ -1,6 +1,6 @@
-# Notas de Atualização - v1.33.0
+# Notas de Atualização - v1.34.0
 
-## [1.33.0] - 2026-05-08
+## [1.34.0] - 2026-05-08
 
 ### Adicionado
 - Opção de visualização em tabela ou linha do tempo (timeline) no histórico de ferramentas do usuário, padronizando com o histórico geral.
@@ -15,3 +15,10 @@
 
 ### Corrigido
 - Ajuste na rota `/ferramentas/devolucao` para garantir o funcionamento correto do redirecionamento e seleção automática.
+
+---
+
+# Histórico de Versões
+
+## [1.33.0] - 2026-05-08
+- Versão de ajuste técnico e sincronização de base.
