@@ -181,7 +181,7 @@ export default function Checkin() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Devolver Ferramenta</CardTitle>
+          <CardTitle>Registrar Devolução</CardTitle>
           <CardDescription>Registre a devolução de uma ferramenta</CardDescription>
         </CardHeader>
         <CardContent>
