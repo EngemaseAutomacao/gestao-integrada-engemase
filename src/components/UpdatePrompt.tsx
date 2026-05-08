@@ -53,7 +53,7 @@ export default function UpdatePrompt() {
       const isEditorPreview = window.location.hostname === "lovable.app";
       if (isEditorPreview) return;
 
-      console.log(`[Update] Verificando versão... (atual: ${APP_VERSION})`);
+      console.log(`[Update] Iniciando verificação... Bundle: ${APP_VERSION}, URL: ${window.location.hostname}`);
       const res = await fetch("/version.json?v=" + APP_VERSION + "&t=" + Date.now(), { 
         cache: "no-store",
         headers: {
