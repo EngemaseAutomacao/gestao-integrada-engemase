@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.36.2",
+    date: "2026-05-08",
+    title: "Alertas de Atualização Críticos",
+    description: "Sistema de notificação de novas versões redesenhado para garantir que todos os usuários vejam as atualizações.",
+    changes: [
+      { type: "improvement", text: "Aviso de atualização agora aparece no topo da tela com cor de destaque (Amarelo)" },
+      { type: "improvement", text: "Intervalo de verificação reduzido para detecção mais rápida" },
+      { type: "fix", text: "Correção na lógica de cache para forçar o carregamento do novo código" },
+    ],
+  },
+  {
     version: "1.36.1",
     date: "2026-05-08",
     title: "Sincronização de Versão",
