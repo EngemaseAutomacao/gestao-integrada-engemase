@@ -13,6 +13,7 @@ export default function UpdatePrompt() {
   const showUpdateNotification = useCallback((newVersion: string) => {
     // Only notify once per version
     const alreadyNotified = localStorage.getItem(NOTIFIED_VERSION_KEY);
+    // Remove comparison with current version to ensure prompt shows if versions differ
     if (alreadyNotified === newVersion || notifiedRef.current) return;
     notifiedRef.current = true;
     localStorage.setItem(NOTIFIED_VERSION_KEY, newVersion);
@@ -96,6 +97,8 @@ export default function UpdatePrompt() {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map((r) => r.unregister()));
     }
+    // Clear notified version to allow re-showing if needed
+    localStorage.removeItem(NOTIFIED_VERSION_KEY);
     // Force reload from server
     window.location.reload();
   };
