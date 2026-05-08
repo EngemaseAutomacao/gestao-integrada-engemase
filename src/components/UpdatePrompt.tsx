@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { RefreshCw, X } from "lucide-react";
+import { RefreshCw, X, AlertCircle } from "lucide-react";
 import { APP_VERSION } from "@/version";
 
-const CHECK_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const CHECK_INTERVAL = 2 * 60 * 1000; // 2 minutes
 const NOTIFIED_VERSION_KEY = "engemase_notified_version";
 
 export default function UpdatePrompt() {
