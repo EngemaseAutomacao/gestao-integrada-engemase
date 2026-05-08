@@ -27,6 +27,7 @@ interface HistoryEntry {
   checkin_date: string | null;
   status: string;
   construction_site: string | null;
+  selected_tag: string | null;
   estimated_return_date: string | null;
   checkout_photo_url: string | null;
   checkin_photo_url: string | null;
@@ -34,6 +35,7 @@ interface HistoryEntry {
   checkin_signature_url: string | null;
   tools: {
     name: string;
+    tag: string | null;
   };
   profiles: {
     full_name: string;
