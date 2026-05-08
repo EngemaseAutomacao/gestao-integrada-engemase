@@ -230,9 +230,10 @@ export default function AdminHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Ferramenta", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Retirado por", "Devolvido por", "Observações"];
+    const headers = ["Ferramenta", "TAG", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Retirado por", "Devolvido por", "Observações"];
     const rows = filteredHistory.map((e) => [
       e.tools.name,
+      e.selected_tag || e.tools.tag || "-",
       e.profiles.full_name,
       e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
       e.construction_site || "-",
