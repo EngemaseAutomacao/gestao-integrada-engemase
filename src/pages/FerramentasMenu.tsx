@@ -75,7 +75,7 @@ export default function FerramentasMenu() {
           description="Devolver uma ferramenta"
           icon={<LogIn className="w-6 h-6 text-primary" />}
           to="/ferramentas/devolucao"
-          badgeCount={toolOverdue}
+          badgeCount={toolPending}
         />
         <MenuCard
           title="Meu Histórico"
