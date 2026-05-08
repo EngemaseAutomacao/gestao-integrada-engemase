@@ -49,7 +49,8 @@ export default function UpdatePrompt() {
   const checkForUpdate = useCallback(async () => {
     try {
       // Don't show in Lovable preview/editor to avoid duplicate UI issues
-      const isEditorPreview = window.location.hostname.endsWith("lovableproject.com") || 
+      const isEditorPreview = window.location.hostname.endsWith("lovable.app") || 
+                             window.location.hostname.includes("lovableproject.com") ||
                              window.location.hostname.includes("id-preview");
       if (isEditorPreview) return;
 
