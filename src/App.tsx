@@ -102,11 +102,9 @@ const App = () => (
         <TooltipProvider>
           
           <Sonner />
-          <UpdatePrompt />
           <BrowserRouter>
             <OfflineProvider>
               <AuthProvider>
-                <ChangelogModal />
                 <OnboardingTutorial />
                 <Suspense fallback={<PageSkeleton />}>
                   <Routes>
