@@ -114,16 +114,16 @@ function ModuleCard({
         </div>
       )}
       
-      {/* Badges */}
+      {/* Badges container */}
       <div className="absolute top-2 left-2 right-2 flex justify-between pointer-events-none">
         {pendingCount !== undefined && pendingCount > 0 ? (
-          <div className="bg-yellow-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm">
+          <div className="bg-yellow-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm pointer-events-auto">
             {pendingCount}
           </div>
         ) : <div />}
         
         {(overdueCount !== undefined && overdueCount > 0) || (badgeCount !== undefined && badgeCount > 0) ? (
-          <div className="bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm">
+          <div className="bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm pointer-events-auto">
             {overdueCount || badgeCount}
           </div>
         ) : null}
