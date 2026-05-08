@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wrench, Car, Clock, Eye, Camera, MapPin, Navigation } from "lucide-react";
+import { Loader2, Wrench, Car, Clock, Eye, Camera, MapPin, List } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SignedImage } from "@/components/SignedImage";
+import { AssetTimeline } from "@/components/admin/AssetTimeline";
 
 interface UnifiedEvent {
   id: string;
@@ -58,6 +59,7 @@ export default function UnifiedHistory({
   const [periodFilter, setPeriodFilter] = useState("7d");
   const [typeFilter, setTypeFilter] = useState(initialType);
   const [selectedEvent, setSelectedEvent] = useState<UnifiedEvent | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "timeline">("list");
 
   useEffect(() => {
     if (profile?.id) loadAll();
@@ -243,31 +245,53 @@ export default function UnifiedHistory({
         </div>
       )}
 
-      <div className="flex gap-2 flex-wrap" role="group" aria-label="Filtros do histórico">
-        <Select value={periodFilter} onValueChange={setPeriodFilter}>
-          <SelectTrigger className="w-[140px]" aria-label="Filtrar por período">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="today">Hoje</SelectItem>
-            <SelectItem value="7d">7 dias</SelectItem>
-            <SelectItem value="30d">30 dias</SelectItem>
-            <SelectItem value="3m">3 meses</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex gap-2 items-center justify-between flex-wrap" role="group" aria-label="Filtros do histórico">
+        <div className="flex gap-2 flex-wrap">
+          <Select value={periodFilter} onValueChange={setPeriodFilter}>
+            <SelectTrigger className="w-[140px]" aria-label="Filtrar por período">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Hoje</SelectItem>
+              <SelectItem value="7d">7 dias</SelectItem>
+              <SelectItem value="30d">30 dias</SelectItem>
+              <SelectItem value="3m">3 meses</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[160px]" aria-label="Filtrar por módulo">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os módulos</SelectItem>
-            <SelectItem value="tool">Ferramentas</SelectItem>
-            <SelectItem value="vehicle">Veículos</SelectItem>
-            <SelectItem value="ponto">Ponto</SelectItem>
-            
-          </SelectContent>
-        </Select>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-[160px]" aria-label="Filtrar por módulo">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os módulos</SelectItem>
+              <SelectItem value="tool">Ferramentas</SelectItem>
+              <SelectItem value="vehicle">Veículos</SelectItem>
+              <SelectItem value="ponto">Ponto</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex gap-1 bg-muted/50 p-1 rounded-md border">
+          <Button
+            variant={viewMode === "list" ? "default" : "ghost"}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setViewMode("list")}
+            title="Visualização em lista"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={viewMode === "timeline" ? "default" : "ghost"}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setViewMode("timeline")}
+            title="Visualização em timeline"
+          >
+            <Clock className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {Object.keys(grouped).length === 0 ? (
@@ -275,6 +299,20 @@ export default function UnifiedHistory({
           <CardContent className="py-8 text-center text-muted-foreground">
             Nenhuma atividade no período selecionado
           </CardContent>
+        </Card>
+      ) : viewMode === "timeline" ? (
+        <Card className="p-4">
+          <AssetTimeline
+            events={filtered.map((ev) => ({
+              id: ev.id,
+              date: ev.endDate || ev.date,
+              action: ev.status,
+              description: ev.title + (ev.subtitle ? ` — ${ev.subtitle}` : ""),
+              user: ev.details?.checked_out_by || profile?.full_name || "Usuário",
+              type: ev.type === "tool" ? (ev.status === "Em uso" ? "checkout" : "checkin") : 
+                    ev.type === "vehicle" ? (ev.status === "Em uso" ? "checkout" : "checkin") : "checkout"
+            }))}
+          />
         </Card>
       ) : (
         Object.entries(grouped).map(([day, dayEvents]) => (
@@ -289,38 +327,7 @@ export default function UnifiedHistory({
                     className="p-3 transition-all hover:shadow-soft hover:border-primary/50 cursor-pointer group"
                     onClick={() => setSelectedEvent(ev)}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
-                        {iconMap[ev.type]}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{ev.title}</p>
-                          {ev.details?.selected_tag && (
-                            <Badge variant="outline" className="text-[10px] font-mono h-4 py-0">
-                              {ev.details.selected_tag}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>{format(new Date(ev.date), "HH:mm")}</span>
-                          {ev.endDate && <span>→ {format(new Date(ev.endDate), "HH:mm")}</span>}
-                          <span>• {ev.subtitle}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={
-                            ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
-                              ? "default"
-                              : "secondary"
-                          }
-                          className="text-xs shrink-0"
-                        >
-                          {ev.status}
-                        </Badge>
-                        <Eye className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors hidden sm:block" />
-                      </div>
+...
                     </div>
                   </Card>
                 </DialogTrigger>
