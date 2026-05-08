@@ -586,7 +586,14 @@ export default function AdminHistory() {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-sm truncate">{entry.tools.name}</h3>
+                          <h3 className="font-semibold text-sm truncate flex items-center gap-2">
+                            {entry.tools.name}
+                            {entry.selected_tag && (
+                              <Badge variant="outline" className="text-[10px] font-mono py-0 h-4">
+                                {entry.selected_tag}
+                              </Badge>
+                            )}
+                          </h3>
                           <p className="text-xs text-muted-foreground">{entry.profiles.full_name}</p>
                           {entry.construction_site && (
                             <p className="text-xs text-muted-foreground">Obra: {entry.construction_site}</p>
