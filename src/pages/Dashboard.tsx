@@ -272,7 +272,7 @@ export default function Dashboard() {
                             <CalendarPlus className="w-3 h-3" /> Prorrogar
                           </Button>
                         )}
-                        <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/checkin?checkoutId=${checkout.id}`)}>
+                        <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/ferramentas/devolucao?checkoutId=${checkout.id}`)}>
                           Registrar Devolução <ArrowRight className="w-3 h-3" />
                         </Button>
                       </div>
