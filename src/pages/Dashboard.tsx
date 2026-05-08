@@ -369,9 +369,9 @@ export default function Dashboard() {
                       >
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
-                          {checkout.tools?.tag && (
+                          {checkout.selected_tag && (
                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
-                              {checkout.tools.tag}
+                              {checkout.selected_tag}
                             </Badge>
                           )}
                         </div>
