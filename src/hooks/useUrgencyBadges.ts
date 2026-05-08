@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface UrgencyData {
   toolOverdue: number;
+  toolPending: number;
   toolIssuesOpen: number;
   vehicleOverdue: number;
   vehicleIssuesOpen: number;
