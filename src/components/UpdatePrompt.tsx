@@ -96,26 +96,28 @@ export default function UpdatePrompt() {
   if (!updateAvailable || dismissed) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-[9999] flex justify-center animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-primary text-primary-foreground rounded-lg shadow-lg px-4 py-3 flex items-center gap-3 max-w-md w-full">
+    <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 z-[9999] flex justify-center animate-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-primary text-primary-foreground rounded-lg shadow-xl px-4 py-3 flex items-center gap-3 max-w-md w-full border border-primary-foreground/20">
         <RefreshCw className="w-5 h-5 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">Nova versão disponível!</p>
-          <p className="text-xs opacity-80">Atualize para obter as últimas melhorias.</p>
+          <p className="text-sm font-bold">Nova versão disponível!</p>
+          <p className="text-xs opacity-90">Atualize para aplicar as melhorias.</p>
         </div>
-        <button
-          onClick={handleUpdate}
-          className="bg-primary-foreground text-primary text-sm font-semibold px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity shrink-0"
-        >
-          Atualizar
-        </button>
-        <button
-          onClick={() => setDismissed(true)}
-          className="opacity-70 hover:opacity-100 transition-opacity shrink-0"
-          aria-label="Fechar"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleUpdate}
+            className="bg-white text-primary text-sm font-bold px-4 py-1.5 rounded-md hover:bg-white/90 transition-colors shrink-0 shadow-sm"
+          >
+            Atualizar
+          </button>
+          <button
+            onClick={() => setDismissed(true)}
+            className="p-1 hover:bg-white/10 rounded-full transition-colors shrink-0"
+            aria-label="Fechar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );
