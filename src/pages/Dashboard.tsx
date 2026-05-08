@@ -291,10 +291,9 @@ export default function Dashboard() {
 
         {pendingCheckouts && pendingCheckouts.length > 0 && (
           <Card
-            className="border-warning/50 bg-warning/5 cursor-pointer"
-            onClick={() => setPendingExpanded(!pendingExpanded)}
+            className="border-warning/50 bg-warning/5"
           >
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 cursor-pointer" onClick={() => setPendingExpanded(!pendingExpanded)}>
               <CardTitle className="text-sm sm:text-base flex items-center justify-between text-warning">
                 <span className="flex items-center gap-2">
                   <Clock className="w-4 h-4" />
@@ -304,13 +303,78 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             {pendingExpanded && (
-              <CardContent className="space-y-2 max-h-[200px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
+              <CardContent className="space-y-2 max-h-[280px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
+                {/* Multi-select toolbar */}
+                <div className="flex items-center justify-between gap-2 sticky top-0 bg-warning/5 backdrop-blur py-1 z-10">
+                  {!multiSelectMode ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs gap-1"
+                      onClick={() => setMultiSelectMode(true)}
+                    >
+                      <CheckSquare className="w-3 h-3" /> Selecionar várias
+                    </Button>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="select-all-pending"
+                          checked={selectedCheckouts.size === pendingCheckouts.length && pendingCheckouts.length > 0}
+                          onCheckedChange={toggleSelectAll}
+                        />
+                        <label htmlFor="select-all-pending" className="text-xs font-medium cursor-pointer">
+                          Selecionar todos
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="text-xs gap-1"
+                          disabled={selectedCheckouts.size === 0 || bulkReturnLoading}
+                          onClick={handleBulkReturn}
+                        >
+                          {bulkReturnLoading && <Loader2 className="w-3 h-3 animate-spin" />}
+                          Devolver ({selectedCheckouts.size})
+                        </Button>
+                        <Button size="sm" variant="ghost" className="text-xs" onClick={exitMultiSelect}>
+                          Cancelar
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
                 {pendingCheckouts.map((checkout: any) => {
                   const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                  const isSelected = selectedCheckouts.has(checkout.id);
                   return (
-                    <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                    <div
+                      key={checkout.id}
+                      className={`flex items-center justify-between gap-2 p-2 rounded-md transition-colors ${
+                        isSelected ? "bg-primary/10 border border-primary/30" : "bg-background/80"
+                      }`}
+                    >
+                      {multiSelectMode && (
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelectCheckout(checkout.id)}
+                          className="shrink-0"
+                        />
+                      )}
+                      <div
+                        className={`flex-1 min-w-0 ${multiSelectMode ? "cursor-pointer" : ""}`}
+                        onClick={() => multiSelectMode && toggleSelectCheckout(checkout.id)}
+                      >
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                          {checkout.tools?.tag && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
+                              {checkout.tools.tag}
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           {checkout.estimated_return_date && (
                             <span className={isOverdue ? "text-destructive font-medium" : ""}>
@@ -319,16 +383,18 @@ export default function Dashboard() {
                           )}
                         </div>
                       </div>
-                      <div className="flex gap-1 shrink-0">
-                        {isOverdue && (
-                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
-                            <CalendarPlus className="w-3 h-3" /> Prorrogar
+                      {!multiSelectMode && (
+                        <div className="flex gap-1 shrink-0">
+                          {isOverdue && (
+                            <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
+                              <CalendarPlus className="w-3 h-3" /> Prorrogar
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                            Devolver <ArrowRight className="w-3 h-3" />
                           </Button>
-                        )}
-                        <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
-                          Devolver <ArrowRight className="w-3 h-3" />
-                        </Button>
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
