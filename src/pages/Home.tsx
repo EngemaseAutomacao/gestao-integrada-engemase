@@ -262,7 +262,16 @@ function SummaryCards({ userId }: { userId: string }) {
 export default function Home() {
   const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
-  const { toolBadgeCount, vehicleBadgeCount } = useUrgencyBadges();
+  const { 
+    toolBadgeCount, 
+    vehicleBadgeCount, 
+    toolPending, 
+    toolOverdue, 
+    toolIssuesOpen,
+    vehiclePending,
+    vehicleOverdue,
+    vehicleIssuesOpen 
+  } = useUrgencyBadges();
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -298,7 +307,8 @@ export default function Home() {
             description="Retiradas, devoluções e manutenções"
             icon={<Wrench className="w-6 h-6 text-primary" />}
             to="/ferramentas"
-            badgeCount={toolBadgeCount}
+            pendingCount={toolPending}
+            overdueCount={toolOverdue + toolIssuesOpen}
           />
         </div>
 
@@ -308,7 +318,8 @@ export default function Home() {
             description="Entradas e saídas de veículos"
             icon={<Car className="w-6 h-6 text-primary" />}
             to="/veiculos"
-            badgeCount={vehicleBadgeCount}
+            pendingCount={vehiclePending}
+            overdueCount={vehicleOverdue + vehicleIssuesOpen}
           />
         </div>
 
