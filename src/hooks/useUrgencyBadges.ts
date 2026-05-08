@@ -7,6 +7,7 @@ interface UrgencyData {
   toolPending: number;
   toolIssuesOpen: number;
   vehicleOverdue: number;
+  vehiclePending: number;
   vehicleIssuesOpen: number;
 }
 
