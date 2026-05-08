@@ -41,6 +41,7 @@ export default function Checkin() {
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
   const toolIdParam = searchParams.get("toolId");
+  const checkoutIdParam = searchParams.get("checkoutId");
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
@@ -85,7 +86,11 @@ export default function Checkin() {
       setCheckouts(data || []);
       saveToCache(data || []);
 
-      if (toolIdParam && data) {
+      if (checkoutIdParam && data) {
+        if (data.some(c => c.id === checkoutIdParam)) {
+          setSelectedCheckoutId(checkoutIdParam);
+        }
+      } else if (toolIdParam && data) {
         const checkout = data.find(c => c.tool_id === toolIdParam);
         if (checkout) {
           setSelectedCheckoutId(checkout.id);
