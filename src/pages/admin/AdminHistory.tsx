@@ -405,7 +405,14 @@ export default function AdminHistory() {
                   <TableBody>
                     {filteredHistory.map((entry) => (
                       <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.tools.name}</TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col">
+                            <span>{entry.tools.name}</span>
+                            {entry.selected_tag && (
+                              <span className="text-[10px] font-mono text-muted-foreground">TAG: {entry.selected_tag}</span>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>{entry.construction_site || "-"}</TableCell>
                         <TableCell>{entry.profiles.full_name}</TableCell>
                         <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
