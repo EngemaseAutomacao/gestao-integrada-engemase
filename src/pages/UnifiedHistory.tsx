@@ -5,9 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wrench, Car, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2, Wrench, Car, Clock, Eye, Camera, MapPin, Navigation } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { SignedImage } from "@/components/SignedImage";
 
 interface UnifiedEvent {
   id: string;
@@ -17,6 +20,21 @@ interface UnifiedEvent {
   subtitle: string;
   status: string;
   endDate?: string | null;
+  // Extra details for modal
+  details?: {
+    notes?: string | null;
+    construction_site?: string | null;
+    destination?: string | null;
+    km_checkout?: number;
+    km_checkin?: number | null;
+    photo_checkout?: string | null;
+    photo_checkin?: string | null;
+    selected_tag?: string | null;
+    client_name?: string | null;
+    entry_type?: string | null;
+    checked_out_by?: string | null;
+    checked_in_by?: string | null;
+  };
 }
 
 interface UnifiedHistoryProps {
@@ -29,8 +47,8 @@ interface UnifiedHistoryProps {
 
 export default function UnifiedHistory({
   embedded = false,
-  title = "Meu Dia",
-  description = "Visão unificada de ferramentas, veículos e ponto",
+  title = "Meu Histórico",
+  description = "Visão unificada de ferramentas, veículos e ponto — use os filtros para refinar",
 }: UnifiedHistoryProps) {
   const { profile } = useAuth();
   const [searchParams] = useSearchParams();
@@ -39,6 +57,7 @@ export default function UnifiedHistory({
   const [loading, setLoading] = useState(true);
   const [periodFilter, setPeriodFilter] = useState("7d");
   const [typeFilter, setTypeFilter] = useState(initialType);
+  const [selectedEvent, setSelectedEvent] = useState<UnifiedEvent | null>(null);
 
   useEffect(() => {
     if (profile?.id) loadAll();
