@@ -27,6 +27,7 @@ interface HistoryEntry {
   checkin_date: string | null;
   status: string;
   construction_site: string | null;
+  selected_tag: string | null;
   estimated_return_date: string | null;
   checkout_photo_url: string | null;
   checkin_photo_url: string | null;
@@ -34,6 +35,7 @@ interface HistoryEntry {
   checkin_signature_url: string | null;
   tools: {
     name: string;
+    tag: string | null;
   };
   profiles: {
     full_name: string;
@@ -111,13 +113,14 @@ export default function AdminHistory() {
           checkin_date,
           status,
           construction_site,
+          selected_tag,
           estimated_return_date,
           notes,
           checkout_photo_url,
           checkin_photo_url,
           checkout_signature_url,
           checkin_signature_url,
-          tools (name),
+          tools (name, tag),
           profiles!tool_checkouts_user_id_fkey (full_name, category),
           checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name),
           checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name)
@@ -200,9 +203,10 @@ export default function AdminHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Ferramenta", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Observações"];
+    const headers = ["Ferramenta", "TAG", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Observações"];
     const rows = filteredHistory.map((e) => [
       e.tools.name,
+      e.selected_tag || e.tools.tag || "-",
       e.profiles.full_name,
       e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
       e.construction_site || "-",
@@ -226,9 +230,10 @@ export default function AdminHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Ferramenta", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Retirado por", "Devolvido por", "Observações"];
+    const headers = ["Ferramenta", "TAG", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Retirado por", "Devolvido por", "Observações"];
     const rows = filteredHistory.map((e) => [
       e.tools.name,
+      e.selected_tag || e.tools.tag || "-",
       e.profiles.full_name,
       e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
       e.construction_site || "-",
@@ -402,7 +407,16 @@ export default function AdminHistory() {
                   <TableBody>
                     {filteredHistory.map((entry) => (
                       <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.tools.name}</TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col">
+                            <span>{entry.tools.name}</span>
+                            {(entry.selected_tag || entry.tools.tag) && (
+                              <span className="text-[10px] font-mono text-muted-foreground uppercase">
+                                TAG: {entry.selected_tag || entry.tools.tag}
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>{entry.construction_site || "-"}</TableCell>
                         <TableCell>{entry.profiles.full_name}</TableCell>
                         <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
@@ -450,7 +464,14 @@ export default function AdminHistory() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                        <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                        <p className="font-semibold">
+                                          {selectedEntry.tools.name}
+                                          {(selectedEntry.selected_tag || selectedEntry.tools.tag) && (
+                                            <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded uppercase">
+                                              TAG: {selectedEntry.selected_tag || selectedEntry.tools.tag}
+                                            </span>
+                                          )}
+                                        </p>
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Usuário</p>
@@ -569,7 +590,14 @@ export default function AdminHistory() {
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-sm truncate">{entry.tools.name}</h3>
+                          <h3 className="font-semibold text-sm truncate flex items-center gap-2">
+                            {entry.tools.name}
+                            {(entry.selected_tag || entry.tools.tag) && (
+                              <Badge variant="outline" className="text-[10px] font-mono py-0 h-4 uppercase">
+                                {entry.selected_tag || entry.tools.tag}
+                              </Badge>
+                            )}
+                          </h3>
                           <p className="text-xs text-muted-foreground">{entry.profiles.full_name}</p>
                           {entry.construction_site && (
                             <p className="text-xs text-muted-foreground">Obra: {entry.construction_site}</p>
@@ -608,7 +636,14 @@ export default function AdminHistory() {
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                      <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                      <p className="font-semibold">
+                                        {selectedEntry.tools.name}
+                                        {(selectedEntry.selected_tag || selectedEntry.tools.tag) && (
+                                          <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded uppercase">
+                                            TAG: {selectedEntry.selected_tag || selectedEntry.tools.tag}
+                                          </span>
+                                        )}
+                                      </p>
                                     </div>
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Usuário</p>

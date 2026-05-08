@@ -5,9 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wrench, Car, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2, Wrench, Car, Clock, Eye, Camera, MapPin, Navigation } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { SignedImage } from "@/components/SignedImage";
 
 interface UnifiedEvent {
   id: string;
@@ -17,6 +20,21 @@ interface UnifiedEvent {
   subtitle: string;
   status: string;
   endDate?: string | null;
+  // Extra details for modal
+  details?: {
+    notes?: string | null;
+    construction_site?: string | null;
+    destination?: string | null;
+    km_checkout?: number;
+    km_checkin?: number | null;
+    photo_checkout?: string | null;
+    photo_checkin?: string | null;
+    selected_tag?: string | null;
+    client_name?: string | null;
+    entry_type?: string | null;
+    checked_out_by?: string | null;
+    checked_in_by?: string | null;
+  };
 }
 
 interface UnifiedHistoryProps {
@@ -29,8 +47,8 @@ interface UnifiedHistoryProps {
 
 export default function UnifiedHistory({
   embedded = false,
-  title = "Meu Dia",
-  description = "Visão unificada de ferramentas, veículos e ponto",
+  title = "Meu Histórico",
+  description = "Visão unificada de ferramentas, veículos e ponto — use os filtros para refinar",
 }: UnifiedHistoryProps) {
   const { profile } = useAuth();
   const [searchParams] = useSearchParams();
@@ -39,6 +57,7 @@ export default function UnifiedHistory({
   const [loading, setLoading] = useState(true);
   const [periodFilter, setPeriodFilter] = useState("7d");
   const [typeFilter, setTypeFilter] = useState(initialType);
+  const [selectedEvent, setSelectedEvent] = useState<UnifiedEvent | null>(null);
 
   useEffect(() => {
     if (profile?.id) loadAll();
@@ -64,21 +83,48 @@ export default function UnifiedHistory({
     const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
       supabase
         .from("tool_checkouts")
-        .select("id, checkout_date, checkin_date, status, construction_site, tools(name)")
+        .select(`
+          id, 
+          checkout_date, 
+          checkin_date, 
+          status, 
+          construction_site, 
+          notes, 
+          selected_tag, 
+          checkout_photo_url, 
+          checkin_photo_url, 
+          tools(name, tag),
+          checked_out_by:profiles!tool_checkouts_checked_out_by_fkey(full_name),
+          checked_in_by:profiles!tool_checkouts_checked_in_by_fkey(full_name)
+        `)
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
         .limit(200),
       supabase
         .from("vehicle_checkouts")
-        .select("id, checkout_date, checkin_date, status, destination, vehicles(name, plate)")
+        .select(`
+          id, 
+          checkout_date, 
+          checkin_date, 
+          status, 
+          destination, 
+          notes, 
+          km_checkout, 
+          km_checkin, 
+          photo_dashboard_checkout, 
+          photo_dashboard_checkin, 
+          vehicles(name, plate),
+          checked_out_by:profiles!vehicle_checkouts_checked_out_by_fkey(full_name),
+          checked_in_by:profiles!vehicle_checkouts_checked_in_by_fkey(full_name)
+        `)
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
         .limit(200),
       supabase
         .from("time_entries")
-        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type")
+        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type, notes")
         .eq("user_id", profile.id)
         .gte("clock_in", since)
         .order("clock_in", { ascending: false })
@@ -96,6 +142,15 @@ export default function UnifiedHistory({
         subtitle: t.construction_site || "Sem obra",
         status: t.status === "checked_out" ? "Em uso" : "Devolvido",
         endDate: t.checkin_date,
+        details: {
+          notes: t.notes,
+          construction_site: t.construction_site,
+          selected_tag: t.selected_tag || t.tools?.tag,
+          photo_checkout: t.checkout_photo_url,
+          photo_checkin: t.checkin_photo_url,
+          checked_out_by: t.checked_out_by?.full_name,
+          checked_in_by: t.checked_in_by?.full_name,
+        }
       });
     });
 
@@ -108,6 +163,16 @@ export default function UnifiedHistory({
         subtitle: v.destination || "Sem destino",
         status: v.status === "checked_out" ? "Em uso" : "Devolvido",
         endDate: v.checkin_date,
+        details: {
+          notes: v.notes,
+          destination: v.destination,
+          km_checkout: v.km_checkout,
+          km_checkin: v.km_checkin,
+          photo_checkout: v.photo_dashboard_checkout,
+          photo_checkin: v.photo_dashboard_checkin,
+          checked_out_by: v.checked_out_by?.full_name,
+          checked_in_by: v.checked_in_by?.full_name,
+        }
       });
     });
 
@@ -124,6 +189,12 @@ export default function UnifiedHistory({
         subtitle: duration,
         status: p.status === "open" ? "Aberto" : "Fechado",
         endDate: p.clock_out,
+        details: {
+          notes: p.notes,
+          construction_site: p.construction_site,
+          client_name: p.client_name,
+          entry_type: p.entry_type,
+        }
       });
     });
 
@@ -212,31 +283,180 @@ export default function UnifiedHistory({
               {format(new Date(day), "EEEE, dd 'de' MMMM", { locale: ptBR })}
             </h3>
             {dayEvents.map((ev) => (
-              <Card key={ev.id} className="p-3 transition-shadow hover:shadow-soft">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
-                    {iconMap[ev.type]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{ev.title}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{format(new Date(ev.date), "HH:mm")}</span>
-                      {ev.endDate && <span>→ {format(new Date(ev.endDate), "HH:mm")}</span>}
-                      <span>• {ev.subtitle}</span>
-                    </div>
-                  </div>
-                  <Badge
-                    variant={
-                      ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
-                        ? "default"
-                        : "secondary"
-                    }
-                    className="text-xs shrink-0"
+              <Dialog key={ev.id}>
+                <DialogTrigger asChild>
+                  <Card 
+                    className="p-3 transition-all hover:shadow-soft hover:border-primary/50 cursor-pointer group"
+                    onClick={() => setSelectedEvent(ev)}
                   >
-                    {ev.status}
-                  </Badge>
-                </div>
-              </Card>
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
+                        {iconMap[ev.type]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{ev.title}</p>
+                          {ev.details?.selected_tag && (
+                            <Badge variant="outline" className="text-[10px] font-mono h-4 py-0">
+                              {ev.details.selected_tag}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>{format(new Date(ev.date), "HH:mm")}</span>
+                          {ev.endDate && <span>→ {format(new Date(ev.endDate), "HH:mm")}</span>}
+                          <span>• {ev.subtitle}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-xs shrink-0"
+                        >
+                          {ev.status}
+                        </Badge>
+                        <Eye className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors hidden sm:block" />
+                      </div>
+                    </div>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-full ${colorMap[ev.type]}`}>
+                        {iconMap[ev.type]}
+                      </div>
+                      Detalhes da Atividade
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Item / Atividade</p>
+                        <p className="font-semibold text-lg">{ev.title}</p>
+                        {ev.details?.selected_tag && (
+                          <p className="text-xs font-mono text-primary bg-primary/5 inline-block px-1 rounded mt-1">
+                            TAG: {ev.details.selected_tag}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</p>
+                        <Badge
+                          variant={
+                            ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="mt-1"
+                        >
+                          {ev.status}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          {ev.type === "ponto" ? "Início" : "Retirada"}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {format(new Date(ev.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                        {ev.details?.checked_out_by && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Por: {ev.details.checked_out_by}</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          {ev.type === "ponto" ? "Fim" : "Devolução"}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {ev.endDate 
+                            ? format(new Date(ev.endDate), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                            : ev.type === "ponto" ? "Ainda aberto" : "Ainda em uso"}
+                        </p>
+                        {ev.details?.checked_in_by && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Por: {ev.details.checked_in_by}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {(ev.details?.construction_site || ev.details?.destination || ev.details?.client_name) && (
+                      <div className="pt-4 border-t">
+                        <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                          <MapPin className="w-3 h-3" />
+                          <p className="text-xs font-medium uppercase tracking-wider">Localização / Destino</p>
+                        </div>
+                        <p className="text-sm">
+                          {ev.details.construction_site || ev.details.destination || ev.details.client_name}
+                          {ev.details.entry_type && <span className="text-xs text-muted-foreground ml-2 italic">({ev.details.entry_type})</span>}
+                        </p>
+                      </div>
+                    )}
+
+                    {ev.type === "vehicle" && ev.details?.km_checkout !== undefined && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">KM Saída</p>
+                          <p className="text-sm font-bold">{ev.details.km_checkout.toLocaleString()} km</p>
+                        </div>
+                        {ev.details.km_checkin !== null && (
+                          <>
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground">KM Chegada</p>
+                              <p className="text-sm font-bold">{ev.details.km_checkin.toLocaleString()} km</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground font-bold text-primary">Total Percorrido</p>
+                              <p className="text-sm font-bold text-primary">
+                                {(ev.details.km_checkin - ev.details.km_checkout).toLocaleString()} km
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {(ev.details?.photo_checkout || ev.details?.photo_checkin) && (
+                      <div className="pt-4 border-t space-y-3">
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <Camera className="w-3 h-3" />
+                          <p className="text-xs font-medium uppercase tracking-wider">Evidências Fotográficas</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {ev.details.photo_checkout && (
+                            <div className="space-y-1">
+                              <p className="text-[10px] text-muted-foreground text-center">Início / Saída</p>
+                              <SignedImage storagePath={ev.details.photo_checkout} alt="Foto de saída" className="w-full h-32 object-cover rounded-md border" />
+                            </div>
+                          )}
+                          {ev.details.photo_checkin && (
+                            <div className="space-y-1">
+                              <p className="text-[10px] text-muted-foreground text-center">Fim / Devolução</p>
+                              <SignedImage storagePath={ev.details.photo_checkin} alt="Foto de chegada" className="w-full h-32 object-cover rounded-md border" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {ev.details?.notes && (
+                      <div className="pt-4 border-t">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Observações</p>
+                        <div className="bg-muted/50 p-3 rounded-md italic text-sm text-muted-foreground">
+                          "{ev.details.notes}"
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
         ))

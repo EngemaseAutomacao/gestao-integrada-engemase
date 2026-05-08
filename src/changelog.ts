@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.33.0",
+    date: "2026-05-08",
+    title: "Detalhes do Histórico e TAGs",
+    description: "Melhorias na visualização detalhada do histórico para usuários e administradores.",
+    changes: [
+      { type: "feature", text: "Novo botão 'Ver Detalhes' adicionado ao histórico unificado (Meu Histórico) para todos os usuários" },
+      { type: "improvement", text: "TAG do equipamento agora é exibida em todos os detalhes de movimentação de ferramentas" },
+      { type: "improvement", text: "TAG adicionada à listagem principal e exportações (PDF/Excel) do histórico administrativo" },
+      { type: "improvement", text: "Visualização detalhada no histórico unificado agora inclui fotos, KM, observações e destinos" },
+    ],
+  },
+  {
     version: "1.32.0",
     date: "2026-05-05",
     title: "Resumo de KM nos Relatórios de Veículos",
