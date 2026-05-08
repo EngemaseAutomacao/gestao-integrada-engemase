@@ -391,7 +391,7 @@ export default function Dashboard() {
                             </Button>
                           )}
                           <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => handleCheckin(checkout.id)}>
-                            Devolver <ArrowRight className="w-3 h-3" />
+                            Registrar Devolução <ArrowRight className="w-3 h-3" />
                           </Button>
                         </div>
                       )}
@@ -646,7 +646,7 @@ export default function Dashboard() {
                                   <CalendarPlus className="w-3 h-3" /> Prorrogar
                                 </Button>
                               )}
-                              <Button size="sm" variant="outline" className="text-xs sm:text-sm" onClick={() => handleCheckin(tool.id)}>
+                              <Button size="sm" variant="outline" className="text-xs sm:text-sm" onClick={() => handleCheckin(userCheckout?.id || "")}>
                                 Registrar Devolução
                               </Button>
                             </>
