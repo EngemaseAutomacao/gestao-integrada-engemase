@@ -466,9 +466,9 @@ export default function AdminHistory() {
                                         <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                         <p className="font-semibold">
                                           {selectedEntry.tools.name}
-                                          {selectedEntry.selected_tag && (
-                                            <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
-                                              TAG: {selectedEntry.selected_tag}
+                                          {(selectedEntry.selected_tag || selectedEntry.tools.tag) && (
+                                            <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded uppercase">
+                                              TAG: {selectedEntry.selected_tag || selectedEntry.tools.tag}
                                             </span>
                                           )}
                                         </p>
