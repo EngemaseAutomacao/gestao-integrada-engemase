@@ -39,6 +39,9 @@ export default function Checkin() {
   const navigate = useNavigate();
   const [checkouts, setCheckouts] = useState<Checkout[]>(cachedCheckouts || []);
   const [selectedCheckoutId, setSelectedCheckoutId] = useState<string>("");
+  const [selectedToolName, setSelectedToolName] = useState<string>("");
+  const [selectedTag, setSelectedTag] = useState<string>("");
+  const [selectedSite, setSelectedSite] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
@@ -90,13 +93,20 @@ export default function Checkin() {
       saveToCache(data || []);
 
       if (checkoutIdParam && data) {
-        if (data.some(c => c.id === checkoutIdParam)) {
-          setSelectedCheckoutId(checkoutIdParam);
+        const checkout = data.find(c => c.id === checkoutIdParam);
+        if (checkout) {
+          setSelectedCheckoutId(checkout.id);
+          setSelectedToolName(checkout.tools.name);
+          setSelectedTag(checkout.selected_tag || "");
+          setSelectedSite(checkout.construction_site || "");
         }
       } else if (toolIdParam && data) {
         const checkout = data.find(c => c.tool_id === toolIdParam);
         if (checkout) {
           setSelectedCheckoutId(checkout.id);
+          setSelectedToolName(checkout.tools.name);
+          setSelectedTag(checkout.selected_tag || "");
+          setSelectedSite(checkout.construction_site || "");
         }
       }
     } catch (error: any) {
@@ -192,32 +202,125 @@ export default function Checkin() {
               Você não possui ferramentas para devolver
             </p>
           ) : (
-            <form onSubmit={handleCheckin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="checkout">Ferramenta Retirada *</Label>
-                <Select
-                  value={selectedCheckoutId}
-                  onValueChange={setSelectedCheckoutId}
-                  disabled={loadingCheckouts}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a ferramenta para devolver" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {checkouts.map((checkout) => {
-                      const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                      return (
-                        <SelectItem key={checkout.id} value={checkout.id}>
-                          {checkout.tools.name}
-                          {checkout.selected_tag && ` (TAG: ${checkout.selected_tag})`}
-                          {checkout.construction_site && ` - ${checkout.construction_site}`}
-                          {isOverdue && " ⚠️ ATRASADO"}
-                        </SelectItem>
+            <form onSubmit={handleCheckin} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label>Ferramenta *</Label>
+                  <Select
+                    value={selectedToolName}
+                    onValueChange={(val) => {
+                      setSelectedToolName(val);
+                      // Auto-select tag and site if there's only one option for this tool
+                      const toolCheckouts = checkouts.filter(c => c.tools.name === val);
+                      if (toolCheckouts.length === 1) {
+                        const c = toolCheckouts[0];
+                        setSelectedCheckoutId(c.id);
+                        setSelectedTag(c.selected_tag || "no-tag");
+                        setSelectedSite(c.construction_site || "no-site");
+                      } else {
+                        setSelectedCheckoutId("");
+                        setSelectedTag("");
+                        setSelectedSite("");
+                      }
+                    }}
+                    disabled={loadingCheckouts || !!checkoutIdParam || !!toolIdParam}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a ferramenta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from(new Set(checkouts.map(c => c.tools.name))).map(name => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Obra *</Label>
+                  <Select
+                    value={selectedSite}
+                    onValueChange={(val) => {
+                      setSelectedSite(val);
+                      const siteVal = val === "no-site" ? "" : val;
+                      const filtered = checkouts.filter(c => 
+                        c.tools.name === selectedToolName && 
+                        (c.construction_site || "") === siteVal
                       );
-                    })}
-                  </SelectContent>
-                </Select>
+                      
+                      if (filtered.length === 1) {
+                        const c = filtered[0];
+                        setSelectedCheckoutId(c.id);
+                        setSelectedTag(c.selected_tag || "no-tag");
+                      } else {
+                        setSelectedCheckoutId("");
+                        setSelectedTag("");
+                      }
+                    }}
+                    disabled={!selectedToolName || loadingCheckouts || !!checkoutIdParam || !!toolIdParam}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a obra" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from(new Set(
+                        checkouts
+                          .filter(c => c.tools.name === selectedToolName)
+                          .map(c => c.construction_site || "")
+                      )).map(site => (
+                        <SelectItem key={site || "no-site"} value={site || "no-site"}>
+                          {site || "Sem obra"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tag</Label>
+                  <Select
+                    value={selectedTag}
+                    onValueChange={(val) => {
+                      setSelectedTag(val);
+                      const tagVal = val === "no-tag" ? "" : val;
+                      const siteVal = selectedSite === "no-site" ? "" : selectedSite;
+                      const filtered = checkouts.filter(c => 
+                        c.tools.name === selectedToolName && 
+                        (c.construction_site || "") === siteVal &&
+                        (c.selected_tag || "") === tagVal
+                      );
+                      if (filtered.length === 1) {
+                        setSelectedCheckoutId(filtered[0].id);
+                      }
+                    }}
+                    disabled={!selectedSite || loadingCheckouts || !!checkoutIdParam || !!toolIdParam}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a TAG" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {checkouts
+                        .filter(c => {
+                          const siteVal = selectedSite === "no-site" ? "" : selectedSite;
+                          return c.tools.name === selectedToolName && 
+                                 (c.construction_site || "") === siteVal;
+                        })
+                        .map(c => (
+                          <SelectItem key={c.id} value={c.selected_tag || "no-tag"}>
+                            {c.selected_tag ? `TAG ${c.selected_tag}` : "Sem TAG"}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
+              {selectedCheckoutId && (
+                <div className="bg-muted/50 p-3 rounded-lg flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Item selecionado para devolução</span>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações (opcional)</Label>
