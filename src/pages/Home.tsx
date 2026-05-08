@@ -83,6 +83,8 @@ interface ModuleCardProps {
   comingSoon?: boolean;
   variant?: "default" | "admin";
   badgeCount?: number;
+  pendingCount?: number;
+  overdueCount?: number;
 }
 
 function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount }: ModuleCardProps) {
