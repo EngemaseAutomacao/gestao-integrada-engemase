@@ -40,7 +40,7 @@ export default function FerramentasMenu() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
 
-  const { toolOverdue, toolIssuesOpen } = useUrgencyBadges();
+  const { toolPending, toolIssuesOpen } = useUrgencyBadges();
 
   return (
     <div className="space-y-6">
