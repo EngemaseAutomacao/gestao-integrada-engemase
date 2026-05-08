@@ -339,11 +339,11 @@ export default function Checkin() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button type="submit" disabled={loading || !selectedCheckoutId} className="flex-1">
+                <Button type="submit" disabled={loading || (!isBulk && !selectedCheckoutId) || (isBulk && bulkCheckoutIds.length === 0)} className="flex-1">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Registrar Devolução
+                  {isBulk ? `Registrar Devolução (${bulkCheckoutIds.length})` : "Registrar Devolução"}
                 </Button>
-                {selectedCheckoutId && (
+                {!isBulk && selectedCheckoutId && (
                   <Button
                     type="button"
                     variant="outline"
