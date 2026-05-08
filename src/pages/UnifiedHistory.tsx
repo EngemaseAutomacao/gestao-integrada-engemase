@@ -283,31 +283,180 @@ export default function UnifiedHistory({
               {format(new Date(day), "EEEE, dd 'de' MMMM", { locale: ptBR })}
             </h3>
             {dayEvents.map((ev) => (
-              <Card key={ev.id} className="p-3 transition-shadow hover:shadow-soft">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
-                    {iconMap[ev.type]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{ev.title}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>{format(new Date(ev.date), "HH:mm")}</span>
-                      {ev.endDate && <span>→ {format(new Date(ev.endDate), "HH:mm")}</span>}
-                      <span>• {ev.subtitle}</span>
-                    </div>
-                  </div>
-                  <Badge
-                    variant={
-                      ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
-                        ? "default"
-                        : "secondary"
-                    }
-                    className="text-xs shrink-0"
+              <Dialog key={ev.id}>
+                <DialogTrigger asChild>
+                  <Card 
+                    className="p-3 transition-all hover:shadow-soft hover:border-primary/50 cursor-pointer group"
+                    onClick={() => setSelectedEvent(ev)}
                   >
-                    {ev.status}
-                  </Badge>
-                </div>
-              </Card>
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
+                        {iconMap[ev.type]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{ev.title}</p>
+                          {ev.details?.selected_tag && (
+                            <Badge variant="outline" className="text-[10px] font-mono h-4 py-0">
+                              {ev.details.selected_tag}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>{format(new Date(ev.date), "HH:mm")}</span>
+                          {ev.endDate && <span>→ {format(new Date(ev.endDate), "HH:mm")}</span>}
+                          <span>• {ev.subtitle}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-xs shrink-0"
+                        >
+                          {ev.status}
+                        </Badge>
+                        <Eye className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors hidden sm:block" />
+                      </div>
+                    </div>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-full ${colorMap[ev.type]}`}>
+                        {iconMap[ev.type]}
+                      </div>
+                      Detalhes da Atividade
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 pt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Item / Atividade</p>
+                        <p className="font-semibold text-lg">{ev.title}</p>
+                        {ev.details?.selected_tag && (
+                          <p className="text-xs font-mono text-primary bg-primary/5 inline-block px-1 rounded mt-1">
+                            TAG: {ev.details.selected_tag}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</p>
+                        <Badge
+                          variant={
+                            ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="mt-1"
+                        >
+                          {ev.status}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          {ev.type === "ponto" ? "Início" : "Retirada"}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {format(new Date(ev.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                        {ev.details?.checked_out_by && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Por: {ev.details.checked_out_by}</p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          {ev.type === "ponto" ? "Fim" : "Devolução"}
+                        </p>
+                        <p className="text-sm font-medium">
+                          {ev.endDate 
+                            ? format(new Date(ev.endDate), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                            : ev.type === "ponto" ? "Ainda aberto" : "Ainda em uso"}
+                        </p>
+                        {ev.details?.checked_in_by && (
+                          <p className="text-[10px] text-muted-foreground mt-0.5">Por: {ev.details.checked_in_by}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {(ev.details?.construction_site || ev.details?.destination || ev.details?.client_name) && (
+                      <div className="pt-4 border-t">
+                        <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                          <MapPin className="w-3 h-3" />
+                          <p className="text-xs font-medium uppercase tracking-wider">Localização / Destino</p>
+                        </div>
+                        <p className="text-sm">
+                          {ev.details.construction_site || ev.details.destination || ev.details.client_name}
+                          {ev.details.entry_type && <span className="text-xs text-muted-foreground ml-2 italic">({ev.details.entry_type})</span>}
+                        </p>
+                      </div>
+                    )}
+
+                    {ev.type === "vehicle" && ev.details?.km_checkout !== undefined && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">KM Saída</p>
+                          <p className="text-sm font-bold">{ev.details.km_checkout.toLocaleString()} km</p>
+                        </div>
+                        {ev.details.km_checkin !== null && (
+                          <>
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground">KM Chegada</p>
+                              <p className="text-sm font-bold">{ev.details.km_checkin.toLocaleString()} km</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground font-bold text-primary">Total Percorrido</p>
+                              <p className="text-sm font-bold text-primary">
+                                {(ev.details.km_checkin - ev.details.km_checkout).toLocaleString()} km
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {(ev.details?.photo_checkout || ev.details?.photo_checkin) && (
+                      <div className="pt-4 border-t space-y-3">
+                        <div className="flex items-center gap-1 text-muted-foreground">
+                          <Camera className="w-3 h-3" />
+                          <p className="text-xs font-medium uppercase tracking-wider">Evidências Fotográficas</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {ev.details.photo_checkout && (
+                            <div className="space-y-1">
+                              <p className="text-[10px] text-muted-foreground text-center">Início / Saída</p>
+                              <SignedImage storagePath={ev.details.photo_checkout} alt="Foto de saída" className="w-full h-32 object-cover rounded-md border" />
+                            </div>
+                          )}
+                          {ev.details.photo_checkin && (
+                            <div className="space-y-1">
+                              <p className="text-[10px] text-muted-foreground text-center">Fim / Devolução</p>
+                              <SignedImage storagePath={ev.details.photo_checkin} alt="Foto de chegada" className="w-full h-32 object-cover rounded-md border" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {ev.details?.notes && (
+                      <div className="pt-4 border-t">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Observações</p>
+                        <div className="bg-muted/50 p-3 rounded-md italic text-sm text-muted-foreground">
+                          "{ev.details.notes}"
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
         ))
