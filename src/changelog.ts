@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.37.0",
+    date: "2026-05-08",
+    title: "Melhorias no Fluxo de Devolução",
+    description: "Implementação de devolução em lote e melhorias na identificação de equipamentos via TAG.",
+    changes: [
+      { type: "feature", text: "Devolução em Lote: selecione várias ferramentas de uma vez no painel principal" },
+      { type: "improvement", text: "TAG visível: identificação clara da TAG no card de devoluções pendentes" },
+      { type: "fix", text: "Otimização do sistema de alertas de nova versão" },
+    ],
+  },
+  {
     version: "1.36.3",
     date: "2026-05-08",
     title: "Restauração do Layout de Alerta",

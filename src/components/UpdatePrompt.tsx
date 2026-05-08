@@ -45,6 +45,11 @@ export default function UpdatePrompt() {
 
   const checkForUpdate = useCallback(async () => {
     try {
+      // Don't show in Lovable preview/editor to avoid duplicate UI issues
+      const isEditorPreview = window.location.hostname.endsWith("lovableproject.com") || 
+                             window.location.hostname.includes("id-preview");
+      if (isEditorPreview) return;
+
       console.log(`[Update] Verificando versão... (atual: ${APP_VERSION})`);
       const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
       if (!res.ok) return;
