@@ -41,6 +41,7 @@ export default function Checkin() {
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
   const toolIdParam = searchParams.get("toolId");
+  const checkoutIdParam = searchParams.get("checkoutId");
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
