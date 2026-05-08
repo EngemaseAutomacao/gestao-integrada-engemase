@@ -8,6 +8,7 @@ import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,8 +41,10 @@ export default function Checkin() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
+  
   const toolIdParam = searchParams.get("toolId");
   const checkoutIdParam = searchParams.get("checkoutId");
+  const isLocked = !!(checkoutIdParam || (toolIdParam && selectedCheckoutId));
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
@@ -190,30 +193,42 @@ export default function Checkin() {
               Você não possui ferramentas para devolver
             </p>
           ) : (
-            <form onSubmit={handleCheckin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="checkout">Ferramenta Retirada *</Label>
-                <Select
-                  value={selectedCheckoutId}
-                  onValueChange={setSelectedCheckoutId}
-                  disabled={loadingCheckouts}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a ferramenta para devolver" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {checkouts.map((checkout) => {
-                      const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                      return (
-                        <SelectItem key={checkout.id} value={checkout.id}>
-                          {checkout.tools.name}
-                          {checkout.construction_site && ` - ${checkout.construction_site}`}
-                          {isOverdue && " ⚠️ ATRASADO"}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+            <form onSubmit={handleCheckin} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="checkout">Ferramenta Retirada *</Label>
+                  <Select
+                    value={selectedCheckoutId}
+                    onValueChange={setSelectedCheckoutId}
+                    disabled={loadingCheckouts || isLocked}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a ferramenta para devolver" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {checkouts.map((checkout) => {
+                        const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                        return (
+                          <SelectItem key={checkout.id} value={checkout.id}>
+                            {checkout.tools.name}
+                            {checkout.construction_site && ` - ${checkout.construction_site}`}
+                            {isOverdue && " ⚠️ ATRASADO"}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="site">Obra de Origem</Label>
+                  <Input
+                    id="site"
+                    value={checkouts.find(c => c.id === selectedCheckoutId)?.construction_site || "Nenhuma obra informada"}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -256,17 +271,17 @@ export default function Checkin() {
                 )}
               </div>
 
-              <div className="flex flex-col gap-3">
-                <Button type="submit" disabled={loading || !selectedCheckoutId} className="w-full">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button type="submit" disabled={loading || !selectedCheckoutId} className="flex-1">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Confirmar Devolução
+                  Registrar Devolução
                 </Button>
                 {selectedCheckoutId && (
                   <Button
                     type="button"
                     variant="outline"
                     asChild
-                    className="w-full"
+                    className="flex-1"
                   >
                     <Link to={`/report-issue?checkoutId=${selectedCheckoutId}`}>
                       <AlertCircle className="h-4 w-4 mr-2" />
@@ -274,7 +289,7 @@ export default function Checkin() {
                     </Link>
                   </Button>
                 )}
-                <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="w-full">
+                <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="flex-1">
                   Cancelar
                 </Button>
               </div>
