@@ -98,29 +98,26 @@ export default function UpdatePrompt() {
   if (!updateAvailable || dismissed) return null;
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-[9999] flex justify-center animate-in slide-in-from-top-4 duration-500">
-      <div className="bg-amber-500 text-white rounded-lg shadow-2xl px-4 py-4 flex items-center gap-4 max-w-lg w-full border-2 border-white/20 ring-4 ring-amber-500/20">
-        <div className="bg-white/20 p-2 rounded-full shrink-0">
-          <AlertCircle className="w-6 h-6 text-white animate-pulse" />
-        </div>
+    <div className="fixed bottom-20 sm:bottom-4 left-4 right-4 z-[9999] flex justify-center animate-in slide-in-from-bottom-4 duration-300">
+      <div className="bg-primary text-primary-foreground rounded-lg shadow-xl px-4 py-3 flex items-center gap-3 max-w-md w-full border border-primary-foreground/20">
+        <RefreshCw className="w-5 h-5 shrink-0 animate-spin" style={{ animationDuration: "3s" }} />
         <div className="flex-1 min-w-0">
-          <p className="text-base font-black leading-tight">Nova versão do sistema!</p>
-          <p className="text-xs font-medium opacity-95">Clique no botão ao lado para atualizar agora.</p>
+          <p className="text-sm font-bold">Nova versão disponível!</p>
+          <p className="text-xs opacity-90">Atualize para aplicar as melhorias.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleUpdate}
-            className="bg-white text-amber-600 text-sm font-black px-5 py-2 rounded-md hover:bg-amber-50 transition-all shrink-0 shadow-lg active:scale-95 flex items-center gap-2"
+            className="bg-white text-primary text-sm font-bold px-4 py-1.5 rounded-md hover:bg-white/90 transition-colors shrink-0 shadow-sm"
           >
-            <RefreshCw className="w-4 h-4" />
-            ATUALIZAR
+            Atualizar
           </button>
           <button
             onClick={() => setDismissed(true)}
-            className="p-1.5 hover:bg-white/10 rounded-full transition-colors shrink-0"
+            className="p-1 hover:bg-white/10 rounded-full transition-colors shrink-0"
             aria-label="Fechar"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       </div>
