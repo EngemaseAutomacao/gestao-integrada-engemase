@@ -28,12 +28,15 @@ interface HistoryEntry {
   status: string;
   construction_site: string | null;
   estimated_return_date: string | null;
+  selected_tag: string | null;
   checkout_photo_url: string | null;
   checkin_photo_url: string | null;
   checkout_signature_url: string | null;
   checkin_signature_url: string | null;
   tools: {
     name: string;
+    tag: string | null;
+    brand: string | null;
   };
   profiles: {
     full_name: string;
