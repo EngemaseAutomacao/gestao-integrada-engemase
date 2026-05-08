@@ -253,11 +253,66 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             {pendingExpanded && (
-              <CardContent className="space-y-2 max-h-[200px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
+              <CardContent className="space-y-2 pt-0" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between gap-2 pb-1 flex-wrap">
+                  <Button
+                    size="sm"
+                    variant={bulkMode ? "secondary" : "outline"}
+                    className="text-xs h-7"
+                    onClick={() => {
+                      setBulkMode(!bulkMode);
+                      setBulkSelectedIds([]);
+                    }}
+                  >
+                    {bulkMode ? "Cancelar seleção" : "Devolver várias"}
+                  </Button>
+                  {bulkMode && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-xs h-7"
+                        onClick={() => {
+                          if (bulkSelectedIds.length === pendingCheckouts.length) {
+                            setBulkSelectedIds([]);
+                          } else {
+                            setBulkSelectedIds(pendingCheckouts.map((c: any) => c.id));
+                          }
+                        }}
+                      >
+                        {bulkSelectedIds.length === pendingCheckouts.length ? "Limpar" : "Selecionar todas"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="text-xs h-7 gap-1"
+                        disabled={bulkSelectedIds.length === 0}
+                        onClick={() => navigate(`/ferramentas/devolucao?checkoutIds=${bulkSelectedIds.join(",")}`)}
+                      >
+                        Devolver selecionadas ({bulkSelectedIds.length}) <ArrowRight className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
                 {pendingCheckouts.map((checkout: any) => {
                   const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                  const isChecked = bulkSelectedIds.includes(checkout.id);
                   return (
                     <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
+                      {bulkMode && (
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBulkSelectedIds([...bulkSelectedIds, checkout.id]);
+                            } else {
+                              setBulkSelectedIds(bulkSelectedIds.filter(id => id !== checkout.id));
+                            }
+                          }}
+                          className="w-4 h-4 shrink-0 cursor-pointer accent-primary"
+                        />
+                      )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
@@ -275,19 +330,22 @@ export default function Dashboard() {
                           )}
                         </div>
                       </div>
-                      <div className="flex gap-1 shrink-0">
-                        {isOverdue && (
-                          <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
-                            <CalendarPlus className="w-3 h-3" /> Prorrogar
+                      {!bulkMode && (
+                        <div className="flex gap-1 shrink-0">
+                          {isOverdue && (
+                            <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
+                              <CalendarPlus className="w-3 h-3" /> Prorrogar
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/ferramentas/devolucao?checkoutId=${checkout.id}`)}>
+                            Registrar Devolução <ArrowRight className="w-3 h-3" />
                           </Button>
-                        )}
-                        <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/ferramentas/devolucao?checkoutId=${checkout.id}`)}>
-                          Registrar Devolução <ArrowRight className="w-3 h-3" />
-                        </Button>
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
+                </div>
               </CardContent>
             )}
           </Card>
