@@ -2,8 +2,8 @@
 // Service Worker with version-aware cache invalidation
 // ============================================================
 
-const STATIC_CACHE = 'engemase-static-v9';
-const DYNAMIC_CACHE = 'engemase-dynamic-v9';
+const STATIC_CACHE = 'engemase-static-v10';
+const DYNAMIC_CACHE = 'engemase-dynamic-v10';
 const MAX_CACHE_SIZE = 50;
 const VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
