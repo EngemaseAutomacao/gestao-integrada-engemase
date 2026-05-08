@@ -8,14 +8,16 @@ const NOTIFIED_VERSION_KEY = "engemase_notified_version";
 export default function UpdatePrompt() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const notifiedRef = useRef(false);
+  const notifiedRef = useRef<string | null>(null);
 
   const showUpdateNotification = useCallback((newVersion: string) => {
     // Only notify once per version
     const alreadyNotified = localStorage.getItem(NOTIFIED_VERSION_KEY);
-    // Remove comparison with current version to ensure prompt shows if versions differ
-    if (alreadyNotified === newVersion || notifiedRef.current) return;
-    notifiedRef.current = true;
+    if (alreadyNotified === newVersion || notifiedRef.current === newVersion) {
+      console.log(`[Update] Notificação para ${newVersion} já exibida.`);
+      return;
+    }
+    notifiedRef.current = newVersion;
     localStorage.setItem(NOTIFIED_VERSION_KEY, newVersion);
 
     // Try Service Worker notification (works in background too)
@@ -57,9 +59,11 @@ export default function UpdatePrompt() {
       const data = await res.json();
       console.log(`[Update] Versão no servidor: ${data.version}`);
       if (data.version && data.version !== APP_VERSION) {
-        console.log(`[Update] Nova versão disponível: ${data.version}`);
+        console.log(`[Update] Nova versão detectada: ${data.version} (atual: ${APP_VERSION})`);
         setUpdateAvailable(true);
         showUpdateNotification(data.version);
+      } else {
+        setUpdateAvailable(false);
       }
     } catch (e) {
       console.error("[Update] Erro ao verificar versão:", e);
@@ -74,7 +78,11 @@ export default function UpdatePrompt() {
     // Listen for SW version messages
     const handleSWMessage = (event: MessageEvent) => {
       if (event.data?.type === "VERSION_UPDATED") {
+        console.log(`[Update] SW reportou nova versão: ${event.data.version}`);
         setUpdateAvailable(true);
+        if (event.data.version) {
+          showUpdateNotification(event.data.version);
+        }
       }
     };
     navigator.serviceWorker?.addEventListener("message", handleSWMessage);
