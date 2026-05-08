@@ -11,15 +11,26 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "1.40.0",
+    version: "1.42.0",
+    date: "2026-05-08",
+    title: "Ativação Imediata de Atualizações",
+    description: "Melhoria técnica para garantir que o sistema assuma a nova versão no instante em que o usuário clica em atualizar.",
+    changes: [
+      { type: "improvement", text: "Comando de ativação imediata (SKIP_WAITING) integrado ao botão de atualização" },
+      { type: "improvement", text: "Limpeza forçada de cache tripla (Navegador, Service Worker e LocalStorage)" },
+      { type: "fix", text: "Correção de travamento na versão 1.32.0 em dispositivos móveis" },
+    ],
+  },
+  {
+    version: "1.41.0",
     date: "2026-05-08",
     title: "Sistema de Atualização Robusto",
     description: "Reestruturação completa do sistema de detecção de versões para garantir atualizações imediatas em dispositivos móveis.",
     changes: [
       { type: "improvement", text: "Nova arquitetura de verificação de versão que ignora caches agressivos do navegador" },
       { type: "improvement", text: "Sincronização imediata entre Service Worker e interface do usuário" },
-      { type: "improvement", text: "Correção de bloqueios em URLs de visualização externa (lovableproject.com)" },
-      { type: "fix", text: "Eliminação de falhas que impediam a exibição do banner de atualização no celular" },
+      { type: "improvement", text: "Correção de bloqueios em URLs de visualização externa" },
+      { type: "fix", text: "Eliminação de falhas que impediam a exibição do banner no celular" },
     ],
   },
   {
