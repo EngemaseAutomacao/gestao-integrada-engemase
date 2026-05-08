@@ -8,6 +8,7 @@ import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,11 +38,13 @@ export default function Checkin() {
   const navigate = useNavigate();
   const [checkouts, setCheckouts] = useState<Checkout[]>(cachedCheckouts || []);
   const [selectedCheckoutId, setSelectedCheckoutId] = useState<string>("");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loadingCheckouts, setLoadingCheckouts] = useState(true);
+  
   const toolIdParam = searchParams.get("toolId");
   const checkoutIdParam = searchParams.get("checkoutId");
   const isLocked = !!(checkoutIdParam || (toolIdParam && selectedCheckoutId));
-  
-  const [notes, setNotes] = useState("");
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
