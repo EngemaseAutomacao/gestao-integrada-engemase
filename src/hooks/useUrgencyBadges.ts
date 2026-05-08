@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface UrgencyData {
   toolOverdue: number;
+  toolPending: number;
   toolIssuesOpen: number;
   vehicleOverdue: number;
   vehicleIssuesOpen: number;
@@ -16,7 +17,7 @@ export function useUrgencyBadges() {
   const { data } = useQuery({
     queryKey: ["urgency-badges", profile?.id, isAdmin],
     queryFn: async (): Promise<UrgencyData> => {
-      if (!profile?.id) return { toolOverdue: 0, toolIssuesOpen: 0, vehicleOverdue: 0, vehicleIssuesOpen: 0 };
+      if (!profile?.id) return { toolOverdue: 0, toolPending: 0, toolIssuesOpen: 0, vehicleOverdue: 0, vehicleIssuesOpen: 0 };
 
       const now = new Date().toISOString();
 
@@ -27,6 +28,12 @@ export function useUrgencyBadges() {
         .eq("status", "checked_out")
         .eq("user_id", profile.id)
         .lt("estimated_return_date", now);
+
+      const toolPendingQuery = supabase
+        .from("tool_checkouts")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "checked_out")
+        .eq("user_id", profile.id);
 
       const vehicleCheckoutsQuery = supabase
         .from("vehicle_checkouts")
@@ -48,14 +55,16 @@ export function useUrgencyBadges() {
         .in("status", ["open", "in_progress"])
         .eq("reported_by", profile.id);
 
-      const [toolOverdueRes, toolIssuesRes, vehicleIssuesRes] = await Promise.all([
+      const [toolOverdueRes, toolPendingRes, toolIssuesRes, vehicleIssuesRes] = await Promise.all([
         toolCheckoutsQuery,
+        toolPendingQuery,
         toolIssuesQuery,
         vehicleIssuesQuery,
       ]);
 
       return {
         toolOverdue: toolOverdueRes.count || 0,
+        toolPending: toolPendingRes.count || 0,
         toolIssuesOpen: toolIssuesRes.count || 0,
         vehicleOverdue: 0, // vehicle overdue is time-based, harder to query accurately
         vehicleIssuesOpen: vehicleIssuesRes.count || 0,
@@ -72,6 +81,7 @@ export function useUrgencyBadges() {
     toolBadgeCount,
     vehicleBadgeCount,
     toolOverdue: data?.toolOverdue || 0,
+    toolPending: data?.toolPending || 0,
     toolIssuesOpen: data?.toolIssuesOpen || 0,
     vehicleOverdue: data?.vehicleOverdue || 0,
     vehicleIssuesOpen: data?.vehicleIssuesOpen || 0,

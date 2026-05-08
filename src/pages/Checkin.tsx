@@ -41,6 +41,7 @@ export default function Checkin() {
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
   const toolIdParam = searchParams.get("toolId");
+  const checkoutIdParam = searchParams.get("checkoutId");
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
@@ -85,7 +86,12 @@ export default function Checkin() {
       setCheckouts(data || []);
       saveToCache(data || []);
 
-      if (toolIdParam && data) {
+      if (checkoutIdParam && data) {
+        const checkout = data.find(c => c.id === checkoutIdParam);
+        if (checkout) {
+          setSelectedCheckoutId(checkout.id);
+        }
+      } else if (toolIdParam && data) {
         const checkout = data.find(c => c.tool_id === toolIdParam);
         if (checkout) {
           setSelectedCheckoutId(checkout.id);
@@ -175,7 +181,7 @@ export default function Checkin() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Devolver Ferramenta</CardTitle>
+          <CardTitle>Registrar Devolução</CardTitle>
           <CardDescription>Registre a devolução de uma ferramenta</CardDescription>
         </CardHeader>
         <CardContent>

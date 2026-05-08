@@ -4,8 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Wrench, Car, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SignedImage } from "@/components/SignedImage";
+import { Loader2, Wrench, Car, Clock, Eye } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -17,12 +20,11 @@ interface UnifiedEvent {
   subtitle: string;
   status: string;
   endDate?: string | null;
+  raw?: any;
 }
 
 interface UnifiedHistoryProps {
-  /** When true, omits the page title (use when embedded in another page). */
   embedded?: boolean;
-  /** Default heading shown above the filters. */
   title?: string;
   description?: string;
 }
@@ -39,6 +41,7 @@ export default function UnifiedHistory({
   const [loading, setLoading] = useState(true);
   const [periodFilter, setPeriodFilter] = useState("7d");
   const [typeFilter, setTypeFilter] = useState(initialType);
+  const [selected, setSelected] = useState<UnifiedEvent | null>(null);
 
   useEffect(() => {
     if (profile?.id) loadAll();
@@ -64,21 +67,21 @@ export default function UnifiedHistory({
     const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
       supabase
         .from("tool_checkouts")
-        .select("id, checkout_date, checkin_date, status, construction_site, tools(name)")
+        .select("id, checkout_date, checkin_date, status, construction_site, estimated_return_date, selected_tag, notes, checkout_photo_url, checkin_photo_url, checkout_signature_url, checkin_signature_url, tools(name, tag, brand)")
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
         .limit(200),
       supabase
         .from("vehicle_checkouts")
-        .select("id, checkout_date, checkin_date, status, destination, vehicles(name, plate)")
+        .select("id, checkout_date, checkin_date, status, destination, destination_address, km_checkout, km_checkin, refueled, notes, vehicles(name, plate, brand, model)")
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
         .limit(200),
       supabase
         .from("time_entries")
-        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type")
+        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type, clock_in_address, clock_out_address, notes")
         .eq("user_id", profile.id)
         .gte("clock_in", since)
         .order("clock_in", { ascending: false })
@@ -96,6 +99,7 @@ export default function UnifiedHistory({
         subtitle: t.construction_site || "Sem obra",
         status: t.status === "checked_out" ? "Em uso" : "Devolvido",
         endDate: t.checkin_date,
+        raw: t,
       });
     });
 
@@ -108,6 +112,7 @@ export default function UnifiedHistory({
         subtitle: v.destination || "Sem destino",
         status: v.status === "checked_out" ? "Em uso" : "Devolvido",
         endDate: v.checkin_date,
+        raw: v,
       });
     });
 
@@ -124,9 +129,9 @@ export default function UnifiedHistory({
         subtitle: duration,
         status: p.status === "open" ? "Aberto" : "Fechado",
         endDate: p.clock_out,
+        raw: p,
       });
     });
-
 
     unified.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setEvents(unified);
@@ -163,6 +168,153 @@ export default function UnifiedHistory({
     );
   }
 
+  const renderDetails = (ev: UnifiedEvent) => {
+    const r = ev.raw || {};
+    if (ev.type === "tool") {
+      return (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground">Ferramenta</p>
+              <p className="font-semibold">{r.tools?.name}</p>
+              {r.tools?.brand && <p className="text-xs text-muted-foreground">{r.tools.brand}</p>}
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">TAG</p>
+              <p className="font-mono text-sm">{r.selected_tag || r.tools?.tag || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Obra</p>
+              <p>{r.construction_site || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Status</p>
+              <Badge variant={r.status === "checked_out" ? "default" : "secondary"}>
+                {r.status === "checked_out" ? "Em Uso" : "Devolvida"}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Retirada</p>
+              <p>{format(new Date(r.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Devolução</p>
+              <p>{r.checkin_date ? format(new Date(r.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p>
+            </div>
+            {r.estimated_return_date && (
+              <div className="col-span-2">
+                <p className="text-xs text-muted-foreground">Devolução Prevista</p>
+                <p>{format(new Date(r.estimated_return_date), "dd/MM/yyyy", { locale: ptBR })}</p>
+              </div>
+            )}
+          </div>
+          {(r.checkout_photo_url || r.checkin_photo_url) && (
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+              {r.checkout_photo_url && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Foto Retirada</p>
+                  <SignedImage storagePath={r.checkout_photo_url} alt="Retirada" className="w-full h-32 object-cover rounded" />
+                </div>
+              )}
+              {r.checkin_photo_url && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Foto Devolução</p>
+                  <SignedImage storagePath={r.checkin_photo_url} alt="Devolução" className="w-full h-32 object-cover rounded" />
+                </div>
+              )}
+            </div>
+          )}
+          {r.notes && (
+            <div className="pt-3 border-t">
+              <p className="text-xs text-muted-foreground">Observações</p>
+              <p className="text-sm">{r.notes}</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (ev.type === "vehicle") {
+      return (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground">Veículo</p>
+              <p className="font-semibold">{r.vehicles?.name}</p>
+              <p className="text-xs text-muted-foreground">{r.vehicles?.plate}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Destino</p>
+              <p>{r.destination || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">KM Saída</p>
+              <p>{r.km_checkout?.toLocaleString() ?? "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">KM Chegada</p>
+              <p>{r.km_checkin?.toLocaleString() ?? "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Saída</p>
+              <p>{format(new Date(r.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Chegada</p>
+              <p>{r.checkin_date ? format(new Date(r.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Abastecido</p>
+              <p>{r.refueled === null || r.refueled === undefined ? "-" : r.refueled ? "Sim" : "Não"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Status</p>
+              <Badge variant={r.status === "checked_out" ? "default" : "secondary"}>
+                {r.status === "checked_out" ? "Em Uso" : "Devolvido"}
+              </Badge>
+            </div>
+          </div>
+          {r.notes && (
+            <div className="pt-3 border-t">
+              <p className="text-xs text-muted-foreground">Observações</p>
+              <p className="text-sm">{r.notes}</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+    // ponto
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Tipo</p>
+            <p>{r.entry_type === "obra" ? "Obra" : "Cliente"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Local</p>
+            <p>{r.construction_site || r.client_name || "-"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Entrada</p>
+            <p>{format(new Date(r.clock_in), "dd/MM/yyyy HH:mm", { locale: ptBR })}</p>
+            {r.clock_in_address && <p className="text-xs text-muted-foreground">{r.clock_in_address}</p>}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Saída</p>
+            <p>{r.clock_out ? format(new Date(r.clock_out), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-"}</p>
+            {r.clock_out_address && <p className="text-xs text-muted-foreground">{r.clock_out_address}</p>}
+          </div>
+        </div>
+        {r.notes && (
+          <div className="pt-3 border-t">
+            <p className="text-xs text-muted-foreground">Observações</p>
+            <p className="text-sm">{r.notes}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4 max-w-3xl mx-auto animate-fade-in">
       {!embedded && (
@@ -194,7 +346,6 @@ export default function UnifiedHistory({
             <SelectItem value="tool">Ferramentas</SelectItem>
             <SelectItem value="vehicle">Veículos</SelectItem>
             <SelectItem value="ponto">Ponto</SelectItem>
-            
           </SelectContent>
         </Select>
       </div>
@@ -235,12 +386,30 @@ export default function UnifiedHistory({
                   >
                     {ev.status}
                   </Badge>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 shrink-0"
+                    onClick={() => setSelected(ev)}
+                    aria-label="Ver detalhes"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
                 </div>
               </Card>
             ))}
           </div>
         ))
       )}
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes — {selected?.title}</DialogTitle>
+          </DialogHeader>
+          {selected && renderDetails(selected)}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

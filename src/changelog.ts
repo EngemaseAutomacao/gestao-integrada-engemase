@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.33.0",
+    date: "2026-05-08",
+    title: "Devolução Mais Rápida e Detalhes no Histórico",
+    description: "Atalhos de devolução pré-selecionam a ferramenta e os detalhes de cada movimentação agora aparecem também no Meu Histórico.",
+    changes: [
+      { type: "improvement", text: "Indicador vermelho em 'Registrar Devolução' mostra o total de ferramentas pendentes do usuário" },
+      { type: "improvement", text: "Ao clicar em 'Registrar Devolução' no painel, a ferramenta já vem selecionada na próxima tela" },
+      { type: "improvement", text: "Botão renomeado para 'Registrar Devolução' para padronizar a nomenclatura" },
+      { type: "feature", text: "Detalhes da movimentação agora estão disponíveis também no Meu Histórico (cada usuário pode ver os próprios)" },
+      { type: "improvement", text: "TAG do equipamento incluída na tela de detalhes do Histórico Geral" },
+    ],
+  },
+  {
     version: "1.32.0",
     date: "2026-05-05",
     title: "Resumo de KM nos Relatórios de Veículos",
