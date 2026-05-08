@@ -86,7 +86,12 @@ export default function Checkin() {
       setCheckouts(data || []);
       saveToCache(data || []);
 
-      if (toolIdParam && data) {
+      if (checkoutIdParam && data) {
+        const checkout = data.find(c => c.id === checkoutIdParam);
+        if (checkout) {
+          setSelectedCheckoutId(checkout.id);
+        }
+      } else if (toolIdParam && data) {
         const checkout = data.find(c => c.tool_id === toolIdParam);
         if (checkout) {
           setSelectedCheckoutId(checkout.id);
