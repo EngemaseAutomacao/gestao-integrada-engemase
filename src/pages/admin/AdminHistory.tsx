@@ -626,6 +626,13 @@ export default function AdminHistory() {
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                       <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                      {selectedEntry.tools.brand && (
+                                        <p className="text-xs text-muted-foreground">{selectedEntry.tools.brand}</p>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-medium text-muted-foreground">TAG</p>
+                                      <p className="font-mono text-sm">{selectedEntry.selected_tag || selectedEntry.tools.tag || "-"}</p>
                                     </div>
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Usuário</p>
