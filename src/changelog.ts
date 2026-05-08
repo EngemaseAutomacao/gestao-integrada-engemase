@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.36.0",
+    date: "2026-05-08",
+    title: "Devolução em Lote",
+    description: "Agora é possível selecionar várias ferramentas pendentes e registrar a devolução de todas de uma vez.",
+    changes: [
+      { type: "feature", text: "Novo modo 'Devolver várias' no card de Devoluções Pendentes com checkboxes e seleção múltipla" },
+      { type: "feature", text: "Tela de devolução exibe a lista de ferramentas selecionadas e aplica observações/foto a todas" },
+    ],
+  },
+  {
     version: "1.35.2",
     date: "2026-05-08",
     title: "TAG nas Devoluções Pendentes",
