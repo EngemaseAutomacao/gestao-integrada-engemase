@@ -104,18 +104,31 @@ export default function UpdatePrompt() {
   }, [checkForUpdate]);
 
   const handleUpdate = async () => {
+    console.log("[Update] Aplicando atualização...");
+    
     // Clear all caches
     if ("caches" in window) {
       const names = await caches.keys();
       await Promise.all(names.map((n) => caches.delete(n)));
     }
-    // Unregister service workers
+
+    // Force Service Worker to activate if it exists
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+      
+      // Wait a bit for SW to take control
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // Unregister service workers to be double sure
     if ("serviceWorker" in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map((r) => r.unregister()));
     }
+    
     // Clear notified version to allow re-showing if needed
     localStorage.removeItem(NOTIFIED_VERSION_KEY);
+    
     // Force reload from server
     window.location.reload();
   };
