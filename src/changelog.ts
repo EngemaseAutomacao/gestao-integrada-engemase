@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.35.0",
+    date: "2026-05-08",
+    title: "Novo Layout de Devolução",
+    description: "A página de 'Registrar Devolução' foi redesenhada para oferecer a mesma experiência e agilidade do registro de saída.",
+    changes: [
+      { type: "improvement", text: "Layout em duas colunas no desktop, idêntico à tela de saída (retirada)" },
+      { type: "improvement", text: "Preenchimento automático inteligente: ao iniciar uma devolução, a ferramenta e a obra de origem são identificadas e exibidas automaticamente" },
+      { type: "improvement", text: "Bloqueio automático do seletor quando a devolução é iniciada a partir de um atalho direto" },
+      { type: "improvement", text: "Campo de 'Obra de Origem' agora é exibido de forma clara como somente leitura" },
+      { type: "improvement", text: "Padronização total da nomenclatura para 'Registrar Devolução' em todo o sistema" },
+    ],
+  },
+  {
     version: "1.34.0",
     date: "2026-05-08",
     title: "Indicadores Visuais de Pendências",
