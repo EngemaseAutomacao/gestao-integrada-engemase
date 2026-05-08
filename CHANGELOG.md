@@ -1,6 +1,6 @@
-# Notas de Atualização - v1.1.0
+# Notas de Atualização - v1.33.0
 
-## [1.1.0] - 2026-05-08
+## [1.33.0] - 2026-05-08
 
 ### Adicionado
 - Opção de visualização em tabela ou linha do tempo (timeline) no histórico de ferramentas do usuário, padronizando com o histórico geral.
