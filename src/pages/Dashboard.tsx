@@ -176,7 +176,7 @@ export default function Dashboard() {
   };
 
   const handleCheckin = (toolId: string) => {
-    navigate(`/checkin?toolId=${toolId}`);
+    navigate(`/ferramentas/devolucao?toolId=${toolId}`);
   };
 
   const handleExtendDate = async () => {
