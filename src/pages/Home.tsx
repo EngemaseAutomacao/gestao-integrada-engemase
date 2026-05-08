@@ -283,7 +283,7 @@ export default function Home() {
             description="Retiradas, devoluções e manutenções"
             icon={<Wrench className="w-6 h-6 text-primary" />}
             to="/ferramentas"
-            pendingCount={toolPending}
+            pendingCount={toolPending - toolOverdue}
             overdueCount={toolOverdue}
           />
         </div>
@@ -294,7 +294,7 @@ export default function Home() {
             description="Entradas e saídas de veículos"
             icon={<Car className="w-6 h-6 text-primary" />}
             to="/veiculos"
-            pendingCount={vehiclePending}
+            pendingCount={vehiclePending - vehicleOverdue}
             overdueCount={vehicleOverdue}
           />
         </div>
