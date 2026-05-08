@@ -87,7 +87,7 @@ interface ModuleCardProps {
   overdueCount?: number;
 }
 
-function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount }: ModuleCardProps) {
+function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount, pendingCount, overdueCount }: ModuleCardProps) {
   const isAdmin = variant === "admin";
 
   const content = (
@@ -102,9 +102,16 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
           Em Breve
         </div>
       )}
-      {badgeCount && badgeCount > 0 ? (
-        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
-          {badgeCount}
+      
+      {pendingCount !== undefined && pendingCount > 0 && (
+        <div className="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10 shadow-sm" title="Pendentes">
+          {pendingCount}
+        </div>
+      )}
+
+      {(overdueCount !== undefined && overdueCount > 0) || (badgeCount !== undefined && badgeCount > 0) ? (
+        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10 shadow-sm" title="Atrasados">
+          {overdueCount || badgeCount}
         </div>
       ) : null}
       <CardHeader className="text-center pb-1 px-3 pt-4">
