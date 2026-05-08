@@ -179,8 +179,8 @@ export default function Dashboard() {
     navigate(`/ferramentas/retirada?toolId=${toolId}`);
   };
 
-  const handleCheckin = (toolId: string) => {
-    navigate(`/checkin?toolId=${toolId}`);
+  const handleCheckin = (checkoutId: string) => {
+    navigate(`/checkin?checkoutId=${checkoutId}`);
   };
 
   const handleExtendDate = async () => {
@@ -390,7 +390,7 @@ export default function Dashboard() {
                               <CalendarPlus className="w-3 h-3" /> Prorrogar
                             </Button>
                           )}
-                          <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => navigate(`/checkin?toolId=${checkout.tool_id}`)}>
+                          <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => handleCheckin(checkout.id)}>
                             Devolver <ArrowRight className="w-3 h-3" />
                           </Button>
                         </div>
