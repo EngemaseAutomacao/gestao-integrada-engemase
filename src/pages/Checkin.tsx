@@ -92,7 +92,11 @@ export default function Checkin() {
       setCheckouts(data || []);
       saveToCache(data || []);
 
-      if (checkoutIdParam && data) {
+      if (checkoutIdsParam && data) {
+        const ids = checkoutIdsParam.split(",").filter(Boolean);
+        const valid = ids.filter(id => data.some(c => c.id === id));
+        setBulkCheckoutIds(valid);
+      } else if (checkoutIdParam && data) {
         const checkout = data.find(c => c.id === checkoutIdParam);
         if (checkout) {
           setSelectedCheckoutId(checkout.id);
