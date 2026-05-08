@@ -38,12 +38,15 @@ export default function Checkin() {
   const navigate = useNavigate();
   const [checkouts, setCheckouts] = useState<Checkout[]>(cachedCheckouts || []);
   const [selectedCheckoutId, setSelectedCheckoutId] = useState<string>("");
+  const [bulkCheckoutIds, setBulkCheckoutIds] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
   
   const toolIdParam = searchParams.get("toolId");
   const checkoutIdParam = searchParams.get("checkoutId");
+  const checkoutIdsParam = searchParams.get("checkoutIds");
+  const isBulk = bulkCheckoutIds.length > 0;
   const isLocked = !!(checkoutIdParam || (toolIdParam && selectedCheckoutId));
 
   // Photo state
