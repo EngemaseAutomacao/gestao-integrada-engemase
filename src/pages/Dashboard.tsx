@@ -257,7 +257,14 @@ export default function Dashboard() {
                   return (
                     <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                          {(checkout.selected_tag || checkout.tools?.tag) && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-mono">
+                              TAG {checkout.selected_tag || checkout.tools?.tag}
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           {checkout.estimated_return_date && (
                             <span className={isOverdue ? "text-destructive font-medium" : ""}>
