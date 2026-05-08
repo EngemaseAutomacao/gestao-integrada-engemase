@@ -225,42 +225,78 @@ export default function Checkin() {
             </p>
           ) : (
             <form onSubmit={handleCheckin} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {isBulk ? (
                 <div className="space-y-2">
-                  <Label htmlFor="checkout">Ferramenta Retirada *</Label>
-                  <Select
-                    value={selectedCheckoutId}
-                    onValueChange={setSelectedCheckoutId}
-                    disabled={loadingCheckouts || isLocked}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a ferramenta para devolver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {checkouts.map((checkout) => {
-                        const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                        return (
-                          <SelectItem key={checkout.id} value={checkout.id}>
-                            {checkout.tools.name}
-                            {checkout.construction_site && ` - ${checkout.construction_site}`}
-                            {isOverdue && " ⚠️ ATRASADO"}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
+                  <Label>Ferramentas selecionadas ({bulkCheckoutIds.length})</Label>
+                  <div className="space-y-2 max-h-[280px] overflow-y-auto rounded-md border p-2 bg-muted/30">
+                    {bulkCheckoutIds.map((id) => {
+                      const c = checkouts.find(ck => ck.id === id);
+                      if (!c) return null;
+                      const isOverdue = c.estimated_return_date && new Date(c.estimated_return_date) < new Date();
+                      return (
+                        <div key={id} className="flex items-center justify-between gap-2 p-2 rounded bg-background">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{c.tools.name}</p>
+                            {c.construction_site && (
+                              <p className="text-xs text-muted-foreground truncate">{c.construction_site}</p>
+                            )}
+                          </div>
+                          {isOverdue && (
+                            <Badge variant="destructive" className="text-[10px] shrink-0">Atrasado</Badge>
+                          )}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => setBulkCheckoutIds(bulkCheckoutIds.filter(x => x !== id))}
+                          >
+                            Remover
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground">As observações e a foto abaixo serão aplicadas a todas as ferramentas selecionadas.</p>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="checkout">Ferramenta Retirada *</Label>
+                    <Select
+                      value={selectedCheckoutId}
+                      onValueChange={setSelectedCheckoutId}
+                      disabled={loadingCheckouts || isLocked}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a ferramenta para devolver" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {checkouts.map((checkout) => {
+                          const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
+                          return (
+                            <SelectItem key={checkout.id} value={checkout.id}>
+                              {checkout.tools.name}
+                              {checkout.construction_site && ` - ${checkout.construction_site}`}
+                              {isOverdue && " ⚠️ ATRASADO"}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="site">Obra de Origem</Label>
-                  <Input
-                    id="site"
-                    value={checkouts.find(c => c.id === selectedCheckoutId)?.construction_site || "Nenhuma obra informada"}
-                    disabled
-                    className="bg-muted"
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="site">Obra de Origem</Label>
+                    <Input
+                      id="site"
+                      value={checkouts.find(c => c.id === selectedCheckoutId)?.construction_site || "Nenhuma obra informada"}
+                      disabled
+                      className="bg-muted"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações (opcional)</Label>
