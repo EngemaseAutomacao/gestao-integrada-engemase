@@ -84,10 +84,17 @@ export function useUrgencyBadges() {
     refetchInterval: 60000,
   });
 
+  const toolBadgeCount = (data?.toolOverdue || 0) + (data?.toolIssuesOpen || 0);
+  const vehicleBadgeCount = (data?.vehicleOverdue || 0) + (data?.vehicleIssuesOpen || 0);
+
   return {
+    toolBadgeCount,
+    vehicleBadgeCount,
     toolPending: data?.toolPending || 0,
-    toolOverdue: (data?.toolOverdue || 0) + (data?.toolIssuesOpen || 0),
+    toolOverdue: data?.toolOverdue || 0,
+    toolIssuesOpen: data?.toolIssuesOpen || 0,
     vehiclePending: data?.vehiclePending || 0,
-    vehicleOverdue: (data?.vehicleOverdue || 0) + (data?.vehicleIssuesOpen || 0),
+    vehicleOverdue: data?.vehicleOverdue || 0,
+    vehicleIssuesOpen: data?.vehicleIssuesOpen || 0,
   };
 }
