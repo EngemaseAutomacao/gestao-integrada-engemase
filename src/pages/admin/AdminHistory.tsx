@@ -632,7 +632,14 @@ export default function AdminHistory() {
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                      <p className="font-semibold">{selectedEntry.tools.name}</p>
+                                      <p className="font-semibold">
+                                        {selectedEntry.tools.name}
+                                        {selectedEntry.selected_tag && (
+                                          <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
+                                            TAG: {selectedEntry.selected_tag}
+                                          </span>
+                                        )}
+                                      </p>
                                     </div>
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Usuário</p>
