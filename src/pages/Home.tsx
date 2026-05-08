@@ -247,7 +247,7 @@ function SummaryCards({ userId }: { userId: string }) {
 export default function Home() {
   const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
-  const { toolBadgeCount, vehicleBadgeCount } = useUrgencyBadges();
+  const { toolOverdue, toolPending, vehicleOverdue, vehiclePending } = useUrgencyBadges();
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
