@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.34.0",
+    date: "2026-05-08",
+    title: "Indicadores Visuais de Pendências",
+    description: "Novos badges coloridos na tela inicial para distinguir ferramentas em uso e ferramentas atrasadas.",
+    changes: [
+      { type: "feature", text: "Dois indicadores nos cards da tela inicial: amarelo para itens pendentes (no prazo) e vermelho para itens atrasados" },
+      { type: "improvement", text: "Badges posicionados nos cantos superiores para facilitar a leitura rápida" },
+      { type: "improvement", text: "Suporte aos novos indicadores tanto para Ferramentas quanto para Veículos" },
+      { type: "improvement", text: "Atualização automática dos contadores a cada minuto" },
+    ],
+  },
+  {
     version: "1.33.0",
     date: "2026-05-08",
     title: "Devolução Mais Rápida e Detalhes no Histórico",
