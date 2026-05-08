@@ -228,6 +228,55 @@ export default function Dashboard() {
     setExtendDialogOpen(true);
   };
 
+  const toggleSelectCheckout = (id: string) => {
+    setSelectedCheckouts((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (!pendingCheckouts) return;
+    if (selectedCheckouts.size === pendingCheckouts.length) {
+      setSelectedCheckouts(new Set());
+    } else {
+      setSelectedCheckouts(new Set(pendingCheckouts.map((c: any) => c.id)));
+    }
+  };
+
+  const exitMultiSelect = () => {
+    setMultiSelectMode(false);
+    setSelectedCheckouts(new Set());
+  };
+
+  const handleBulkReturn = async () => {
+    if (selectedCheckouts.size === 0 || !profile?.id) return;
+    setBulkReturnLoading(true);
+    try {
+      const ids = Array.from(selectedCheckouts);
+      const { error } = await supabase
+        .from("tool_checkouts")
+        .update({
+          status: "checked_in",
+          checkin_date: new Date().toISOString(),
+          checked_in_by: profile.id,
+        })
+        .in("id", ids);
+
+      if (error) throw error;
+
+      toast.success(`${ids.length} ferramenta(s) devolvida(s) com sucesso!`);
+      queryClient.invalidateQueries({ queryKey: ["pending-tool-checkouts"] });
+      exitMultiSelect();
+    } catch (error: any) {
+      toast.error("Erro ao devolver ferramentas", { description: error.message });
+    } finally {
+      setBulkReturnLoading(false);
+    }
+  };
+
   if (loading) {
     return <DashboardSkeleton />;
   }
