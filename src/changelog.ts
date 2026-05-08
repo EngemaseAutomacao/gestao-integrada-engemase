@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.36.3",
+    date: "2026-05-08",
+    title: "Restauração do Layout de Alerta",
+    description: "Retorno ao padrão visual de alerta azul na parte inferior da tela.",
+    changes: [
+      { type: "improvement", text: "Restaurado layout azul de aviso de atualização na parte inferior" },
+      { type: "fix", text: "Removida duplicidade de lógica de versionamento" },
+    ],
+  },
+  {
     version: "1.36.2",
     date: "2026-05-08",
     title: "Alertas de Atualização Críticos",
