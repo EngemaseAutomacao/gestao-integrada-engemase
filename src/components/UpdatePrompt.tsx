@@ -97,6 +97,8 @@ export default function UpdatePrompt() {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map((r) => r.unregister()));
     }
+    // Clear notified version to allow re-showing if needed
+    localStorage.removeItem(NOTIFIED_VERSION_KEY);
     // Force reload from server
     window.location.reload();
   };
