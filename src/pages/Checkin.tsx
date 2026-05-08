@@ -123,13 +123,16 @@ export default function Checkin() {
 
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!selectedCheckoutId) {
+
+    if (!isBulk && !selectedCheckoutId) {
       toast.error("Selecione uma retirada");
       return;
     }
 
-    // Photo is optional for checkin
+    if (isBulk && bulkCheckoutIds.length === 0) {
+      toast.error("Nenhuma ferramenta selecionada");
+      return;
+    }
 
     setLoading(true);
 
@@ -140,16 +143,37 @@ export default function Checkin() {
         photoUrl = await uploadImage(photoDataUrl, "photo");
       }
 
-      const checkinData = {
-        checkoutId: selectedCheckoutId,
-        updates: {
-          status: "checked_in" as const,
-          checkin_date: new Date().toISOString(),
-          checked_in_by: profile!.id,
-          notes: notes.trim() ? notes : null,
-          checkin_photo_url: photoUrl,
-        },
+      const updates = {
+        status: "checked_in" as const,
+        checkin_date: new Date().toISOString(),
+        checked_in_by: profile!.id,
+        notes: notes.trim() ? notes : null,
+        checkin_photo_url: photoUrl,
       };
+
+      if (isBulk) {
+        if (!isOnline) {
+          for (const id of bulkCheckoutIds) {
+            addPendingOperation("checkin", { checkoutId: id, updates });
+          }
+          toast.success(`${bulkCheckoutIds.length} devoluções registradas (offline)!`);
+          navigate("/ferramentas");
+          return;
+        }
+
+        const { error } = await supabase
+          .from("tool_checkouts")
+          .update(updates)
+          .in("id", bulkCheckoutIds);
+
+        if (error) throw error;
+
+        toast.success(`${bulkCheckoutIds.length} ferramentas devolvidas com sucesso!`);
+        navigate("/ferramentas");
+        return;
+      }
+
+      const checkinData = { checkoutId: selectedCheckoutId, updates };
 
       if (!isOnline) {
         addPendingOperation("checkin", checkinData);
@@ -160,7 +184,7 @@ export default function Checkin() {
 
       const { error } = await supabase
         .from("tool_checkouts")
-        .update(checkinData.updates)
+        .update(updates)
         .eq("id", selectedCheckoutId);
 
       if (error) throw error;
