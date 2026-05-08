@@ -24,8 +24,10 @@ interface Checkout {
   tool_id: string;
   construction_site: string | null;
   estimated_return_date: string | null;
+  selected_tag: string | null;
   tools: {
     name: string;
+    tag: string | null;
   };
 }
 
@@ -75,7 +77,8 @@ export default function Checkin() {
           tool_id,
           construction_site,
           estimated_return_date,
-          tools (name)
+          selected_tag,
+          tools (name, tag)
         `)
         .eq("user_id", profile!.id)
         .eq("status", "checked_out")
@@ -206,6 +209,7 @@ export default function Checkin() {
                       return (
                         <SelectItem key={checkout.id} value={checkout.id}>
                           {checkout.tools.name}
+                          {checkout.selected_tag && ` (TAG: ${checkout.selected_tag})`}
                           {checkout.construction_site && ` - ${checkout.construction_site}`}
                           {isOverdue && " ⚠️ ATRASADO"}
                         </SelectItem>

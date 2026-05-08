@@ -180,7 +180,7 @@ export default function Dashboard() {
   };
 
   const handleCheckin = (checkoutId: string) => {
-    navigate(`/checkin?checkoutId=${checkoutId}`);
+    navigate(`/ferramentas/devolucao?checkoutId=${checkoutId}`);
   };
 
   const handleExtendDate = async () => {
