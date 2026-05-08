@@ -24,6 +24,10 @@ async function checkForUpdates() {
     const data = await response.json();
     const newVersion = data.version;
 
+    // Always notify clients of the current server version on check
+    const clients = await self.clients.matchAll({ type: 'window' });
+    clients.forEach(client => client.postMessage({ type: 'VERSION_CHECK', version: newVersion }));
+
     if (currentVersion === null) {
       currentVersion = newVersion;
       console.log('[SW] Initial version:', currentVersion);
