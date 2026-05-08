@@ -45,16 +45,18 @@ export default function UpdatePrompt() {
 
   const checkForUpdate = useCallback(async () => {
     try {
+      console.log(`[Update] Verificando versão... (atual: ${APP_VERSION})`);
       const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
+      console.log(`[Update] Versão no servidor: ${data.version}`);
       if (data.version && data.version !== APP_VERSION) {
-        console.log(`[Update] Nova versão disponível: ${data.version} (atual: ${APP_VERSION})`);
+        console.log(`[Update] Nova versão disponível: ${data.version}`);
         setUpdateAvailable(true);
         showUpdateNotification(data.version);
       }
-    } catch {
-      // offline or error — ignore
+    } catch (e) {
+      console.error("[Update] Erro ao verificar versão:", e);
     }
   }, [showUpdateNotification]);
 
