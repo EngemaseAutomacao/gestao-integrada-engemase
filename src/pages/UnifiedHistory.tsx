@@ -327,7 +327,38 @@ export default function UnifiedHistory({
                     className="p-3 transition-all hover:shadow-soft hover:border-primary/50 cursor-pointer group"
                     onClick={() => setSelectedEvent(ev)}
                   >
-...
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-full shrink-0 ${colorMap[ev.type]}`}>
+                        {iconMap[ev.type]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{ev.title}</p>
+                          {ev.details?.selected_tag && (
+                            <Badge variant="outline" className="text-[10px] font-mono h-4 py-0">
+                              {ev.details.selected_tag}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>{format(new Date(ev.date), "HH:mm")}</span>
+                          {ev.endDate && <span>→ {format(new Date(ev.endDate), "HH:mm")}</span>}
+                          <span>• {ev.subtitle}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            ev.status === "Em uso" || ev.status === "Aberto" || ev.status === "Pendente"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-xs shrink-0"
+                        >
+                          {ev.status}
+                        </Badge>
+                        <Eye className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors hidden sm:block" />
+                      </div>
                     </div>
                   </Card>
                 </DialogTrigger>
