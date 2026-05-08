@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.36.1",
+    date: "2026-05-08",
+    title: "Sincronização de Versão",
+    description: "Atualização forçada para sincronizar o cache do navegador com as últimas melhorias.",
+    changes: [
+      { type: "fix", text: "Ajuste no sistema de detecção de novas versões para contornar cache persistente" },
+    ],
+  },
+  {
     version: "1.36.0",
     date: "2026-05-08",
     title: "Devolução em Lote",
