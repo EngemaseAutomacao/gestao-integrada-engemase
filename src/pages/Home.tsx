@@ -83,9 +83,22 @@ interface ModuleCardProps {
   comingSoon?: boolean;
   variant?: "default" | "admin";
   badgeCount?: number;
+  pendingCount?: number;
+  overdueCount?: number;
 }
 
-function ModuleCard({ title, description, icon, to, disabled, comingSoon, variant = "default", badgeCount }: ModuleCardProps) {
+function ModuleCard({ 
+  title, 
+  description, 
+  icon, 
+  to, 
+  disabled, 
+  comingSoon, 
+  variant = "default", 
+  badgeCount,
+  pendingCount,
+  overdueCount
+}: ModuleCardProps) {
   const isAdmin = variant === "admin";
 
   const content = (
@@ -100,12 +113,23 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
           Em Breve
         </div>
       )}
-      {badgeCount && badgeCount > 0 ? (
-        <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
-          {badgeCount}
-        </div>
-      ) : null}
-      <CardHeader className="text-center pb-1 px-3 pt-4">
+      
+      {/* Badges container */}
+      <div className="absolute top-2 left-2 right-2 flex justify-between pointer-events-none">
+        {pendingCount !== undefined && pendingCount > 0 ? (
+          <div className="bg-yellow-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm pointer-events-auto">
+            {pendingCount}
+          </div>
+        ) : <div />}
+        
+        {(overdueCount !== undefined && overdueCount > 0) || (badgeCount !== undefined && badgeCount > 0) ? (
+          <div className="bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm pointer-events-auto">
+            {overdueCount || badgeCount}
+          </div>
+        ) : null}
+      </div>
+
+      <CardHeader className="text-center pb-1 px-3 pt-6">
         <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
           isAdmin ? 'bg-orange-500/10' : 'bg-primary/10'
         }`}>
@@ -238,7 +262,16 @@ function SummaryCards({ userId }: { userId: string }) {
 export default function Home() {
   const { profile, user } = useAuth();
   const isAdmin = profile?.role === "admin";
-  const { toolBadgeCount, vehicleBadgeCount } = useUrgencyBadges();
+  const { 
+    toolBadgeCount, 
+    vehicleBadgeCount, 
+    toolPending, 
+    toolOverdue, 
+    toolIssuesOpen,
+    vehiclePending,
+    vehicleOverdue,
+    vehicleIssuesOpen 
+  } = useUrgencyBadges();
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -274,7 +307,8 @@ export default function Home() {
             description="Retiradas, devoluções e manutenções"
             icon={<Wrench className="w-6 h-6 text-primary" />}
             to="/ferramentas"
-            badgeCount={toolBadgeCount}
+            pendingCount={toolPending}
+            overdueCount={toolOverdue + toolIssuesOpen}
           />
         </div>
 
@@ -284,7 +318,8 @@ export default function Home() {
             description="Entradas e saídas de veículos"
             icon={<Car className="w-6 h-6 text-primary" />}
             to="/veiculos"
-            badgeCount={vehicleBadgeCount}
+            pendingCount={vehiclePending}
+            overdueCount={vehicleOverdue + vehicleIssuesOpen}
           />
         </div>
 
