@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.34.0",
+    date: "2026-05-08",
+    title: "Melhorias no Fluxo de Devolução",
+    description: "Otimização da tela de devolução e automação do preenchimento de dados de obra e TAG.",
+    changes: [
+      { type: "improvement", text: "Botão 'Registrar Devolução' agora seleciona automaticamente a ferramenta e preenche Obra/TAG" },
+      { type: "improvement", text: "Campos de Obra e TAG agora são exibidos separadamente em modo leitura na devolução" },
+      { type: "improvement", text: "Padronização de textos e botões no card de devoluções pendentes" },
+      { type: "feature", text: "Visualização em Tabela ou Timeline adicionada ao histórico individual do usuário" },
+    ],
+  },
+  {
     version: "1.33.0",
     date: "2026-05-08",
     title: "Detalhes do Histórico e TAGs",
