@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.35.2",
+    date: "2026-05-08",
+    title: "TAG nas Devoluções Pendentes",
+    description: "Cada item da lista de Devoluções Pendentes agora exibe a TAG da ferramenta ao lado do nome.",
+    changes: [
+      { type: "improvement", text: "Badge com TAG exibido junto ao nome da ferramenta na lista de devoluções pendentes" },
+    ],
+  },
+  {
     version: "1.35.1",
     date: "2026-05-08",
     title: "Pré-seleção na Devolução",
