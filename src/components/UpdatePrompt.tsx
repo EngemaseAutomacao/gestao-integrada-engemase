@@ -49,13 +49,18 @@ export default function UpdatePrompt() {
   const checkForUpdate = useCallback(async () => {
     try {
       // Don't show in Lovable preview/editor to avoid duplicate UI issues
-      const isEditorPreview = window.location.hostname.endsWith("lovable.app") || 
-                             window.location.hostname.includes("lovableproject.com") ||
-                             window.location.hostname.includes("id-preview");
+      // Remove blocking to allow testing in preview
+      const isEditorPreview = window.location.hostname === "lovable.app";
       if (isEditorPreview) return;
 
-      console.log(`[Update] Verificando versão... (atual: ${APP_VERSION})`);
-      const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
+      console.log(`[Update] Iniciando verificação... Bundle: ${APP_VERSION}, URL: ${window.location.hostname}`);
+      const res = await fetch("/version.json?v=" + APP_VERSION + "&t=" + Date.now(), { 
+        cache: "no-store",
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!res.ok) return;
       const data = await res.json();
       console.log(`[Update] Versão no servidor: ${data.version}`);
@@ -78,11 +83,14 @@ export default function UpdatePrompt() {
 
     // Listen for SW version messages
     const handleSWMessage = (event: MessageEvent) => {
-      if (event.data?.type === "VERSION_UPDATED") {
-        console.log(`[Update] SW reportou nova versão: ${event.data.version}`);
-        setUpdateAvailable(true);
-        if (event.data.version) {
-          showUpdateNotification(event.data.version);
+      const type = event.data?.type;
+      const version = event.data?.version;
+      
+      if ((type === "VERSION_UPDATED" || type === "VERSION_CHECK") && version) {
+        if (version !== APP_VERSION) {
+          console.log(`[Update] SW reportou versão diferente: ${version} (atual: ${APP_VERSION})`);
+          setUpdateAvailable(true);
+          showUpdateNotification(version);
         }
       }
     };
