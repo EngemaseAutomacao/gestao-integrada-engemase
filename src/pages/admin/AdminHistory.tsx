@@ -592,9 +592,9 @@ export default function AdminHistory() {
                         <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-sm truncate flex items-center gap-2">
                             {entry.tools.name}
-                            {entry.selected_tag && (
-                              <Badge variant="outline" className="text-[10px] font-mono py-0 h-4">
-                                {entry.selected_tag}
+                            {(entry.selected_tag || entry.tools.tag) && (
+                              <Badge variant="outline" className="text-[10px] font-mono py-0 h-4 uppercase">
+                                {entry.selected_tag || entry.tools.tag}
                               </Badge>
                             )}
                           </h3>
