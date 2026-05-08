@@ -83,11 +83,14 @@ export default function UpdatePrompt() {
 
     // Listen for SW version messages
     const handleSWMessage = (event: MessageEvent) => {
-      if (event.data?.type === "VERSION_UPDATED") {
-        console.log(`[Update] SW reportou nova versão: ${event.data.version}`);
-        setUpdateAvailable(true);
-        if (event.data.version) {
-          showUpdateNotification(event.data.version);
+      const type = event.data?.type;
+      const version = event.data?.version;
+      
+      if ((type === "VERSION_UPDATED" || type === "VERSION_CHECK") && version) {
+        if (version !== APP_VERSION) {
+          console.log(`[Update] SW reportou versão diferente: ${version} (atual: ${APP_VERSION})`);
+          setUpdateAvailable(true);
+          showUpdateNotification(version);
         }
       }
     };
