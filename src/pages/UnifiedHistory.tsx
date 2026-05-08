@@ -83,21 +83,48 @@ export default function UnifiedHistory({
     const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
       supabase
         .from("tool_checkouts")
-        .select("id, checkout_date, checkin_date, status, construction_site, tools(name)")
+        .select(`
+          id, 
+          checkout_date, 
+          checkin_date, 
+          status, 
+          construction_site, 
+          notes, 
+          selected_tag, 
+          checkout_photo_url, 
+          checkin_photo_url, 
+          tools(name, tag),
+          checked_out_by:profiles!tool_checkouts_checked_out_by_fkey(full_name),
+          checked_in_by:profiles!tool_checkouts_checked_in_by_fkey(full_name)
+        `)
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
         .limit(200),
       supabase
         .from("vehicle_checkouts")
-        .select("id, checkout_date, checkin_date, status, destination, vehicles(name, plate)")
+        .select(`
+          id, 
+          checkout_date, 
+          checkin_date, 
+          status, 
+          destination, 
+          notes, 
+          km_checkout, 
+          km_checkin, 
+          photo_dashboard_checkout, 
+          photo_dashboard_checkin, 
+          vehicles(name, plate),
+          checked_out_by:profiles!vehicle_checkouts_checked_out_by_fkey(full_name),
+          checked_in_by:profiles!vehicle_checkouts_checked_in_by_fkey(full_name)
+        `)
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
         .limit(200),
       supabase
         .from("time_entries")
-        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type")
+        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type, notes")
         .eq("user_id", profile.id)
         .gte("clock_in", since)
         .order("clock_in", { ascending: false })
@@ -115,6 +142,15 @@ export default function UnifiedHistory({
         subtitle: t.construction_site || "Sem obra",
         status: t.status === "checked_out" ? "Em uso" : "Devolvido",
         endDate: t.checkin_date,
+        details: {
+          notes: t.notes,
+          construction_site: t.construction_site,
+          selected_tag: t.selected_tag || t.tools?.tag,
+          photo_checkout: t.checkout_photo_url,
+          photo_checkin: t.checkin_photo_url,
+          checked_out_by: t.checked_out_by?.full_name,
+          checked_in_by: t.checked_in_by?.full_name,
+        }
       });
     });
 
@@ -127,6 +163,16 @@ export default function UnifiedHistory({
         subtitle: v.destination || "Sem destino",
         status: v.status === "checked_out" ? "Em uso" : "Devolvido",
         endDate: v.checkin_date,
+        details: {
+          notes: v.notes,
+          destination: v.destination,
+          km_checkout: v.km_checkout,
+          km_checkin: v.km_checkin,
+          photo_checkout: v.photo_dashboard_checkout,
+          photo_checkin: v.photo_dashboard_checkin,
+          checked_out_by: v.checked_out_by?.full_name,
+          checked_in_by: v.checked_in_by?.full_name,
+        }
       });
     });
 
@@ -143,6 +189,12 @@ export default function UnifiedHistory({
         subtitle: duration,
         status: p.status === "open" ? "Aberto" : "Fechado",
         endDate: p.clock_out,
+        details: {
+          notes: p.notes,
+          construction_site: p.construction_site,
+          client_name: p.client_name,
+          entry_type: p.entry_type,
+        }
       });
     });
 
