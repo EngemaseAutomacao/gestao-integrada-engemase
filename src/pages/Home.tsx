@@ -104,7 +104,7 @@ function ModuleCard({ title, description, icon, to, disabled, comingSoon, varian
       )}
       
       {pendingCount !== undefined && pendingCount > 0 && (
-        <div className="absolute top-2 left-2 bg-yellow-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10 shadow-sm" title="Pendentes">
+        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-950 text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center z-10 shadow-sm border border-yellow-500/20" title="Pendentes">
           {pendingCount}
         </div>
       )}
