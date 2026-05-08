@@ -54,7 +54,13 @@ export default function UpdatePrompt() {
       if (isEditorPreview) return;
 
       console.log(`[Update] Verificando versão... (atual: ${APP_VERSION})`);
-      const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
+      const res = await fetch("/version.json?v=" + APP_VERSION + "&t=" + Date.now(), { 
+        cache: "no-store",
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!res.ok) return;
       const data = await res.json();
       console.log(`[Update] Versão no servidor: ${data.version}`);
