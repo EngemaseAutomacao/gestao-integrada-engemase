@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadDataUrlImage } from "@/lib/storageUtils";
 import { compressDataUrl } from "@/lib/imageCompression";
@@ -34,6 +34,7 @@ interface SelectedTool {
 }
 
 export default function MultiCheckout() {
+  const [searchParams] = useSearchParams();
   const { profile } = useAuth();
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("tools", []);
@@ -59,6 +60,27 @@ export default function MultiCheckout() {
   useEffect(() => {
     loadTools();
   }, []);
+
+  useEffect(() => {
+    if (tools.length > 0 && selectedTools.length === 0) {
+      const idsFromUrl = searchParams.get("ids");
+      if (idsFromUrl) {
+        const ids = idsFromUrl.split(",");
+        const initialSelected = ids.map(id => {
+          const tool = tools.find(t => t.id === id);
+          const toolTags = tool?.tag ? tool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+          return {
+            toolId: id,
+            tag: toolTags.length === 1 ? toolTags[0] : ""
+          };
+        }).filter(item => item.toolId);
+        
+        if (initialSelected.length > 0) {
+          setSelectedTools(initialSelected);
+        }
+      }
+    }
+  }, [tools, searchParams]);
 
   const loadTools = async () => {
     try {
