@@ -27,6 +27,7 @@ interface VehicleHistoryEntry {
   destination: string | null;
   km_checkout: number;
   km_checkin: number | null;
+  km_checkin_automatic: boolean | null;
   refueled: boolean | null;
   notes: string | null;
   photo_front_checkout: string | null;
@@ -128,6 +129,7 @@ export default function AdminVehicleHistory() {
           destination,
           km_checkout,
           km_checkin,
+          km_checkin_automatic,
           refueled,
           notes,
           photo_front_checkout,
