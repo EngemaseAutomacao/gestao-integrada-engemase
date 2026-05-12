@@ -526,7 +526,6 @@ export default function VehicleCheckin() {
               checkinMutation.isPending ||
               isEstimatingKm
             }
-            }
             className="flex-1"
           >
             {checkinMutation.isPending ? "Registrando..." : "Registrar Chegada"}
