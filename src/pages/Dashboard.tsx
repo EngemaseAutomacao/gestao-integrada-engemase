@@ -52,6 +52,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [checkoutSelectionMode, setCheckoutSelectionMode] = useState(false);
+  const [selectedToolsForCheckout, setSelectedToolsForCheckout] = useState<string[]>([]);
   const [selectedCheckouts, setSelectedCheckouts] = useState<Set<string>>(new Set());
   const [bulkReturnLoading, setBulkReturnLoading] = useState(false);
   const [extendDialogOpen, setExtendDialogOpen] = useState(false);
