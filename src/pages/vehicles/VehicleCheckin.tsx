@@ -234,22 +234,21 @@ export default function VehicleCheckin() {
               }
             } else {
               setShowManualKm(true);
-              updateData.km_checkin_automatic = false;
-              toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente se possível, ou prossiga para finalizar.");
-              return;
+              throw new Error("Não foi possível ler o hodômetro com precisão. Informe a quilometragem manualmente abaixo e clique em 'Registrar Chegada' novamente.");
             }
           }
-        } catch (e) {
+        } catch (e: any) {
           setIsEstimatingKm(false);
+          // If it's our controlled abort, rethrow so onError shows the message and DB stays untouched
+          if (e?.message?.includes("hodômetro")) throw e;
           console.error("Odometer estimation failed:", e);
           setShowManualKm(true);
           setOdometerResult({
             checkout_km: null, checkin_km: null, distance_km: null,
             confidence: "low",
-            notes: "Erro ao processar as fotos. Você pode informar a quilometragem manualmente ou finalizar a devolução agora.",
+            notes: "Erro ao processar as fotos. Informe a quilometragem manualmente abaixo e clique em 'Registrar Chegada' novamente.",
           });
-          toast.warning("Não foi possível estimar a quilometragem. Você pode finalizar mesmo assim.");
-          return;
+          throw new Error("Não foi possível estimar a quilometragem automaticamente. Informe manualmente abaixo e tente novamente.");
         }
       }
 
