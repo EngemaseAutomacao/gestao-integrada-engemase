@@ -9,6 +9,7 @@ export default function UpdatePrompt() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const notifiedRef = useRef(false);
+  const versionCheckCountRef = useRef(0);
 
   const showUpdateNotification = useCallback((newVersion: string) => {
     // Only notify once per version
@@ -52,6 +53,11 @@ export default function UpdatePrompt() {
         console.log(`[Update] Nova versão disponível: ${data.version} (atual: ${APP_VERSION})`);
         setUpdateAvailable(true);
         showUpdateNotification(data.version);
+      } else {
+        versionCheckCountRef.current += 1;
+        if (versionCheckCountRef.current % 5 === 0) {
+          console.log(`[Update] Versão verificada: ${APP_VERSION} (igual ao servidor). Total de checks: ${versionCheckCountRef.current}`);
+        }
       }
     } catch {
       // offline or error — ignore
