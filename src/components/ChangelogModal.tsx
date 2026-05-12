@@ -27,7 +27,6 @@ export function ChangelogModal() {
     if (!user || location.pathname === "/auth" || location.pathname === "/register") return;
     const seen = localStorage.getItem(SEEN_VERSION_KEY);
     if (seen !== APP_VERSION) {
-      console.log(`[Changelog] Exibindo modal para v${APP_VERSION} (visto anteriormente: ${seen})`);
       const timer = setTimeout(() => setOpen(true), 1500);
       return () => clearTimeout(timer);
     }
