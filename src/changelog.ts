@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.36.0",
+    date: "2026-05-12",
+    title: "Otimização de Performance e Limpeza de Interface",
+    description: "Melhorias significativas na velocidade de carregamento e remoção de componentes obsoletos.",
+    changes: [
+      { type: "improvement", text: "Remoção de rotas e componentes obsoletos do menu de ferramentas para simplificar o fluxo" },
+      { type: "improvement", text: "Otimização no carregamento de componentes pesados (lazy loading) para melhorar a percepção de velocidade" },
+      { type: "improvement", text: "Melhoria na navegação interna com redirecionamentos automáticos para dashboards consolidados" },
+      { type: "fix", text: "Ajuste nos links de retorno de funcionalidades para garantir consistência na navegação" },
+    ],
+  },
+  {
     version: "1.35.0",
     date: "2026-05-12",
     title: "Saída Múltipla e Seleção Aprimorada",
