@@ -8,13 +8,13 @@ const NOTIFIED_VERSION_KEY = "engemase_notified_version";
 export default function UpdatePrompt() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const notifiedRef = useRef(false);
+  const notifiedRef = useRef<string | null>(null);
 
   const showUpdateNotification = useCallback((newVersion: string) => {
     // Only notify once per version
     const alreadyNotified = localStorage.getItem(NOTIFIED_VERSION_KEY);
-    if (alreadyNotified === newVersion || notifiedRef.current) return;
-    notifiedRef.current = true;
+    if (alreadyNotified === newVersion || notifiedRef.current === newVersion) return;
+    notifiedRef.current = newVersion;
     localStorage.setItem(NOTIFIED_VERSION_KEY, newVersion);
 
     // Try Service Worker notification (works in background too)
