@@ -14,6 +14,7 @@ import { SignedImage } from "@/components/SignedImage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { ListSkeleton } from "@/components/PageSkeleton";
+import { cn } from "@/lib/utils";
 
 interface Tool {
   id: string;
