@@ -68,6 +68,7 @@ export default function MultiCheckout() {
         const ids = idsFromUrl.split(",");
         const initialSelected = ids.map(id => {
           const tool = tools.find(t => t.id === id);
+          // Only auto-select tag if there's exactly one
           const toolTags = tool?.tag ? tool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
           return {
             toolId: id,
