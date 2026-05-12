@@ -71,6 +71,12 @@ export default function FerramentasMenu() {
           to="/ferramentas/retirada"
         />
         <MenuCard
+          title="Saída Múltipla"
+          description="Retirar várias de uma vez"
+          icon={<Package className="w-6 h-6 text-primary" />}
+          to="/ferramentas/retirada-multipla"
+        />
+        <MenuCard
           title="Registrar Devolução"
           description="Devolver uma ferramenta"
           icon={<LogIn className="w-6 h-6 text-primary" />}

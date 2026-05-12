@@ -27,6 +27,7 @@ const Tools = lazy(() => import("./pages/Tools"));
 const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Checkin = lazy(() => import("./pages/Checkin"));
+const MultiCheckout = lazy(() => import("./pages/MultiCheckout"));
 const UserHistory = lazy(() => import("./pages/UserHistory"));
 const VehicleDashboard = lazy(() => import("./pages/vehicles/VehicleDashboard"));
 const VehicleCheckout = lazy(() => import("./pages/vehicles/VehicleCheckout"));
@@ -126,6 +127,7 @@ const App = () => (
                       <Route path="/ferramentas/lista" element={<Navigate to="/ferramentas/dashboard" replace />} />
                       <Route path="/ferramentas/:id" element={<ToolDetail />} />
                       <Route path="/ferramentas/retirada" element={<Checkout />} />
+                      <Route path="/ferramentas/retirada-multipla" element={<MultiCheckout />} />
                       <Route path="/ferramentas/devolucao" element={<Checkin />} />
                       <Route path="/ferramentas/historico" element={<Navigate to="/historico?tipo=tool" replace />} />
                       <Route path="/ferramentas/menu" element={<FerramentasMenu />} />
