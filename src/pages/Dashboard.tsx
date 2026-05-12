@@ -279,6 +279,20 @@ export default function Dashboard() {
     }
   };
 
+  const toggleToolSelection = (toolId: string) => {
+    setSelectedToolsForCheckout(prev => 
+      prev.includes(toolId) 
+        ? prev.filter(id => id !== toolId) 
+        : [...prev, toolId]
+    );
+  };
+
+  const handleMultiCheckout = () => {
+    if (selectedToolsForCheckout.length === 0) return;
+    const toolIds = selectedToolsForCheckout.join(",");
+    navigate(`/ferramentas/retirada-multipla?ids=${toolIds}`);
+  };
+
   if (loading) {
     return <DashboardSkeleton />;
   }
