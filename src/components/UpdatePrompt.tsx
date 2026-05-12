@@ -79,20 +79,41 @@ export default function UpdatePrompt() {
   }, [checkForUpdate]);
 
   const handleUpdate = async () => {
+    // Show loading state or feedback
+    localStorage.removeItem(NOTIFIED_VERSION_KEY);
+    
     // Clear all caches
     if ("caches" in window) {
-      const names = await caches.keys();
-      await Promise.all(names.map((n) => caches.delete(n)));
+      try {
+        const names = await caches.keys();
+        await Promise.all(names.map((n) => caches.delete(n)));
+        console.log("[Update] Caches cleared");
+      } catch (e) {
+        console.error("[Update] Error clearing caches", e);
+      }
     }
+    
     // Unregister service workers
     if ("serviceWorker" in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map((r) => r.unregister()));
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+        console.log("[Update] Service workers unregistered");
+      } catch (e) {
+        console.error("[Update] Error unregistering SW", e);
+      }
     }
-    // Force reload from server
-    window.location.reload();
+    
+    // Clear storage for a fresh start if needed, but carefully
+    // We don't want to log out the user, but we want to clear version markers
+    
+    // Force reload from server bypassing cache
+    window.location.href = window.location.origin + window.location.pathname + "?v=" + Date.now();
   };
 
+  // If we are in local development, we don't want to show the prompt constantly 
+  // since the version in version.json and APP_VERSION are usually the same
+  // But if you are testing the build locally, it might show up.
   if (!updateAvailable || dismissed) return null;
 
   return (
