@@ -548,9 +548,16 @@ export default function AdminVehicleHistory() {
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {entry.km_checkin !== null
-                            ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
-                            : "-"}
+                          <div className="flex flex-col">
+                            <span>
+                              {entry.km_checkin !== null
+                                ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
+                                : "-"}
+                            </span>
+                            {entry.checkin_date && entry.km_checkin_automatic === false && (
+                              <Badge variant="outline" className="text-[10px] h-4 px-1 w-fit mt-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
