@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, Search, ExternalLink, Filter, X } from "lucide-react";
+import { Package, Search, ExternalLink, Filter, X, CheckSquare, Square, ShoppingCart } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -50,6 +50,8 @@ export default function Tools() {
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [selectionMode, setSelectionMode] = useState(false);
 
   useEffect(() => {
     loadTools();
@@ -121,6 +123,20 @@ export default function Tools() {
     setCategoryFilter("all");
   };
 
+  const toggleToolSelection = (toolId: string) => {
+    setSelectedTools(prev => 
+      prev.includes(toolId) 
+        ? prev.filter(id => id !== toolId) 
+        : [...prev, toolId]
+    );
+  };
+
+  const handleMultiCheckout = () => {
+    if (selectedTools.length === 0) return;
+    const toolIds = selectedTools.join(",");
+    navigate(`/ferramentas/retirada-multipla?ids=${toolIds}`);
+  };
+
   const filteredTools = tools.filter((tool) => {
     const matchesSearch =
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -171,6 +187,23 @@ export default function Tools() {
                 className="pl-10"
               />
             </div>
+            <Button
+              variant={selectionMode ? "default" : "outline"}
+              size="icon"
+              onClick={() => {
+                setSelectionMode(!selectionMode);
+                if (selectionMode) setSelectedTools([]);
+              }}
+              className="relative"
+              title="Seleção Múltipla"
+            >
+              <CheckSquare className="w-4 h-4" />
+              {selectedTools.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] flex items-center justify-center rounded-full font-bold">
+                  {selectedTools.length}
+                </span>
+              )}
+            </Button>
             <Button
               variant={showFilters ? "default" : "outline"}
               size="icon"
@@ -253,16 +286,49 @@ export default function Tools() {
             </div>
           )}
 
+          {selectionMode && selectedTools.length > 0 && (
+            <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20 animate-in fade-in slide-in-from-top-2">
+              <span className="text-sm font-medium">
+                {selectedTools.length} {selectedTools.length === 1 ? "item selecionado" : "itens selecionados"}
+              </span>
+              <Button size="sm" onClick={handleMultiCheckout} className="gap-2">
+                <ShoppingCart className="w-4 h-4" />
+                Retirar Selecionados
+              </Button>
+            </div>
+          )}
+
           {filteredTools.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhuma ferramenta encontrada
             </p>
           ) : (
             <div className="flex-1 min-h-0 overflow-y-auto grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 content-start pr-1">
-              {filteredTools.map((tool) => (
-                <Card key={tool.id}>
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
+              {filteredTools.map((tool) => {
+                const isSelected = selectedTools.includes(tool.id);
+                const isAvailable = tool.quantity_available > 0;
+
+                return (
+                  <Card 
+                    key={tool.id} 
+                    className={`transition-all ${isSelected ? "border-primary ring-1 ring-primary" : ""} ${selectionMode && isAvailable ? "cursor-pointer" : ""}`}
+                    onClick={() => {
+                      if (selectionMode && isAvailable) {
+                        toggleToolSelection(tool.id);
+                      }
+                    }}
+                  >
+                    <CardContent className="p-4 relative">
+                      {selectionMode && isAvailable && (
+                        <div className="absolute top-2 right-2 z-10">
+                          {isSelected ? (
+                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
+                          ) : (
+                            <Square className="w-6 h-6 text-muted-foreground" />
+                          )}
+                        </div>
+                      )}
+                      <div className="space-y-3">
                       {tool.image_url && (
                         tool.image_url.startsWith("http") ? (
                           <img 
