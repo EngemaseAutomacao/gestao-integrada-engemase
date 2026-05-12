@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.34.1",
+    date: "2026-05-12",
+    title: "Correções no Controle de Veículos",
+    description: "Melhorias na precisão do hodômetro e flexibilidade na devolução de veículos.",
+    changes: [
+      { type: "fix", text: "Correção na falha do registro de quilometragem de saída (km_checkout) nas retiradas" },
+      { type: "improvement", text: "Permissão para finalizar devolução de veículos mesmo sem leitura automática do painel" },
+      { type: "improvement", text: "Indicador visual de 'Registro Manual' no histórico para quilometragens informadas pelo usuário" },
+      { type: "fix", text: "Atualização retroativa das quilometragens de saída zeradas nos últimos 30 dias" },
+    ],
+  },
+  {
     version: "1.34.0",
     date: "2026-05-08",
     title: "Melhorias no Fluxo de Devolução",
