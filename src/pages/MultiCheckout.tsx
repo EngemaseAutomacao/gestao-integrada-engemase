@@ -282,21 +282,27 @@ export default function MultiCheckout() {
                       </Select>
                     </div>
 
-                    {toolTags.length > 1 && (
-                      <div className="flex-1 space-y-2">
-                        <Label className="text-xs">TAG</Label>
-                        <Select value={selected.tag} onValueChange={(val) => updateTagRow(index, val)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione TAG..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {toolTags.map((tag) => (
+                    <div className="flex-1 space-y-2">
+                      <Label className="text-xs">TAG {toolTags.length > 1 ? "*" : ""}</Label>
+                      <Select 
+                        value={selected.tag} 
+                        onValueChange={(val) => updateTagRow(index, val)}
+                        disabled={!selected.toolId}
+                      >
+                        <SelectTrigger className={cn(!selected.tag && toolTags.length > 1 && "border-destructive/50 ring-destructive/20")}>
+                          <SelectValue placeholder={toolTags.length > 1 ? "Selecione a TAG..." : "Nenhuma TAG"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {toolTags.length > 0 ? (
+                            toolTags.map((tag) => (
                               <SelectItem key={tag} value={tag}>TAG {tag}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
+                            ))
+                          ) : (
+                            <SelectItem value="no-tag" disabled>Sem TAG cadastrada</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
                     <div className="flex items-end pb-1">
                       <Button 
