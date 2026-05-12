@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignedImage } from "@/components/SignedImage";
-import { Search, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet, Filter, X, ExternalLink, CheckSquare, Loader2 } from "lucide-react";
+import { Search, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet, Filter, X, ExternalLink, CheckSquare, Loader2, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
