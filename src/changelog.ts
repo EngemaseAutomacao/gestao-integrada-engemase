@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.34.4",
+    date: "2026-05-12",
+    title: "Correção Crítica na Devolução de Veículos",
+    description: "Resolvido problema onde veículos permaneciam vinculados ao usuário após registro de chegada.",
+    changes: [
+      { type: "fix", text: "Garantia de que a devolução seja processada corretamente no banco de dados mesmo em caso de falha na leitura da IA" },
+      { type: "improvement", text: "Nova validação: sistema agora exige confirmação manual do KM quando a IA não atinge a precisão necessária" },
+      { type: "fix", text: "Correção no alerta de sucesso: mensagem agora só aparece se o registro for efetivado com sucesso" },
+    ],
+  },
+  {
     version: "1.34.3",
     date: "2026-05-12",
     title: "Sistema 100% Operacional",
