@@ -424,6 +424,7 @@ export default function VehicleCheckin() {
                 previews={previews}
                 onPhotoChange={handlePhotoChange}
                 includeDashboard
+                vehicleType={vehicleType}
               />
 
               {/* Odometer estimation result */}
