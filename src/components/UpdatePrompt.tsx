@@ -51,6 +51,7 @@ export default function UpdatePrompt() {
       if (data.version && data.version !== APP_VERSION) {
         console.log(`[Update] Nova versão disponível: ${data.version} (atual: ${APP_VERSION})`);
         setUpdateAvailable(true);
+        setDismissed(false); // Reset dismissal when a NEW version is found (though checked against APP_VERSION)
         showUpdateNotification(data.version);
       }
     } catch {
