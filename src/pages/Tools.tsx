@@ -14,6 +14,7 @@ import { SignedImage } from "@/components/SignedImage";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { ListSkeleton } from "@/components/PageSkeleton";
+import { cn } from "@/lib/utils";
 
 interface Tool {
   id: string;
@@ -311,7 +312,11 @@ export default function Tools() {
                 return (
                   <Card 
                     key={tool.id} 
-                    className={`transition-all ${isSelected ? "border-primary ring-1 ring-primary" : ""} ${selectionMode && isAvailable ? "cursor-pointer" : ""}`}
+                    className={cn(
+                      "transition-all duration-200 relative", 
+                      isSelected ? "border-primary ring-1 ring-primary shadow-md" : "hover:bg-accent/50",
+                      selectionMode && isAvailable ? "cursor-pointer" : ""
+                    )}
                     onClick={() => {
                       if (selectionMode && isAvailable) {
                         toggleToolSelection(tool.id);
@@ -320,12 +325,17 @@ export default function Tools() {
                   >
                     <CardContent className="p-4 relative">
                       {selectionMode && isAvailable && (
-                        <div className="absolute top-2 right-2 z-10">
-                          {isSelected ? (
-                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
-                          ) : (
-                            <Square className="w-6 h-6 text-muted-foreground" />
-                          )}
+                        <div className="absolute top-3 right-3 z-10">
+                          <div className={cn(
+                            "w-6 h-6 rounded-md border-2 transition-all flex items-center justify-center",
+                            isSelected 
+                              ? "bg-primary border-primary shadow-sm" 
+                              : "border-muted-foreground/30 bg-background"
+                          )}>
+                            {isSelected && (
+                              <CheckSquare className="w-4 h-4 text-primary-foreground" />
+                            )}
+                          </div>
                         </div>
                       )}
                       <div className="space-y-3">
