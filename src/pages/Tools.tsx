@@ -328,16 +328,6 @@ export default function Tools() {
                           )}
                         </div>
                       )}
-                    <CardContent className="p-4 relative">
-                      {selectionMode && isAvailable && (
-                        <div className="absolute top-2 right-2 z-10">
-                          {isSelected ? (
-                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
-                          ) : (
-                            <Square className="w-6 h-6 text-muted-foreground" />
-                          )}
-                        </div>
-                      )}
                       <div className="space-y-3">
                         {tool.image_url && (
                           tool.image_url.startsWith("http") ? (
