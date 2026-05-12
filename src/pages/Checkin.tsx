@@ -84,7 +84,6 @@ export default function Checkin() {
           selected_tag,
           tools (name, tag)
         `)
-        .eq("user_id", profile!.id)
         .eq("status", "checked_out")
         .order("checkout_date", { ascending: false });
 
