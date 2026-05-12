@@ -519,6 +519,23 @@ export default function Dashboard() {
               />
             </div>
             <Button
+              variant={checkoutSelectionMode ? "default" : "outline"}
+              size="icon"
+              onClick={() => {
+                setCheckoutSelectionMode(!checkoutSelectionMode);
+                if (checkoutSelectionMode) setSelectedToolsForCheckout([]);
+              }}
+              className="relative"
+              title="Seleção Múltipla para Saída"
+            >
+              <CheckSquare className="w-4 h-4" />
+              {selectedToolsForCheckout.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] flex items-center justify-center rounded-full font-bold">
+                  {selectedToolsForCheckout.length}
+                </span>
+              )}
+            </Button>
+            <Button
               variant={showFilters ? "default" : "outline"}
               size="icon"
               onClick={() => setShowFilters(!showFilters)}
@@ -532,6 +549,18 @@ export default function Dashboard() {
               )}
             </Button>
           </div>
+
+          {checkoutSelectionMode && selectedToolsForCheckout.length > 0 && (
+            <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20 animate-in fade-in slide-in-from-top-2">
+              <span className="text-sm font-medium">
+                {selectedToolsForCheckout.length} {selectedToolsForCheckout.length === 1 ? "item selecionado" : "itens selecionados"}
+              </span>
+              <Button size="sm" onClick={handleMultiCheckout} className="gap-2">
+                <ShoppingCart className="w-4 h-4" />
+                Retirar Selecionados
+              </Button>
+            </div>
+          )}
 
           {showFilters && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 p-4 bg-muted/50 rounded-lg border animate-fade-in">
