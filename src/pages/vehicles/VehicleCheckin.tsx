@@ -138,7 +138,14 @@ export default function VehicleCheckin() {
           updateData.charges_during_use = parseInt(chargesDuringUse) || 0;
         }
       } else {
-        updateData.km_checkin = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+        const checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+        const km_checkout = currentCheckoutData?.km_checkout || 0;
+
+        if (checkin_km <= km_checkout) {
+          throw new Error(`O KM de chegada (${checkin_km}) deve ser maior que o KM de saída (${km_checkout}).`);
+        }
+
+        updateData.km_checkin = checkin_km;
         updateData.refueled = refueled === "yes";
       }
 

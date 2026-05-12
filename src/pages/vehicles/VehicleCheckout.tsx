@@ -137,13 +137,20 @@ export default function VehicleCheckout() {
       }
       const { data, error } = await supabase
         .from("vehicles")
-        .select("*")
+        .select("*, last_km:vehicle_checkouts(km_checkin)")
         .eq("status", "available")
         .order("name");
 
       if (error) throw error;
-      if (data) saveVehiclesCache(data);
-      return data;
+      
+      // Post-process to get the latest checkin km for each vehicle
+      const processedData = data?.map((v: any) => ({
+        ...v,
+        last_km: v.last_km?.sort((a: any, b: any) => b.km_checkin - a.km_checkin)[0]?.km_checkin || 0
+      }));
+
+      if (processedData) saveVehiclesCache(processedData);
+      return processedData;
     }
   });
 
@@ -193,7 +200,7 @@ export default function VehicleCheckout() {
         vehicle_id: selectedVehicle,
         user_id: user.id,
         checked_out_by: user.id,
-        km_checkout: 0,
+        km_checkout: selectedVehicleData?.last_km || 0,
         destination: finalDestination,
         notes,
         status: "checked_out",
