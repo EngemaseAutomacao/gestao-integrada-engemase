@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.35.0",
+    date: "2026-05-12",
+    title: "Saída Múltipla e Seleção Aprimorada",
+    description: "Implementação da retirada múltipla de ferramentas e melhorias na interface de seleção e gestão de TAGs.",
+    changes: [
+      { type: "feature", text: "Nova funcionalidade de 'Saída Múltipla' permitindo retirar várias ferramentas para a mesma obra de uma só vez" },
+      { type: "improvement", text: "Interface de seleção por checkbox aprimorada com maior visibilidade e feedback visual no catálogo" },
+      { type: "improvement", text: "Seleção obrigatória de TAG na saída múltipla para ferramentas com múltiplos identificadores" },
+      { type: "improvement", text: "Botão 'Selecionar Vários' adicionado ao painel geral e catálogo para facilitar o acesso à retirada em lote" },
+      { type: "fix", text: "Correção no link do catálogo para garantir acesso correto às funcionalidades de seleção" },
+    ],
+  },
+  {
     version: "1.34.0",
     date: "2026-05-08",
     title: "Melhorias no Fluxo de Devolução",
