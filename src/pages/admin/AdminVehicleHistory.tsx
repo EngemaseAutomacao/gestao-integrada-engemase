@@ -618,8 +618,11 @@ export default function AdminVehicleHistory() {
                                             : "Não devolvido"}
                                         </p>
                                         {selectedEntry.km_checkin !== null && (
-                                          <p className="text-xs text-muted-foreground">
+                                          <p className="text-xs text-muted-foreground flex items-center gap-2">
                                             KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
+                                            {selectedEntry.km_checkin_automatic === false && (
+                                              <Badge variant="outline" className="text-[10px] h-4 px-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
+                                            )}
                                           </p>
                                         )}
                                       </div>
