@@ -124,7 +124,7 @@ const App = () => (
                       {/* Ferramentas Routes */}
                       <Route path="/ferramentas" element={<Navigate to="/ferramentas/dashboard" replace />} />
                       <Route path="/ferramentas/dashboard" element={<Dashboard />} />
-                      <Route path="/ferramentas/lista" element={<Navigate to="/ferramentas/dashboard" replace />} />
+                      <Route path="/ferramentas/lista" element={<Tools />} />
                       <Route path="/ferramentas/:id" element={<ToolDetail />} />
                       <Route path="/ferramentas/retirada" element={<Checkout />} />
                       <Route path="/ferramentas/retirada-multipla" element={<MultiCheckout />} />

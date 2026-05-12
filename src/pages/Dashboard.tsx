@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignedImage } from "@/components/SignedImage";
-import { Search, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet, Filter, X, ExternalLink, CheckSquare, Loader2 } from "lucide-react";
+import { Search, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet, Filter, X, ExternalLink, CheckSquare, Loader2, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
@@ -52,6 +52,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [pendingExpanded, setPendingExpanded] = useState(false);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [checkoutSelectionMode, setCheckoutSelectionMode] = useState(false);
+  const [selectedToolsForCheckout, setSelectedToolsForCheckout] = useState<string[]>([]);
   const [selectedCheckouts, setSelectedCheckouts] = useState<Set<string>>(new Set());
   const [bulkReturnLoading, setBulkReturnLoading] = useState(false);
   const [extendDialogOpen, setExtendDialogOpen] = useState(false);
@@ -275,6 +277,20 @@ export default function Dashboard() {
     } finally {
       setBulkReturnLoading(false);
     }
+  };
+
+  const toggleToolSelection = (toolId: string) => {
+    setSelectedToolsForCheckout(prev => 
+      prev.includes(toolId) 
+        ? prev.filter(id => id !== toolId) 
+        : [...prev, toolId]
+    );
+  };
+
+  const handleMultiCheckout = () => {
+    if (selectedToolsForCheckout.length === 0) return;
+    const toolIds = selectedToolsForCheckout.join(",");
+    navigate(`/ferramentas/retirada-multipla?ids=${toolIds}`);
   };
 
   if (loading) {
@@ -503,6 +519,23 @@ export default function Dashboard() {
               />
             </div>
             <Button
+              variant={checkoutSelectionMode ? "default" : "outline"}
+              onClick={() => {
+                setCheckoutSelectionMode(!checkoutSelectionMode);
+                if (checkoutSelectionMode) setSelectedToolsForCheckout([]);
+              }}
+              className="relative gap-2"
+              title="Seleção Múltipla para Saída"
+            >
+              <CheckSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Selecionar Vários</span>
+              {selectedToolsForCheckout.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] flex items-center justify-center rounded-full font-bold">
+                  {selectedToolsForCheckout.length}
+                </span>
+              )}
+            </Button>
+            <Button
               variant={showFilters ? "default" : "outline"}
               size="icon"
               onClick={() => setShowFilters(!showFilters)}
@@ -516,6 +549,18 @@ export default function Dashboard() {
               )}
             </Button>
           </div>
+
+          {checkoutSelectionMode && selectedToolsForCheckout.length > 0 && (
+            <div className="flex items-center justify-between p-3 bg-primary/10 rounded-lg border border-primary/20 animate-in fade-in slide-in-from-top-2">
+              <span className="text-sm font-medium">
+                {selectedToolsForCheckout.length} {selectedToolsForCheckout.length === 1 ? "item selecionado" : "itens selecionados"}
+              </span>
+              <Button size="sm" onClick={handleMultiCheckout} className="gap-2">
+                <ShoppingCart className="w-4 h-4" />
+                Retirar Selecionados
+              </Button>
+            </div>
+          )}
 
           {showFilters && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 p-4 bg-muted/50 rounded-lg border animate-fade-in">
@@ -593,14 +638,44 @@ export default function Dashboard() {
                   ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
                   : 0;
                 return (
-                  <Card key={tool.id} className={cn("cursor-pointer hover:bg-accent/50 transition-colors", isOverdue && "border-destructive/50")} onClick={() => navigate(`/ferramentas/${tool.id}`)}>
+                  <Card 
+                    key={tool.id} 
+                    className={cn(
+                      "cursor-pointer hover:bg-accent/50 transition-colors relative", 
+                      isOverdue && "border-destructive/50",
+                      selectedToolsForCheckout.includes(tool.id) && "border-primary ring-1 ring-primary"
+                    )} 
+                    onClick={() => {
+                      if (checkoutSelectionMode && tool.quantity_available > 0) {
+                        toggleToolSelection(tool.id);
+                      } else {
+                        navigate(`/ferramentas/${tool.id}`);
+                      }
+                    }}
+                  >
                     <CardContent className="p-3 sm:p-4">
+                      {checkoutSelectionMode && tool.quantity_available > 0 && (
+                        <div className="absolute top-2 right-2 z-10">
+                          {selectedToolsForCheckout.includes(tool.id) ? (
+                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
+                          ) : (
+                            <div className="w-6 h-6 border-2 border-muted-foreground rounded" />
+                          )}
+                        </div>
+                      )}
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                         <div className="flex gap-3 flex-1 min-w-0">
                           {tool.image_url && (
                             <div
                               className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted"
-                              onClick={(e) => { e.stopPropagation(); setEnlargedImage(tool.image_url); }}
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                if (checkoutSelectionMode && tool.quantity_available > 0) {
+                                  toggleToolSelection(tool.id);
+                                } else {
+                                  setEnlargedImage(tool.image_url); 
+                                }
+                              }}
                             >
                               {tool.image_url.startsWith("http") ? (
                                 <img src={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
