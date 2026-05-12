@@ -18,6 +18,7 @@ import { ArrowLeft, Loader2, CheckCircle, Trash2, Plus } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
 import { Badge } from "@/components/ui/badge";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
+import { cn } from "@/lib/utils";
 
 interface Tool {
   id: string;
