@@ -637,13 +637,15 @@ export default function Dashboard() {
                 const overdueDays = isOverdue && userCheckout?.estimated_return_date
                   ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
                   : 0;
+                const toolTags = tool.tag ? tool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
                 return (
                   <Card 
                     key={tool.id} 
                     className={cn(
-                      "cursor-pointer hover:bg-accent/50 transition-colors relative", 
+                      "transition-all duration-200 relative", 
                       isOverdue && "border-destructive/50",
-                      selectedToolsForCheckout.includes(tool.id) && "border-primary ring-1 ring-primary"
+                      selectedToolsForCheckout.includes(tool.id) ? "border-primary ring-1 ring-primary shadow-md" : "hover:bg-accent/50",
+                      checkoutSelectionMode && tool.quantity_available > 0 ? "cursor-pointer" : ""
                     )} 
                     onClick={() => {
                       if (checkoutSelectionMode && tool.quantity_available > 0) {
@@ -655,12 +657,17 @@ export default function Dashboard() {
                   >
                     <CardContent className="p-3 sm:p-4">
                       {checkoutSelectionMode && tool.quantity_available > 0 && (
-                        <div className="absolute top-2 right-2 z-10">
-                          {selectedToolsForCheckout.includes(tool.id) ? (
-                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
-                          ) : (
-                            <div className="w-6 h-6 border-2 border-muted-foreground rounded" />
-                          )}
+                        <div className="absolute top-3 right-3 z-10">
+                          <div className={cn(
+                            "w-6 h-6 rounded-md border-2 transition-all flex items-center justify-center",
+                            selectedToolsForCheckout.includes(tool.id) 
+                              ? "bg-primary border-primary shadow-sm" 
+                              : "border-muted-foreground/30 bg-background"
+                          )}>
+                            {selectedToolsForCheckout.includes(tool.id) && (
+                              <CheckSquare className="w-4 h-4 text-primary-foreground" />
+                            )}
+                          </div>
                         </div>
                       )}
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
