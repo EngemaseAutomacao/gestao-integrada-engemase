@@ -638,14 +638,44 @@ export default function Dashboard() {
                   ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
                   : 0;
                 return (
-                  <Card key={tool.id} className={cn("cursor-pointer hover:bg-accent/50 transition-colors", isOverdue && "border-destructive/50")} onClick={() => navigate(`/ferramentas/${tool.id}`)}>
+                  <Card 
+                    key={tool.id} 
+                    className={cn(
+                      "cursor-pointer hover:bg-accent/50 transition-colors relative", 
+                      isOverdue && "border-destructive/50",
+                      selectedToolsForCheckout.includes(tool.id) && "border-primary ring-1 ring-primary"
+                    )} 
+                    onClick={() => {
+                      if (checkoutSelectionMode && tool.quantity_available > 0) {
+                        toggleToolSelection(tool.id);
+                      } else {
+                        navigate(`/ferramentas/${tool.id}`);
+                      }
+                    }}
+                  >
                     <CardContent className="p-3 sm:p-4">
+                      {checkoutSelectionMode && tool.quantity_available > 0 && (
+                        <div className="absolute top-2 right-2 z-10">
+                          {selectedToolsForCheckout.includes(tool.id) ? (
+                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
+                          ) : (
+                            <div className="w-6 h-6 border-2 border-muted-foreground rounded" />
+                          )}
+                        </div>
+                      )}
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                         <div className="flex gap-3 flex-1 min-w-0">
                           {tool.image_url && (
                             <div
                               className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted"
-                              onClick={(e) => { e.stopPropagation(); setEnlargedImage(tool.image_url); }}
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                if (checkoutSelectionMode && tool.quantity_available > 0) {
+                                  toggleToolSelection(tool.id);
+                                } else {
+                                  setEnlargedImage(tool.image_url); 
+                                }
+                              }}
                             >
                               {tool.image_url.startsWith("http") ? (
                                 <img src={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
