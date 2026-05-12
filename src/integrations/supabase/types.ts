@@ -967,6 +967,7 @@ export type Database = {
           id: string
           is_outside_city: boolean | null
           km_checkin: number | null
+          km_checkin_automatic: boolean | null
           km_checkout: number
           notes: string | null
           origin_address: string | null
@@ -1014,6 +1015,7 @@ export type Database = {
           id?: string
           is_outside_city?: boolean | null
           km_checkin?: number | null
+          km_checkin_automatic?: boolean | null
           km_checkout: number
           notes?: string | null
           origin_address?: string | null
@@ -1061,6 +1063,7 @@ export type Database = {
           id?: string
           is_outside_city?: boolean | null
           km_checkin?: number | null
+          km_checkin_automatic?: boolean | null
           km_checkout?: number
           notes?: string | null
           origin_address?: string | null

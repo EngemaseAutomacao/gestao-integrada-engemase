@@ -131,6 +131,7 @@ export default function VehicleCheckin() {
         checkin_date: new Date().toISOString(),
         checked_in_by: user.id,
         notes: notes || undefined,
+        km_checkin_automatic: false,
       };
 
       if (isPlatform) {
@@ -138,15 +139,23 @@ export default function VehicleCheckin() {
           updateData.charges_during_use = parseInt(chargesDuringUse) || 0;
         }
       } else {
-        const checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
         const km_checkout = currentCheckoutData?.km_checkout || 0;
+        let checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+        
+        // If manual and no value provided, use checkout km as placeholder
+        if (showManualKm && !manualKm) {
+          checkin_km = km_checkout;
+        }
 
-        if (checkin_km <= km_checkout) {
+        // Only validate if not manual (AI result should be valid)
+        // If manual, we allow it to be the same as checkout if they don't know it yet
+        if (!showManualKm && checkin_km <= km_checkout && checkin_km !== 0) {
           throw new Error(`O KM de chegada (${checkin_km}) deve ser maior que o KM de saída (${km_checkout}).`);
         }
 
         updateData.km_checkin = checkin_km;
         updateData.refueled = refueled === "yes";
+        updateData.km_checkin_automatic = !!(odometerResult && !showManualKm);
       }
 
       if (!isOnline) {
@@ -219,12 +228,14 @@ export default function VehicleCheckin() {
 
             if (result.distance_km !== null && result.confidence !== "low") {
               updateData.km_checkin = result.checkin_km || 0;
+              updateData.km_checkin_automatic = true;
               if (result.checkout_km && result.checkout_km > 0 && currentCheckoutData.km_checkout === 0) {
                 updateData.km_checkout = result.checkout_km;
               }
             } else {
               setShowManualKm(true);
-              toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente.");
+              updateData.km_checkin_automatic = false;
+              toast.warning("Não foi possível ler o hodômetro com precisão. Informe manualmente se possível, ou prossiga para finalizar.");
               return;
             }
           }
@@ -235,15 +246,16 @@ export default function VehicleCheckin() {
           setOdometerResult({
             checkout_km: null, checkin_km: null, distance_km: null,
             confidence: "low",
-            notes: "Erro ao processar as fotos. Informe a quilometragem manualmente.",
+            notes: "Erro ao processar as fotos. Você pode informar a quilometragem manualmente ou finalizar a devolução agora.",
           });
-          toast.warning("Não foi possível estimar a quilometragem. Informe manualmente.");
+          toast.warning("Não foi possível estimar a quilometragem. Você pode finalizar mesmo assim.");
           return;
         }
       }
 
       if (!isPlatform && manualKm) {
         updateData.km_checkin = parseInt(manualKm);
+        updateData.km_checkin_automatic = false;
       }
 
       // Apply photo URLs to update payload
@@ -487,7 +499,7 @@ export default function VehicleCheckin() {
                     min={0}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Informe a quilometragem atual mostrada no painel do veículo
+                    Informe a quilometragem atual mostrada no painel. Se não souber agora, pode deixar em branco e o sistema usará o KM de saída.
                   </p>
                 </div>
               )}
@@ -512,8 +524,7 @@ export default function VehicleCheckin() {
               (isOnline && !allPhotos) || 
               refueled === null || 
               checkinMutation.isPending ||
-              isEstimatingKm ||
-              (showManualKm && !manualKm)
+              isEstimatingKm
             }
             className="flex-1"
           >

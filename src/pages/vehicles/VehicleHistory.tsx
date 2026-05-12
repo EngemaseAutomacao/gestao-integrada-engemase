@@ -21,6 +21,7 @@ interface VehicleHistoryEntry {
   destination: string | null;
   km_checkout: number;
   km_checkin: number | null;
+  km_checkin_automatic: boolean | null;
   refueled: boolean | null;
   notes: string | null;
   vehicles: {
@@ -62,6 +63,7 @@ export default function VehicleHistory() {
           destination,
           km_checkout,
           km_checkin,
+          km_checkin_automatic,
           refueled,
           notes,
           vehicles (name, plate),
@@ -183,7 +185,12 @@ export default function VehicleHistory() {
                           : "-"}
                       </TableCell>
                       <TableCell>
-                        {entry.km_checkin ? entry.km_checkin.toLocaleString() : "-"}
+                        <div className="flex flex-col">
+                          <span>{entry.km_checkin ? entry.km_checkin.toLocaleString() : "-"}</span>
+                          {entry.checkin_date && entry.km_checkin_automatic === false && (
+                            <Badge variant="outline" className="text-[10px] h-4 px-1 w-fit mt-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {entry.refueled === null ? "-" : entry.refueled ? "Sim" : "Não"}

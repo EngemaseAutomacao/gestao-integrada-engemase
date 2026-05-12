@@ -27,6 +27,7 @@ interface VehicleHistoryEntry {
   destination: string | null;
   km_checkout: number;
   km_checkin: number | null;
+  km_checkin_automatic: boolean | null;
   refueled: boolean | null;
   notes: string | null;
   photo_front_checkout: string | null;
@@ -128,6 +129,7 @@ export default function AdminVehicleHistory() {
           destination,
           km_checkout,
           km_checkin,
+          km_checkin_automatic,
           refueled,
           notes,
           photo_front_checkout,
@@ -546,9 +548,16 @@ export default function AdminVehicleHistory() {
                             : "-"}
                         </TableCell>
                         <TableCell>
-                          {entry.km_checkin !== null
-                            ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
-                            : "-"}
+                          <div className="flex flex-col">
+                            <span>
+                              {entry.km_checkin !== null
+                                ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
+                                : "-"}
+                            </span>
+                            {entry.checkin_date && entry.km_checkin_automatic === false && (
+                              <Badge variant="outline" className="text-[10px] h-4 px-1 w-fit mt-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
@@ -609,8 +618,11 @@ export default function AdminVehicleHistory() {
                                             : "Não devolvido"}
                                         </p>
                                         {selectedEntry.km_checkin !== null && (
-                                          <p className="text-xs text-muted-foreground">
+                                          <p className="text-xs text-muted-foreground flex items-center gap-2">
                                             KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
+                                            {selectedEntry.km_checkin_automatic === false && (
+                                              <Badge variant="outline" className="text-[10px] h-4 px-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
+                                            )}
                                           </p>
                                         )}
                                       </div>
