@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.34.3",
+    date: "2026-05-12",
+    title: "Sistema 100% Operacional",
+    description: "Correção crítica na atualização de status de veículos e sincronização de dados.",
+    changes: [
+      { type: "fix", text: "Correção no trigger de disponibilidade: veículos agora retornam corretamente para 'Disponível' após a devolução" },
+      { type: "fix", text: "Liberação de veículos que estavam presos em nome de usuários devido a falhas na atualização de status" },
+      { type: "improvement", text: "Otimização na lógica de validação de quilometragem para garantir consistência no banco de dados" },
+      { type: "improvement", text: "Melhoria na detecção de novas versões para todos os dispositivos" },
+    ],
+  },
+  {
     version: "1.34.1",
     date: "2026-05-12",
     title: "Correções no Controle de Veículos",
