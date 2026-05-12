@@ -520,15 +520,15 @@ export default function Dashboard() {
             </div>
             <Button
               variant={checkoutSelectionMode ? "default" : "outline"}
-              size="icon"
               onClick={() => {
                 setCheckoutSelectionMode(!checkoutSelectionMode);
                 if (checkoutSelectionMode) setSelectedToolsForCheckout([]);
               }}
-              className="relative"
+              className="relative gap-2"
               title="Seleção Múltipla para Saída"
             >
               <CheckSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Selecionar Vários</span>
               {selectedToolsForCheckout.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-[10px] flex items-center justify-center rounded-full font-bold">
                   {selectedToolsForCheckout.length}
