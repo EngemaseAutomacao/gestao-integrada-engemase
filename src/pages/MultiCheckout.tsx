@@ -236,7 +236,7 @@ export default function MultiCheckout() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <Button variant="ghost" onClick={() => navigate("/ferramentas/menu")} className="gap-2">
+      <Button variant="ghost" onClick={() => navigate("/ferramentas")} className="gap-2">
         <ArrowLeft className="w-4 h-4" />
         Voltar
       </Button>
@@ -398,7 +398,7 @@ export default function MultiCheckout() {
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Confirmar Saída de {selectedTools.length} {selectedTools.length === 1 ? "Ferramenta" : "Ferramentas"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate("/ferramentas/menu")}>
+              <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")}>
                 Cancelar
               </Button>
             </div>

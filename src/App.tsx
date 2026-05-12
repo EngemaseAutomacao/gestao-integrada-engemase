@@ -20,7 +20,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Register = lazy(() => import("./pages/Register"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 const Home = lazy(() => import("./pages/Home"));
-const FerramentasMenu = lazy(() => import("./pages/FerramentasMenu"));
+
 const VeiculosMenu = lazy(() => import("./pages/VeiculosMenu"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Tools = lazy(() => import("./pages/Tools"));
@@ -130,7 +130,7 @@ const App = () => (
                       <Route path="/ferramentas/retirada-multipla" element={<MultiCheckout />} />
                       <Route path="/ferramentas/devolucao" element={<Checkin />} />
                       <Route path="/ferramentas/historico" element={<Navigate to="/historico?tipo=tool" replace />} />
-                      <Route path="/ferramentas/menu" element={<FerramentasMenu />} />
+                      <Route path="/ferramentas/menu" element={<Navigate to="/ferramentas/dashboard" replace />} />
                       {/* Veículos Routes */}
                       <Route path="/veiculos" element={<Navigate to="/veiculos/dashboard" replace />} />
                       <Route path="/veiculos/dashboard" element={<VehicleDashboard />} />
