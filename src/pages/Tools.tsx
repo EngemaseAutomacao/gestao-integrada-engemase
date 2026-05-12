@@ -328,78 +328,99 @@ export default function Tools() {
                           )}
                         </div>
                       )}
-                      <div className="space-y-3">
-                      {tool.image_url && (
-                        tool.image_url.startsWith("http") ? (
-                          <img 
-                            src={tool.image_url} 
-                            alt={tool.name}
-                            className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setEnlargedImage(tool.image_url)}
-                          />
-                        ) : (
-                          <SignedImage
-                            storagePath={tool.image_url}
-                            alt={tool.name}
-                            className="w-full h-48 object-cover rounded-lg"
-                          />
-                        )
-                      )}
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg capitalize">{tool.name.toLowerCase()}</h3>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            {tool.tag && (
-                              <p>TAG: {tool.tag}</p>
-                            )}
-                            {tool.brand && (
-                              <p>Marca: {tool.brand}</p>
-                            )}
-                            {tool.condition && (
-                              <p>Condição: {conditionLabels[tool.condition] || tool.condition}</p>
-                            )}
-                          </div>
-                        </div>
-                        <Package className="w-5 h-5 text-primary shrink-0" />
-                      </div>
-
-                      {tool.description && (
-                        <p className="text-sm text-muted-foreground">
-                          {tool.description}
-                        </p>
-                      )}
-
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={tool.quantity_available > 0 ? "default" : "destructive"}
-                            className={tool.quantity_available > 0 ? "bg-success" : ""}
-                          >
-                            {tool.quantity_available > 0 ? "Disponível" : "Indisponível"}
-                          </Badge>
-                          {tool.employee_only && (
-                            <Badge variant="outline" className="text-xs">
-                              Apenas Funcionários
-                            </Badge>
+                    <CardContent className="p-4 relative">
+                      {selectionMode && isAvailable && (
+                        <div className="absolute top-2 right-2 z-10">
+                          {isSelected ? (
+                            <CheckSquare className="w-6 h-6 text-primary fill-primary/10" />
+                          ) : (
+                            <Square className="w-6 h-6 text-muted-foreground" />
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">
-                            {tool.quantity_available}/{tool.quantity_total}
-                          </span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => navigate(`/tools/${tool.id}`)}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
+                      )}
+                      <div className="space-y-3">
+                        {tool.image_url && (
+                          tool.image_url.startsWith("http") ? (
+                            <img 
+                              src={tool.image_url} 
+                              alt={tool.name}
+                              className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={(e) => {
+                                if (selectionMode) {
+                                  e.stopPropagation();
+                                  toggleToolSelection(tool.id);
+                                } else {
+                                  setEnlargedImage(tool.image_url);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <SignedImage
+                              storagePath={tool.image_url}
+                              alt={tool.name}
+                              className="w-full h-48 object-cover rounded-lg"
+                            />
+                          )
+                        )}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg capitalize">{tool.name.toLowerCase()}</h3>
+                            <div className="text-sm text-muted-foreground space-y-1">
+                              {tool.tag && (
+                                <p>TAG: {tool.tag}</p>
+                              )}
+                              {tool.brand && (
+                                <p>Marca: {tool.brand}</p>
+                              )}
+                              {tool.condition && (
+                                <p>Condição: {conditionLabels[tool.condition] || tool.condition}</p>
+                              )}
+                            </div>
+                          </div>
+                          <Package className="w-5 h-5 text-primary shrink-0" />
+                        </div>
+
+                        {tool.description && (
+                          <p className="text-sm text-muted-foreground">
+                            {tool.description}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between pt-2 border-t">
+                          <div className="flex items-center gap-2">
+                            <Badge
+                              variant={tool.quantity_available > 0 ? "default" : "destructive"}
+                              className={tool.quantity_available > 0 ? "bg-success" : ""}
+                            >
+                              {tool.quantity_available > 0 ? "Disponível" : "Indisponível"}
+                            </Badge>
+                            {tool.employee_only && (
+                              <Badge variant="outline" className="text-xs">
+                                Apenas Funcionários
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">
+                              {tool.quantity_available}/{tool.quantity_total}
+                            </span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/ferramentas/${tool.id}`);
+                              }}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </CardContent>
