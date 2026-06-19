@@ -182,6 +182,14 @@ export default function PontoHistory() {
             <SelectItem value="30d">Últimos 30 dias</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-2 ml-auto">
+          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1.5">
+            <FileText className="w-4 h-4" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1.5">
+            <FileSpreadsheet className="w-4 h-4" /> Excel
+          </Button>
+        </div>
       </div>
 
       {/* Hours Summary */}
