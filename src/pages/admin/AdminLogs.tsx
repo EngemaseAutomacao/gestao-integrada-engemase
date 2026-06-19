@@ -24,11 +24,16 @@ interface SystemLog {
 const ACTION_LABELS: Record<string, string> = {
   checkout: "Retirada",
   checkin: "Devolução",
+  manual_checkout_by_admin: "Retirada Manual (Admin)",
+  manual_checkin_by_admin: "Devolução Manual (Admin)",
   user_registered: "Novo Cadastro",
   user_approved: "Usuário Aprovado",
   issue_reported: "Problema Reportado",
   issue_resolved: "Problema Resolvido",
 };
+
+const MANUAL_ACTIONS = new Set(["manual_checkout_by_admin", "manual_checkin_by_admin"]);
+
 
 const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
