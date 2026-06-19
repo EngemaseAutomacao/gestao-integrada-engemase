@@ -11,6 +11,24 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.36.0",
+    date: "2026-06-19",
+    title: "Retirada/Devolução Manual pelo Admin e Navegação Mais Fluida",
+    description: "Administradores agora podem retirar e devolver ferramentas e veículos em nome de outros usuários, com registro completo. Navegação geral mais rápida e suave.",
+    changes: [
+      { type: "feature", text: "Admin pode registrar retirada de ferramentas e veículos em nome de qualquer usuário aprovado" },
+      { type: "feature", text: "Admin pode dar baixa (devolução) de ferramentas e veículos de qualquer usuário" },
+      { type: "feature", text: "Justificativa obrigatória (mínimo 5 caracteres) ao agir em nome de outro usuário" },
+      { type: "feature", text: "Notificação automática ao responsável quando o admin retira ou devolve em seu nome" },
+      { type: "feature", text: "Novo filtro \"Apenas Ações Manuais (Admin)\" no Painel de Logs, com badge âmbar de destaque" },
+      { type: "improvement", text: "Badge \"Atribuído pelo admin\" nos cards de ferramentas para identificar retiradas manuais" },
+      { type: "improvement", text: "Navegação entre páginas mais rápida com pré-carregamento das telas principais" },
+      { type: "improvement", text: "Transições suaves entre rotas e cache estendido para reduzir esperas" },
+      { type: "improvement", text: "Carregamento de imagens otimizado em históricos e galerias" },
+    ],
+  },
+
+  {
     version: "1.35.0",
     date: "2026-06-19",
     title: "Sistema Mais Rápido e Atualizado em Tempo Real",
