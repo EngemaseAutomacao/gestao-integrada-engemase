@@ -584,8 +584,10 @@ export default function Dashboard() {
               </p>
             ) : (
               filteredTools.map((tool) => {
-                const userCheckout = pendingCheckouts?.find((c: any) => c.tool_id === tool.id);
-                const userHasTool = Boolean(userCheckout);
+                const userCheckouts = pendingCheckouts?.filter((c: any) => c.tool_id === tool.id) || [];
+                const userCheckout = userCheckouts[0];
+                const userHasTool = userCheckouts.length > 0;
+                const userTags = new Set(userCheckouts.map((c: any) => (c.selected_tag || "").trim()).filter(Boolean));
                 const isOverdue = Boolean(
                   userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
                 );
