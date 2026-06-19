@@ -130,15 +130,30 @@ export default function Checkin() {
     return uploadDataUrlImage(compressed, type, "ferramentas", "entradas");
   };
 
+  const selectedCheckout = checkouts.find(c => c.id === selectedCheckoutId);
+  const isAdminActingForOther = !!(isAdmin && selectedCheckout && selectedCheckout.user_id !== profile?.id);
+
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedCheckoutId) {
       toast.error("Selecione uma retirada");
       return;
     }
 
-    // Photo is optional for checkin
+    if (isAdminActingForOther && notes.trim().length < 5) {
+      toast.error("Justificativa obrigatória", {
+        description: "Informe uma observação (mín. 5 caracteres) ao devolver em nome de outro usuário.",
+      });
+      return;
+    }
+
+    if (isAdminActingForOther) {
+      const confirmed = window.confirm(
+        `Confirmar devolução de "${selectedCheckout!.tools.name}" em nome de ${selectedCheckout!.profiles?.full_name || "outro usuário"}?`
+      );
+      if (!confirmed) return;
+    }
 
     setLoading(true);
 
