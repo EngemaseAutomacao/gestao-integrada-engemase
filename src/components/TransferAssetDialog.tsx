@@ -34,33 +34,27 @@ export function TransferAssetDialog({
   onTransferCreated,
 }: TransferAssetDialogProps) {
   const { profile } = useAuth();
-  const [users, setUsers] = useState<UserOption[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingUsers, setLoadingUsers] = useState(true);
+
+  const { data: users = [], isLoading: loadingUsers } = useQuery({
+    queryKey: ["approved-users", profile?.id],
+    enabled: open && !!profile,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_approved_users");
+      if (error) throw error;
+      return ((data || []) as UserOption[]).filter((u) => u.id !== profile!.id);
+    },
+  });
 
   useEffect(() => {
     if (open) {
-      loadUsers();
       setSelectedUserId("");
       setNotes("");
     }
   }, [open]);
-
-  const loadUsers = async () => {
-    setLoadingUsers(true);
-    try {
-      const { data, error } = await supabase.rpc("get_approved_users");
-
-      if (error) throw error;
-      setUsers((data || []).filter((u: any) => u.id !== profile!.id));
-    } catch (error) {
-      console.error("Erro ao carregar usuários:", error);
-    } finally {
-      setLoadingUsers(false);
-    }
-  };
 
   const handleTransfer = async () => {
     if (!selectedUserId) {
