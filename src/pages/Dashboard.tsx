@@ -588,14 +588,14 @@ export default function Dashboard() {
               >
                 {catalogTagError}
               </div>
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <span className="text-sm font-medium">
                   {catalogSelected.size} selecionada{catalogSelected.size === 1 ? "" : "s"}
                 </span>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={exitCatalogSelect}>Cancelar</Button>
-                  <Button size="sm" disabled={catalogSelected.size === 0} onClick={confirmCatalogBulk}>
-                    Continuar para Retirada
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button variant="outline" size="sm" onClick={exitCatalogSelect} className="flex-1 sm:flex-none">Cancelar</Button>
+                  <Button size="sm" disabled={catalogSelected.size === 0} onClick={confirmCatalogBulk} className="flex-1 sm:flex-none">
+                    Continuar
                   </Button>
                 </div>
               </div>
