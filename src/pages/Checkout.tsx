@@ -316,7 +316,7 @@ export default function Checkout() {
 
       const checkoutData = {
         tool_id: selectedToolId,
-        user_id: profile!.id,
+        user_id: isAdmin && responsibleUserId ? responsibleUserId : profile!.id,
         checked_out_by: profile!.id,
         status: "checked_out" as const,
         construction_site: finalSite,
