@@ -29,7 +29,9 @@ interface OdometerResult {
 }
 
 export default function VehicleCheckin() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
+
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedCheckouts, saveToCache: saveCheckoutsCache } = useOfflineStorage<any[]>("active-vehicle-checkouts", []);
   const navigate = useNavigate();
