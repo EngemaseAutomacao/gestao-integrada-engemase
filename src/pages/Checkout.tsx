@@ -147,6 +147,15 @@ export default function Checkout() {
     }
   };
 
+  // Pre-select tools coming from URL (?toolIds=a,b,c) in bulk mode
+  useEffect(() => {
+    const ids = (searchParams.get("toolIds") || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (ids.length > 0) {
+      setBulkMode(true);
+      setBulkSelections(new Map(ids.map(id => [id, {}])));
+    }
+  }, [searchParams]);
+
   const uploadImage = async (dataUrl: string, type: "photo" | "signature"): Promise<string | null> => {
     const compressed = await compressDataUrl(dataUrl);
     return uploadDataUrlImage(compressed, type, "ferramentas", "saidas");
