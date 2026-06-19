@@ -86,11 +86,6 @@ export function ToolCard({
                 })}
                 {tool.brand && <Badge variant="outline" className="text-xs">{tool.brand}</Badge>}
                 {tool.employee_only && <Badge variant="outline" className="text-xs">Apenas Funcionários</Badge>}
-                {tool.condition && (
-                  <Badge variant="outline" className="text-xs">
-                    {conditionLabels[tool.condition] || tool.condition}
-                  </Badge>
-                )}
                 {isOverdue && (
                   <Badge variant="destructive" className="text-xs gap-1">
                     ⚠️ Atrasado {overdueDays}d
