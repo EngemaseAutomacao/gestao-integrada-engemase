@@ -129,6 +129,10 @@ export default function VehicleCheckin() {
       if (!isPlatform && refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
       const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
+      const isAdminActingForOther = !!(isAdmin && currentCheckoutData?.user_id && currentCheckoutData.user_id !== user.id);
+      if (isAdminActingForOther && (!notes || notes.trim().length < 5)) {
+        throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao devolver veículo em nome de outro usuário.");
+      }
 
       const updateData: any = {
         status: "checked_in",
@@ -137,6 +141,8 @@ export default function VehicleCheckin() {
         notes: notes || undefined,
         km_checkin_automatic: false,
       };
+
+
 
       if (isPlatform) {
         if (chargesDuringUse.trim()) {
