@@ -29,6 +29,15 @@ export function MobileBottomNav() {
     return location.pathname.startsWith(path);
   };
 
+  // Prefetch lazy route chunks on hover/touch for instant navigation
+  const prefetchRoute = (path: string) => {
+    if (path === "/") import("@/pages/Home");
+    else if (path.startsWith("/ferramentas")) import("@/pages/FerramentasMenu");
+    else if (path.startsWith("/veiculos")) import("@/pages/VeiculosMenu");
+    else if (path.startsWith("/ponto")) import("@/pages/ponto/PontoDashboard");
+    else if (path.startsWith("/admin")) import("@/pages/admin/AdminDashboard");
+  };
+
   return (
     <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-card border-t safe-area-bottom">
       <div className="flex items-center h-14">
@@ -38,8 +47,10 @@ export function MobileBottomNav() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                onPointerEnter={() => prefetchRoute(item.path)}
+                onTouchStart={() => prefetchRoute(item.path)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground transition-colors min-w-[60px]",
+                  "flex flex-col items-center justify-center gap-0.5 h-full text-muted-foreground transition-colors min-w-[60px] active:scale-95",
                   tabs.length <= 4 ? "flex-1" : "px-3",
                   isActive(item.path) && "text-primary"
                 )}
@@ -50,6 +61,7 @@ export function MobileBottomNav() {
             ))}
           </div>
         </div>
+
 
         {/* More menu button - always fixed on right */}
         <div className="shrink-0 border-l bg-card">
