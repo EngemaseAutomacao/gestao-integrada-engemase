@@ -214,17 +214,22 @@ export default function Checkout() {
     if (!estimatedReturnDate) { toast.error("Informe a data estimada de devolução"); return; }
 
     // Validate multi-tag tools
+    setTagError("");
     for (const [toolId, sel] of bulkSelections) {
       const tool = tools.find(t => t.id === toolId);
       if (!tool) continue;
       const tags = (tool.tag || "").split(",").map(s => s.trim()).filter(Boolean);
       if (tags.length > 1) {
         if (!sel.selectedTag) {
-          toast.error(`Selecione a TAG da ferramenta "${tool.name}"`);
+          const msg = `Selecione a TAG da ferramenta "${tool.name}" antes de confirmar.`;
+          setTagError(msg);
+          toast.error(msg);
           return;
         }
         if ((bulkActiveTags[toolId] || []).includes(sel.selectedTag)) {
-          toast.error(`A TAG ${sel.selectedTag} de "${tool.name}" já está em uso`);
+          const msg = `A TAG ${sel.selectedTag} de "${tool.name}" já está em uso.`;
+          setTagError(msg);
+          toast.error(msg);
           return;
         }
       }
