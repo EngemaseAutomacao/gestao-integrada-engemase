@@ -344,7 +344,6 @@ export default function AdminVehicleHistory() {
   };
 
   if (loading) {
-    return (
     return <HistorySkeleton />;
   }
 
