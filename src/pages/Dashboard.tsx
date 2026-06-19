@@ -584,8 +584,10 @@ export default function Dashboard() {
               </p>
             ) : (
               filteredTools.map((tool) => {
-                const userCheckout = pendingCheckouts?.find((c: any) => c.tool_id === tool.id);
-                const userHasTool = Boolean(userCheckout);
+                const userCheckouts = pendingCheckouts?.filter((c: any) => c.tool_id === tool.id) || [];
+                const userCheckout = userCheckouts[0];
+                const userHasTool = userCheckouts.length > 0;
+                const userTags = new Set(userCheckouts.map((c: any) => (c.selected_tag || "").trim()).filter(Boolean));
                 const isOverdue = Boolean(
                   userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
                 );
@@ -612,14 +614,18 @@ export default function Dashboard() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold text-sm sm:text-base capitalize">{tool.name.toLowerCase()}</h3>
-                              {tool.tag && (
-                                <Badge
-                                  className={`text-xs ${userHasTool ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
-                                  variant={userHasTool ? "default" : "secondary"}
-                                >
-                                  {userHasTool ? `🔧 ${tool.tag} (com você)` : tool.tag}
-                                </Badge>
-                              )}
+                              {tool.tag && tool.tag.split(",").map(t => t.trim()).filter(Boolean).map((tag) => {
+                                const mine = userTags.has(tag);
+                                return (
+                                  <Badge
+                                    key={tag}
+                                    className={`text-xs ${mine ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
+                                    variant={mine ? "default" : "secondary"}
+                                  >
+                                    {mine ? `🔧 ${tag}` : tag}
+                                  </Badge>
+                                );
+                              })}
                               {tool.brand && <Badge variant="outline" className="text-xs">{tool.brand}</Badge>}
                               {tool.employee_only && <Badge variant="outline" className="text-xs">Apenas Funcionários</Badge>}
                               {tool.condition && (
