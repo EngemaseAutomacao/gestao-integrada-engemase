@@ -214,12 +214,40 @@ self.addEventListener('push', (event) => {
     return;
   }
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
+  // ---- Agrupamento de notificações ----
+  // Notificações do mesmo "grupo" (data.group) são consolidadas em uma única
+  // notificação mostrando "N novas notificações" em vez de empilhar várias.
+  const groupKey = data.group || data.tag || 'default';
+  const tag = `group:${groupKey}`;
+
+  event.waitUntil((async () => {
+    let title = data.title;
+    let body = data.body;
+
+    try {
+      const existing = await self.registration.getNotifications({ tag });
+      if (existing.length > 0) {
+        // Já existe uma notificação para este grupo -> agrupar
+        const prev = existing[0];
+        const prevCount = (prev.data && prev.data.groupCount) || 1;
+        const newCount = prevCount + 1;
+        title = data.groupTitle || data.title;
+        body = `Você tem ${newCount} novas notificações`;
+        data.data = { ...(data.data || {}), groupCount: newCount, groupKey };
+      } else {
+        data.data = { ...(data.data || {}), groupCount: 1, groupKey };
+      }
+    } catch (e) {
+      // Fallback silencioso — se algo falhar, mostra notificação única
+      console.warn('[SW] Falha ao agrupar notificação:', e);
+    }
+
+    await self.registration.showNotification(title, {
+      body,
       icon: data.icon || '/icon-192.png',
       badge: '/mono-192.png',
-      tag: data.tag || 'default',
+      tag,
+      renotify: true,
       data: data.data || {},
       vibrate: [200, 100, 200],
       requireInteraction: false,
@@ -227,8 +255,9 @@ self.addEventListener('push', (event) => {
         { action: 'open', title: 'Abrir' },
         { action: 'close', title: 'Fechar' }
       ]
-    })
-  );
+    });
+  })());
+
 });
 
 // ---- Notification click ----
