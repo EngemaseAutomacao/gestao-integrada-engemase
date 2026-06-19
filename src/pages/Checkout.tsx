@@ -53,7 +53,7 @@ export default function Checkout() {
   const [loadingTools, setLoadingTools] = useState(true);
 
   // Bulk mode
-  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkMode, setBulkMode] = useState(searchParams.get("bulk") === "1");
   const [bulkSelections, setBulkSelections] = useState<Map<string, BulkSelection>>(new Map());
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");

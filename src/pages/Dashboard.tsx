@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignedImage } from "@/components/SignedImage";
-import { Search, FileText, FileSpreadsheet, Filter, X } from "lucide-react";
+import { Search, FileText, FileSpreadsheet, Filter, X, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -316,7 +316,15 @@ export default function Dashboard() {
                 {filteredTools.length} de {tools.length} ferramentas
               </CardDescription>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
+              <Button
+                size="sm"
+                variant="default"
+                className="text-xs gap-1"
+                onClick={() => navigate("/checkout?bulk=1")}
+              >
+                <CheckSquare className="w-3.5 h-3.5" /> Selecionar várias
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
