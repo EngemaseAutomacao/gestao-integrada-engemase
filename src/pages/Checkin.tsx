@@ -23,6 +23,7 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 interface Checkout {
   id: string;
   tool_id: string;
+  user_id: string;
   construction_site: string | null;
   estimated_return_date: string | null;
   selected_tag: string | null;
@@ -30,11 +31,15 @@ interface Checkout {
     name: string;
     tag: string | null;
   };
+  profiles?: {
+    full_name: string;
+  } | null;
 }
 
 export default function Checkin() {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedCheckouts, saveToCache } = useOfflineStorage<Checkout[]>("checkouts", []);
   const navigate = useNavigate();
@@ -79,18 +84,20 @@ export default function Checkin() {
         .select(`
           id,
           tool_id,
+          user_id,
           construction_site,
           estimated_return_date,
           selected_tag,
-          tools (name, tag)
+          tools (name, tag),
+          profiles!tool_checkouts_user_id_fkey (full_name)
         `)
         .eq("status", "checked_out")
         .order("checkout_date", { ascending: false });
 
       if (error) throw error;
 
-      setCheckouts(data || []);
-      saveToCache(data || []);
+      setCheckouts((data as any) || []);
+      saveToCache((data as any) || []);
 
       if (checkoutIdParam && data) {
         const checkout = data.find(c => c.id === checkoutIdParam);
@@ -225,8 +232,9 @@ export default function Checkin() {
                     <SelectContent>
                       {checkouts.map((checkout) => (
                         <SelectItem key={checkout.id} value={checkout.id}>
-                          {checkout.tools.name} 
+                          {checkout.tools.name}
                           {checkout.selected_tag ? ` (TAG: ${checkout.selected_tag})` : ""}
+                          {isAdmin && checkout.profiles?.full_name ? ` — ${checkout.profiles.full_name}` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>

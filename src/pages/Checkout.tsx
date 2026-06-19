@@ -38,6 +38,7 @@ interface BulkSelection {
 export default function Checkout() {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("tools", []);
   const navigate = useNavigate();
@@ -52,6 +53,10 @@ export default function Checkout() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingTools, setLoadingTools] = useState(true);
+
+  // Admin: responsible user (defaults to self)
+  const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   // Bulk mode
   const [bulkMode, setBulkMode] = useState(searchParams.get("bulk") === "1");
@@ -77,6 +82,14 @@ export default function Checkout() {
   useEffect(() => {
     loadTools();
   }, []);
+
+  useEffect(() => {
+    if (!isAdmin || !isOnline) return;
+    (async () => {
+      const { data } = await supabase.rpc("get_approved_users");
+      if (data) setApprovedUsers(data as any);
+    })();
+  }, [isAdmin, isOnline]);
 
   // Carrega TAGs já retiradas (modo único)
   useEffect(() => {
@@ -241,12 +254,13 @@ export default function Checkout() {
       let photoUrl: string | null = null;
       if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
 
+      const effectiveUserId = isAdmin && responsibleUserId ? responsibleUserId : profile!.id;
       const rows = Array.from(bulkSelections.entries()).map(([toolId, sel]) => {
         const tool = tools.find(t => t.id === toolId)!;
         const tags = (tool.tag || "").split(",").map(s => s.trim()).filter(Boolean);
         return {
           tool_id: toolId,
-          user_id: profile!.id,
+          user_id: effectiveUserId,
           checked_out_by: profile!.id,
           status: "checked_out" as const,
           construction_site: finalSite,
@@ -302,7 +316,7 @@ export default function Checkout() {
 
       const checkoutData = {
         tool_id: selectedToolId,
-        user_id: profile!.id,
+        user_id: isAdmin && responsibleUserId ? responsibleUserId : profile!.id,
         checked_out_by: profile!.id,
         status: "checked_out" as const,
         construction_site: finalSite,
@@ -364,6 +378,23 @@ export default function Checkout() {
           </div>
         </CardHeader>
         <CardContent>
+          {isAdmin && (
+            <div className="space-y-2 mb-6 p-3 border rounded-md bg-muted/30">
+              <Label htmlFor="responsible_user">Responsável pela retirada (admin)</Label>
+              <Select value={responsibleUserId || profile!.id} onValueChange={(v) => setResponsibleUserId(v === profile!.id ? "" : v)}>
+                <SelectTrigger id="responsible_user">
+                  <SelectValue placeholder="Selecione o responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={profile!.id}>Eu mesmo ({profile!.full_name})</SelectItem>
+                  {approvedUsers.filter(u => u.id !== profile!.id).map(u => (
+                    <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
+            </div>
+          )}
           {bulkMode ? (
             <form onSubmit={handleBulkCheckout} className="space-y-6">
               <div className="space-y-2">
