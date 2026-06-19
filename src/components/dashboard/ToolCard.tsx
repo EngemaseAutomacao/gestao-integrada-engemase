@@ -93,6 +93,12 @@ export function ToolCard({
                     ⚠️ Atrasado {overdueDays}d
                   </Badge>
                 )}
+                {assignedByAdmin && (
+                  <Badge className="text-xs bg-amber-500 text-white hover:bg-amber-500/90">
+                    Atribuído pelo admin
+                  </Badge>
+                )}
+
               </div>
               {tool.description && (
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
