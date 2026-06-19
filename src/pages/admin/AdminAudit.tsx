@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
-  Loader2, Search, Eye, Shield, Wrench, Car, User, AlertTriangle, 
+  Search, Eye, Shield, Wrench, Car, User, AlertTriangle, 
   LogIn, LogOut, UserCheck, Trash2, ArrowRightLeft, X, CalendarIcon,
   FileText, FileSpreadsheet
 } from "lucide-react";
+import { HistorySkeleton } from "@/components/PageSkeleton";
 import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
@@ -223,11 +224,7 @@ export default function AdminAudit() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (

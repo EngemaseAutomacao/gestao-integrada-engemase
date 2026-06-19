@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.38.0",
+    date: "2026-06-19",
+    title: "Skeletons em Todas as Telas Principais e Exportação no Histórico de Ponto",
+    description: "Telas de histórico e administração agora exibem esqueletos de carregamento (mais rápidas visualmente) e o histórico de ponto e o meu histórico unificado ganharam exportação em PDF e Excel.",
+    changes: [
+      { type: "feature", text: "Exportação em PDF e Excel no Histórico de Ponto, com totais de horas no cabeçalho" },
+      { type: "feature", text: "Exportação em PDF e Excel no Meu Histórico Unificado (ferramentas, veículos e ponto)" },
+      { type: "improvement", text: "Skeleton de carregamento substitui o spinner em: Histórico Geral, Histórico de Veículos, Meu Histórico, Histórico de Ponto, Painel de Ponto, Auditoria e Analytics" },
+      { type: "improvement", text: "Sensação de carregamento mais rápida e sem flashes de tela em conexões lentas" },
+    ],
+  },
+
+  {
     version: "1.37.0",
     date: "2026-06-19",
     title: "Busca Rápida (Ctrl+K), Listas Mais Leves e Exportação de Logs",

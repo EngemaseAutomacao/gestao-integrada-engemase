@@ -7,11 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wrench, Car, Clock, Eye, Camera, MapPin, List } from "lucide-react";
+import { Wrench, Car, Clock, Eye, Camera, MapPin, List, FileText, FileSpreadsheet } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SignedImage } from "@/components/SignedImage";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
+import { HistorySkeleton } from "@/components/PageSkeleton";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
+import { toast } from "sonner";
 
 interface UnifiedEvent {
   id: string;
@@ -227,13 +230,53 @@ export default function UnifiedHistory({
     return acc;
   }, {});
 
+  const typeLabel = (t: UnifiedEvent["type"]) =>
+    t === "tool" ? "Ferramenta" : t === "vehicle" ? "Veículo" : "Ponto";
+
+  const buildExportRows = () =>
+    filtered.map((ev) => [
+      format(new Date(ev.date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      typeLabel(ev.type),
+      ev.title,
+      ev.subtitle,
+      ev.status,
+      ev.endDate ? format(new Date(ev.endDate), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      ev.details?.notes || "-",
+    ]);
+
+  const handleExportPDF = async () => {
+    if (filtered.length === 0) return toast.error("Nenhum registro para exportar");
+    try {
+      await exportToPDF({
+        title: "Meu Histórico Unificado",
+        subtitle: `${filtered.length} registro(s)`,
+        headers: ["Data/Hora", "Tipo", "Item", "Detalhe", "Status", "Fim", "Observações"],
+        rows: buildExportRows(),
+        filename: "meu-historico",
+        orientation: "landscape",
+        generatedBy: profile?.full_name,
+      });
+      toast.success("PDF gerado");
+    } catch (e) { console.error(e); toast.error("Erro ao gerar PDF"); }
+  };
+
+  const handleExportExcel = () => {
+    if (filtered.length === 0) return toast.error("Nenhum registro para exportar");
+    try {
+      exportToExcel({
+        title: "Meu Histórico Unificado",
+        subtitle: `${filtered.length} registro(s)`,
+        headers: ["Data/Hora", "Tipo", "Item", "Detalhe", "Status", "Fim", "Observações"],
+        rows: buildExportRows(),
+        filename: "meu-historico",
+        generatedBy: profile?.full_name,
+      });
+      toast.success("Planilha gerada");
+    } catch (e) { console.error(e); toast.error("Erro ao gerar planilha"); }
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12" role="status" aria-live="polite">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" aria-hidden="true" />
-        <span className="sr-only">Carregando histórico</span>
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (
@@ -290,6 +333,15 @@ export default function UnifiedHistory({
             title="Visualização em timeline"
           >
             <Clock className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1.5">
+            <FileText className="w-4 h-4" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1.5">
+            <FileSpreadsheet className="w-4 h-4" /> Excel
           </Button>
         </div>
       </div>

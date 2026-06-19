@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon, Car } from "lucide-react";
+import { TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon, Car } from "lucide-react";
+import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { Navigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from "recharts";
 import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
@@ -341,9 +342,7 @@ export default function AdminAnalytics() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
+      <DashboardSkeleton />
     );
   }
 

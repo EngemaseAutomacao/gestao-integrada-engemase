@@ -2,14 +2,18 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Clock, Loader2, Calendar, Building2, AlertTriangle, Image, User } from "lucide-react";
+import { MapPin, Clock, Calendar, Building2, AlertTriangle, Image, User, FileText, FileSpreadsheet } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInMinutes, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SignedImage } from "@/components/SignedImage";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { HistorySkeleton } from "@/components/PageSkeleton";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
+import { toast } from "sonner";
 
 const ENTRY_TYPES = [
   { value: "obra", label: "Por Obra" },
@@ -94,12 +98,56 @@ export default function PontoHistory() {
     return sum;
   }, 0);
 
+  const ENTRY_TYPE_LABEL = (v: string) => ENTRY_TYPES.find(t => t.value === v)?.label || v;
+
+  const buildExportRows = () =>
+    filtered.map((e) => {
+      const dur = e.clock_out ? differenceInMinutes(new Date(e.clock_out), new Date(e.clock_in)) : null;
+      return [
+        format(new Date(e.clock_in), "dd/MM/yyyy", { locale: ptBR }),
+        ENTRY_TYPE_LABEL(e.entry_type),
+        format(new Date(e.clock_in), "HH:mm"),
+        e.clock_out ? format(new Date(e.clock_out), "HH:mm") : "-",
+        dur !== null ? formatDuration(dur) : "-",
+        e.construction_site || e.client_name || "-",
+        e.status === "open" ? "Aberto" : "Fechado",
+        e.notes || "-",
+      ];
+    });
+
+  const handleExportPDF = async () => {
+    if (filtered.length === 0) return toast.error("Nenhum registro para exportar");
+    try {
+      await exportToPDF({
+        title: "Histórico de Ponto",
+        subtitle: `${filtered.length} registro(s) • Total: ${formatDuration(totalMinutes)}`,
+        headers: ["Data", "Tipo", "Entrada", "Saída", "Duração", "Obra/Cliente", "Status", "Observações"],
+        rows: buildExportRows(),
+        filename: "ponto-historico",
+        orientation: "landscape",
+        generatedBy: user?.email || undefined,
+      });
+      toast.success("PDF gerado");
+    } catch (e) { console.error(e); toast.error("Erro ao gerar PDF"); }
+  };
+
+  const handleExportExcel = () => {
+    if (filtered.length === 0) return toast.error("Nenhum registro para exportar");
+    try {
+      exportToExcel({
+        title: "Histórico de Ponto",
+        subtitle: `${filtered.length} registro(s) • Total: ${formatDuration(totalMinutes)}`,
+        headers: ["Data", "Tipo", "Entrada", "Saída", "Duração", "Obra/Cliente", "Status", "Observações"],
+        rows: buildExportRows(),
+        filename: "ponto-historico",
+        generatedBy: user?.email || undefined,
+      });
+      toast.success("Planilha gerada");
+    } catch (e) { console.error(e); toast.error("Erro ao gerar planilha"); }
+  };
+
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (
@@ -110,7 +158,7 @@ export default function PontoHistory() {
       </div>
 
       {/* Filters */}
-      <div className="shrink-0 flex flex-wrap gap-2">
+      <div className="shrink-0 flex flex-wrap gap-2 items-center">
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Filtrar tipo" />
@@ -134,6 +182,14 @@ export default function PontoHistory() {
             <SelectItem value="30d">Últimos 30 dias</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-2 ml-auto">
+          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1.5">
+            <FileText className="w-4 h-4" /> PDF
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1.5">
+            <FileSpreadsheet className="w-4 h-4" /> Excel
+          </Button>
+        </div>
       </div>
 
       {/* Hours Summary */}
