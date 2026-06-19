@@ -242,6 +242,13 @@ export default function ToolDetail() {
               <span>{getDaysUsed(checkout)} dias</span>
             </div>
           </div>
+
+          {checkout.notes && (
+            <div className="text-xs md:text-sm bg-muted/50 rounded-md p-2 border-l-2 border-primary">
+              <p className="text-muted-foreground font-medium mb-0.5">Observação</p>
+              <p className="whitespace-pre-wrap break-words">{checkout.notes}</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
