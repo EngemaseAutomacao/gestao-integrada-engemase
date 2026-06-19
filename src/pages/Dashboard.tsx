@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { SignedImage } from "@/components/SignedImage";
 import { Search, FileText, FileSpreadsheet, Filter, X, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
