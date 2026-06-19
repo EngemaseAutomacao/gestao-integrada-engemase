@@ -76,18 +76,25 @@ function getActionBadgeVariant(action: string): "default" | "secondary" | "destr
 }
 
 function buildDescription(log: SystemLog): string {
-  const d = log.details;
+  const d = log.details || {};
+  const entityName = log.entity_type === "tool" ? `ferramenta "${d.tool_name || ""}"`
+                   : log.entity_type === "vehicle" ? `veículo "${d.vehicle_name || ""} (${d.plate || ""})"`
+                   : "item";
+  const respSuffix = d.responsible_user_name ? ` em nome de ${d.responsible_user_name}` : "";
+
   switch (log.action) {
     case "checkout":
       if (log.entity_type === "tool")
-        return `Retirou a ferramenta "${d.tool_name || ""}"${d.construction_site ? ` para ${d.construction_site}` : ""}${d.selected_tag ? ` (TAG: ${d.selected_tag})` : ""}`;
+        return `Retirou a ${entityName}${d.construction_site ? ` para ${d.construction_site}` : ""}${d.selected_tag ? ` (TAG: ${d.selected_tag})` : ""}`;
       if (log.entity_type === "vehicle")
-        return `Retirou o veículo "${d.vehicle_name || ""} (${d.plate || ""})"${d.destination ? ` - Destino: ${d.destination}` : ""}`;
+        return `Retirou o ${entityName}${d.destination ? ` - Destino: ${d.destination}` : ""}`;
       return "";
     case "checkin":
-      if (log.entity_type === "tool") return `Devolveu a ferramenta "${d.tool_name || ""}"`;
-      if (log.entity_type === "vehicle") return `Devolveu o veículo "${d.vehicle_name || ""} (${d.plate || ""})"`;
-      return "";
+      return `Devolveu a ${entityName}`;
+    case "manual_checkout_by_admin":
+      return `Retirou manualmente a ${entityName}${respSuffix}${d.construction_site ? ` para ${d.construction_site}` : ""}${d.destination ? ` - Destino: ${d.destination}` : ""}`;
+    case "manual_checkin_by_admin":
+      return `Devolveu manualmente a ${entityName}${respSuffix}`;
     case "user_registered":
       return `Novo usuário registrado: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
     case "user_approved":
@@ -100,6 +107,7 @@ function buildDescription(log: SystemLog): string {
       return JSON.stringify(d);
   }
 }
+
 
 export default function AdminLogs() {
   const { profile } = useAuth();
