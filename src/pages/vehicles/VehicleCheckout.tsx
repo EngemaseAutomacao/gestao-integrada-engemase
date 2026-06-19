@@ -404,7 +404,29 @@ export default function VehicleCheckout() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {isAdmin && (
+                <div className="space-y-2 p-3 border rounded-md bg-muted/30">
+                  <Label htmlFor="responsible_user_vehicle">Responsável pela retirada (admin)</Label>
+                  <Select value={responsibleUserId || user!.id} onValueChange={(v) => setResponsibleUserId(v === user!.id ? "" : v)}>
+                    <SelectTrigger id="responsible_user_vehicle">
+                      <SelectValue placeholder="Selecione o responsável" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={user!.id}>Eu mesmo ({profile?.full_name})</SelectItem>
+                      {approvedUsers.filter(u => u.id !== user!.id).map(u => (
+                        <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {responsibleUserId && responsibleUserId !== user!.id && (
+                    <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
+                      <strong>Retirada manual:</strong> ação será registrada no log. Justificativa obrigatória no campo Observações (mín. 5 caracteres).
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="space-y-2">
+
                 <Label htmlFor="destination">{isPlatform ? "Obra de Uso *" : "Obra de Destino *"}</Label>
                 <ConstructionSiteAutocomplete
                   sites={constructionSites || []}
