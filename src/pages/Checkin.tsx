@@ -130,15 +130,30 @@ export default function Checkin() {
     return uploadDataUrlImage(compressed, type, "ferramentas", "entradas");
   };
 
+  const selectedCheckout = checkouts.find(c => c.id === selectedCheckoutId);
+  const isAdminActingForOther = !!(isAdmin && selectedCheckout && selectedCheckout.user_id !== profile?.id);
+
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedCheckoutId) {
       toast.error("Selecione uma retirada");
       return;
     }
 
-    // Photo is optional for checkin
+    if (isAdminActingForOther && notes.trim().length < 5) {
+      toast.error("Justificativa obrigatória", {
+        description: "Informe uma observação (mín. 5 caracteres) ao devolver em nome de outro usuário.",
+      });
+      return;
+    }
+
+    if (isAdminActingForOther) {
+      const confirmed = window.confirm(
+        `Confirmar devolução de "${selectedCheckout!.tools.name}" em nome de ${selectedCheckout!.profiles?.full_name || "outro usuário"}?`
+      );
+      if (!confirmed) return;
+    }
 
     setLoading(true);
 
@@ -267,17 +282,25 @@ export default function Checkin() {
                 </div>
               )}
 
+              {isAdminActingForOther && (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-3 rounded-lg text-sm">
+                  <strong>Devolução manual:</strong> você está devolvendo em nome de <strong>{selectedCheckout!.profiles?.full_name}</strong>. Justificativa obrigatória abaixo.
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="notes">Observações (opcional)</Label>
+                <Label htmlFor="notes">
+                  Observações {isAdminActingForOther ? "* (justificativa obrigatória)" : "(opcional)"}
+                </Label>
                 <Textarea
                   id="notes"
-                  placeholder="Adicione observações sobre o retorno..."
+                  placeholder={isAdminActingForOther ? "Ex.: usuário ausente, ferramenta devolvida no almoxarifado..." : "Adicione observações sobre o retorno..."}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
+                  required={isAdminActingForOther}
                 />
               </div>
-
               {/* Photo Capture */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -289,6 +312,7 @@ export default function Checkin() {
                     </Badge>
                   )}
                 </div>
+
                 {!photoConfirmed ? (
                   <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado da ferramenta na devolução" />
                 ) : (

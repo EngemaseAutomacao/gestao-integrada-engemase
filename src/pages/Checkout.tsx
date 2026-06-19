@@ -249,7 +249,14 @@ export default function Checkout() {
       }
     }
 
+    const isAdminActingForOther = isAdmin && !!responsibleUserId && responsibleUserId !== profile!.id;
+    if (isAdminActingForOther && notes.trim().length < 5) {
+      toast.error("Justificativa obrigatória", { description: "Informe uma observação (mín. 5 caracteres) ao retirar em nome de outro usuário." });
+      return;
+    }
+
     setLoading(true);
+
     try {
       let photoUrl: string | null = null;
       if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
@@ -309,7 +316,14 @@ export default function Checkout() {
     if (!finalSite) { toast.error("Informe a obra de destino"); return; }
     if (!estimatedReturnDate) { toast.error("Informe a data estimada de devolução"); return; }
 
+    const isAdminActingForOther = isAdmin && !!responsibleUserId && responsibleUserId !== profile!.id;
+    if (isAdminActingForOther && notes.trim().length < 5) {
+      toast.error("Justificativa obrigatória", { description: "Informe uma observação (mín. 5 caracteres) ao retirar em nome de outro usuário." });
+      return;
+    }
+
     setLoading(true);
+
     try {
       let photoUrl: string | null = null;
       if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
@@ -393,8 +407,14 @@ export default function Checkout() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
+              {responsibleUserId && responsibleUserId !== profile!.id && (
+                <div className="mt-2 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
+                  <strong>Retirada manual:</strong> ação será registrada como "manual_checkout_by_admin". Justificativa obrigatória no campo Observações (mín. 5 caracteres).
+                </div>
+              )}
             </div>
           )}
+
           {bulkMode ? (
             <form onSubmit={handleBulkCheckout} className="space-y-6">
               <div className="space-y-2">
