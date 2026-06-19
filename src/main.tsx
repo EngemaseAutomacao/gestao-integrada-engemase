@@ -2,7 +2,12 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import "./i18n";
 import { APP_VERSION } from "./version.ts";
+import { initSentry } from "./lib/sentry";
+
+// Inicializa monitoramento de erros (no-op sem VITE_SENTRY_DSN)
+initSentry();
 
 // Run version check as plain JS BEFORE React mounts
 // This avoids the duplicate-React hook crash

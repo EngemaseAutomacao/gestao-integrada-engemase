@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.39.0",
+    date: "2026-06-19",
+    title: "Monitoramento de Erros e Preparação para Múltiplos Idiomas",
+    description: "Infraestrutura interna para detectar falhas em produção automaticamente (Sentry, opcional) e base pronta para tradução do sistema para outros idiomas no futuro.",
+    changes: [
+      { type: "improvement", text: "Integração opcional com Sentry para capturar erros em produção (basta configurar a variável VITE_SENTRY_DSN)" },
+      { type: "improvement", text: "Infraestrutura de internacionalização (i18n) preparada — sistema continua em Português do Brasil, mas pronto para tradução futura" },
+      { type: "improvement", text: "Erros do preview do editor são automaticamente ignorados pelo monitoramento para não gerar ruído" },
+    ],
+  },
+
+  {
     version: "1.38.0",
     date: "2026-06-19",
     title: "Skeletons em Todas as Telas Principais e Exportação no Histórico de Ponto",
