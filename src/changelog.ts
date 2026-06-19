@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.40.0",
+    date: "2026-06-19",
+    title: "Notificações Agrupadas e Sincronização Offline Confirmada",
+    description: "Notificações push do mesmo tipo agora são agrupadas em uma única (\"Você tem N novas notificações\") em vez de empilhar várias. A sincronização offline real com fila de fotos no IndexedDB foi auditada e validada — checkin/checkout 100% offline já está em produção.",
+    changes: [
+      { type: "improvement", text: "Notificações push do mesmo grupo são consolidadas: chega 1 só notificação dizendo \"Você tem N novas notificações\"" },
+      { type: "improvement", text: "Confirmada e auditada a sincronização offline de fotos (ferramentas, veículos e ponto) via IndexedDB com upload automático ao voltar a conexão" },
+      { type: "fix", text: "Notificações agora usam renotify para vibrar/avisar mesmo quando agrupadas" },
+    ],
+  },
+
+  {
     version: "1.39.0",
     date: "2026-06-19",
     title: "Monitoramento de Erros e Preparação para Múltiplos Idiomas",
