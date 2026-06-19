@@ -83,12 +83,14 @@ export default function VehicleCheckin() {
           checkout_date,
           km_checkout,
           destination,
+          user_id,
           photo_dashboard_checkout,
           vehicles!inner(id, name, plate, brand, model, vehicle_type),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
         .eq("status", "checked_out")
         .order("checkout_date", { ascending: false });
+
 
       if (error) throw error;
       if (data) saveCheckoutsCache(data);
