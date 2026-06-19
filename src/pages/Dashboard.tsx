@@ -516,6 +516,12 @@ export default function Dashboard() {
                 const isSelected = catalogSelected.has(tool.id);
                 const isDisabled = catalogSelectMode && tool.quantity_available <= 0;
                 if (catalogSelectMode) {
+                  const tags = (tool.tag || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+                  const selectedTag = catalogSelected.get(tool.id) || "";
+                  // TAGs already in use by other active checkouts
+                  const allCheckoutsForTool = (pendingCheckouts || []).filter((c: any) => c.tool_id === tool.id);
+                  const usedTags: string[] = allCheckoutsForTool.map((c: any) => c.selected_tag).filter(Boolean);
+                  const availableTags = tags.filter(t => !usedTags.includes(t));
                   return (
                     <div key={tool.id} className="relative">
                       <div className={cn("pointer-events-none transition-opacity", isDisabled && "opacity-50")}>
@@ -546,6 +552,23 @@ export default function Dashboard() {
                           <Checkbox checked={isSelected} className="pointer-events-none" />
                         </div>
                       </div>
+                      {isSelected && tags.length > 1 && (
+                        <div className="absolute bottom-2 left-2 right-2 z-20 bg-background/95 backdrop-blur border rounded-md p-2 shadow">
+                          <p className="text-[10px] font-medium text-muted-foreground mb-1">
+                            Selecione a unidade:
+                          </p>
+                          <Select value={selectedTag} onValueChange={(v) => setCatalogTag(tool.id, v)}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder={availableTags.length === 0 ? "Todas em uso" : "Escolha a TAG"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableTags.map(t => (
+                                <SelectItem key={t} value={t}>TAG {t}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                     </div>
                   );
                 }
