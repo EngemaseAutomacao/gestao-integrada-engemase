@@ -23,6 +23,7 @@ import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 interface Checkout {
   id: string;
   tool_id: string;
+  user_id: string;
   construction_site: string | null;
   estimated_return_date: string | null;
   selected_tag: string | null;
@@ -30,6 +31,9 @@ interface Checkout {
     name: string;
     tag: string | null;
   };
+  profiles?: {
+    full_name: string;
+  } | null;
 }
 
 export default function Checkin() {
