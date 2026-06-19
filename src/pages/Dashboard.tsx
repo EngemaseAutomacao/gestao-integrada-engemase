@@ -8,19 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignedImage } from "@/components/SignedImage";
-import { Search, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet, Filter, X, ExternalLink, CheckSquare, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Search, FileText, FileSpreadsheet, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
+import { PendingCheckoutsCard } from "@/components/dashboard/PendingCheckoutsCard";
+import { ToolStats } from "@/components/dashboard/ToolStats";
+import { ToolCard } from "@/components/dashboard/ToolCard";
 
 interface Tool {
   id: string;
