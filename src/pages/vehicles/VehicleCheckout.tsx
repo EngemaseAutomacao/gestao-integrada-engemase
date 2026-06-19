@@ -27,7 +27,11 @@ import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutoc
 
 
 export default function VehicleCheckout() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
+  const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
+
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedVehicles, saveToCache: saveVehiclesCache } = useOfflineStorage<any[]>("available-vehicles", []);
   const navigate = useNavigate();
@@ -60,6 +64,19 @@ export default function VehicleCheckout() {
     setPhotos(prev => ({ ...prev, [key]: file }));
     setPreviews(prev => ({ ...prev, [key]: preview }));
   };
+
+  // Load approved users for admin select
+  useQuery({
+    queryKey: ["approved-users-vehicle-checkout"],
+    queryFn: async () => {
+      if (!isAdmin) return [];
+      const { data } = await supabase.rpc("get_approved_users");
+      setApprovedUsers((data as any) || []);
+      return data || [];
+    },
+    enabled: isAdmin,
+  });
+
 
   // Platform-specific state
   const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
@@ -196,9 +213,15 @@ export default function VehicleCheckout() {
         estimatedReturn.setDate(estimatedReturn.getDate() + 1);
       }
 
+      const effectiveUserId = isAdmin && responsibleUserId && responsibleUserId !== user.id ? responsibleUserId : user.id;
+      const isAdminActingForOther = effectiveUserId !== user.id;
+      if (isAdminActingForOther && (!notes || notes.trim().length < 5)) {
+        throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao retirar veículo em nome de outro usuário.");
+      }
+
       const insertData: any = {
         vehicle_id: selectedVehicle,
-        user_id: user.id,
+        user_id: effectiveUserId,
         checked_out_by: user.id,
         km_checkout: selectedVehicleData?.last_km || 0,
         destination: finalDestination,
@@ -207,6 +230,7 @@ export default function VehicleCheckout() {
         is_outside_city: isOutsideCity,
         estimated_return_time: estimatedReturnTime,
       };
+
 
       if (isOutsideCity) {
         insertData.origin_address = originAddress;
@@ -380,7 +404,29 @@ export default function VehicleCheckout() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {isAdmin && (
+                <div className="space-y-2 p-3 border rounded-md bg-muted/30">
+                  <Label htmlFor="responsible_user_vehicle">Responsável pela retirada (admin)</Label>
+                  <Select value={responsibleUserId || user!.id} onValueChange={(v) => setResponsibleUserId(v === user!.id ? "" : v)}>
+                    <SelectTrigger id="responsible_user_vehicle">
+                      <SelectValue placeholder="Selecione o responsável" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={user!.id}>Eu mesmo ({profile?.full_name})</SelectItem>
+                      {approvedUsers.filter(u => u.id !== user!.id).map(u => (
+                        <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {responsibleUserId && responsibleUserId !== user!.id && (
+                    <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
+                      <strong>Retirada manual:</strong> ação será registrada no log. Justificativa obrigatória no campo Observações (mín. 5 caracteres).
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="space-y-2">
+
                 <Label htmlFor="destination">{isPlatform ? "Obra de Uso *" : "Obra de Destino *"}</Label>
                 <ConstructionSiteAutocomplete
                   sites={constructionSites || []}

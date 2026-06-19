@@ -29,7 +29,9 @@ interface OdometerResult {
 }
 
 export default function VehicleCheckin() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
+
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedCheckouts, saveToCache: saveCheckoutsCache } = useOfflineStorage<any[]>("active-vehicle-checkouts", []);
   const navigate = useNavigate();
@@ -81,12 +83,14 @@ export default function VehicleCheckin() {
           checkout_date,
           km_checkout,
           destination,
+          user_id,
           photo_dashboard_checkout,
           vehicles!inner(id, name, plate, brand, model, vehicle_type),
           profiles!vehicle_checkouts_user_id_fkey(full_name)
         `)
         .eq("status", "checked_out")
         .order("checkout_date", { ascending: false });
+
 
       if (error) throw error;
       if (data) saveCheckoutsCache(data);
@@ -125,6 +129,10 @@ export default function VehicleCheckin() {
       if (!isPlatform && refueled === null) throw new Error("Informe se o veículo foi abastecido");
 
       const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
+      const isAdminActingForOther = !!(isAdmin && currentCheckoutData?.user_id && currentCheckoutData.user_id !== user.id);
+      if (isAdminActingForOther && (!notes || notes.trim().length < 5)) {
+        throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao devolver veículo em nome de outro usuário.");
+      }
 
       const updateData: any = {
         status: "checked_in",
@@ -133,6 +141,8 @@ export default function VehicleCheckin() {
         notes: notes || undefined,
         km_checkin_automatic: false,
       };
+
+
 
       if (isPlatform) {
         if (chargesDuringUse.trim()) {
@@ -290,10 +300,20 @@ export default function VehicleCheckin() {
     checkout.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const selectedCheckoutDataForUI = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
+  const isAdminActingForOtherUI = !!(isAdmin && user && selectedCheckoutDataForUI?.user_id && selectedCheckoutDataForUI.user_id !== user.id);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAdminActingForOtherUI) {
+      const confirmed = window.confirm(
+        `Confirmar devolução do veículo "${selectedCheckoutDataForUI?.vehicles?.name}" em nome de ${selectedCheckoutDataForUI?.profiles?.full_name || "outro usuário"}?`
+      );
+      if (!confirmed) return;
+    }
     checkinMutation.mutate();
   };
+
 
   // selectedCheckoutData defined above
 
@@ -393,7 +413,13 @@ export default function VehicleCheckin() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {isAdminActingForOtherUI && (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-3 rounded-lg text-sm">
+                  <strong>Devolução manual:</strong> você está devolvendo em nome de <strong>{selectedCheckoutDataForUI?.profiles?.full_name}</strong>. Justificativa obrigatória nas observações (mín. 5 caracteres).
+                </div>
+              )}
               <div className="space-y-3">
+
                 <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
                 <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
                   <div className="flex items-center space-x-2">

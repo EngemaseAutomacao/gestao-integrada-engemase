@@ -24,11 +24,16 @@ interface SystemLog {
 const ACTION_LABELS: Record<string, string> = {
   checkout: "Retirada",
   checkin: "Devolução",
+  manual_checkout_by_admin: "Retirada Manual (Admin)",
+  manual_checkin_by_admin: "Devolução Manual (Admin)",
   user_registered: "Novo Cadastro",
   user_approved: "Usuário Aprovado",
   issue_reported: "Problema Reportado",
   issue_resolved: "Problema Resolvido",
 };
+
+const MANUAL_ACTIONS = new Set(["manual_checkout_by_admin", "manual_checkin_by_admin"]);
+
 
 const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
@@ -50,6 +55,8 @@ function getActionColor(action: string): string {
   switch (action) {
     case "checkout": return "border-l-orange-500";
     case "checkin": return "border-l-green-500";
+    case "manual_checkout_by_admin": return "border-l-amber-500";
+    case "manual_checkin_by_admin": return "border-l-amber-500";
     case "user_registered": return "border-l-blue-500";
     case "user_approved": return "border-l-emerald-500";
     case "issue_reported": return "border-l-red-500";
@@ -57,6 +64,7 @@ function getActionColor(action: string): string {
     default: return "border-l-primary";
   }
 }
+
 
 function getActionBadgeVariant(action: string): "default" | "secondary" | "destructive" | "outline" {
   switch (action) {
@@ -68,18 +76,25 @@ function getActionBadgeVariant(action: string): "default" | "secondary" | "destr
 }
 
 function buildDescription(log: SystemLog): string {
-  const d = log.details;
+  const d = log.details || {};
+  const entityName = log.entity_type === "tool" ? `ferramenta "${d.tool_name || ""}"`
+                   : log.entity_type === "vehicle" ? `veículo "${d.vehicle_name || ""} (${d.plate || ""})"`
+                   : "item";
+  const respSuffix = d.responsible_user_name ? ` em nome de ${d.responsible_user_name}` : "";
+
   switch (log.action) {
     case "checkout":
       if (log.entity_type === "tool")
-        return `Retirou a ferramenta "${d.tool_name || ""}"${d.construction_site ? ` para ${d.construction_site}` : ""}${d.selected_tag ? ` (TAG: ${d.selected_tag})` : ""}`;
+        return `Retirou a ${entityName}${d.construction_site ? ` para ${d.construction_site}` : ""}${d.selected_tag ? ` (TAG: ${d.selected_tag})` : ""}`;
       if (log.entity_type === "vehicle")
-        return `Retirou o veículo "${d.vehicle_name || ""} (${d.plate || ""})"${d.destination ? ` - Destino: ${d.destination}` : ""}`;
+        return `Retirou o ${entityName}${d.destination ? ` - Destino: ${d.destination}` : ""}`;
       return "";
     case "checkin":
-      if (log.entity_type === "tool") return `Devolveu a ferramenta "${d.tool_name || ""}"`;
-      if (log.entity_type === "vehicle") return `Devolveu o veículo "${d.vehicle_name || ""} (${d.plate || ""})"`;
-      return "";
+      return `Devolveu a ${entityName}`;
+    case "manual_checkout_by_admin":
+      return `Retirou manualmente a ${entityName}${respSuffix}${d.construction_site ? ` para ${d.construction_site}` : ""}${d.destination ? ` - Destino: ${d.destination}` : ""}`;
+    case "manual_checkin_by_admin":
+      return `Devolveu manualmente a ${entityName}${respSuffix}`;
     case "user_registered":
       return `Novo usuário registrado: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
     case "user_approved":
@@ -92,6 +107,7 @@ function buildDescription(log: SystemLog): string {
       return JSON.stringify(d);
   }
 }
+
 
 export default function AdminLogs() {
   const { profile } = useAuth();
@@ -127,7 +143,9 @@ export default function AdminLogs() {
   };
 
   const filteredLogs = logs.filter((log) => {
-    if (filterAction !== "all" && log.action !== filterAction) return false;
+    if (filterAction === "manual_only") {
+      if (!MANUAL_ACTIONS.has(log.action)) return false;
+    } else if (filterAction !== "all" && log.action !== filterAction) return false;
     if (filterEntity !== "all" && log.entity_type !== filterEntity) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -137,6 +155,7 @@ export default function AdminLogs() {
     }
     return true;
   });
+
 
   if (loading) {
     return (
@@ -171,12 +190,16 @@ export default function AdminLogs() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as Ações</SelectItem>
+                <SelectItem value="manual_only">⚠️ Apenas Ações Manuais (Admin)</SelectItem>
                 <SelectItem value="checkout">Retiradas</SelectItem>
                 <SelectItem value="checkin">Devoluções</SelectItem>
+                <SelectItem value="manual_checkout_by_admin">Retirada Manual (Admin)</SelectItem>
+                <SelectItem value="manual_checkin_by_admin">Devolução Manual (Admin)</SelectItem>
                 <SelectItem value="user_registered">Cadastros</SelectItem>
                 <SelectItem value="user_approved">Aprovações</SelectItem>
                 <SelectItem value="issue_reported">Problemas</SelectItem>
                 <SelectItem value="issue_resolved">Resoluções</SelectItem>
+
               </SelectContent>
             </Select>
             <Select value={filterEntity} onValueChange={setFilterEntity}>
@@ -223,7 +246,13 @@ export default function AdminLogs() {
                         <Badge variant="outline" className="text-xs">
                           {ENTITY_LABELS[log.entity_type] || log.entity_type}
                         </Badge>
+                        {MANUAL_ACTIONS.has(log.action) && (
+                          <Badge className="text-xs bg-amber-500 text-white hover:bg-amber-500/90 gap-1">
+                            <ShieldAlert className="w-3 h-3" /> Manual
+                          </Badge>
+                        )}
                       </div>
+
                       <p className="text-sm">{buildDescription(log)}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{log.user_name || "Sistema"}</span>

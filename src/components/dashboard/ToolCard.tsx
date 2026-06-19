@@ -48,6 +48,8 @@ export function ToolCard({
   const overdueDays = isOverdue && userCheckout?.estimated_return_date
     ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
+  const assignedByAdmin = userCheckouts.some((c: any) => c.checked_out_by && c.user_id && c.checked_out_by !== c.user_id);
+
 
   return (
     <Card
@@ -91,6 +93,12 @@ export function ToolCard({
                     ⚠️ Atrasado {overdueDays}d
                   </Badge>
                 )}
+                {assignedByAdmin && (
+                  <Badge className="text-xs bg-amber-500 text-white hover:bg-amber-500/90">
+                    Atribuído pelo admin
+                  </Badge>
+                )}
+
               </div>
               {tool.description && (
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
