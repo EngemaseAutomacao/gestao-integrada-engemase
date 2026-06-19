@@ -8,19 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignedImage } from "@/components/SignedImage";
-import { Search, Clock, ArrowRight, ChevronDown, CalendarPlus, FileText, FileSpreadsheet, Filter, X, ExternalLink, CheckSquare, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Search, FileText, FileSpreadsheet, Filter, X } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
+import { PendingCheckoutsCard } from "@/components/dashboard/PendingCheckoutsCard";
+import { ToolStats } from "@/components/dashboard/ToolStats";
+import { ToolCard } from "@/components/dashboard/ToolCard";
 
 interface Tool {
   id: string;
@@ -50,7 +51,7 @@ export default function Dashboard() {
   const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [pendingExpanded, setPendingExpanded] = useState(false);
+  
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedCheckouts, setSelectedCheckouts] = useState<Set<string>>(new Set());
   const [bulkReturnLoading, setBulkReturnLoading] = useState(false);
@@ -289,152 +290,21 @@ export default function Dashboard() {
           <p className="text-sm text-muted-foreground">Painel e catálogo unificados — busque, filtre e gerencie retiradas e devoluções</p>
         </div>
 
-        {pendingCheckouts && pendingCheckouts.length > 0 && (
-          <Card
-            className="border-warning/50 bg-warning/5"
-          >
-            <CardHeader className="pb-2 cursor-pointer" onClick={() => setPendingExpanded(!pendingExpanded)}>
-              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-warning">
-                <span className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Devoluções Pendentes ({pendingCheckouts.length})
-                </span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${pendingExpanded ? "rotate-180" : ""}`} />
-              </CardTitle>
-            </CardHeader>
-            {pendingExpanded && (
-              <CardContent className="space-y-2 max-h-[280px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
-                {/* Multi-select toolbar */}
-                <div className="flex items-center justify-between gap-2 sticky top-0 bg-warning/5 backdrop-blur py-1 z-10">
-                  {!multiSelectMode ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs gap-1"
-                      onClick={() => setMultiSelectMode(true)}
-                    >
-                      <CheckSquare className="w-3 h-3" /> Selecionar várias
-                    </Button>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="select-all-pending"
-                          checked={selectedCheckouts.size === pendingCheckouts.length && pendingCheckouts.length > 0}
-                          onCheckedChange={toggleSelectAll}
-                        />
-                        <label htmlFor="select-all-pending" className="text-xs font-medium cursor-pointer">
-                          Selecionar todos
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm"
-                          variant="default"
-                          className="text-xs gap-1"
-                          disabled={selectedCheckouts.size === 0 || bulkReturnLoading}
-                          onClick={handleBulkReturn}
-                        >
-                          {bulkReturnLoading && <Loader2 className="w-3 h-3 animate-spin" />}
-                          Devolver ({selectedCheckouts.size})
-                        </Button>
-                        <Button size="sm" variant="ghost" className="text-xs" onClick={exitMultiSelect}>
-                          Cancelar
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
+        <PendingCheckoutsCard
+          pendingCheckouts={(pendingCheckouts || []) as any}
+          multiSelectMode={multiSelectMode}
+          setMultiSelectMode={setMultiSelectMode}
+          selectedCheckouts={selectedCheckouts}
+          toggleSelectCheckout={toggleSelectCheckout}
+          toggleSelectAll={toggleSelectAll}
+          exitMultiSelect={exitMultiSelect}
+          bulkReturnLoading={bulkReturnLoading}
+          handleBulkReturn={handleBulkReturn}
+          handleCheckin={handleCheckin}
+          openExtendDialog={openExtendDialog}
+        />
 
-                {pendingCheckouts.map((checkout: any) => {
-                  const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                  const isSelected = selectedCheckouts.has(checkout.id);
-                  return (
-                    <div
-                      key={checkout.id}
-                      className={`flex items-center justify-between gap-2 p-2 rounded-md transition-colors ${
-                        isSelected ? "bg-primary/10 border border-primary/30" : "bg-background/80"
-                      }`}
-                    >
-                      {multiSelectMode && (
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleSelectCheckout(checkout.id)}
-                          className="shrink-0"
-                        />
-                      )}
-                      <div
-                        className={`flex-1 min-w-0 ${multiSelectMode ? "cursor-pointer" : ""}`}
-                        onClick={() => multiSelectMode && toggleSelectCheckout(checkout.id)}
-                      >
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
-                          {checkout.selected_tag && (
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
-                              {checkout.selected_tag}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {checkout.estimated_return_date && (
-                            <span className={isOverdue ? "text-destructive font-medium" : ""}>
-                              {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {!multiSelectMode && (
-                        <div className="flex gap-1 shrink-0">
-                          {isOverdue && (
-                            <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
-                              <CalendarPlus className="w-3 h-3" /> Prorrogar
-                            </Button>
-                          )}
-                          <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => handleCheckin(checkout.id)}>
-                            Registrar Devolução <ArrowRight className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </CardContent>
-            )}
-          </Card>
-        )}
-
-        <div className="grid gap-2 sm:gap-4 grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Disponíveis</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-success">
-                {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold">
-                {tools.reduce((acc, tool) => acc + tool.quantity_total, 0)}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Em Uso</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-warning">
-                {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <ToolStats tools={tools} />
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">
@@ -585,101 +455,18 @@ export default function Dashboard() {
             ) : (
               filteredTools.map((tool) => {
                 const userCheckouts = pendingCheckouts?.filter((c: any) => c.tool_id === tool.id) || [];
-                const userCheckout = userCheckouts[0];
-                const userHasTool = userCheckouts.length > 0;
-                const userTags = new Set(userCheckouts.map((c: any) => (c.selected_tag || "").trim()).filter(Boolean));
-                const isOverdue = Boolean(
-                  userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
-                );
-                const overdueDays = isOverdue && userCheckout?.estimated_return_date
-                  ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
-                  : 0;
                 return (
-                  <Card key={tool.id} className={cn("cursor-pointer hover:bg-accent/50 transition-colors", isOverdue && "border-destructive/50")} onClick={() => navigate(`/ferramentas/${tool.id}`)}>
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div className="flex gap-3 flex-1 min-w-0">
-                          {tool.image_url && (
-                            <div
-                              className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted"
-                              onClick={(e) => { e.stopPropagation(); setEnlargedImage(tool.image_url); }}
-                            >
-                              {tool.image_url.startsWith("http") ? (
-                                <img src={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <SignedImage storagePath={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
-                              )}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-sm sm:text-base capitalize">{tool.name.toLowerCase()}</h3>
-                              {tool.tag && tool.tag.split(",").map(t => t.trim()).filter(Boolean).map((tag) => {
-                                const mine = userTags.has(tag);
-                                return (
-                                  <Badge
-                                    key={tag}
-                                    className={`text-xs ${mine ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
-                                    variant={mine ? "default" : "secondary"}
-                                  >
-                                    {mine ? `🔧 ${tag}` : tag}
-                                  </Badge>
-                                );
-                              })}
-                              {tool.brand && <Badge variant="outline" className="text-xs">{tool.brand}</Badge>}
-                              {tool.employee_only && <Badge variant="outline" className="text-xs">Apenas Funcionários</Badge>}
-                              {tool.condition && (
-                                <Badge variant="outline" className="text-xs">
-                                  {conditionLabels[tool.condition] || tool.condition}
-                                </Badge>
-                              )}
-                              {isOverdue && (
-                                <Badge variant="destructive" className="text-xs gap-1">
-                                  ⚠️ Atrasado {overdueDays}d
-                                </Badge>
-                              )}
-                            </div>
-                            {tool.description && (
-                              <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
-                                {tool.description}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-4 mt-2 text-xs sm:text-sm">
-                              <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
-                                Disponível: {tool.quantity_available}/{tool.quantity_total}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
-                          {userHasTool && (
-                            <>
-                              {isOverdue && userCheckout && (
-                                <Button size="sm" variant="ghost" className="text-xs sm:text-sm" onClick={() => openExtendDialog(userCheckout.id, tool.name)}>
-                                  <CalendarPlus className="w-3 h-3" /> Prorrogar
-                                </Button>
-                              )}
-                              <Button size="sm" variant="outline" className="text-xs sm:text-sm" onClick={() => handleCheckin(userCheckout?.id || "")}>
-                                Registrar Devolução
-                              </Button>
-                            </>
-                          )}
-                          {tool.quantity_available > 0 && (
-                            <Button
-                              size="sm"
-                              className="text-xs sm:text-sm"
-                              onClick={() => handleCheckout(tool.id)}
-                            >
-                              Registrar Saída
-                            </Button>
-                          )}
-                          <Button size="sm" variant="ghost" className="text-xs" onClick={() => navigate(`/ferramentas/${tool.id}`)} aria-label="Ver detalhes">
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ToolCard
+                    key={tool.id}
+                    tool={tool}
+                    userCheckouts={userCheckouts}
+                    conditionLabels={conditionLabels}
+                    onNavigate={navigate}
+                    onEnlargeImage={setEnlargedImage}
+                    onCheckout={handleCheckout}
+                    onCheckin={handleCheckin}
+                    onExtend={openExtendDialog}
+                  />
                 );
               })
             )}
