@@ -259,9 +259,9 @@ export default function Checkout() {
               {selectedToolId && hasMultipleTags ? (
                 <div className="space-y-2">
                   <Label>Selecione a TAG *</Label>
-                  <Select value={selectedTag} onValueChange={setSelectedTag}>
+                  <Select value={selectedTag} onValueChange={setSelectedTag} disabled={toolTags.length === 0}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione qual TAG está retirando" />
+                      <SelectValue placeholder={toolTags.length === 0 ? "Todas as TAGs estão em uso" : "Selecione qual TAG está retirando"} />
                     </SelectTrigger>
                     <SelectContent>
                       {toolTags.map((tag) => (
@@ -271,6 +271,11 @@ export default function Checkout() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {activeTags.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      TAGs já retiradas: {activeTags.join(", ")}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
