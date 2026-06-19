@@ -282,22 +282,26 @@ export default function Checkin() {
                 </div>
               )}
 
+              {isAdminActingForOther && (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-3 rounded-lg text-sm">
+                  <strong>Devolução manual:</strong> você está devolvendo em nome de <strong>{selectedCheckout!.profiles?.full_name}</strong>. Justificativa obrigatória abaixo.
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="notes">Observações (opcional)</Label>
+                <Label htmlFor="notes">
+                  Observações {isAdminActingForOther ? "* (justificativa obrigatória)" : "(opcional)"}
+                </Label>
                 <Textarea
                   id="notes"
-                  placeholder="Adicione observações sobre o retorno..."
+                  placeholder={isAdminActingForOther ? "Ex.: usuário ausente, ferramenta devolvida no almoxarifado..." : "Adicione observações sobre o retorno..."}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
+                  required={isAdminActingForOther}
                 />
               </div>
 
-              {/* Photo Capture */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Foto da Ferramenta (opcional)</Label>
-                  {photoConfirmed && (
                     <Badge variant="secondary" className="gap-1">
                       <CheckCircle className="w-3 h-3" />
                       Capturada
