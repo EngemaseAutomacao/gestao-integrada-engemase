@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { detectBucket, extractStoragePath } from "@/lib/storageUtils";
 
 interface SignedImageProps {
   storagePath: string | null | undefined;
@@ -8,38 +9,6 @@ interface SignedImageProps {
   bucket?: string;
 }
 
-/**
- * Detects the correct bucket for a given storage path.
- */
-function detectBucket(path: string): string {
-  if (path.startsWith("ferramentas/") || path.startsWith("veiculos/")) {
-    return "imagens";
-  }
-  if (path.includes("/imagens/")) return "imagens";
-  if (path.includes("/tool-images/")) return "tool-images";
-  return "checkout-images";
-}
-
-/**
- * Extracts the storage path from a full URL or returns the path as-is.
- */
-function extractStoragePath(url: string): string {
-  const patterns = [
-    /\/checkout-images\/(.+?)(\?.*)?$/,
-    /\/object\/public\/checkout-images\/(.+?)(\?.*)?$/,
-    /\/tool-images\/(.+?)(\?.*)?$/,
-    /\/object\/public\/tool-images\/(.+?)(\?.*)?$/,
-    /\/imagens\/(.+?)(\?.*)?$/,
-    /\/object\/public\/imagens\/(.+?)(\?.*)?$/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-
-  return url;
-}
 
 export function SignedImage({ storagePath, alt, className, bucket }: SignedImageProps) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
