@@ -38,6 +38,7 @@ interface BulkSelection {
 export default function Checkout() {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedTools, saveToCache } = useOfflineStorage<Tool[]>("tools", []);
   const navigate = useNavigate();
@@ -52,6 +53,10 @@ export default function Checkout() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingTools, setLoadingTools] = useState(true);
+
+  // Admin: responsible user (defaults to self)
+  const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   // Bulk mode
   const [bulkMode, setBulkMode] = useState(searchParams.get("bulk") === "1");
