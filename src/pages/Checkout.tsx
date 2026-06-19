@@ -316,7 +316,14 @@ export default function Checkout() {
     if (!finalSite) { toast.error("Informe a obra de destino"); return; }
     if (!estimatedReturnDate) { toast.error("Informe a data estimada de devolução"); return; }
 
+    const isAdminActingForOther = isAdmin && !!responsibleUserId && responsibleUserId !== profile!.id;
+    if (isAdminActingForOther && notes.trim().length < 5) {
+      toast.error("Justificativa obrigatória", { description: "Informe uma observação (mín. 5 caracteres) ao retirar em nome de outro usuário." });
+      return;
+    }
+
     setLoading(true);
+
     try {
       let photoUrl: string | null = null;
       if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
