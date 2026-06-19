@@ -70,6 +70,7 @@ export default function Dashboard() {
   const [catalogSelectMode, setCatalogSelectMode] = useState(false);
   // toolId -> selected TAG ("" when not yet chosen / not applicable)
   const [catalogSelected, setCatalogSelected] = useState<Map<string, string>>(new Map());
+  const [catalogTagError, setCatalogTagError] = useState("");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -88,6 +89,7 @@ export default function Dashboard() {
     });
   const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Map()); };
   const confirmCatalogBulk = () => {
+    setCatalogTagError("");
     if (catalogSelected.size === 0) { toast.error("Selecione ao menos uma ferramenta"); return; }
     // Validate TAG chosen for multi-tag tools
     for (const [toolId, tag] of catalogSelected) {
@@ -95,7 +97,9 @@ export default function Dashboard() {
       if (!t) continue;
       const tags = (t.tag || "").split(",").map((s: string) => s.trim()).filter(Boolean);
       if (tags.length > 1 && !tag) {
-        toast.error(`Selecione qual unidade de "${t.name}" você está retirando`);
+        const msg = `Selecione qual unidade de "${t.name}" você está retirando antes de continuar.`;
+        setCatalogTagError(msg);
+        toast.error(msg);
         return;
       }
     }
@@ -589,15 +593,25 @@ export default function Dashboard() {
             )}
           </div>
           {catalogSelectMode && (
-            <div className="shrink-0 flex items-center justify-between gap-2 p-3 border-t bg-background sticky bottom-0">
-              <span className="text-sm font-medium">
-                {catalogSelected.size} selecionada{catalogSelected.size === 1 ? "" : "s"}
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={exitCatalogSelect}>Cancelar</Button>
-                <Button size="sm" disabled={catalogSelected.size === 0} onClick={confirmCatalogBulk}>
-                  Continuar para Retirada
-                </Button>
+            <div className="shrink-0 flex flex-col gap-2 p-3 border-t bg-background sticky bottom-0">
+              <div
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                className={cn("text-sm font-medium", catalogTagError ? "text-destructive" : "sr-only")}
+              >
+                {catalogTagError}
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">
+                  {catalogSelected.size} selecionada{catalogSelected.size === 1 ? "" : "s"}
+                </span>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={exitCatalogSelect}>Cancelar</Button>
+                  <Button size="sm" disabled={catalogSelected.size === 0} onClick={confirmCatalogBulk}>
+                    Continuar para Retirada
+                  </Button>
+                </div>
               </div>
             </div>
           )}

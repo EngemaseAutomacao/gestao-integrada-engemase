@@ -18,6 +18,7 @@ import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutoc
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle, CheckSquare, X } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
@@ -57,6 +58,7 @@ export default function Checkout() {
   const [bulkSelections, setBulkSelections] = useState<Map<string, BulkSelection>>(new Map());
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");
+  const [tagError, setTagError] = useState("");
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
@@ -213,17 +215,22 @@ export default function Checkout() {
     if (!estimatedReturnDate) { toast.error("Informe a data estimada de devolução"); return; }
 
     // Validate multi-tag tools
+    setTagError("");
     for (const [toolId, sel] of bulkSelections) {
       const tool = tools.find(t => t.id === toolId);
       if (!tool) continue;
       const tags = (tool.tag || "").split(",").map(s => s.trim()).filter(Boolean);
       if (tags.length > 1) {
         if (!sel.selectedTag) {
-          toast.error(`Selecione a TAG da ferramenta "${tool.name}"`);
+          const msg = `Selecione a TAG da ferramenta "${tool.name}" antes de confirmar.`;
+          setTagError(msg);
+          toast.error(msg);
           return;
         }
         if ((bulkActiveTags[toolId] || []).includes(sel.selectedTag)) {
-          toast.error(`A TAG ${sel.selectedTag} de "${tool.name}" já está em uso`);
+          const msg = `A TAG ${sel.selectedTag} de "${tool.name}" já está em uso.`;
+          setTagError(msg);
+          toast.error(msg);
           return;
         }
       }
@@ -271,9 +278,17 @@ export default function Checkout() {
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedToolId) { toast.error("Selecione uma ferramenta"); return; }
-    if (hasMultipleTags && !selectedTag) { toast.error("Selecione qual TAG você está retirando"); return; }
+    setTagError("");
+    if (hasMultipleTags && !selectedTag) {
+      const msg = "Selecione qual TAG você está retirando antes de confirmar.";
+      setTagError(msg);
+      toast.error(msg);
+      return;
+    }
     if (selectedTag && activeTags.includes(selectedTag)) {
-      toast.error("Esta TAG já está em uso", { description: "Selecione outra TAG ou aguarde a devolução." });
+      const msg = "Esta TAG já está em uso. Selecione outra ou aguarde a devolução.";
+      setTagError(msg);
+      toast.error(msg);
       return;
     }
     const finalSite = constructionSite.trim();
@@ -458,6 +473,15 @@ export default function Checkout() {
                 )}
               </div>
 
+              <div
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                className={cn("text-sm font-medium", tagError ? "text-destructive" : "sr-only")}
+              >
+                {tagError}
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <Button type="submit" disabled={loading || bulkSelections.size === 0 || !constructionSite.trim() || !estimatedReturnDate} className="flex-1">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -558,6 +582,15 @@ export default function Checkout() {
                   </Button>
                 </div>
               )}
+            </div>
+
+            <div
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+              className={cn("text-sm font-medium", tagError ? "text-destructive" : "sr-only")}
+            >
+              {tagError}
             </div>
 
             <div className="flex gap-3 pt-2">
