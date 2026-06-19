@@ -70,6 +70,7 @@ export default function Dashboard() {
   const [catalogSelectMode, setCatalogSelectMode] = useState(false);
   // toolId -> selected TAG ("" when not yet chosen / not applicable)
   const [catalogSelected, setCatalogSelected] = useState<Map<string, string>>(new Map());
+  const [catalogTagError, setCatalogTagError] = useState("");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
