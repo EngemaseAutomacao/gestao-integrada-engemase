@@ -413,7 +413,13 @@ export default function VehicleCheckin() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {isAdminActingForOtherUI && (
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-3 rounded-lg text-sm">
+                  <strong>Devolução manual:</strong> você está devolvendo em nome de <strong>{selectedCheckoutDataForUI?.profiles?.full_name}</strong>. Justificativa obrigatória nas observações (mín. 5 caracteres).
+                </div>
+              )}
               <div className="space-y-3">
+
                 <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
                 <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
                   <div className="flex items-center space-x-2">
