@@ -39,6 +39,7 @@ interface Checkout {
 export default function Checkin() {
   const [searchParams] = useSearchParams();
   const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedCheckouts, saveToCache } = useOfflineStorage<Checkout[]>("checkouts", []);
   const navigate = useNavigate();
