@@ -68,20 +68,44 @@ export default function Dashboard() {
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [catalogSelectMode, setCatalogSelectMode] = useState(false);
-  const [catalogSelected, setCatalogSelected] = useState<Set<string>>(new Set());
+  // toolId -> selected TAG ("" when not yet chosen / not applicable)
+  const [catalogSelected, setCatalogSelected] = useState<Map<string, string>>(new Map());
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const toggleCatalogTool = (id: string) =>
     setCatalogSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      const next = new Map(prev);
+      if (next.has(id)) next.delete(id);
+      else next.set(id, "");
       return next;
     });
-  const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Set()); };
+  const setCatalogTag = (id: string, tag: string) =>
+    setCatalogSelected(prev => {
+      const next = new Map(prev);
+      next.set(id, tag);
+      return next;
+    });
+  const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Map()); };
   const confirmCatalogBulk = () => {
     if (catalogSelected.size === 0) { toast.error("Selecione ao menos uma ferramenta"); return; }
-    navigate(`/checkout?bulk=1&toolIds=${Array.from(catalogSelected).join(",")}`);
+    // Validate TAG chosen for multi-tag tools
+    for (const [toolId, tag] of catalogSelected) {
+      const t = tools?.find((x: any) => x.id === toolId);
+      if (!t) continue;
+      const tags = (t.tag || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+      if (tags.length > 1 && !tag) {
+        toast.error(`Selecione qual unidade de "${t.name}" você está retirando`);
+        return;
+      }
+    }
+    const ids = Array.from(catalogSelected.keys()).join(",");
+    const tagsParam = Array.from(catalogSelected.entries())
+      .filter(([, tag]) => !!tag)
+      .map(([id, tag]) => `${id}:${encodeURIComponent(tag)}`)
+      .join(",");
+    const qs = `bulk=1&toolIds=${ids}${tagsParam ? `&tags=${tagsParam}` : ""}`;
+    navigate(`/checkout?${qs}`);
   };
 
   const { data: pendingCheckouts } = useQuery({
