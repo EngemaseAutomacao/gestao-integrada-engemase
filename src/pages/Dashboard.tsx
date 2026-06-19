@@ -612,7 +612,14 @@ export default function Dashboard() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold text-sm sm:text-base capitalize">{tool.name.toLowerCase()}</h3>
-                              {tool.tag && <Badge variant="secondary" className="text-xs">{tool.tag}</Badge>}
+                              {tool.tag && (
+                                <Badge
+                                  className={`text-xs ${userHasTool ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
+                                  variant={userHasTool ? "default" : "secondary"}
+                                >
+                                  {userHasTool ? `🔧 ${tool.tag} (com você)` : tool.tag}
+                                </Badge>
+                              )}
                               {tool.brand && <Badge variant="outline" className="text-xs">{tool.brand}</Badge>}
                               {tool.employee_only && <Badge variant="outline" className="text-xs">Apenas Funcionários</Badge>}
                               {tool.condition && (
