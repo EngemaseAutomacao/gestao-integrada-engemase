@@ -36,13 +36,20 @@ interface Transfer {
 
 export default function Transfers() {
   const { profile } = useAuth();
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; transferId: string | null }>({ open: false, transferId: null });
   const [rejectionReason, setRejectionReason] = useState("");
   const isAdmin = profile?.role === "admin";
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; transfer: Transfer | null }>({ open: false, transfer: null });
+
+  const { data: transfers = [], isLoading: loading, refetch } = useQuery<Transfer[]>({
+    queryKey: ["asset-transfers"],
+    queryFn: fetchTransfers,
+    staleTime: 30_000,
+  });
+
+  const invalidateTransfers = () => queryClient.invalidateQueries({ queryKey: ["asset-transfers"] });
 
   const handleDeleteTransfer = async (reason: string) => {
     if (!deleteDialog.transfer) return;
