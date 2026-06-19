@@ -665,10 +665,7 @@ export default function AdminConstructionSites() {
                             <ExternalLink className="w-3.5 h-3.5" />
                           </Button>
                         </div>
-                        <div className="flex items-center justify-between gap-2">
-                          <Badge variant="outline" className={`${getConditionClass(tool.condition)} text-[10px]`}>
-                            {getConditionLabel(tool.condition)}
-                          </Badge>
+                        <div className="flex items-center justify-end gap-2">
                           <span className="text-[11px] text-muted-foreground">
                             {tool.quantity_available}/{tool.quantity_total}
                           </span>
@@ -684,7 +681,7 @@ export default function AdminConstructionSites() {
                           <TableHead>Nome</TableHead>
                           <TableHead>TAG</TableHead>
                           <TableHead className="hidden md:table-cell">Marca</TableHead>
-                          <TableHead>Condição</TableHead>
+                          
                           <TableHead className="hidden lg:table-cell">Qtd. Disp/Total</TableHead>
                           <TableHead className="text-right">Ações</TableHead>
                         </TableRow>
@@ -695,11 +692,6 @@ export default function AdminConstructionSites() {
                             <TableCell className="font-medium">{tool.name}</TableCell>
                             <TableCell>{tool.tag || "-"}</TableCell>
                             <TableCell className="hidden md:table-cell">{tool.brand || "-"}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className={getConditionClass(tool.condition)}>
-                                {getConditionLabel(tool.condition)}
-                              </Badge>
-                            </TableCell>
                             <TableCell className="hidden lg:table-cell">
                               {tool.quantity_available}/{tool.quantity_total}
                             </TableCell>
