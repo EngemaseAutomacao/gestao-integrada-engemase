@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Package, Upload, LogIn, History, BarChart3, AlertCircle, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
+import { Wrench, Upload, LogIn, History, BarChart3, AlertCircle, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
@@ -57,12 +57,6 @@ export default function FerramentasMenu() {
           description="Visão geral e status das ferramentas"
           icon={<Wrench className="w-6 h-6 text-primary" />}
           to="/ferramentas/dashboard"
-        />
-        <MenuCard
-          title="Catálogo"
-          description="Lista completa de ferramentas"
-          icon={<Package className="w-6 h-6 text-primary" />}
-          to="/ferramentas/lista"
         />
         <MenuCard
           title="Registrar Saída"
