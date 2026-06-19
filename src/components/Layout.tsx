@@ -223,7 +223,7 @@ export default function Layout({ children }: LayoutProps) {
 
   // Hide splash screen when auth is done loading
   if (!loading) {
-    const splash = document.getElementById('splash-dvh');
+    const splash = document.getElementById('splash-screen');
     if (splash) {
       splash.style.opacity = '0';
       setTimeout(() => splash.remove(), 300);
