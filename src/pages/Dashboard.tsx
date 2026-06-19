@@ -464,20 +464,6 @@ export default function Dashboard() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Condição</label>
-                <Select value={conditionFilter} onValueChange={setConditionFilter}>
-                  <SelectTrigger><SelectValue placeholder="Todas as condições" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas as condições</SelectItem>
-                    {conditions.map(condition => (
-                      <SelectItem key={condition} value={condition}>
-                        {conditionLabels[condition] || condition}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Disponibilidade</label>
                 <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
                   <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
