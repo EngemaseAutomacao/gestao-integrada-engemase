@@ -128,83 +128,189 @@ export default function AdminAnalytics() {
     return <Navigate to="/" />;
   }
 
-  const loadAnalytics = async () => {
-    try {
-      // Fetch all checkouts
-      let query = supabase
-        .from("tool_checkouts")
-        .select(`
-          id,
-          checkout_date,
-          checkin_date,
-          status,
-          construction_site,
-          estimated_return_date,
-          user_id,
-          tool_id,
-          tools (name),
-          profiles!tool_checkouts_user_id_fkey (full_name, category)
-        `);
+  async function loadAnalytics(range: { from: Date | null; to: Date | null }): Promise<AnalyticsBundle> {
+    // Fetch all checkouts
+    let query = supabase
+      .from("tool_checkouts")
+      .select(`
+        id,
+        checkout_date,
+        checkin_date,
+        status,
+        construction_site,
+        estimated_return_date,
+        user_id,
+        tool_id,
+        tools (name),
+        profiles!tool_checkouts_user_id_fkey (full_name, category)
+      `);
 
-      const range = getDateRange();
-      if (range.from) query = query.gte("checkout_date", range.from.toISOString());
-      if (range.to) query = query.lte("checkout_date", range.to.toISOString());
+    if (range.from) query = query.gte("checkout_date", range.from.toISOString());
+    if (range.to) query = query.lte("checkout_date", range.to.toISOString());
 
-      const { data: checkouts, error } = await query;
+    const { data: checkouts, error } = await query;
+    if (error) throw error;
 
-      if (error) throw error;
+    const { data: tools } = await supabase.from("tools").select("id, quantity_available, quantity_total");
+    const { data: users } = await supabase.from("profiles").select("id, category");
+    const { data: maintenances } = await supabase.from("maintenance_records").select("id");
 
-      // Fetch tools count
-      const { data: tools } = await supabase.from("tools").select("id, quantity_available, quantity_total");
-      
-      // Fetch users count
-      const { data: users } = await supabase.from("profiles").select("id, category");
-      
-      // Fetch maintenance count
-      const { data: maintenances } = await supabase.from("maintenance_records").select("id");
+    let vQuery = supabase
+      .from("vehicle_checkouts")
+      .select("id, checkout_date, checkin_date, km_checkout, km_checkin, status");
+    if (range.from) vQuery = vQuery.gte("checkout_date", range.from.toISOString());
+    if (range.to) vQuery = vQuery.lte("checkout_date", range.to.toISOString());
+    const { data: vehicleCheckouts } = await vQuery;
 
-      // Fetch vehicle checkouts
-      let vQuery = supabase
-        .from("vehicle_checkouts")
-        .select("id, checkout_date, checkin_date, km_checkout, km_checkin, status");
-      if (range.from) vQuery = vQuery.gte("checkout_date", range.from.toISOString());
-      if (range.to) vQuery = vQuery.lte("checkout_date", range.to.toISOString());
-      const { data: vehicleCheckouts } = await vQuery;
+    const totalCheckouts = checkouts?.length || 0;
+    const activeCheckouts = checkouts?.filter(c => c.status === "checked_out").length || 0;
+    const totalTools = tools?.length || 0;
+    const toolsInUse = tools?.filter(t => t.quantity_available < t.quantity_total).length || 0;
+    const totalUsers = users?.length || 0;
+    const maintenanceCount = maintenances?.length || 0;
+    const totalVehicleCheckouts = vehicleCheckouts?.length || 0;
+    const activeVehicles = vehicleCheckouts?.filter(v => v.status === "checked_out").length || 0;
+    const totalKmDriven = vehicleCheckouts?.reduce((sum, v) => {
+      if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+      return sum;
+    }, 0) || 0;
 
-      // Calculate metrics
-      const totalCheckouts = checkouts?.length || 0;
-      const activeCheckouts = checkouts?.filter(c => c.status === "checked_out").length || 0;
-      const totalTools = tools?.length || 0;
-      const toolsInUse = tools?.filter(t => t.quantity_available < t.quantity_total).length || 0;
-      const totalUsers = users?.length || 0;
-      const maintenanceCount = maintenances?.length || 0;
-      const totalVehicleCheckouts = vehicleCheckouts?.length || 0;
-      const activeVehicles = vehicleCheckouts?.filter(v => v.status === "checked_out").length || 0;
-      const totalKmDriven = vehicleCheckouts?.reduce((sum, v) => {
+    const completedCheckouts = checkouts?.filter(c => c.checkin_date) || [];
+    const totalDays = completedCheckouts.reduce((sum, c) => {
+      const checkout = new Date(c.checkout_date);
+      const checkin = new Date(c.checkin_date!);
+      const days = (checkin.getTime() - checkout.getTime()) / (1000 * 60 * 60 * 24);
+      return sum + days;
+    }, 0);
+    const averageUsageDays = completedCheckouts.length > 0
+      ? Math.round(totalDays / completedCheckouts.length)
+      : 0;
+
+    const totalDelays = checkouts?.filter(c => {
+      if (!c.estimated_return_date) return false;
+      const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
+      return returnDate > new Date(c.estimated_return_date);
+    }).length || 0;
+
+    const vMonthlyStats: VehicleMonthlyData[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+      const monthVCheckouts = vehicleCheckouts?.filter(v => {
+        const d = new Date(v.checkout_date);
+        return d >= monthStart && d <= monthEnd;
+      }) || [];
+      const monthKm = monthVCheckouts.reduce((sum, v) => {
         if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
         return sum;
-      }, 0) || 0;
-      
-      // Calculate average usage time
-      const completedCheckouts = checkouts?.filter(c => c.checkin_date) || [];
-      const totalDays = completedCheckouts.reduce((sum, c) => {
-        const checkout = new Date(c.checkout_date);
-        const checkin = new Date(c.checkin_date!);
-        const days = (checkin.getTime() - checkout.getTime()) / (1000 * 60 * 60 * 24);
-        return sum + days;
       }, 0);
-      const averageUsageDays = completedCheckouts.length > 0 
-        ? Math.round(totalDays / completedCheckouts.length) 
-        : 0;
+      vMonthlyStats.push({
+        month: format(date, "MMM/yy", { locale: ptBR }),
+        checkouts: monthVCheckouts.length,
+        km: monthKm,
+      });
+    }
 
-      // Count delays
-      const totalDelays = checkouts?.filter(c => {
+    const toolCounts: Record<string, number> = {};
+    checkouts?.forEach(c => {
+      const toolName = (c as any).tools?.name || "Desconhecido";
+      toolCounts[toolName] = (toolCounts[toolName] || 0) + 1;
+    });
+    const topToolsData = Object.entries(toolCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    const siteDelays: Record<string, { delays: number; total: number }> = {};
+    checkouts?.forEach(c => {
+      const site = c.construction_site || "Sem Obra";
+      if (!siteDelays[site]) siteDelays[site] = { delays: 0, total: 0 };
+      siteDelays[site].total += 1;
+      if (c.estimated_return_date) {
+        const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
+        if (returnDate > new Date(c.estimated_return_date)) siteDelays[site].delays += 1;
+      }
+    });
+    const siteDelayData = Object.entries(siteDelays)
+      .map(([name, data]) => ({
+        name,
+        delays: data.delays,
+        total: data.total,
+        rate: Math.round((data.delays / data.total) * 100),
+      }))
+      .sort((a, b) => b.rate - a.rate)
+      .slice(0, 5);
+
+    const userDelays: Record<string, { delays: number; total: number }> = {};
+    checkouts?.forEach(c => {
+      const userName = (c as any).profiles?.full_name || "Desconhecido";
+      if (!userDelays[userName]) userDelays[userName] = { delays: 0, total: 0 };
+      userDelays[userName].total += 1;
+      if (c.estimated_return_date) {
+        const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
+        if (returnDate > new Date(c.estimated_return_date)) userDelays[userName].delays += 1;
+      }
+    });
+    const userDelayData = Object.entries(userDelays)
+      .map(([name, data]) => ({
+        name,
+        delays: data.delays,
+        total: data.total,
+        rate: Math.round((data.delays / data.total) * 100),
+      }))
+      .filter(d => d.delays > 0)
+      .sort((a, b) => b.rate - a.rate)
+      .slice(0, 5);
+
+    const monthlyStats: MonthlyData[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthStart = startOfMonth(date);
+      const monthEnd = endOfMonth(date);
+
+      const monthCheckouts = checkouts?.filter(c => {
+        const checkoutDate = new Date(c.checkout_date);
+        return checkoutDate >= monthStart && checkoutDate <= monthEnd;
+      }) || [];
+
+      const monthCheckins = checkouts?.filter(c => {
+        if (!c.checkin_date) return false;
+        const checkinDate = new Date(c.checkin_date);
+        return checkinDate >= monthStart && checkinDate <= monthEnd;
+      }) || [];
+
+      const monthDelays = monthCheckouts.filter(c => {
         if (!c.estimated_return_date) return false;
         const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
         return returnDate > new Date(c.estimated_return_date);
-      }).length || 0;
+      }).length;
 
-      setMetrics({
+      monthlyStats.push({
+        month: format(date, "MMM/yy", { locale: ptBR }),
+        checkouts: monthCheckouts.length,
+        checkins: monthCheckins.length,
+        delays: monthDelays,
+      });
+    }
+
+    const employeeCheckouts = checkouts?.filter(c => (c as any).profiles?.category === "engemase_employee").length || 0;
+    const thirdPartyCheckouts = checkouts?.filter(c => (c as any).profiles?.category === "third_party").length || 0;
+
+    const userCounts: Record<string, { count: number; category: string }> = {};
+    checkouts?.forEach(c => {
+      const userName = (c as any).profiles?.full_name || "Desconhecido";
+      const userCat = (c as any).profiles?.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
+      if (!userCounts[userName]) userCounts[userName] = { count: 0, category: userCat };
+      userCounts[userName].count += 1;
+    });
+    const userRankingData = Object.entries(userCounts)
+      .map(([name, data]) => ({ name, checkouts: data.count, category: data.category }))
+      .sort((a, b) => b.checkouts - a.checkouts)
+      .slice(0, 10);
+
+    return {
+      metrics: {
         totalCheckouts,
         averageUsageDays,
         totalDelays,
@@ -216,158 +322,20 @@ export default function AdminAnalytics() {
         totalVehicleCheckouts,
         totalKmDriven,
         activeVehicles,
-      });
-
-      // Vehicle monthly trend
-      const vMonthlyStats: VehicleMonthlyData[] = [];
-      for (let i = 5; i >= 0; i--) {
-        const date = subMonths(new Date(), i);
-        const monthStart = startOfMonth(date);
-        const monthEnd = endOfMonth(date);
-        const monthVCheckouts = vehicleCheckouts?.filter(v => {
-          const d = new Date(v.checkout_date);
-          return d >= monthStart && d <= monthEnd;
-        }) || [];
-        const monthKm = monthVCheckouts.reduce((sum, v) => {
-          if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
-          return sum;
-        }, 0);
-        vMonthlyStats.push({
-          month: format(date, "MMM/yy", { locale: ptBR }),
-          checkouts: monthVCheckouts.length,
-          km: monthKm,
-        });
-      }
-      setVehicleMonthlyData(vMonthlyStats);
-
-      // Top 10 most requested tools
-      const toolCounts: Record<string, number> = {};
-      checkouts?.forEach(c => {
-        const toolName = c.tools?.name || "Desconhecido";
-        toolCounts[toolName] = (toolCounts[toolName] || 0) + 1;
-      });
-      const topToolsData = Object.entries(toolCounts)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-      setTopTools(topToolsData);
-
-      // Delays by construction site
-      const siteDelays: Record<string, { delays: number; total: number }> = {};
-      checkouts?.forEach(c => {
-        const site = c.construction_site || "Sem Obra";
-        if (!siteDelays[site]) {
-          siteDelays[site] = { delays: 0, total: 0 };
-        }
-        siteDelays[site].total += 1;
-        if (c.estimated_return_date) {
-          const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
-          if (returnDate > new Date(c.estimated_return_date)) {
-            siteDelays[site].delays += 1;
-          }
-        }
-      });
-      const siteDelayData = Object.entries(siteDelays)
-        .map(([name, data]) => ({
-          name,
-          delays: data.delays,
-          total: data.total,
-          rate: Math.round((data.delays / data.total) * 100),
-        }))
-        .sort((a, b) => b.rate - a.rate)
-        .slice(0, 5);
-      setDelaysBySite(siteDelayData);
-
-      // Delays by user
-      const userDelays: Record<string, { delays: number; total: number }> = {};
-      checkouts?.forEach(c => {
-        const userName = c.profiles?.full_name || "Desconhecido";
-        if (!userDelays[userName]) {
-          userDelays[userName] = { delays: 0, total: 0 };
-        }
-        userDelays[userName].total += 1;
-        if (c.estimated_return_date) {
-          const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
-          if (returnDate > new Date(c.estimated_return_date)) {
-            userDelays[userName].delays += 1;
-          }
-        }
-      });
-      const userDelayData = Object.entries(userDelays)
-        .map(([name, data]) => ({
-          name,
-          delays: data.delays,
-          total: data.total,
-          rate: Math.round((data.delays / data.total) * 100),
-        }))
-        .filter(d => d.delays > 0)
-        .sort((a, b) => b.rate - a.rate)
-        .slice(0, 5);
-      setDelaysByUser(userDelayData);
-
-      // Monthly trend (last 6 months)
-      const monthlyStats: MonthlyData[] = [];
-      for (let i = 5; i >= 0; i--) {
-        const date = subMonths(new Date(), i);
-        const monthStart = startOfMonth(date);
-        const monthEnd = endOfMonth(date);
-        
-        const monthCheckouts = checkouts?.filter(c => {
-          const checkoutDate = new Date(c.checkout_date);
-          return checkoutDate >= monthStart && checkoutDate <= monthEnd;
-        }) || [];
-        
-        const monthCheckins = checkouts?.filter(c => {
-          if (!c.checkin_date) return false;
-          const checkinDate = new Date(c.checkin_date);
-          return checkinDate >= monthStart && checkinDate <= monthEnd;
-        }) || [];
-        
-        const monthDelays = monthCheckouts.filter(c => {
-          if (!c.estimated_return_date) return false;
-          const returnDate = c.checkin_date ? new Date(c.checkin_date) : new Date();
-          return returnDate > new Date(c.estimated_return_date);
-        }).length;
-        
-        monthlyStats.push({
-          month: format(date, "MMM/yy", { locale: ptBR }),
-          checkouts: monthCheckouts.length,
-          checkins: monthCheckins.length,
-          delays: monthDelays,
-        });
-      }
-      setMonthlyData(monthlyStats);
-
-      // Category distribution
-      const employeeCheckouts = checkouts?.filter(c => c.profiles?.category === "engemase_employee").length || 0;
-      const thirdPartyCheckouts = checkouts?.filter(c => c.profiles?.category === "third_party").length || 0;
-      setCategoryData([
+      },
+      topTools: topToolsData,
+      delaysBySite: siteDelayData,
+      delaysByUser: userDelayData,
+      monthlyData: monthlyStats,
+      categoryData: [
         { name: "Funcionários", value: employeeCheckouts },
         { name: "Terceirizados", value: thirdPartyCheckouts },
-      ]);
+      ],
+      userRanking: userRankingData,
+      vehicleMonthlyData: vMonthlyStats,
+    };
+  }
 
-      // User ranking - top 10 users by checkouts
-      const userCounts: Record<string, { count: number; category: string }> = {};
-      checkouts?.forEach(c => {
-        const userName = c.profiles?.full_name || "Desconhecido";
-        const userCat = c.profiles?.category === "engemase_employee" ? "Funcionário" : "Terceirizado";
-        if (!userCounts[userName]) {
-          userCounts[userName] = { count: 0, category: userCat };
-        }
-        userCounts[userName].count += 1;
-      });
-      const userRankingData = Object.entries(userCounts)
-        .map(([name, data]) => ({ name, checkouts: data.count, category: data.category }))
-        .sort((a, b) => b.checkouts - a.checkouts)
-        .slice(0, 10);
-      setUserRanking(userRankingData);
-
-    } catch (error) {
-      console.error("Error loading analytics:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
