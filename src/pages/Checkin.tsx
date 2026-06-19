@@ -232,8 +232,9 @@ export default function Checkin() {
                     <SelectContent>
                       {checkouts.map((checkout) => (
                         <SelectItem key={checkout.id} value={checkout.id}>
-                          {checkout.tools.name} 
+                          {checkout.tools.name}
                           {checkout.selected_tag ? ` (TAG: ${checkout.selected_tag})` : ""}
+                          {isAdmin && checkout.profiles?.full_name ? ` — ${checkout.profiles.full_name}` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
