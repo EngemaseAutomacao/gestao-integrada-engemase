@@ -65,6 +65,19 @@ export default function VehicleCheckout() {
     setPreviews(prev => ({ ...prev, [key]: preview }));
   };
 
+  // Load approved users for admin select
+  useQuery({
+    queryKey: ["approved-users-vehicle-checkout"],
+    queryFn: async () => {
+      if (!isAdmin) return [];
+      const { data } = await supabase.rpc("get_approved_users");
+      setApprovedUsers((data as any) || []);
+      return data || [];
+    },
+    enabled: isAdmin,
+  });
+
+
   // Platform-specific state
   const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
 
