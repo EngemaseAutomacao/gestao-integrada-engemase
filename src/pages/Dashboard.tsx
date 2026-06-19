@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SignedImage } from "@/components/SignedImage";
-import { Search, FileText, FileSpreadsheet, Filter, X } from "lucide-react";
+import { Search, FileText, FileSpreadsheet, Filter, X, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
