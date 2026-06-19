@@ -66,6 +66,30 @@ export default function Checkout() {
     loadTools();
   }, []);
 
+  // Carrega TAGs já retiradas (status checked_out) da ferramenta selecionada
+  useEffect(() => {
+    if (!selectedToolId || !isOnline) {
+      setActiveTags([]);
+      return;
+    }
+    (async () => {
+      const { data, error } = await supabase
+        .from("tool_checkouts")
+        .select("selected_tag")
+        .eq("tool_id", selectedToolId)
+        .eq("status", "checked_out");
+      if (error) {
+        setActiveTags([]);
+        return;
+      }
+      const inUse = (data || [])
+        .map((r: any) => (r.selected_tag || "").trim())
+        .filter(Boolean);
+      setActiveTags(inUse);
+    })();
+  }, [selectedToolId, isOnline]);
+
+
   const loadTools = async () => {
     try {
       if (!isOnline) {
