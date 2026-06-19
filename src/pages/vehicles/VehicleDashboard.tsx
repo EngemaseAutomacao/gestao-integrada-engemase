@@ -104,7 +104,7 @@ export default function VehicleDashboard() {
     <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
         <div className="hidden sm:block">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
             <Car className="w-8 h-8 text-primary" />
             Veículos
           </h1>

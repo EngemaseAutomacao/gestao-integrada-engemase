@@ -329,7 +329,7 @@ export default function Dashboard() {
     <div className="flex flex-col h-full min-h-0">
       <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
         <div className="hidden sm:block">
-          <h2 className="text-3xl font-bold tracking-tight">Ferramentas</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Ferramentas</h2>
           <p className="text-sm text-muted-foreground">Painel e catálogo unificados — busque, filtre e gerencie retiradas e devoluções</p>
         </div>
 
