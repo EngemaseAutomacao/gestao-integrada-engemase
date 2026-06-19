@@ -223,7 +223,7 @@ export default function Layout({ children }: LayoutProps) {
 
   // Hide splash screen when auth is done loading
   if (!loading) {
-    const splash = document.getElementById('splash-screen');
+    const splash = document.getElementById('splash-dvh');
     if (splash) {
       splash.style.opacity = '0';
       setTimeout(() => splash.remove(), 300);
@@ -244,7 +244,7 @@ export default function Layout({ children }: LayoutProps) {
 
   if (!profile.approved) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
+      <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
         <div className="text-center space-y-4 max-w-md bg-card p-8 rounded-xl shadow-lg border">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
             <Wrench className="w-8 h-8 text-primary" />
@@ -263,9 +263,9 @@ export default function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="h-screen flex w-full bg-background overflow-hidden">
+    <div className="h-dvh flex w-full bg-background overflow-hidden">
       <PermissionsRequest />
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-hidden">
       {/* Header */}
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
         <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
