@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.41.0",
+    date: "2026-06-19",
+    title: "Tour Guiado no Primeiro Login (driver.js)",
+    description: "Novos usuários agora recebem um tour interativo apontando para cada módulo da tela inicial. Os passos se adaptam ao papel: Admin vê todos os módulos incluindo Administração, Funcionário Engemase vê tudo exceto Administração, e Terceiro vê apenas os módulos pertinentes (sem Ponto Online e sem Admin).",
+    changes: [
+      { type: "feature", text: "Tour guiado interativo com setas e destaques nos cards reais da Home (driver.js)" },
+      { type: "feature", text: "Passos personalizados por papel: Admin (9 passos), Funcionário Engemase (8 passos), Terceiro (7 passos)" },
+      { type: "feature", text: "Inclui dica sobre a Busca Rápida (Ctrl + K) e finaliza marcando o primeiro login como concluído automaticamente" },
+      { type: "improvement", text: "Modal antigo de boas-vindas substituído por experiência guiada in-context, mais clara para usuários novos" },
+    ],
+  },
+
+  {
     version: "1.40.0",
     date: "2026-06-19",
     title: "Notificações Agrupadas e Sincronização Offline Confirmada",

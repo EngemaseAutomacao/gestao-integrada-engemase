@@ -301,7 +301,7 @@ export default function Home() {
       )}
 
       <div className="flex flex-wrap justify-center gap-3 sm:gap-6 max-w-5xl w-full">
-        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-ferramentas" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
           <ModuleCard
             title="Ferramentas"
             description="Retiradas, devoluções e manutenções"
@@ -312,7 +312,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-veiculos" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
           <ModuleCard
             title="Veículos"
             description="Entradas e saídas de veículos"
@@ -323,7 +323,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-ponto" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
           <ModuleCard
             title="Ponto Online"
             description="Registre pontos em atividades externas"
@@ -332,7 +332,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-historico" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
           <ModuleCard
             title="Meu Histórico"
             description="Veja todas as suas movimentações"
@@ -341,7 +341,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-transferencias" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
           <ModuleCard
             title="Transferências"
             description="Handover de ferramentas e veículos"
@@ -351,7 +351,7 @@ export default function Home() {
         </div>
 
         {isAdmin && (
-          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <div id="tour-admin" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
             <ModuleCard
               title="Administração"
               description="Usuários, relatórios e configurações"
