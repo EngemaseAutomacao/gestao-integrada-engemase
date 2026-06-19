@@ -1,139 +1,172 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { driver, type DriveStep } from "driver.js";
+import "driver.js/dist/driver.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Wrench,
-  Car,
-  Clock,
-  Bell,
-  ChevronRight,
-  ChevronLeft,
-  CheckCircle2,
-} from "lucide-react";
 
-const steps = [
-  {
-    icon: Wrench,
-    title: "Gestão de Ferramentas",
-    description:
-      "Retire e devolva ferramentas com facilidade. Basta selecionar a ferramenta, a obra de destino e assinar digitalmente. Tudo registrado automaticamente!",
-  },
-  {
-    icon: Car,
-    title: "Controle de Veículos",
-    description:
-      "Registre a saída e chegada de veículos com fotos obrigatórias de todos os lados e do painel. O sistema calcula rotas e monitora o uso.",
-  },
-  {
-    icon: Clock,
-    title: "Ponto Online",
-    description:
-      "Registre sua entrada e saída com geolocalização automática. Acompanhe seu histórico de horas trabalhadas diretamente pelo sistema.",
-  },
-  {
-    icon: Bell,
-    title: "Notificações em Tempo Real",
-    description:
-      "Receba alertas sobre devoluções pendentes, ferramentas atrasadas e aprovações. Ative as notificações push para nunca perder um aviso!",
-  },
-];
+/**
+ * Tour guiado de primeiro login usando driver.js.
+ * Apresenta os módulos da Home com passos específicos para cada papel:
+ *  - admin               → tour completo + módulo de Administração
+ *  - employee (Engemase) → ferramentas, veículos, ponto, histórico, transferências
+ *  - third_party         → ferramentas, veículos, histórico (sem ponto)
+ *
+ * Critério: profile.first_login === true && profile.approved === true.
+ * Ao concluir (ou pular), grava first_login=false no perfil.
+ */
+
+type Role = "admin" | "employee" | "third_party";
+
+function buildStepsForRole(role: Role): DriveStep[] {
+  const welcome: DriveStep = {
+    popover: {
+      title: "Bem-vindo à Gestão Integrada Engemase",
+      description:
+        "Vamos fazer um tour rápido pelos principais módulos do sistema. Você pode pular a qualquer momento.",
+      side: "over",
+      align: "center",
+    },
+  };
+
+  const ferramentas: DriveStep = {
+    element: "#tour-ferramentas",
+    popover: {
+      title: "Ferramentas",
+      description:
+        "Retire e devolva ferramentas, registre manutenções e abra ocorrências. Toda movimentação fica registrada com foto e assinatura.",
+    },
+  };
+
+  const veiculos: DriveStep = {
+    element: "#tour-veiculos",
+    popover: {
+      title: "Veículos",
+      description:
+        "Registre saídas e chegadas de veículos com fotos obrigatórias dos 4 lados + painel. O sistema calcula rota e quilometragem automaticamente.",
+    },
+  };
+
+  const ponto: DriveStep = {
+    element: "#tour-ponto",
+    popover: {
+      title: "Ponto Online",
+      description:
+        "Marque entrada e saída com geolocalização. Acompanhe seu histórico de horas trabalhadas direto no sistema.",
+    },
+  };
+
+  const historico: DriveStep = {
+    element: "#tour-historico",
+    popover: {
+      title: "Meu Histórico",
+      description:
+        "Veja todas as suas movimentações (ferramentas, veículos, ponto) em um só lugar, com exportação em PDF e Excel.",
+    },
+  };
+
+  const transferencias: DriveStep = {
+    element: "#tour-transferencias",
+    popover: {
+      title: "Transferências",
+      description:
+        "Faça handover de ferramentas e veículos para outro usuário. Toda transferência passa por aprovação do administrador.",
+    },
+  };
+
+  const admin: DriveStep = {
+    element: "#tour-admin",
+    popover: {
+      title: "Painel de Administração",
+      description:
+        "Gerencie usuários, aprove cadastros, configure permissões, veja logs e auditoria — tudo em um painel central.",
+    },
+  };
+
+  const busca: DriveStep = {
+    popover: {
+      title: "Busca Rápida (Ctrl + K)",
+      description:
+        "Pressione Ctrl + K (ou Cmd + K no Mac) em qualquer tela para buscar ferramentas, veículos, usuários e navegar instantaneamente.",
+      side: "over",
+      align: "center",
+    },
+  };
+
+  const final: DriveStep = {
+    popover: {
+      title: "Tudo pronto!",
+      description:
+        "Você pode rever este tour a qualquer momento na tela de Ajuda. Bom trabalho! 🚀",
+      side: "over",
+      align: "center",
+    },
+  };
+
+  if (role === "admin") {
+    return [welcome, ferramentas, veiculos, ponto, historico, transferencias, admin, busca, final];
+  }
+  if (role === "third_party") {
+    // Terceiros normalmente não usam Ponto Online nem Administração
+    return [welcome, ferramentas, veiculos, historico, transferencias, busca, final];
+  }
+  // employee (Engemase)
+  return [welcome, ferramentas, veiculos, ponto, historico, transferencias, busca, final];
+}
 
 export function OnboardingTutorial() {
   const { profile, refreshProfile } = useAuth();
-  const [open, setOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    if (profile && profile.first_login && profile.approved) {
-      setOpen(true);
+    if (!profile || !profile.first_login || !profile.approved) return;
+    if (startedRef.current) return;
+
+    // Garante que o tour rode na Home, onde os alvos existem.
+    if (location.pathname !== "/") {
+      navigate("/", { replace: true });
+      return;
     }
-  }, [profile]);
 
-  const handleFinish = async () => {
-    setOpen(false);
-    if (profile) {
-      await supabase
-        .from("profiles")
-        .update({ first_login: false })
-        .eq("id", profile.id);
-      refreshProfile();
-    }
-  };
+    startedRef.current = true;
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((s) => s + 1);
-    } else {
-      handleFinish();
-    }
-  };
+    const markDone = async () => {
+      try {
+        await supabase
+          .from("profiles")
+          .update({ first_login: false })
+          .eq("id", profile.id);
+        await refreshProfile();
+      } catch (e) {
+        console.error("[OnboardingTutorial] falha ao marcar first_login:", e);
+      }
+    };
 
-  const handlePrev = () => {
-    if (currentStep > 0) setCurrentStep((s) => s - 1);
-  };
+    // Pequeno delay garante que os cards já estejam montados.
+    const timer = window.setTimeout(() => {
+      const steps = buildStepsForRole(profile.role as Role);
 
-  const step = steps[currentStep];
-  const Icon = step.icon;
-  const isLast = currentStep === steps.length - 1;
+      const driverObj = driver({
+        showProgress: true,
+        allowClose: true,
+        overlayOpacity: 0.6,
+        nextBtnText: "Próximo →",
+        prevBtnText: "← Anterior",
+        doneBtnText: "Concluir",
+        progressText: "{{current}} de {{total}}",
+        steps,
+        onDestroyed: () => {
+          void markDone();
+        },
+      });
 
-  return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleFinish(); }}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-        {/* Progress bar */}
-        <div className="flex gap-1 px-6 pt-6">
-          {steps.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 flex-1 rounded-full transition-colors ${
-                i <= currentStep ? "bg-primary" : "bg-muted"
-              }`}
-            />
-          ))}
-        </div>
+      driverObj.drive();
+    }, 400);
 
-        <div className="flex flex-col items-center text-center px-6 py-8 space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Icon className="w-8 h-8 text-primary" />
-          </div>
+    return () => window.clearTimeout(timer);
+  }, [profile, location.pathname, navigate, refreshProfile]);
 
-          <h2 className="text-xl font-bold">{step.title}</h2>
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            {step.description}
-          </p>
-        </div>
-
-        <div className="flex items-center justify-between px-6 pb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handlePrev}
-            disabled={currentStep === 0}
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Anterior
-          </Button>
-
-          <span className="text-xs text-muted-foreground">
-            {currentStep + 1} / {steps.length}
-          </span>
-
-          <Button size="sm" onClick={handleNext}>
-            {isLast ? (
-              <>
-                Começar
-                <CheckCircle2 className="w-4 h-4 ml-1" />
-              </>
-            ) : (
-              <>
-                Próximo
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </>
-            )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+  return null;
 }
