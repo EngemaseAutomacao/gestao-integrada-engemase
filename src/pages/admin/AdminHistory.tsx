@@ -53,8 +53,36 @@ interface HistoryEntry {
 
 export default function AdminHistory() {
   const { profile } = useAuth();
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: history = [], isLoading: loading } = useQuery<HistoryEntry[]>({
+    queryKey: ["admin-history"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tool_checkouts")
+        .select(`
+          id,
+          checkout_date,
+          checkin_date,
+          status,
+          construction_site,
+          selected_tag,
+          estimated_return_date,
+          notes,
+          checkout_photo_url,
+          checkin_photo_url,
+          checkout_signature_url,
+          checkin_signature_url,
+          tools (name, tag),
+          profiles!tool_checkouts_user_id_fkey (full_name, category),
+          checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name),
+          checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name)
+        `)
+        .order("checkout_date", { ascending: false });
+      if (error) throw error;
+      return (data as any) || [];
+    },
+    staleTime: 30_000,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
