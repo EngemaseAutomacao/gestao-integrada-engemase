@@ -274,12 +274,6 @@ export default function ToolDetail() {
             <p className="text-xs md:text-sm text-muted-foreground">Detalhes e histórico completo</p>
           </div>
         </div>
-        {tool.quantity_available > 0 && (
-          <Button className="shrink-0 gap-2" onClick={() => navigate(`/ferramentas/retirada?toolId=${tool.id}`)}>
-            <ArrowLeft className="w-4 h-4 rotate-180" />
-            Retirar
-          </Button>
-        )}
       </div>
 
       {/* Tool Overview */}
