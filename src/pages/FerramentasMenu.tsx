@@ -59,12 +59,6 @@ export default function FerramentasMenu() {
           to="/ferramentas/dashboard"
         />
         <MenuCard
-          title="Catálogo"
-          description="Lista completa de ferramentas"
-          icon={<Package className="w-6 h-6 text-primary" />}
-          to="/ferramentas/lista"
-        />
-        <MenuCard
           title="Registrar Saída"
           description="Retirar uma ferramenta"
           icon={<Upload className="w-6 h-6 text-primary" />}
