@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.41.1",
+    date: "2026-06-19",
+    title: "Limpeza Interna: Código Duplicado Centralizado",
+    description: "Manutenção técnica sem mudança visual: utilitários repetidos foram unificados para facilitar manutenção futura e reduzir o tamanho do app.",
+    changes: [
+      { type: "improvement", text: "Componente MenuCard unificado entre menus de Ferramentas e Veículos" },
+      { type: "improvement", text: "Função formatDuration centralizada para as telas de Ponto" },
+      { type: "improvement", text: "Helpers de Storage (detectBucket, extractStoragePath) unificados em um único módulo" },
+    ],
+  },
+
+  {
     version: "1.41.0",
     date: "2026-06-19",
     title: "Tour Guiado no Primeiro Login (driver.js)",
