@@ -455,101 +455,18 @@ export default function Dashboard() {
             ) : (
               filteredTools.map((tool) => {
                 const userCheckouts = pendingCheckouts?.filter((c: any) => c.tool_id === tool.id) || [];
-                const userCheckout = userCheckouts[0];
-                const userHasTool = userCheckouts.length > 0;
-                const userTags = new Set(userCheckouts.map((c: any) => (c.selected_tag || "").trim()).filter(Boolean));
-                const isOverdue = Boolean(
-                  userCheckout?.estimated_return_date && new Date(userCheckout.estimated_return_date) < new Date()
-                );
-                const overdueDays = isOverdue && userCheckout?.estimated_return_date
-                  ? Math.ceil((new Date().getTime() - new Date(userCheckout.estimated_return_date).getTime()) / (1000 * 60 * 60 * 24))
-                  : 0;
                 return (
-                  <Card key={tool.id} className={cn("cursor-pointer hover:bg-accent/50 transition-colors", isOverdue && "border-destructive/50")} onClick={() => navigate(`/ferramentas/${tool.id}`)}>
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                        <div className="flex gap-3 flex-1 min-w-0">
-                          {tool.image_url && (
-                            <div
-                              className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted"
-                              onClick={(e) => { e.stopPropagation(); setEnlargedImage(tool.image_url); }}
-                            >
-                              {tool.image_url.startsWith("http") ? (
-                                <img src={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <SignedImage storagePath={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
-                              )}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-sm sm:text-base capitalize">{tool.name.toLowerCase()}</h3>
-                              {tool.tag && tool.tag.split(",").map(t => t.trim()).filter(Boolean).map((tag) => {
-                                const mine = userTags.has(tag);
-                                return (
-                                  <Badge
-                                    key={tag}
-                                    className={`text-xs ${mine ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
-                                    variant={mine ? "default" : "secondary"}
-                                  >
-                                    {mine ? `🔧 ${tag}` : tag}
-                                  </Badge>
-                                );
-                              })}
-                              {tool.brand && <Badge variant="outline" className="text-xs">{tool.brand}</Badge>}
-                              {tool.employee_only && <Badge variant="outline" className="text-xs">Apenas Funcionários</Badge>}
-                              {tool.condition && (
-                                <Badge variant="outline" className="text-xs">
-                                  {conditionLabels[tool.condition] || tool.condition}
-                                </Badge>
-                              )}
-                              {isOverdue && (
-                                <Badge variant="destructive" className="text-xs gap-1">
-                                  ⚠️ Atrasado {overdueDays}d
-                                </Badge>
-                              )}
-                            </div>
-                            {tool.description && (
-                              <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2">
-                                {tool.description}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-4 mt-2 text-xs sm:text-sm">
-                              <span className={tool.quantity_available > 0 ? "text-success" : "text-destructive"}>
-                                Disponível: {tool.quantity_available}/{tool.quantity_total}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
-                          {userHasTool && (
-                            <>
-                              {isOverdue && userCheckout && (
-                                <Button size="sm" variant="ghost" className="text-xs sm:text-sm" onClick={() => openExtendDialog(userCheckout.id, tool.name)}>
-                                  <CalendarPlus className="w-3 h-3" /> Prorrogar
-                                </Button>
-                              )}
-                              <Button size="sm" variant="outline" className="text-xs sm:text-sm" onClick={() => handleCheckin(userCheckout?.id || "")}>
-                                Registrar Devolução
-                              </Button>
-                            </>
-                          )}
-                          {tool.quantity_available > 0 && (
-                            <Button
-                              size="sm"
-                              className="text-xs sm:text-sm"
-                              onClick={() => handleCheckout(tool.id)}
-                            >
-                              Registrar Saída
-                            </Button>
-                          )}
-                          <Button size="sm" variant="ghost" className="text-xs" onClick={() => navigate(`/ferramentas/${tool.id}`)} aria-label="Ver detalhes">
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ToolCard
+                    key={tool.id}
+                    tool={tool}
+                    userCheckouts={userCheckouts}
+                    conditionLabels={conditionLabels}
+                    onNavigate={navigate}
+                    onEnlargeImage={setEnlargedImage}
+                    onCheckout={handleCheckout}
+                    onCheckin={handleCheckin}
+                    onExtend={openExtendDialog}
+                  />
                 );
               })
             )}
