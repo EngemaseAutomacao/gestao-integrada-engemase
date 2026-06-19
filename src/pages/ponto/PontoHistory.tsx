@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -44,29 +45,25 @@ function formatDuration(minutes: number): string {
 
 export default function PontoHistory() {
   const { user } = useAuth();
-  const [entries, setEntries] = useState<TimeEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("all");
   const [periodFilter, setPeriodFilter] = useState("all");
   const [photoDialog, setPhotoDialog] = useState<{ url: string; title: string } | null>(null);
 
-  useEffect(() => {
-    if (user) fetchEntries();
-  }, [user]);
-
-  const fetchEntries = async () => {
-    const { data, error } = await supabase
-      .from("time_entries")
-      .select("*")
-      .eq("user_id", user!.id)
-      .order("clock_in", { ascending: false })
-      .limit(200);
-
-    if (!error && data) {
-      setEntries(data as TimeEntry[]);
-    }
-    setLoading(false);
-  };
+  const { data: entries = [], isLoading: loading } = useQuery({
+    queryKey: ["ponto-history", user?.id],
+    enabled: !!user,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("*")
+        .eq("user_id", user!.id)
+        .order("clock_in", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return (data || []) as TimeEntry[];
+    },
+  });
 
   const getDateRange = () => {
     const now = new Date();
