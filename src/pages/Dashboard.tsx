@@ -66,8 +66,22 @@ export default function Dashboard() {
   const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [catalogSelectMode, setCatalogSelectMode] = useState(false);
+  const [catalogSelected, setCatalogSelected] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const toggleCatalogTool = (id: string) =>
+    setCatalogSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Set()); };
+  const confirmCatalogBulk = () => {
+    if (catalogSelected.size === 0) { toast.error("Selecione ao menos uma ferramenta"); return; }
+    navigate(`/checkout?bulk=1&toolIds=${Array.from(catalogSelected).join(",")}`);
+  };
 
   const { data: pendingCheckouts } = useQuery({
     queryKey: ["pending-tool-checkouts", profile?.id],
