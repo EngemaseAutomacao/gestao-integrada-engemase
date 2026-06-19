@@ -537,7 +537,7 @@ export default function Dashboard() {
                         )}
                         aria-label={`Selecionar ${tool.name}`}
                       />
-                      <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                      <div className="absolute top-2 right-2 z-10 pointer-events-none">
                         <div className="bg-background border-2 border-primary rounded p-0.5 shadow">
                           <Checkbox checked={isSelected} className="pointer-events-none" />
                         </div>
