@@ -36,7 +36,7 @@ export default function PontoDashboard() {
   return (
     <div className="space-y-6">
       <div className="hidden sm:block">
-        <h1 className="text-3xl font-bold text-foreground">Ponto Online</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Ponto Online</h1>
         <p className="text-muted-foreground mt-1">
           Registre e acompanhe seus pontos de atividades externas
         </p>

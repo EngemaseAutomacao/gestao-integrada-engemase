@@ -154,7 +154,7 @@ export default function VehicleAnalytics() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="hidden sm:block">
-          <h2 className="text-3xl font-bold tracking-tight">Analytics de Veículos</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Analytics de Veículos</h2>
           <p className="text-muted-foreground">Métricas e estatísticas da frota</p>
         </div>
         <div className="flex gap-2">

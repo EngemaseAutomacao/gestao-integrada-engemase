@@ -45,7 +45,7 @@ export default function FerramentasMenu() {
   return (
     <div className="space-y-6">
       <div className="hidden sm:block">
-        <h1 className="text-3xl font-bold text-foreground">Ferramentas</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Ferramentas</h1>
         <p className="text-muted-foreground mt-1">
           Gerencie retiradas, devoluções e manutenções de ferramentas
         </p>

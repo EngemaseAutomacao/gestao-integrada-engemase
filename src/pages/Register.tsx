@@ -99,7 +99,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
+    <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="mx-auto w-48 h-auto">
