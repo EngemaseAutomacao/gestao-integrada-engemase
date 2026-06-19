@@ -254,12 +254,13 @@ export default function Checkout() {
       let photoUrl: string | null = null;
       if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
 
+      const effectiveUserId = isAdmin && responsibleUserId ? responsibleUserId : profile!.id;
       const rows = Array.from(bulkSelections.entries()).map(([toolId, sel]) => {
         const tool = tools.find(t => t.id === toolId)!;
         const tags = (tool.tag || "").split(",").map(s => s.trim()).filter(Boolean);
         return {
           tool_id: toolId,
-          user_id: profile!.id,
+          user_id: effectiveUserId,
           checked_out_by: profile!.id,
           status: "checked_out" as const,
           construction_site: finalSite,
