@@ -27,7 +27,11 @@ import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutoc
 
 
 export default function VehicleCheckout() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
+  const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
+
   const { isOnline, addPendingOperation } = useOffline();
   const { data: cachedVehicles, saveToCache: saveVehiclesCache } = useOfflineStorage<any[]>("available-vehicles", []);
   const navigate = useNavigate();
