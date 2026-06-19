@@ -316,7 +316,15 @@ export default function Dashboard() {
                 {filteredTools.length} de {tools.length} ferramentas
               </CardDescription>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
+              <Button
+                size="sm"
+                variant="default"
+                className="text-xs gap-1"
+                onClick={() => navigate("/checkout?bulk=1")}
+              >
+                <CheckSquare className="w-3.5 h-3.5" /> Selecionar várias
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
