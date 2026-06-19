@@ -83,18 +83,20 @@ export default function Checkin() {
         .select(`
           id,
           tool_id,
+          user_id,
           construction_site,
           estimated_return_date,
           selected_tag,
-          tools (name, tag)
+          tools (name, tag),
+          profiles!tool_checkouts_user_id_fkey (full_name)
         `)
         .eq("status", "checked_out")
         .order("checkout_date", { ascending: false });
 
       if (error) throw error;
 
-      setCheckouts(data || []);
-      saveToCache(data || []);
+      setCheckouts((data as any) || []);
+      saveToCache((data as any) || []);
 
       if (checkoutIdParam && data) {
         const checkout = data.find(c => c.id === checkoutIdParam);
