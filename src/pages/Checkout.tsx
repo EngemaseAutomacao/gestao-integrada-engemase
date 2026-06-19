@@ -83,6 +83,14 @@ export default function Checkout() {
     loadTools();
   }, []);
 
+  useEffect(() => {
+    if (!isAdmin || !isOnline) return;
+    (async () => {
+      const { data } = await supabase.rpc("get_approved_users");
+      if (data) setApprovedUsers(data as any);
+    })();
+  }, [isAdmin, isOnline]);
+
   // Carrega TAGs já retiradas (modo único)
   useEffect(() => {
     if (!selectedToolId || !isOnline || bulkMode) {
