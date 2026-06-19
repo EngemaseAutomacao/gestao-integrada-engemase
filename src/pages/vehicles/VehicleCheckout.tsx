@@ -200,9 +200,15 @@ export default function VehicleCheckout() {
         estimatedReturn.setDate(estimatedReturn.getDate() + 1);
       }
 
+      const effectiveUserId = isAdmin && responsibleUserId && responsibleUserId !== user.id ? responsibleUserId : user.id;
+      const isAdminActingForOther = effectiveUserId !== user.id;
+      if (isAdminActingForOther && (!notes || notes.trim().length < 5)) {
+        throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao retirar veículo em nome de outro usuário.");
+      }
+
       const insertData: any = {
         vehicle_id: selectedVehicle,
-        user_id: user.id,
+        user_id: effectiveUserId,
         checked_out_by: user.id,
         km_checkout: selectedVehicleData?.last_km || 0,
         destination: finalDestination,
@@ -211,6 +217,7 @@ export default function VehicleCheckout() {
         is_outside_city: isOutsideCity,
         estimated_return_time: estimatedReturnTime,
       };
+
 
       if (isOutsideCity) {
         insertData.origin_address = originAddress;
