@@ -34,6 +34,45 @@ interface Transfer {
   asset_name?: string;
 }
 
+async function fetchTransfers(): Promise<Transfer[]> {
+  const { data, error } = await supabase
+    .from("asset_transfers")
+    .select(`
+      *,
+      from_user:profiles!asset_transfers_from_user_id_fkey(full_name),
+      to_user:profiles!asset_transfers_to_user_id_fkey(full_name),
+      approved_by_profile:profiles!asset_transfers_approved_by_fkey(full_name)
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  const enriched = await Promise.all(
+    (data || []).map(async (t: any) => {
+      let asset_name = "";
+      if (t.asset_type === "tool" && t.tool_checkout_id) {
+        const { data: tc } = await supabase
+          .from("tool_checkouts")
+          .select("tools(name)")
+          .eq("id", t.tool_checkout_id)
+          .maybeSingle();
+        asset_name = (tc as any)?.tools?.name || "Ferramenta";
+      } else if (t.asset_type === "vehicle" && t.vehicle_checkout_id) {
+        const { data: vc } = await supabase
+          .from("vehicle_checkouts")
+          .select("vehicles(name, plate)")
+          .eq("id", t.vehicle_checkout_id)
+          .maybeSingle();
+        const v = (vc as any)?.vehicles;
+        asset_name = v ? `${v.name} (${v.plate})` : "Veículo";
+      }
+      return { ...t, asset_name };
+    })
+  );
+
+  return enriched as Transfer[];
+}
+
 export default function Transfers() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
