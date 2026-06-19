@@ -89,6 +89,7 @@ export default function Dashboard() {
     });
   const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Map()); };
   const confirmCatalogBulk = () => {
+    setCatalogTagError("");
     if (catalogSelected.size === 0) { toast.error("Selecione ao menos uma ferramenta"); return; }
     // Validate TAG chosen for multi-tag tools
     for (const [toolId, tag] of catalogSelected) {
@@ -96,7 +97,9 @@ export default function Dashboard() {
       if (!t) continue;
       const tags = (t.tag || "").split(",").map((s: string) => s.trim()).filter(Boolean);
       if (tags.length > 1 && !tag) {
-        toast.error(`Selecione qual unidade de "${t.name}" você está retirando`);
+        const msg = `Selecione qual unidade de "${t.name}" você está retirando antes de continuar.`;
+        setCatalogTagError(msg);
+        toast.error(msg);
         return;
       }
     }
