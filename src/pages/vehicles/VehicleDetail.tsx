@@ -77,22 +77,12 @@ const statusLabels: Record<string, string> = {
 export default function VehicleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
-  const [checkouts, setCheckouts] = useState<CheckoutRecord[]>([]);
-  const [issues, setIssues] = useState<VehicleIssue[]>([]);
-  const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (id) {
-      loadData();
-    }
-  }, [id]);
-
-  const loadData = async () => {
-    try {
+  const { data, isLoading: loading } = useQuery({
+    queryKey: ["vehicle-detail", id],
+    queryFn: async () => {
       const [vehicleRes, checkoutsRes, issuesRes, fuelRes] = await Promise.all([
-        supabase.from("vehicles").select("*").eq("id", id!).single(),
+        supabase.from("vehicles").select("*").eq("id", id!).maybeSingle(),
         supabase
           .from("vehicle_checkouts")
           .select(`id, checkout_date, checkin_date, status, destination, km_checkout, km_checkin, notes, user_profile:profiles!vehicle_checkouts_user_id_fkey(full_name, email)`)
@@ -111,16 +101,21 @@ export default function VehicleDetail() {
       ]);
 
       if (vehicleRes.error) throw vehicleRes.error;
-      setVehicle(vehicleRes.data);
-      setCheckouts((checkoutsRes.data as any) || []);
-      setIssues((issuesRes.data as any) || []);
-      setFuelRecords(fuelRes.data || []);
-    } catch (error: any) {
-      toast.error("Erro ao carregar dados", { description: error.message });
-    } finally {
-      setLoading(false);
-    }
-  };
+      return {
+        vehicle: vehicleRes.data as Vehicle | null,
+        checkouts: ((checkoutsRes.data as any) || []) as CheckoutRecord[],
+        issues: ((issuesRes.data as any) || []) as VehicleIssue[],
+        fuelRecords: (fuelRes.data || []) as FuelRecord[],
+      };
+    },
+    enabled: !!id,
+    meta: { errorMessage: "Erro ao carregar dados" },
+  });
+
+  const vehicle = data?.vehicle ?? null;
+  const checkouts = data?.checkouts ?? [];
+  const issues = data?.issues ?? [];
+  const fuelRecords = data?.fuelRecords ?? [];
 
   const getDaysUsed = (checkout: CheckoutRecord) => {
     const start = new Date(checkout.checkout_date);
