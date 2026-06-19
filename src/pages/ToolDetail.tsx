@@ -346,52 +346,6 @@ export default function ToolDetail() {
         </CardContent>
       </Card>
 
-      {/* Maintenance History */}
-      <Card>
-        <CardHeader className="p-4 md:p-6">
-          <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-            <Wrench className="w-4 h-4 md:w-5 md:h-5" />
-            Histórico de Manutenções
-          </CardTitle>
-          <CardDescription className="text-xs md:text-sm">
-            {maintenanceRecords.length} manutenções registradas
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
-          {maintenanceRecords.length === 0 ? (
-            <p className="text-center text-muted-foreground py-6 text-sm">
-              Nenhuma manutenção registrada
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {maintenanceRecords.map((record) => (
-                <Card key={record.id} className="border-l-4 border-l-primary">
-                  <CardContent className="p-3 md:p-4">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="text-xs">
-                          {maintenanceTypes[record.maintenance_type]}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(record.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                        </span>
-                      </div>
-                      <p className="text-xs md:text-sm">{record.description}</p>
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <User className="w-3.5 h-3.5" />
-                          <span>{record.profiles.full_name}</span>
-                        </div>
-                        {record.cost && <span>• R$ {record.cost.toFixed(2)}</span>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Usage History */}
       <Card>
