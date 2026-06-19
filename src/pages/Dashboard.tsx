@@ -105,7 +105,7 @@ export default function Dashboard() {
       .map(([id, tag]) => `${id}:${encodeURIComponent(tag)}`)
       .join(",");
     const qs = `bulk=1&toolIds=${ids}${tagsParam ? `&tags=${tagsParam}` : ""}`;
-    navigate(`/checkout?${qs}`);
+    navigate(`/ferramentas/retirada?${qs}`);
   };
 
   const { data: pendingCheckouts } = useQuery({
