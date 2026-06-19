@@ -59,12 +59,6 @@ export default function VeiculosMenu() {
           to="/veiculos/dashboard"
         />
         <MenuCard
-          title="Lista de Veículos"
-          description="Todos os veículos cadastrados"
-          icon={<Package className="w-6 h-6 text-primary" />}
-          to="/veiculos/lista"
-        />
-        <MenuCard
           title="Registrar Saída"
           description="Registrar saída de veículo"
           icon={<Upload className="w-6 h-6 text-primary" />}
