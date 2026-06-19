@@ -320,16 +320,14 @@ export default function Checkout() {
                 {bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}
               </CardDescription>
             </div>
-            {!isToolLocked && (
-              bulkMode ? (
-                <Button type="button" variant="outline" size="sm" className="gap-1" onClick={exitBulkMode}>
-                  <X className="w-4 h-4" /> Sair do modo múltiplo
-                </Button>
-              ) : (
-                <Button type="button" variant="outline" size="sm" className="gap-1" onClick={enterBulkMode}>
-                  <CheckSquare className="w-4 h-4" /> Selecionar várias
-                </Button>
-              )
+            {bulkMode ? (
+              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={exitBulkMode}>
+                <X className="w-4 h-4" /> Sair do modo múltiplo
+              </Button>
+            ) : (
+              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={enterBulkMode}>
+                <CheckSquare className="w-4 h-4" /> Selecionar várias
+              </Button>
             )}
           </div>
         </CardHeader>
