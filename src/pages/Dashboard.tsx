@@ -489,6 +489,42 @@ export default function Dashboard() {
             ) : (
               filteredTools.map((tool) => {
                 const userCheckouts = pendingCheckouts?.filter((c: any) => c.tool_id === tool.id) || [];
+                const isSelected = catalogSelected.has(tool.id);
+                const isDisabled = catalogSelectMode && tool.quantity_available <= 0;
+                if (catalogSelectMode) {
+                  return (
+                    <div key={tool.id} className="relative">
+                      <div className={cn("pointer-events-none transition-opacity", isDisabled && "opacity-50")}>
+                        <ToolCard
+                          tool={tool}
+                          userCheckouts={userCheckouts}
+                          conditionLabels={conditionLabels}
+                          onNavigate={navigate}
+                          onEnlargeImage={setEnlargedImage}
+                          onCheckout={handleCheckout}
+                          onCheckin={handleCheckin}
+                          onExtend={openExtendDialog}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        disabled={isDisabled}
+                        onClick={() => !isDisabled && toggleCatalogTool(tool.id)}
+                        className={cn(
+                          "absolute inset-0 rounded-lg border-2 transition-all",
+                          isSelected ? "border-primary bg-primary/5" : "border-transparent hover:border-primary/40",
+                          isDisabled && "cursor-not-allowed"
+                        )}
+                        aria-label={`Selecionar ${tool.name}`}
+                      />
+                      <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                        <div className="bg-background border-2 border-primary rounded p-0.5 shadow">
+                          <Checkbox checked={isSelected} className="pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
                 return (
                   <ToolCard
                     key={tool.id}
@@ -505,8 +541,22 @@ export default function Dashboard() {
               })
             )}
           </div>
+          {catalogSelectMode && (
+            <div className="shrink-0 flex items-center justify-between gap-2 p-3 border-t bg-background sticky bottom-0">
+              <span className="text-sm font-medium">
+                {catalogSelected.size} selecionada{catalogSelected.size === 1 ? "" : "s"}
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={exitCatalogSelect}>Cancelar</Button>
+                <Button size="sm" disabled={catalogSelected.size === 0} onClick={confirmCatalogBulk}>
+                  Continuar para Retirada
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
 
       <Dialog open={extendDialogOpen} onOpenChange={setExtendDialogOpen}>
         <DialogContent className="sm:max-w-[360px]">
