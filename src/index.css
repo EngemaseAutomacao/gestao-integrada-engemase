@@ -156,8 +156,19 @@ All colors MUST be HSL.
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  /* Suaviza a entrada de cada rota */
+  main > * {
+    animation: route-fade-in 180ms ease-out both;
+  }
+  @keyframes route-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
   }
 }
+
 
 @layer utilities {
   .hover-scale {
