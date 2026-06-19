@@ -327,12 +327,6 @@ export default function ToolDetail() {
                 {tool.quantity_available}/{tool.quantity_total}
               </p>
             </div>
-            <div>
-              <p className="text-xs md:text-sm font-medium">Condição</p>
-              <Badge className={conditionColors[tool.condition]}>
-                {conditionLabels[tool.condition]}
-              </Badge>
-            </div>
           </div>
           {tool.description && (
             <>
