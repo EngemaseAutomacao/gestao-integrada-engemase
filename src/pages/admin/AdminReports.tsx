@@ -40,7 +40,18 @@ const reportTypeFileLabel = (t: string) => ({
 export default function AdminReports() {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [tools, setTools] = useState<Tool[]>([]);
+  const { data: tools = [] } = useQuery<Tool[]>({
+    queryKey: ["admin-reports-tools"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tools")
+        .select("id, name")
+        .order("name");
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60_000,
+  });
   const { data: activeSites = [] } = useActiveConstructionSites();
   const [filters, setFilters] = useState<ReportFilters>({
     startDate: "",
@@ -50,27 +61,9 @@ export default function AdminReports() {
     reportType: "checkouts",
   });
 
-  useEffect(() => {
-    loadTools();
-  }, []);
-
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
-
-  const loadTools = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("tools")
-        .select("id, name")
-        .order("name");
-
-      if (error) throw error;
-      setTools(data || []);
-    } catch (error: any) {
-      console.error("Error loading tools:", error);
-    }
-  };
 
   const fetchReportData = async () => {
     let query = supabase.from("tool_checkouts").select(`
