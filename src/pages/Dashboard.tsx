@@ -290,152 +290,21 @@ export default function Dashboard() {
           <p className="text-sm text-muted-foreground">Painel e catálogo unificados — busque, filtre e gerencie retiradas e devoluções</p>
         </div>
 
-        {pendingCheckouts && pendingCheckouts.length > 0 && (
-          <Card
-            className="border-warning/50 bg-warning/5"
-          >
-            <CardHeader className="pb-2 cursor-pointer" onClick={() => setPendingExpanded(!pendingExpanded)}>
-              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-warning">
-                <span className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Devoluções Pendentes ({pendingCheckouts.length})
-                </span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${pendingExpanded ? "rotate-180" : ""}`} />
-              </CardTitle>
-            </CardHeader>
-            {pendingExpanded && (
-              <CardContent className="space-y-2 max-h-[280px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
-                {/* Multi-select toolbar */}
-                <div className="flex items-center justify-between gap-2 sticky top-0 bg-warning/5 backdrop-blur py-1 z-10">
-                  {!multiSelectMode ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs gap-1"
-                      onClick={() => setMultiSelectMode(true)}
-                    >
-                      <CheckSquare className="w-3 h-3" /> Selecionar várias
-                    </Button>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="select-all-pending"
-                          checked={selectedCheckouts.size === pendingCheckouts.length && pendingCheckouts.length > 0}
-                          onCheckedChange={toggleSelectAll}
-                        />
-                        <label htmlFor="select-all-pending" className="text-xs font-medium cursor-pointer">
-                          Selecionar todos
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          size="sm"
-                          variant="default"
-                          className="text-xs gap-1"
-                          disabled={selectedCheckouts.size === 0 || bulkReturnLoading}
-                          onClick={handleBulkReturn}
-                        >
-                          {bulkReturnLoading && <Loader2 className="w-3 h-3 animate-spin" />}
-                          Devolver ({selectedCheckouts.size})
-                        </Button>
-                        <Button size="sm" variant="ghost" className="text-xs" onClick={exitMultiSelect}>
-                          Cancelar
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
+        <PendingCheckoutsCard
+          pendingCheckouts={(pendingCheckouts || []) as any}
+          multiSelectMode={multiSelectMode}
+          setMultiSelectMode={setMultiSelectMode}
+          selectedCheckouts={selectedCheckouts}
+          toggleSelectCheckout={toggleSelectCheckout}
+          toggleSelectAll={toggleSelectAll}
+          exitMultiSelect={exitMultiSelect}
+          bulkReturnLoading={bulkReturnLoading}
+          handleBulkReturn={handleBulkReturn}
+          handleCheckin={handleCheckin}
+          openExtendDialog={openExtendDialog}
+        />
 
-                {pendingCheckouts.map((checkout: any) => {
-                  const isOverdue = checkout.estimated_return_date && new Date(checkout.estimated_return_date) < new Date();
-                  const isSelected = selectedCheckouts.has(checkout.id);
-                  return (
-                    <div
-                      key={checkout.id}
-                      className={`flex items-center justify-between gap-2 p-2 rounded-md transition-colors ${
-                        isSelected ? "bg-primary/10 border border-primary/30" : "bg-background/80"
-                      }`}
-                    >
-                      {multiSelectMode && (
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleSelectCheckout(checkout.id)}
-                          className="shrink-0"
-                        />
-                      )}
-                      <div
-                        className={`flex-1 min-w-0 ${multiSelectMode ? "cursor-pointer" : ""}`}
-                        onClick={() => multiSelectMode && toggleSelectCheckout(checkout.id)}
-                      >
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
-                          {checkout.selected_tag && (
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
-                              {checkout.selected_tag}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {checkout.estimated_return_date && (
-                            <span className={isOverdue ? "text-destructive font-medium" : ""}>
-                              {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {!multiSelectMode && (
-                        <div className="flex gap-1 shrink-0">
-                          {isOverdue && (
-                            <Button size="sm" variant="ghost" className="text-xs gap-1 text-warning hover:text-warning/80" onClick={() => openExtendDialog(checkout.id, checkout.tools?.name || "")}>
-                              <CalendarPlus className="w-3 h-3" /> Prorrogar
-                            </Button>
-                          )}
-                          <Button size="sm" variant="outline" className="text-xs gap-1" onClick={() => handleCheckin(checkout.id)}>
-                            Registrar Devolução <ArrowRight className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </CardContent>
-            )}
-          </Card>
-        )}
-
-        <div className="grid gap-2 sm:gap-4 grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Disponíveis</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-success">
-                {tools.reduce((acc, tool) => acc + tool.quantity_available, 0)}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold">
-                {tools.reduce((acc, tool) => acc + tool.quantity_total, 0)}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Em Uso</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-warning">
-                {tools.reduce((acc, tool) => acc + (tool.quantity_total - tool.quantity_available), 0)}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <ToolStats tools={tools} />
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">
