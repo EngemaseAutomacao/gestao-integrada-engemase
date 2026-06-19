@@ -378,6 +378,23 @@ export default function Checkout() {
           </div>
         </CardHeader>
         <CardContent>
+          {isAdmin && (
+            <div className="space-y-2 mb-6 p-3 border rounded-md bg-muted/30">
+              <Label htmlFor="responsible_user">Responsável pela retirada (admin)</Label>
+              <Select value={responsibleUserId || profile!.id} onValueChange={(v) => setResponsibleUserId(v === profile!.id ? "" : v)}>
+                <SelectTrigger id="responsible_user">
+                  <SelectValue placeholder="Selecione o responsável" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={profile!.id}>Eu mesmo ({profile!.full_name})</SelectItem>
+                  {approvedUsers.filter(u => u.id !== profile!.id).map(u => (
+                    <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
+            </div>
+          )}
           {bulkMode ? (
             <form onSubmit={handleBulkCheckout} className="space-y-6">
               <div className="space-y-2">
