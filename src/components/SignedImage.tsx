@@ -68,5 +68,5 @@ export function SignedImage({ storagePath, alt, className, bucket }: SignedImage
 
   if (!storagePath || !signedUrl) return null;
 
-  return <img src={signedUrl} alt={alt} className={className} />;
+  return <img src={signedUrl} alt={alt} className={className} loading="lazy" decoding="async" />;
 }
