@@ -246,7 +246,13 @@ export default function AdminLogs() {
                         <Badge variant="outline" className="text-xs">
                           {ENTITY_LABELS[log.entity_type] || log.entity_type}
                         </Badge>
+                        {MANUAL_ACTIONS.has(log.action) && (
+                          <Badge className="text-xs bg-amber-500 text-white hover:bg-amber-500/90 gap-1">
+                            <ShieldAlert className="w-3 h-3" /> Manual
+                          </Badge>
+                        )}
                       </div>
+
                       <p className="text-sm">{buildDescription(log)}</p>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{log.user_name || "Sistema"}</span>
