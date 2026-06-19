@@ -639,7 +639,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2 self-end sm:self-start" onClick={(e) => e.stopPropagation()}>
-                          {userHasTool ? (
+                          {userHasTool && (
                             <>
                               {isOverdue && userCheckout && (
                                 <Button size="sm" variant="ghost" className="text-xs sm:text-sm" onClick={() => openExtendDialog(userCheckout.id, tool.name)}>
@@ -650,12 +650,12 @@ export default function Dashboard() {
                                 Registrar Devolução
                               </Button>
                             </>
-                          ) : (
+                          )}
+                          {tool.quantity_available > 0 && (
                             <Button
                               size="sm"
                               className="text-xs sm:text-sm"
                               onClick={() => handleCheckout(tool.id)}
-                              disabled={tool.quantity_available === 0}
                             >
                               Registrar Saída
                             </Button>
