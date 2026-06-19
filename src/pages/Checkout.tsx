@@ -57,6 +57,7 @@ export default function Checkout() {
   const [bulkSelections, setBulkSelections] = useState<Map<string, BulkSelection>>(new Map());
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");
+  const [tagError, setTagError] = useState("");
 
   // Photo state
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
