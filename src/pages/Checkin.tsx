@@ -301,13 +301,18 @@ export default function Checkin() {
                   required={isAdminActingForOther}
                 />
               </div>
-
+              {/* Photo Capture */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label>Foto da Ferramenta (opcional)</Label>
+                  {photoConfirmed && (
                     <Badge variant="secondary" className="gap-1">
                       <CheckCircle className="w-3 h-3" />
                       Capturada
                     </Badge>
                   )}
                 </div>
+
                 {!photoConfirmed ? (
                   <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado da ferramenta na devolução" />
                 ) : (
