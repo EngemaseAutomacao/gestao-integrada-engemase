@@ -143,7 +143,9 @@ export default function AdminLogs() {
   };
 
   const filteredLogs = logs.filter((log) => {
-    if (filterAction !== "all" && log.action !== filterAction) return false;
+    if (filterAction === "manual_only") {
+      if (!MANUAL_ACTIONS.has(log.action)) return false;
+    } else if (filterAction !== "all" && log.action !== filterAction) return false;
     if (filterEntity !== "all" && log.entity_type !== filterEntity) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -153,6 +155,7 @@ export default function AdminLogs() {
     }
     return true;
   });
+
 
   if (loading) {
     return (
