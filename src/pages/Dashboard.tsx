@@ -118,7 +118,7 @@ export default function Dashboard() {
       if (!profile?.id) return [];
       const { data, error } = await supabase
         .from("tool_checkouts")
-        .select(`id, tool_id, checkout_date, estimated_return_date, construction_site, selected_tag, tools (name, tag)`)
+        .select(`id, tool_id, checkout_date, estimated_return_date, construction_site, selected_tag, user_id, checked_out_by, tools (name, tag)`)
         .eq("user_id", profile.id)
         .eq("status", "checked_out")
         .order("checkout_date", { ascending: false });
