@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Bell, Loader2, AlertCircle, Package, Clock, Send, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQuery } from "@tanstack/react-query";
 
 interface Profile {
   id: string;
@@ -21,19 +22,23 @@ interface Profile {
 
 export default function AdminNotifications() {
   const { profile } = useAuth();
-  const [users, setUsers] = useState<Profile[]>([]);
   const [sendLoading, setSendLoading] = useState(false);
   const [notifTitle, setNotifTitle] = useState("");
   const [notifMessage, setNotifMessage] = useState("");
   const [notifTarget, setNotifTarget] = useState("all");
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const { data } = await supabase.from("profiles").select("id, full_name, email, role").eq("approved", true);
-      if (data) setUsers(data);
-    };
-    fetchUsers();
-  }, []);
+  const { data: users = [] } = useQuery<Profile[]>({
+    queryKey: ["approved-profiles-basic"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, email, role")
+        .eq("approved", true);
+      if (error) throw error;
+      return (data as Profile[]) || [];
+    },
+    staleTime: 60_000,
+  });
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;

@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Transfer {
   id: string;
@@ -33,15 +34,61 @@ interface Transfer {
   asset_name?: string;
 }
 
+async function fetchTransfers(): Promise<Transfer[]> {
+  const { data, error } = await supabase
+    .from("asset_transfers")
+    .select(`
+      *,
+      from_user:profiles!asset_transfers_from_user_id_fkey(full_name),
+      to_user:profiles!asset_transfers_to_user_id_fkey(full_name),
+      approved_by_profile:profiles!asset_transfers_approved_by_fkey(full_name)
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  const enriched = await Promise.all(
+    (data || []).map(async (t: any) => {
+      let asset_name = "";
+      if (t.asset_type === "tool" && t.tool_checkout_id) {
+        const { data: tc } = await supabase
+          .from("tool_checkouts")
+          .select("tools(name)")
+          .eq("id", t.tool_checkout_id)
+          .maybeSingle();
+        asset_name = (tc as any)?.tools?.name || "Ferramenta";
+      } else if (t.asset_type === "vehicle" && t.vehicle_checkout_id) {
+        const { data: vc } = await supabase
+          .from("vehicle_checkouts")
+          .select("vehicles(name, plate)")
+          .eq("id", t.vehicle_checkout_id)
+          .maybeSingle();
+        const v = (vc as any)?.vehicles;
+        asset_name = v ? `${v.name} (${v.plate})` : "Veículo";
+      }
+      return { ...t, asset_name };
+    })
+  );
+
+  return enriched as Transfer[];
+}
+
 export default function Transfers() {
   const { profile } = useAuth();
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ open: boolean; transferId: string | null }>({ open: false, transferId: null });
   const [rejectionReason, setRejectionReason] = useState("");
   const isAdmin = profile?.role === "admin";
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; transfer: Transfer | null }>({ open: false, transfer: null });
+
+  const { data: transfers = [], isLoading: loading, refetch } = useQuery<Transfer[]>({
+    queryKey: ["asset-transfers"],
+    queryFn: fetchTransfers,
+    staleTime: 30_000,
+  });
+
+  const invalidateTransfers = () => queryClient.invalidateQueries({ queryKey: ["asset-transfers"] });
 
   const handleDeleteTransfer = async (reason: string) => {
     if (!deleteDialog.transfer) return;
@@ -67,7 +114,7 @@ export default function Transfers() {
         },
       });
 
-      setTransfers((prev) => prev.filter((t) => t.id !== deleteDialog.transfer!.id));
+      invalidateTransfers();
       toast.success("Registro de transferência excluído");
     } catch (error) {
       console.error("Erro ao excluir transferência:", error);
@@ -77,63 +124,18 @@ export default function Transfers() {
   };
 
   useEffect(() => {
-    loadTransfers();
-
     const channel = supabase
       .channel("transfers-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "asset_transfers" }, () => {
-        loadTransfers();
+        invalidateTransfers();
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadTransfers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("asset_transfers")
-        .select(`
-          *,
-          from_user:profiles!asset_transfers_from_user_id_fkey(full_name),
-          to_user:profiles!asset_transfers_to_user_id_fkey(full_name),
-          approved_by_profile:profiles!asset_transfers_approved_by_fkey(full_name)
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      // Enrich with asset names
-      const enriched = await Promise.all(
-        (data || []).map(async (t: any) => {
-          let asset_name = "";
-          if (t.asset_type === "tool" && t.tool_checkout_id) {
-            const { data: tc } = await supabase
-              .from("tool_checkouts")
-              .select("tools(name)")
-              .eq("id", t.tool_checkout_id)
-              .single();
-            asset_name = (tc as any)?.tools?.name || "Ferramenta";
-          } else if (t.asset_type === "vehicle" && t.vehicle_checkout_id) {
-            const { data: vc } = await supabase
-              .from("vehicle_checkouts")
-              .select("vehicles(name, plate)")
-              .eq("id", t.vehicle_checkout_id)
-              .single();
-            const v = (vc as any)?.vehicles;
-            asset_name = v ? `${v.name} (${v.plate})` : "Veículo";
-          }
-          return { ...t, asset_name };
-        })
-      );
-
-      setTransfers(enriched);
-    } catch (error) {
-      console.error("Erro ao carregar transferências:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadTransfers = () => refetch();
 
   const handleAccept = async (transferId: string) => {
     setActionLoading(transferId);
