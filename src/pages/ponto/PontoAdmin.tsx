@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Clock, Loader2, Calendar, Search, Users, Building2, AlertTriangle, Camera, Image, Pencil, BarChart3 } from "lucide-react";
+import { MapPin, Clock, Calendar, Search, Users, Building2, AlertTriangle, Camera, Image, Pencil, BarChart3 } from "lucide-react";
+import { HistorySkeleton } from "@/components/PageSkeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -186,11 +187,7 @@ export default function PontoAdmin() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (
