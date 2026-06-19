@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,7 +73,6 @@ export default function AdminConstructionSites() {
 
   // Tools state
   const [toolSearch, setToolSearch] = useState("");
-  const [syncingTools, setSyncingTools] = useState(false);
 
   // Vehicles state
   const [vehicleSearch, setVehicleSearch] = useState("");
