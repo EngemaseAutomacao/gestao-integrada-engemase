@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.37.0",
+    date: "2026-06-19",
+    title: "Busca Rápida (Ctrl+K), Listas Mais Leves e Exportação de Logs",
+    description: "Encontre qualquer ferramenta, veículo, usuário ou tela pressionando Ctrl+K. Logs do sistema mais rápidos e com exportação em PDF e Excel.",
+    changes: [
+      { type: "feature", text: "Nova Busca Rápida global: pressione Ctrl+K (ou Cmd+K) em qualquer tela para buscar ferramentas, veículos, usuários e navegar para qualquer área" },
+      { type: "feature", text: "Exportação dos Logs do Sistema em PDF (paisagem) e Excel direto do painel de admin" },
+      { type: "improvement", text: "Painel de Logs com rolagem virtualizada: até 500 registros sem travar, mesmo em celulares mais antigos" },
+      { type: "improvement", text: "Tela de carregamento dos Logs substituída por skeleton visual (sem mais spinner genérico)" },
+      { type: "improvement", text: "Filtros do Painel de Logs reorganizados para acomodar os novos botões de exportação" },
+    ],
+  },
+
+  {
     version: "1.36.0",
     date: "2026-06-19",
     title: "Retirada/Devolução Manual pelo Admin e Navegação Mais Fluida",

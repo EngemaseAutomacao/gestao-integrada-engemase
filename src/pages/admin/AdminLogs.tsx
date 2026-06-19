@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, Wrench, Car, User, AlertTriangle, LogIn, LogOut, UserCheck, ShieldAlert } from "lucide-react";
+import { Search, Wrench, Car, User, AlertTriangle, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { HistorySkeleton } from "@/components/PageSkeleton";
+import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
+import { toast } from "sonner";
 
 interface SystemLog {
   id: string;
@@ -33,7 +38,6 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const MANUAL_ACTIONS = new Set(["manual_checkout_by_admin", "manual_checkin_by_admin"]);
-
 
 const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
@@ -64,7 +68,6 @@ function getActionColor(action: string): string {
     default: return "border-l-primary";
   }
 }
-
 
 function getActionBadgeVariant(action: string): "default" | "secondary" | "destructive" | "outline" {
   switch (action) {
@@ -108,7 +111,6 @@ function buildDescription(log: SystemLog): string {
   }
 }
 
-
 export default function AdminLogs() {
   const { profile } = useAuth();
   const [logs, setLogs] = useState<SystemLog[]>([]);
@@ -116,6 +118,7 @@ export default function AdminLogs() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterAction, setFilterAction] = useState<string>("all");
   const [filterEntity, setFilterEntity] = useState<string>("all");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadLogs();
@@ -142,7 +145,7 @@ export default function AdminLogs() {
     }
   };
 
-  const filteredLogs = logs.filter((log) => {
+  const filteredLogs = useMemo(() => logs.filter((log) => {
     if (filterAction === "manual_only") {
       if (!MANUAL_ACTIONS.has(log.action)) return false;
     } else if (filterAction !== "all" && log.action !== filterAction) return false;
@@ -154,15 +157,61 @@ export default function AdminLogs() {
       return desc.includes(q) || name.includes(q);
     }
     return true;
+  }), [logs, filterAction, filterEntity, searchQuery]);
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredLogs.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 110,
+    overscan: 8,
   });
 
+  const buildExportRows = () =>
+    filteredLogs.map((l) => [
+      format(new Date(l.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      ACTION_LABELS[l.action] || l.action,
+      ENTITY_LABELS[l.entity_type] || l.entity_type,
+      l.user_name || "Sistema",
+      buildDescription(l),
+    ]);
+
+  const handleExportPDF = async () => {
+    try {
+      await exportToPDF({
+        title: "Logs do Sistema",
+        subtitle: `${filteredLogs.length} registro(s)`,
+        headers: ["Data/Hora", "Ação", "Tipo", "Usuário", "Descrição"],
+        rows: buildExportRows(),
+        filename: "logs-sistema",
+        orientation: "landscape",
+        generatedBy: profile?.full_name,
+      });
+      toast.success("PDF gerado com sucesso");
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao gerar PDF");
+    }
+  };
+
+  const handleExportExcel = () => {
+    try {
+      exportToExcel({
+        title: "Logs do Sistema",
+        subtitle: `${filteredLogs.length} registro(s)`,
+        headers: ["Data/Hora", "Ação", "Tipo", "Usuário", "Descrição"],
+        rows: buildExportRows(),
+        filename: "logs-sistema",
+        generatedBy: profile?.full_name,
+      });
+      toast.success("Planilha gerada com sucesso");
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao gerar planilha");
+    }
+  };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (
@@ -183,9 +232,9 @@ export default function AdminLogs() {
               className="pl-10"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Select value={filterAction} onValueChange={setFilterAction}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="flex-1 min-w-[180px]">
                 <SelectValue placeholder="Ação" />
               </SelectTrigger>
               <SelectContent>
@@ -199,11 +248,10 @@ export default function AdminLogs() {
                 <SelectItem value="user_approved">Aprovações</SelectItem>
                 <SelectItem value="issue_reported">Problemas</SelectItem>
                 <SelectItem value="issue_resolved">Resoluções</SelectItem>
-
               </SelectContent>
             </Select>
             <Select value={filterEntity} onValueChange={setFilterEntity}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="flex-1 min-w-[140px]">
                 <SelectValue placeholder="Tipo" />
               </SelectTrigger>
               <SelectContent>
@@ -214,6 +262,12 @@ export default function AdminLogs() {
                 <SelectItem value="tool_issue">Problemas</SelectItem>
               </SelectContent>
             </Select>
+            <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filteredLogs.length === 0} className="gap-1.5">
+              <FileDown className="w-4 h-4" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filteredLogs.length === 0} className="gap-1.5">
+              <FileSpreadsheet className="w-4 h-4" /> Excel
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -225,45 +279,69 @@ export default function AdminLogs() {
             Mostrando {filteredLogs.length} de {logs.length} registros
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
+        <CardContent ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto pr-1">
           {filteredLogs.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Nenhum registro encontrado
             </p>
           ) : (
-            filteredLogs.map((log) => (
-              <Card key={log.id} className={`border-l-4 ${getActionColor(log.action)}`}>
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 text-muted-foreground">
-                      {getActionIcon(log.action, log.entity_type)}
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant={getActionBadgeVariant(log.action)} className="text-xs">
-                          {ACTION_LABELS[log.action] || log.action}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {ENTITY_LABELS[log.entity_type] || log.entity_type}
-                        </Badge>
-                        {MANUAL_ACTIONS.has(log.action) && (
-                          <Badge className="text-xs bg-amber-500 text-white hover:bg-amber-500/90 gap-1">
-                            <ShieldAlert className="w-3 h-3" /> Manual
-                          </Badge>
-                        )}
-                      </div>
-
-                      <p className="text-sm">{buildDescription(log)}</p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{log.user_name || "Sistema"}</span>
-                        <span>•</span>
-                        <span>{format(new Date(log.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
-                      </div>
-                    </div>
+            <div
+              style={{
+                height: rowVirtualizer.getTotalSize(),
+                width: "100%",
+                position: "relative",
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const log = filteredLogs[virtualRow.index];
+                return (
+                  <div
+                    key={log.id}
+                    ref={rowVirtualizer.measureElement}
+                    data-index={virtualRow.index}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      transform: `translateY(${virtualRow.start}px)`,
+                      paddingBottom: 8,
+                    }}
+                  >
+                    <Card className={`border-l-4 ${getActionColor(log.action)}`}>
+                      <CardContent className="p-3">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 text-muted-foreground">
+                            {getActionIcon(log.action, log.entity_type)}
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge variant={getActionBadgeVariant(log.action)} className="text-xs">
+                                {ACTION_LABELS[log.action] || log.action}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {ENTITY_LABELS[log.entity_type] || log.entity_type}
+                              </Badge>
+                              {MANUAL_ACTIONS.has(log.action) && (
+                                <Badge className="text-xs bg-amber-500 text-white hover:bg-amber-500/90 gap-1">
+                                  <ShieldAlert className="w-3 h-3" /> Manual
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm">{buildDescription(log)}</p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{log.user_name || "Sistema"}</span>
+                              <span>•</span>
+                              <span>{format(new Date(log.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </CardContent>
-              </Card>
-            ))
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>
