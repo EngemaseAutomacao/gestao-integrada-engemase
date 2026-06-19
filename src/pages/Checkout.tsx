@@ -18,6 +18,7 @@ import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutoc
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle, CheckSquare, X } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 
