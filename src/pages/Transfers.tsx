@@ -75,7 +75,7 @@ export default function Transfers() {
         },
       });
 
-      setTransfers((prev) => prev.filter((t) => t.id !== deleteDialog.transfer!.id));
+      invalidateTransfers();
       toast.success("Registro de transferência excluído");
     } catch (error) {
       console.error("Erro ao excluir transferência:", error);
