@@ -190,12 +190,16 @@ export default function AdminLogs() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas as Ações</SelectItem>
+                <SelectItem value="manual_only">⚠️ Apenas Ações Manuais (Admin)</SelectItem>
                 <SelectItem value="checkout">Retiradas</SelectItem>
                 <SelectItem value="checkin">Devoluções</SelectItem>
+                <SelectItem value="manual_checkout_by_admin">Retirada Manual (Admin)</SelectItem>
+                <SelectItem value="manual_checkin_by_admin">Devolução Manual (Admin)</SelectItem>
                 <SelectItem value="user_registered">Cadastros</SelectItem>
                 <SelectItem value="user_approved">Aprovações</SelectItem>
                 <SelectItem value="issue_reported">Problemas</SelectItem>
                 <SelectItem value="issue_resolved">Resoluções</SelectItem>
+
               </SelectContent>
             </Select>
             <Select value={filterEntity} onValueChange={setFilterEntity}>
