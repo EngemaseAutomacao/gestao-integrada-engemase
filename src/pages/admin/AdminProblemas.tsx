@@ -20,7 +20,7 @@ export default function AdminProblemas() {
   return (
     <div className="space-y-6">
       <div className="hidden sm:block">
-        <h2 className="text-3xl font-bold tracking-tight">Problemas Reportados</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Problemas Reportados</h2>
         <p className="text-muted-foreground">Gerencie problemas reportados de ferramentas e veículos</p>
       </div>
 

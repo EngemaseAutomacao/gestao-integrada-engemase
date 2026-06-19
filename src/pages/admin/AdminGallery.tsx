@@ -229,7 +229,7 @@ export default function AdminGallery() {
       <div className="hidden sm:flex items-center gap-3">
         <Images className="w-8 h-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Galeria de Imagens</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Galeria de Imagens</h1>
           <p className="text-muted-foreground">Navegue pelas fotos do sistema</p>
         </div>
       </div>

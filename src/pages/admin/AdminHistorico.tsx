@@ -20,7 +20,7 @@ export default function AdminHistorico() {
   return (
     <div className="space-y-6">
       <div className="hidden sm:block">
-        <h2 className="text-3xl font-bold tracking-tight">Histórico Geral</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Histórico Geral</h2>
         <p className="text-muted-foreground">Movimentações de ferramentas e veículos</p>
       </div>
 

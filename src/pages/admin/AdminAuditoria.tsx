@@ -20,7 +20,7 @@ export default function AdminAuditoria() {
   return (
     <div className="space-y-6">
       <div className="hidden sm:block">
-        <h2 className="text-3xl font-bold tracking-tight">Auditoria & Logs</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Auditoria & Logs</h2>
         <p className="text-muted-foreground">Registro detalhado de ações e histórico do sistema</p>
       </div>
 
