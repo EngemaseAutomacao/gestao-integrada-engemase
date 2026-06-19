@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.35.0",
+    date: "2026-06-19",
+    title: "Sistema Mais Rápido e Atualizado em Tempo Real",
+    description: "Listas e painéis agora carregam mais rápido e se atualizam sozinhos quando há mudanças.",
+    changes: [
+      { type: "improvement", text: "Dashboard, históricos e relatórios com carregamento mais ágil e menos espera" },
+      { type: "improvement", text: "Painel de obras, clientes, ferramentas e veículos sincroniza automaticamente entre abas" },
+      { type: "improvement", text: "Histórico do Ponto (usuário e admin) atualiza em segundo plano sem recarregar a página" },
+      { type: "improvement", text: "Transferências de ativos e notificações administrativas com cache inteligente" },
+    ],
+  },
+  {
     version: "1.34.4",
     date: "2026-05-12",
     title: "Correção Crítica na Devolução de Veículos",
