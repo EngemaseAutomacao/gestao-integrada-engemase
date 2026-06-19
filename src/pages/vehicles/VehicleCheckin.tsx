@@ -300,10 +300,20 @@ export default function VehicleCheckin() {
     checkout.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const selectedCheckoutDataForUI = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
+  const isAdminActingForOtherUI = !!(isAdmin && user && selectedCheckoutDataForUI?.user_id && selectedCheckoutDataForUI.user_id !== user.id);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isAdminActingForOtherUI) {
+      const confirmed = window.confirm(
+        `Confirmar devolução do veículo "${selectedCheckoutDataForUI?.vehicles?.name}" em nome de ${selectedCheckoutDataForUI?.profiles?.full_name || "outro usuário"}?`
+      );
+      if (!confirmed) return;
+    }
     checkinMutation.mutate();
   };
+
 
   // selectedCheckoutData defined above
 
