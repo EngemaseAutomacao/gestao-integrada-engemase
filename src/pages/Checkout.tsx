@@ -40,6 +40,7 @@ export default function Checkout() {
   const [selectedToolId, setSelectedToolId] = useState<string>(toolIdFromParam);
   const isToolLocked = !!toolIdFromParam;
   const [selectedTag, setSelectedTag] = useState<string>("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [constructionSite, setConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -50,10 +51,11 @@ export default function Checkout() {
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
 
-  // Get tags for selected tool
+  // Get tags for selected tool (TAGs já retiradas são removidas da lista)
   const selectedTool = tools.find(t => t.id === selectedToolId);
-  const toolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
-  const hasMultipleTags = toolTags.length > 1;
+  const allToolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+  const toolTags = allToolTags.filter(t => !activeTags.includes(t));
+  const hasMultipleTags = allToolTags.length > 1;
 
   const { data: constructionSites } = useActiveConstructionSites();
 
@@ -63,6 +65,30 @@ export default function Checkout() {
   useEffect(() => {
     loadTools();
   }, []);
+
+  // Carrega TAGs já retiradas (status checked_out) da ferramenta selecionada
+  useEffect(() => {
+    if (!selectedToolId || !isOnline) {
+      setActiveTags([]);
+      return;
+    }
+    (async () => {
+      const { data, error } = await supabase
+        .from("tool_checkouts")
+        .select("selected_tag")
+        .eq("tool_id", selectedToolId)
+        .eq("status", "checked_out");
+      if (error) {
+        setActiveTags([]);
+        return;
+      }
+      const inUse = (data || [])
+        .map((r: any) => (r.selected_tag || "").trim())
+        .filter(Boolean);
+      setActiveTags(inUse);
+    })();
+  }, [selectedToolId, isOnline]);
+
 
   const loadTools = async () => {
     try {
@@ -118,6 +144,13 @@ export default function Checkout() {
 
     if (hasMultipleTags && !selectedTag) {
       toast.error("Selecione qual TAG você está retirando");
+      return;
+    }
+
+    if (selectedTag && activeTags.includes(selectedTag)) {
+      toast.error("Esta TAG já está em uso", {
+        description: "Selecione outra TAG ou aguarde a devolução.",
+      });
       return;
     }
 
