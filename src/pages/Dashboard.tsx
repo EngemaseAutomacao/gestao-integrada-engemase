@@ -332,14 +332,25 @@ export default function Dashboard() {
               </CardDescription>
             </div>
             <div className="flex gap-1 flex-wrap">
-              <Button
-                size="sm"
-                variant="default"
-                className="text-xs gap-1"
-                onClick={() => navigate("/checkout?bulk=1")}
-              >
-                <CheckSquare className="w-3.5 h-3.5" /> Selecionar várias
-              </Button>
+              {catalogSelectMode ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs gap-1"
+                  onClick={exitCatalogSelect}
+                >
+                  <X className="w-3.5 h-3.5" /> Sair da seleção
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="text-xs gap-1"
+                  onClick={() => setCatalogSelectMode(true)}
+                >
+                  <CheckSquare className="w-3.5 h-3.5" /> Selecionar várias
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="outline"
