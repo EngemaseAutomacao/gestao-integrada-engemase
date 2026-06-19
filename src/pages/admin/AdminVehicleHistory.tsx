@@ -261,17 +261,7 @@ export default function AdminVehicleHistory() {
 
       if (updateError) throw updateError;
 
-      setHistory((prev) =>
-        prev.map((item) =>
-          item.id === entry.id
-            ? {
-                ...item,
-                km_checkin: estimation.checkin_km,
-                km_checkout: updateData.km_checkout ?? item.km_checkout,
-              }
-            : item
-        )
-      );
+      queryClient.invalidateQueries({ queryKey: ["admin-vehicle-history"] });
 
       setSelectedEntry((prev) =>
         prev && prev.id === entry.id
