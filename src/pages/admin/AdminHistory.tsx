@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, CalendarIcon, X, List, Clock } from "lucide-react";
+import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock } from "lucide-react";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
@@ -21,6 +21,7 @@ import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, subMonths } f
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
+import { HistorySkeleton } from "@/components/PageSkeleton";
 
 interface HistoryEntry {
   id: string;
@@ -246,11 +247,7 @@ export default function AdminHistory() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   return (
