@@ -68,20 +68,44 @@ export default function Dashboard() {
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [catalogSelectMode, setCatalogSelectMode] = useState(false);
-  const [catalogSelected, setCatalogSelected] = useState<Set<string>>(new Set());
+  // toolId -> selected TAG ("" when not yet chosen / not applicable)
+  const [catalogSelected, setCatalogSelected] = useState<Map<string, string>>(new Map());
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const toggleCatalogTool = (id: string) =>
     setCatalogSelected(prev => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      const next = new Map(prev);
+      if (next.has(id)) next.delete(id);
+      else next.set(id, "");
       return next;
     });
-  const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Set()); };
+  const setCatalogTag = (id: string, tag: string) =>
+    setCatalogSelected(prev => {
+      const next = new Map(prev);
+      next.set(id, tag);
+      return next;
+    });
+  const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Map()); };
   const confirmCatalogBulk = () => {
     if (catalogSelected.size === 0) { toast.error("Selecione ao menos uma ferramenta"); return; }
-    navigate(`/checkout?bulk=1&toolIds=${Array.from(catalogSelected).join(",")}`);
+    // Validate TAG chosen for multi-tag tools
+    for (const [toolId, tag] of catalogSelected) {
+      const t = tools?.find((x: any) => x.id === toolId);
+      if (!t) continue;
+      const tags = (t.tag || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+      if (tags.length > 1 && !tag) {
+        toast.error(`Selecione qual unidade de "${t.name}" você está retirando`);
+        return;
+      }
+    }
+    const ids = Array.from(catalogSelected.keys()).join(",");
+    const tagsParam = Array.from(catalogSelected.entries())
+      .filter(([, tag]) => !!tag)
+      .map(([id, tag]) => `${id}:${encodeURIComponent(tag)}`)
+      .join(",");
+    const qs = `bulk=1&toolIds=${ids}${tagsParam ? `&tags=${tagsParam}` : ""}`;
+    navigate(`/checkout?${qs}`);
   };
 
   const { data: pendingCheckouts } = useQuery({
@@ -492,6 +516,12 @@ export default function Dashboard() {
                 const isSelected = catalogSelected.has(tool.id);
                 const isDisabled = catalogSelectMode && tool.quantity_available <= 0;
                 if (catalogSelectMode) {
+                  const tags = (tool.tag || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+                  const selectedTag = catalogSelected.get(tool.id) || "";
+                  // TAGs already in use by other active checkouts
+                  const allCheckoutsForTool = (pendingCheckouts || []).filter((c: any) => c.tool_id === tool.id);
+                  const usedTags: string[] = allCheckoutsForTool.map((c: any) => c.selected_tag).filter(Boolean);
+                  const availableTags = tags.filter(t => !usedTags.includes(t));
                   return (
                     <div key={tool.id} className="relative">
                       <div className={cn("pointer-events-none transition-opacity", isDisabled && "opacity-50")}>
@@ -522,6 +552,23 @@ export default function Dashboard() {
                           <Checkbox checked={isSelected} className="pointer-events-none" />
                         </div>
                       </div>
+                      {isSelected && tags.length > 1 && (
+                        <div className="absolute bottom-2 left-2 right-2 z-20 bg-background/95 backdrop-blur border rounded-md p-2 shadow">
+                          <p className="text-[10px] font-medium text-muted-foreground mb-1">
+                            Selecione a unidade:
+                          </p>
+                          <Select value={selectedTag} onValueChange={(v) => setCatalogTag(tool.id, v)}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder={availableTags.length === 0 ? "Todas em uso" : "Escolha a TAG"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableTags.map(t => (
+                                <SelectItem key={t} value={t}>TAG {t}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                     </div>
                   );
                 }

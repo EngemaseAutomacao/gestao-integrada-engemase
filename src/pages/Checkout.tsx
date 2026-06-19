@@ -147,12 +147,20 @@ export default function Checkout() {
     }
   };
 
-  // Pre-select tools coming from URL (?toolIds=a,b,c) in bulk mode
+  // Pre-select tools coming from URL (?toolIds=a,b,c&tags=a:TAG1,b:TAG2) in bulk mode
   useEffect(() => {
     const ids = (searchParams.get("toolIds") || "").split(",").map(s => s.trim()).filter(Boolean);
     if (ids.length > 0) {
+      const tagMap = new Map<string, string>();
+      (searchParams.get("tags") || "").split(",").forEach(pair => {
+        const [id, tag] = pair.split(":");
+        if (id && tag) tagMap.set(id.trim(), decodeURIComponent(tag));
+      });
       setBulkMode(true);
-      setBulkSelections(new Map(ids.map(id => [id, {}])));
+      setBulkSelections(new Map(ids.map(id => {
+        const t = tagMap.get(id);
+        return [id, t ? { selectedTag: t } : {}];
+      })));
     }
   }, [searchParams]);
 
