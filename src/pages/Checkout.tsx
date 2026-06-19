@@ -147,6 +147,13 @@ export default function Checkout() {
       return;
     }
 
+    if (selectedTag && activeTags.includes(selectedTag)) {
+      toast.error("Esta TAG já está em uso", {
+        description: "Selecione outra TAG ou aguarde a devolução.",
+      });
+      return;
+    }
+
     const finalSite = constructionSite.trim();
     if (!finalSite) {
       toast.error("Informe a obra de destino");
