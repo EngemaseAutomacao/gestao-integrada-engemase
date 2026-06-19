@@ -277,9 +277,17 @@ export default function Checkout() {
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedToolId) { toast.error("Selecione uma ferramenta"); return; }
-    if (hasMultipleTags && !selectedTag) { toast.error("Selecione qual TAG você está retirando"); return; }
+    setTagError("");
+    if (hasMultipleTags && !selectedTag) {
+      const msg = "Selecione qual TAG você está retirando antes de confirmar.";
+      setTagError(msg);
+      toast.error(msg);
+      return;
+    }
     if (selectedTag && activeTags.includes(selectedTag)) {
-      toast.error("Esta TAG já está em uso", { description: "Selecione outra TAG ou aguarde a devolução." });
+      const msg = "Esta TAG já está em uso. Selecione outra ou aguarde a devolução.";
+      setTagError(msg);
+      toast.error(msg);
       return;
     }
     const finalSite = constructionSite.trim();
