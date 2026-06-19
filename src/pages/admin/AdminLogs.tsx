@@ -55,6 +55,8 @@ function getActionColor(action: string): string {
   switch (action) {
     case "checkout": return "border-l-orange-500";
     case "checkin": return "border-l-green-500";
+    case "manual_checkout_by_admin": return "border-l-amber-500";
+    case "manual_checkin_by_admin": return "border-l-amber-500";
     case "user_registered": return "border-l-blue-500";
     case "user_approved": return "border-l-emerald-500";
     case "issue_reported": return "border-l-red-500";
@@ -62,6 +64,7 @@ function getActionColor(action: string): string {
     default: return "border-l-primary";
   }
 }
+
 
 function getActionBadgeVariant(action: string): "default" | "secondary" | "destructive" | "outline" {
   switch (action) {
