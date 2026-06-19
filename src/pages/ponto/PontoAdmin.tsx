@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,8 +56,7 @@ function formatDuration(minutes: number): string {
 
 export default function PontoAdmin() {
   const { profile } = useAuth();
-  const [entries, setEntries] = useState<TimeEntryWithUser[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -72,26 +72,28 @@ export default function PontoAdmin() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("registros");
 
-  useEffect(() => {
-    if (profile?.role === "admin") fetchEntries();
-  }, [profile]);
+  const isAdmin = profile?.role === "admin";
 
-  if (profile?.role !== "admin") {
+  const { data: entries = [], isLoading: loading } = useQuery({
+    queryKey: ["ponto-admin-entries"],
+    enabled: isAdmin,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("time_entries")
+        .select("*, profiles!time_entries_user_id_fkey(full_name, username)")
+        .order("clock_in", { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      return (data || []) as unknown as TimeEntryWithUser[];
+    },
+  });
+
+  const fetchEntries = () => queryClient.invalidateQueries({ queryKey: ["ponto-admin-entries"] });
+
+  if (!isAdmin) {
     return <Navigate to="/" />;
   }
-
-  const fetchEntries = async () => {
-    const { data, error } = await supabase
-      .from("time_entries")
-      .select("*, profiles!time_entries_user_id_fkey(full_name, username)")
-      .order("clock_in", { ascending: false })
-      .limit(500);
-
-    if (!error && data) {
-      setEntries(data as unknown as TimeEntryWithUser[]);
-    }
-    setLoading(false);
-  };
 
   const getDateRange = () => {
     const now = new Date();
