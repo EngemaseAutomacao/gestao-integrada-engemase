@@ -64,32 +64,36 @@ interface VehicleMonthlyData {
   km: number;
 }
 
+const EMPTY_METRICS: AnalyticsMetrics = {
+  totalCheckouts: 0,
+  averageUsageDays: 0,
+  totalDelays: 0,
+  activeCheckouts: 0,
+  totalTools: 0,
+  toolsInUse: 0,
+  totalUsers: 0,
+  maintenanceCount: 0,
+  totalVehicleCheckouts: 0,
+  totalKmDriven: 0,
+  activeVehicles: 0,
+};
+
+interface AnalyticsBundle {
+  metrics: AnalyticsMetrics;
+  topTools: ToolUsageData[];
+  delaysBySite: DelayRateData[];
+  delaysByUser: DelayRateData[];
+  monthlyData: MonthlyData[];
+  categoryData: CategoryData[];
+  userRanking: UserRankingData[];
+  vehicleMonthlyData: VehicleMonthlyData[];
+}
+
 export default function AdminAnalytics() {
   const { profile } = useAuth();
-  const [loading, setLoading] = useState(true);
   const [periodFilter, setPeriodFilter] = useState("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [metrics, setMetrics] = useState<AnalyticsMetrics>({
-    totalCheckouts: 0,
-    averageUsageDays: 0,
-    totalDelays: 0,
-    activeCheckouts: 0,
-    totalTools: 0,
-    toolsInUse: 0,
-    totalUsers: 0,
-    maintenanceCount: 0,
-    totalVehicleCheckouts: 0,
-    totalKmDriven: 0,
-    activeVehicles: 0,
-  });
-  const [topTools, setTopTools] = useState<ToolUsageData[]>([]);
-  const [delaysBySite, setDelaysBySite] = useState<DelayRateData[]>([]);
-  const [delaysByUser, setDelaysByUser] = useState<DelayRateData[]>([]);
-  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
-  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
-  const [userRanking, setUserRanking] = useState<UserRankingData[]>([]);
-  const [vehicleMonthlyData, setVehicleMonthlyData] = useState<VehicleMonthlyData[]>([]);
 
   const getDateRange = (): { from: Date | null; to: Date | null } => {
     const now = new Date();
@@ -104,9 +108,21 @@ export default function AdminAnalytics() {
     }
   };
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [periodFilter, startDate, endDate]);
+  const { data: analytics, isLoading: loading } = useQuery<AnalyticsBundle>({
+    queryKey: ["admin-analytics", periodFilter, startDate?.toISOString(), endDate?.toISOString()],
+    queryFn: () => loadAnalytics(getDateRange()),
+    enabled: !!profile && profile.role === "admin",
+    staleTime: 60_000,
+  });
+
+  const metrics = analytics?.metrics ?? EMPTY_METRICS;
+  const topTools = analytics?.topTools ?? [];
+  const delaysBySite = analytics?.delaysBySite ?? [];
+  const delaysByUser = analytics?.delaysByUser ?? [];
+  const monthlyData = analytics?.monthlyData ?? [];
+  const categoryData = analytics?.categoryData ?? [];
+  const userRanking = analytics?.userRanking ?? [];
+  const vehicleMonthlyData = analytics?.vehicleMonthlyData ?? [];
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
