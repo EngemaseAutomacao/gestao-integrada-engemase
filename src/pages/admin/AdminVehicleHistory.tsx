@@ -59,8 +59,44 @@ interface VehicleHistoryEntry {
 
 export default function AdminVehicleHistory() {
   const { profile } = useAuth();
-  const [history, setHistory] = useState<VehicleHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: history = [], isLoading: loading } = useQuery<VehicleHistoryEntry[]>({
+    queryKey: ["admin-vehicle-history"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("vehicle_checkouts")
+        .select(`
+          id,
+          checkout_date,
+          checkin_date,
+          status,
+          destination,
+          km_checkout,
+          km_checkin,
+          km_checkin_automatic,
+          refueled,
+          notes,
+          photo_front_checkout,
+          photo_back_checkout,
+          photo_left_checkout,
+          photo_right_checkout,
+          photo_dashboard_checkout,
+          photo_front_checkin,
+          photo_back_checkin,
+          photo_left_checkin,
+          photo_right_checkin,
+          photo_dashboard_checkin,
+          vehicles (name, plate),
+          profiles:profiles!vehicle_checkouts_user_id_fkey (full_name, category),
+          checked_out_by_profile:profiles!vehicle_checkouts_checked_out_by_fkey (full_name),
+          checked_in_by_profile:profiles!vehicle_checkouts_checked_in_by_fkey (full_name)
+        `)
+        .order("checkout_date", { ascending: false });
+      if (error) throw error;
+      return (data as any) || [];
+    },
+    staleTime: 30_000,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
