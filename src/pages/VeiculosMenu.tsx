@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Car, Package, Upload, LogIn, History, Fuel, BarChart3, AlertCircle, ClipboardList, ArrowRightLeft } from "lucide-react";
+import { Car, Upload, LogIn, History, Fuel, BarChart3, AlertCircle, ClipboardList, ArrowRightLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
