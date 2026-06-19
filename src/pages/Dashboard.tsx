@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { SignedImage } from "@/components/SignedImage";
 import { Search, FileText, FileSpreadsheet, Filter, X, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
@@ -66,8 +67,22 @@ export default function Dashboard() {
   const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [catalogSelectMode, setCatalogSelectMode] = useState(false);
+  const [catalogSelected, setCatalogSelected] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const toggleCatalogTool = (id: string) =>
+    setCatalogSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  const exitCatalogSelect = () => { setCatalogSelectMode(false); setCatalogSelected(new Set()); };
+  const confirmCatalogBulk = () => {
+    if (catalogSelected.size === 0) { toast.error("Selecione ao menos uma ferramenta"); return; }
+    navigate(`/checkout?bulk=1&toolIds=${Array.from(catalogSelected).join(",")}`);
+  };
 
   const { data: pendingCheckouts } = useQuery({
     queryKey: ["pending-tool-checkouts", profile?.id],
@@ -317,14 +332,25 @@ export default function Dashboard() {
               </CardDescription>
             </div>
             <div className="flex gap-1 flex-wrap">
-              <Button
-                size="sm"
-                variant="default"
-                className="text-xs gap-1"
-                onClick={() => navigate("/checkout?bulk=1")}
-              >
-                <CheckSquare className="w-3.5 h-3.5" /> Selecionar várias
-              </Button>
+              {catalogSelectMode ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs gap-1"
+                  onClick={exitCatalogSelect}
+                >
+                  <X className="w-3.5 h-3.5" /> Sair da seleção
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="text-xs gap-1"
+                  onClick={() => setCatalogSelectMode(true)}
+                >
+                  <CheckSquare className="w-3.5 h-3.5" /> Selecionar várias
+                </Button>
+              )}
               <Button
                 size="sm"
                 variant="outline"
@@ -463,6 +489,42 @@ export default function Dashboard() {
             ) : (
               filteredTools.map((tool) => {
                 const userCheckouts = pendingCheckouts?.filter((c: any) => c.tool_id === tool.id) || [];
+                const isSelected = catalogSelected.has(tool.id);
+                const isDisabled = catalogSelectMode && tool.quantity_available <= 0;
+                if (catalogSelectMode) {
+                  return (
+                    <div key={tool.id} className="relative">
+                      <div className={cn("pointer-events-none transition-opacity", isDisabled && "opacity-50")}>
+                        <ToolCard
+                          tool={tool}
+                          userCheckouts={userCheckouts}
+                          conditionLabels={conditionLabels}
+                          onNavigate={navigate}
+                          onEnlargeImage={setEnlargedImage}
+                          onCheckout={handleCheckout}
+                          onCheckin={handleCheckin}
+                          onExtend={openExtendDialog}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        disabled={isDisabled}
+                        onClick={() => !isDisabled && toggleCatalogTool(tool.id)}
+                        className={cn(
+                          "absolute inset-0 rounded-lg border-2 transition-all",
+                          isSelected ? "border-primary bg-primary/5" : "border-transparent hover:border-primary/40",
+                          isDisabled && "cursor-not-allowed"
+                        )}
+                        aria-label={`Selecionar ${tool.name}`}
+                      />
+                      <div className="absolute top-2 left-2 z-10 pointer-events-none">
+                        <div className="bg-background border-2 border-primary rounded p-0.5 shadow">
+                          <Checkbox checked={isSelected} className="pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
                 return (
                   <ToolCard
                     key={tool.id}
@@ -479,8 +541,22 @@ export default function Dashboard() {
               })
             )}
           </div>
+          {catalogSelectMode && (
+            <div className="shrink-0 flex items-center justify-between gap-2 p-3 border-t bg-background sticky bottom-0">
+              <span className="text-sm font-medium">
+                {catalogSelected.size} selecionada{catalogSelected.size === 1 ? "" : "s"}
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={exitCatalogSelect}>Cancelar</Button>
+                <Button size="sm" disabled={catalogSelected.size === 0} onClick={confirmCatalogBulk}>
+                  Continuar para Retirada
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
 
       <Dialog open={extendDialogOpen} onOpenChange={setExtendDialogOpen}>
         <DialogContent className="sm:max-w-[360px]">
