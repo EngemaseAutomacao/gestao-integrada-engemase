@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock } from "lucide-react";
+import { Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock } from "lucide-react";
+import { HistorySkeleton } from "@/components/PageSkeleton";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
@@ -344,10 +345,7 @@ export default function AdminVehicleHistory() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <HistorySkeleton />;
   }
 
   const PhotoSection = ({ label, photos }: { label: string; photos: { label: string; path: string | null }[] }) => {
