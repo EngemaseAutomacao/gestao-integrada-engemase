@@ -40,6 +40,7 @@ export default function Checkout() {
   const [selectedToolId, setSelectedToolId] = useState<string>(toolIdFromParam);
   const isToolLocked = !!toolIdFromParam;
   const [selectedTag, setSelectedTag] = useState<string>("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [constructionSite, setConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
   const [notes, setNotes] = useState("");
@@ -50,10 +51,11 @@ export default function Checkout() {
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoConfirmed, setPhotoConfirmed] = useState(false);
 
-  // Get tags for selected tool
+  // Get tags for selected tool (TAGs já retiradas são removidas da lista)
   const selectedTool = tools.find(t => t.id === selectedToolId);
-  const toolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
-  const hasMultipleTags = toolTags.length > 1;
+  const allToolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+  const toolTags = allToolTags.filter(t => !activeTags.includes(t));
+  const hasMultipleTags = allToolTags.length > 1;
 
   const { data: constructionSites } = useActiveConstructionSites();
 
