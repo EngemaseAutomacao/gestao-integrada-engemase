@@ -137,7 +137,7 @@ export default function AdminVehicleHistory() {
         },
       });
 
-      setHistory((prev) => prev.filter((e) => e.id !== deleteDialog.entry!.id));
+      queryClient.invalidateQueries({ queryKey: ["admin-vehicle-history"] });
       toast.success("Registro excluído com sucesso");
     } catch (error) {
       console.error("Erro ao excluir registro:", error);
@@ -146,54 +146,9 @@ export default function AdminVehicleHistory() {
     }
   };
 
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
-
-  const loadHistory = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("vehicle_checkouts")
-        .select(`
-          id,
-          checkout_date,
-          checkin_date,
-          status,
-          destination,
-          km_checkout,
-          km_checkin,
-          km_checkin_automatic,
-          refueled,
-          notes,
-          photo_front_checkout,
-          photo_back_checkout,
-          photo_left_checkout,
-          photo_right_checkout,
-          photo_dashboard_checkout,
-          photo_front_checkin,
-          photo_back_checkin,
-          photo_left_checkin,
-          photo_right_checkin,
-          photo_dashboard_checkin,
-          vehicles (name, plate),
-          profiles:profiles!vehicle_checkouts_user_id_fkey (full_name, category),
-          checked_out_by_profile:profiles!vehicle_checkouts_checked_out_by_fkey (full_name),
-          checked_in_by_profile:profiles!vehicle_checkouts_checked_in_by_fkey (full_name)
-        `)
-        .order("checkout_date", { ascending: false });
-
-      if (error) throw error;
-      setHistory(data || []);
-    } catch (error) {
-      console.error("Error loading vehicle history:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const getDateRange = () => {
     const now = new Date();
