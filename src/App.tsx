@@ -26,16 +26,12 @@ const Home = lazy(() => import("./pages/Home"));
 const FerramentasMenu = lazy(() => import("./pages/FerramentasMenu"));
 const VeiculosMenu = lazy(() => import("./pages/VeiculosMenu"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Tools = lazy(() => import("./pages/Tools"));
 const ToolDetail = lazy(() => import("./pages/ToolDetail"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Checkin = lazy(() => import("./pages/Checkin"));
-const UserHistory = lazy(() => import("./pages/UserHistory"));
 const VehicleDashboard = lazy(() => import("./pages/vehicles/VehicleDashboard"));
 const VehicleCheckout = lazy(() => import("./pages/vehicles/VehicleCheckout"));
-const VehicleHistory = lazy(() => import("./pages/vehicles/VehicleHistory"));
 const VehicleCheckin = lazy(() => import("./pages/vehicles/VehicleCheckin"));
-const VehicleList = lazy(() => import("./pages/vehicles/VehicleList"));
 const VehicleDetail = lazy(() => import("./pages/vehicles/VehicleDetail"));
 const VehicleAnalytics = lazy(() => import("./pages/vehicles/VehicleAnalytics"));
 const FuelRecords = lazy(() => import("./pages/vehicles/FuelRecords"));
@@ -63,9 +59,7 @@ const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 // AdminSiteTools removed
 
-const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
 const PontoRegister = lazy(() => import("./pages/ponto/PontoRegister"));
-const PontoHistory = lazy(() => import("./pages/ponto/PontoHistory"));
 const PontoAdmin = lazy(() => import("./pages/ponto/PontoAdmin"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Help = lazy(() => import("./pages/Help"));
