@@ -103,9 +103,27 @@ const queryClient = new QueryClient({
   },
 });
 
+const queryPersister = typeof window !== "undefined"
+  ? createSyncStoragePersister({
+      storage: window.localStorage,
+      key: "engemase_rq_cache",
+      throttleTime: 1500,
+    })
+  : undefined;
+
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: queryPersister!,
+        maxAge: 24 * 60 * 60 * 1000,
+        buster: APP_VERSION,
+        dehydrateOptions: {
+          shouldDehydrateQuery: (q) => q.state.status === "success",
+        },
+      }}
+    >
       <ThemeProvider defaultTheme="system">
         <TooltipProvider>
           
