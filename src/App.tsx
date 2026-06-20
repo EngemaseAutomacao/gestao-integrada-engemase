@@ -2,7 +2,10 @@
 import { lazy, Suspense } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "@tanstack/react-query";
+import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { APP_VERSION } from "@/version";
 import { getFriendlyErrorMessage } from "@/lib/errors";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -70,6 +73,7 @@ const Changelog = lazy(() => import("./pages/Changelog"));
 const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
 const Historico = lazy(() => import("./pages/Historico"));
+const Pendencias = lazy(() => import("./pages/Pendencias"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -99,9 +103,27 @@ const queryClient = new QueryClient({
   },
 });
 
+const queryPersister = typeof window !== "undefined"
+  ? createSyncStoragePersister({
+      storage: window.localStorage,
+      key: "engemase_rq_cache",
+      throttleTime: 1500,
+    })
+  : undefined;
+
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: queryPersister!,
+        maxAge: 24 * 60 * 60 * 1000,
+        buster: APP_VERSION,
+        dehydrateOptions: {
+          shouldDehydrateQuery: (q) => q.state.status === "success",
+        },
+      }}
+    >
       <ThemeProvider defaultTheme="system">
         <TooltipProvider>
           
@@ -180,6 +202,7 @@ const App = () => (
                       <Route path="/transferencias" element={<Transfers />} />
                       <Route path="/meu-dia" element={<Navigate to="/historico" replace />} />
                       <Route path="/historico" element={<Historico />} />
+                      <Route path="/pendencias" element={<Pendencias />} />
                       <Route path="/report-issue" element={<ReportIssue />} />
                       <Route path="/changelog" element={<Changelog />} />
                       <Route path="/mobile-settings" element={<MobileNavSettings />} />
@@ -194,7 +217,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   </ErrorBoundary>
 );
 

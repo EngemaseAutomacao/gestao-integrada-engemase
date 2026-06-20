@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.43.0",
+    date: "2026-06-20",
+    title: "Modo Offline Híbrido: leitura, escrita e fila de pendências",
+    description: "Agora o app continua funcional sem internet. As listas já vistas ficam disponíveis para consulta, retiradas/devoluções de ferramentas, ponto e relatos de problema podem ser feitos offline e enviados automaticamente ao reconectar. Há também uma nova tela 'Pendências' para acompanhar e refazer envios que falharam.",
+    changes: [
+      { type: "feature", text: "Leitura offline: ferramentas, veículos, obras e histórico abrem sem internet (dados em cache local por até 24h)" },
+      { type: "feature", text: "Nova página /pendencias com a lista de envios aguardando sincronização e ações de 'Tentar novamente' ou 'Descartar'" },
+      { type: "improvement", text: "Falhas permanentes podem ser reenviadas manualmente, sem precisar refazer a operação" },
+      { type: "improvement", text: "Indicador de conexão no cabeçalho mostra contador de pendências" },
+    ],
+  },
+
+  {
     version: "1.41.1",
     date: "2026-06-19",
     title: "Limpeza Interna: Código Duplicado Centralizado",

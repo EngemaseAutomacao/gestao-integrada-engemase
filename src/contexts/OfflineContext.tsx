@@ -21,6 +21,7 @@ interface OfflineContextType {
   clearPendingOperations: () => void;
   syncPendingOperations: () => Promise<void>;
   dismissFailedOperation: (id: string) => void;
+  retryFailedOperation: (id: string) => void;
 }
 
 const OfflineContext = createContext<OfflineContextType | undefined>(undefined);
@@ -133,6 +134,21 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
 
   const dismissFailedOperation = useCallback((id: string) => {
     setFailedOperations(prev => prev.filter(op => op.id !== id));
+  }, []);
+
+  const retryFailedOperation = useCallback((id: string) => {
+    setFailedOperations(prev => {
+      const op = prev.find(o => o.id === id);
+      if (!op) return prev;
+      setPendingOperations(p => [
+        ...p,
+        { ...op, retryCount: 0, lastError: null, permanent_failure: false },
+      ]);
+      if (isOnlineRef.current) {
+        setTimeout(() => syncPendingOperationsRef.current?.(), 100);
+      }
+      return prev.filter(o => o.id !== id);
+    });
   }, []);
 
   const syncPhotosForOperation = useCallback(async (supabaseClient: any, op: PendingOperation) => {
@@ -374,6 +390,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
         clearPendingOperations,
         syncPendingOperations,
         dismissFailedOperation,
+        retryFailedOperation,
       }}
     >
       {children}

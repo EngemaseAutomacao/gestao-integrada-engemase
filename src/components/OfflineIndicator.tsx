@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useOffline } from "@/contexts/OfflineContext";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, WifiOff, Clock, Image, AlertTriangle, X } from "lucide-react";
+import { Wifi, WifiOff, Clock, Image, AlertTriangle, X, RefreshCw, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getOfflinePhotosCount } from "@/hooks/useOfflinePhotos";
 import {
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 
 export function OfflineIndicator() {
-  const { isOnline, pendingOperations, failedOperations, syncPendingOperations, dismissFailedOperation } = useOffline();
+  const { isOnline, pendingOperations, failedOperations, syncPendingOperations, dismissFailedOperation, retryFailedOperation } = useOffline();
   const [offlinePhotosCount, setOfflinePhotosCount] = useState(0);
 
   useEffect(() => {
@@ -130,14 +131,27 @@ export function OfflineIndicator() {
                         <p className="text-muted-foreground mt-0.5 line-clamp-2">{op.lastError}</p>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 w-5 p-0 shrink-0"
-                      onClick={() => dismissFailedOperation(op.id)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        title="Tentar novamente"
+                        disabled={!isOnline}
+                        onClick={() => retryFailedOperation(op.id)}
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        title="Descartar"
+                        onClick={() => dismissFailedOperation(op.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -147,6 +161,14 @@ export function OfflineIndicator() {
           {isOnline && pendingOperations.length > 0 && (
             <Button size="sm" className="w-full" onClick={syncPendingOperations}>
               Sincronizar Agora
+            </Button>
+          )}
+
+          {totalPending > 0 && (
+            <Button asChild variant="outline" size="sm" className="w-full gap-2">
+              <Link to="/pendencias">
+                <ExternalLink className="h-3 w-3" /> Ver Pendências
+              </Link>
             </Button>
           )}
         </div>
