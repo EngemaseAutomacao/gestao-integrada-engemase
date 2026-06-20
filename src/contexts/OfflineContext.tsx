@@ -136,6 +136,21 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     setFailedOperations(prev => prev.filter(op => op.id !== id));
   }, []);
 
+  const retryFailedOperation = useCallback((id: string) => {
+    setFailedOperations(prev => {
+      const op = prev.find(o => o.id === id);
+      if (!op) return prev;
+      setPendingOperations(p => [
+        ...p,
+        { ...op, retryCount: 0, lastError: null, permanent_failure: false },
+      ]);
+      if (isOnlineRef.current) {
+        setTimeout(() => syncPendingOperationsRef.current?.(), 100);
+      }
+      return prev.filter(o => o.id !== id);
+    });
+  }, []);
+
   const syncPhotosForOperation = useCallback(async (supabaseClient: any, op: PendingOperation) => {
     const photos = await getPhotosByOperation(op.id);
     if (photos.length === 0) return {};
