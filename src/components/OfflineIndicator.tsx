@@ -163,6 +163,14 @@ export function OfflineIndicator() {
               Sincronizar Agora
             </Button>
           )}
+
+          {totalPending > 0 && (
+            <Button asChild variant="outline" size="sm" className="w-full gap-2">
+              <Link to="/pendencias">
+                <ExternalLink className="h-3 w-3" /> Ver Pendências
+              </Link>
+            </Button>
+          )}
         </div>
       </PopoverContent>
     </Popover>
