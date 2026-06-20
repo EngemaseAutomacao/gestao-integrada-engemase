@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { vibrate, VibrationPatterns, shareContent } from "@/lib/pwa";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
 
