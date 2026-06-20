@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.1",
+    date: "2026-06-20",
+    title: "Ícone do app com fundo branco e abertura mais fluida",
+    description: "O ícone do PWA agora tem fundo branco (antes era azul), combinando com a tela de carregamento. Resultado: ao abrir o app instalado, a tela inicial do sistema operacional e a tela de carregamento do app se fundem visualmente, dando a sensação de uma única tela contínua em vez de duas telas separadas.",
+    changes: [
+      { type: "improvement", text: "Ícone do PWA agora tem fundo branco (Android, iOS e área de trabalho)" },
+      { type: "improvement", text: "Cor de tema do PWA alterada para branco — splash do sistema operacional agora combina com a tela de carregamento do app" },
+      { type: "improvement", text: "Transição mais fluida ao abrir o app instalado: sem mudança brusca de cor entre splash do SO e carregamento do app" },
+    ],
+  },
+
+  {
     version: "1.46.0",
     date: "2026-06-20",
     title: "Cache do app mais robusto contra telas em branco após atualização",
