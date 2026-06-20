@@ -109,6 +109,32 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // HTML navigations — NetworkFirst (nunca servir HTML antigo do cache).
+  // Garante que o banner "Atualizar" + reload pegue o index.html novo,
+  // sem precisar limpar cache manualmente.
+  if (
+    event.request.mode === "navigate" ||
+    (event.request.headers.get("accept") || "").includes("text/html")
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(
+          () =>
+            (caches.match(event.request) as Promise<Response | undefined>).then(
+              (cached) => cached || (caches.match("/") as Promise<Response>)
+            ) as Promise<Response>
+        )
+    );
+    return;
+  }
+
   if (url.hostname.includes("supabase.co")) {
     const isPublicStorage = url.pathname.startsWith("/storage/v1/object/public/");
     if (!isPublicStorage) {
