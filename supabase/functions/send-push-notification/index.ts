@@ -228,17 +228,44 @@ async function sendPushToSubscription(
     const jwt = await deriveVapidJwt(audience, 'mailto:admin@engemase.com', vapidPublicKey, vapidPrivateKey)
     const encryptedBody = await encryptPushPayloadAes128Gcm(pushPayload, sub.p256dh, sub.auth)
 
-    const response = await fetch(sub.endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `vapid t=${jwt}, k=${vapidPublicKey}`,
-        'Content-Encoding': 'aes128gcm',
-        'Content-Type': 'application/octet-stream',
-        'TTL': DEFAULT_TTL_SECONDS,
-        'Content-Length': String(encryptedBody.byteLength),
-      },
-      body: encryptedBody,
-    })
+    // Retry with exponential backoff for network errors (3 attempts: 1s/2s/4s)
+    const MAX_ATTEMPTS = 3
+    let response: Response | null = null
+    let lastNetworkError: unknown = null
+
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        response = await fetch(sub.endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `vapid t=${jwt}, k=${vapidPublicKey}`,
+            'Content-Encoding': 'aes128gcm',
+            'Content-Type': 'application/octet-stream',
+            'TTL': DEFAULT_TTL_SECONDS,
+            'Content-Length': String(encryptedBody.byteLength),
+          },
+          body: encryptedBody,
+        })
+        lastNetworkError = null
+        // Retry on 5xx only; 4xx is permanent (don't waste attempts)
+        if (response.status >= 500 && attempt < MAX_ATTEMPTS) {
+          await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt - 1)))
+          continue
+        }
+        break
+      } catch (networkErr) {
+        lastNetworkError = networkErr
+        if (attempt < MAX_ATTEMPTS) {
+          await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, attempt - 1)))
+        }
+      }
+    }
+
+    if (!response) {
+      const message = lastNetworkError instanceof Error ? lastNetworkError.message : 'Network error'
+      console.error('Push delivery network failure after retries', { endpoint: sub.endpoint, message })
+      return { endpoint: sub.endpoint, status: 'error', message }
+    }
 
     if (response.status === 404 || response.status === 410) {
       if (supabase && sub.id) {
@@ -248,6 +275,10 @@ async function sendPushToSubscription(
     }
 
     if (response.ok || response.status === 201) {
+      // Bump last_used_at on success (best-effort)
+      if (supabase && sub.id) {
+        supabase.from('push_subscriptions').update({ last_used_at: new Date().toISOString() }).eq('id', sub.id).then(() => {}, () => {})
+      }
       return { endpoint: sub.endpoint, status: 'sent' }
     }
 

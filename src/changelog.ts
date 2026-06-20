@@ -11,6 +11,23 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.45.0",
+    date: "2026-06-20",
+    title: "Notificações mais confiáveis, app mais rápido e backend mais seguro",
+    description: "Reforço amplo no sistema: as notificações ficam mais rápidas e resilientes (com nova tentativa automática em caso de queda de rede), o banco de dados foi blindado para que funções internas só rodem pelo próprio sistema, listagens longas (notificações, histórico, retiradas) ficam mais ágeis com novos índices, e o app principal carrega mais rápido por dividir bibliotecas grandes em pacotes separados. Notificações importantes (aprovações, transferências, problemas resolvidos) agora ficam guardadas por 90 dias em vez de 7.",
+    changes: [
+      { type: "security", text: "Removida chave fixa do gatilho de envio de push — agora resistente a rotação de chaves" },
+      { type: "security", text: "Funções internas (gatilhos, verificações automáticas, auditoria) não podem mais ser chamadas diretamente por usuários logados" },
+      { type: "improvement", text: "Envio de push faz até 3 tentativas com espera progressiva quando a rede oscila" },
+      { type: "improvement", text: "Notificações importantes (conta aprovada, transferências, problemas resolvidos) ficam guardadas por 90 dias" },
+      { type: "improvement", text: "Novos índices aceleram listagem de notificações, retiradas atrasadas e histórico do sistema" },
+      { type: "improvement", text: "Pacotes pesados (gráficos, animações, leitor de QR, ícones) carregam separadamente, deixando a abertura do app mais leve" },
+      { type: "improvement", text: "Verificação automática de pendências reduzida de cada 10min para cada 15min (menos carga, mesma cobertura)" },
+      { type: "improvement", text: "Registro de último uso por assinatura de push (base para futura limpeza de inativas)" },
+    ],
+  },
+
+  {
     version: "1.44.0",
     date: "2026-06-20",
     title: "Mais cara de app: badge no ícone, vibração, compartilhar e lembretes",
