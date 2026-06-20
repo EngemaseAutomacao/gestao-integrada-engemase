@@ -35,12 +35,12 @@ export function vibrate(pattern: number | number[] = 30): void {
   }
 }
 
-export const VibrationPatterns = {
+export const VibrationPatterns: Record<string, number[]> = {
   success: [40],
   warning: [60, 40, 60],
   error: [100, 50, 100, 50, 100],
   tap: [15],
-} as const;
+};
 
 // ===== Web Share API =====
 export interface SharePayload {
