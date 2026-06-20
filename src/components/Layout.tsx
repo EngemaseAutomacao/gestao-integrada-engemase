@@ -34,6 +34,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { Footer } from "@/components/Footer";
 import { PermissionsRequest } from "@/components/PermissionsRequest";
+import { useAppBadge } from "@/hooks/useAppBadge";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Button } from "@/components/ui/button";
