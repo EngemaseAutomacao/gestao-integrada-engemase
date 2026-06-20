@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.45.1",
+    date: "2026-06-20",
+    title: "Correção: usuários antigos não precisam mais trocar senha",
+    description: "Quando a funcionalidade de 'primeiro acesso' foi adicionada, ela marcou todos os perfis existentes como se fossem novos — forçando até quem já usava o sistema há tempos a trocar a senha. Agora todo usuário que já logou pelo menos uma vez deixou de ver essa tela. Também foi agendada uma limpeza mensal de assinaturas de notificação inativas.",
+    changes: [
+      { type: "fix", text: "Usuários que já haviam logado pelo menos uma vez não veem mais a tela de troca de senha obrigatória" },
+      { type: "improvement", text: "Limpeza mensal automática de assinaturas de notificação push sem uso há mais de 60 dias" },
+    ],
+  },
+
+  {
     version: "1.45.0",
     date: "2026-06-20",
     title: "Notificações mais confiáveis, app mais rápido e backend mais seguro",
