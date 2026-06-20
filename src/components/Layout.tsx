@@ -112,6 +112,8 @@ export default function Layout({ children }: LayoutProps) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  useAppBadge();
+  
   
   const isHomePage = location.pathname === '/';
   const adminToolRoutes = ['/admin/construction-sites?tab=ferramentas', '/admin/maintenance', '/admin/issues', '/admin/history'];
