@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.3",
+    date: "2026-06-20",
+    title: "Ícone do app agora usa o símbolo hexagonal Engemase",
+    description: "Todos os ícones do PWA (Android, iOS, desktop, favicon, splash) foram atualizados para usar o símbolo hexagonal oficial da Engemase (azul + laranja) sobre fundo branco, no lugar do logo horizontal com texto. Mais reconhecível em tamanhos pequenos.",
+    changes: [
+      { type: "improvement", text: "Ícones do PWA atualizados para o símbolo hexagonal Engemase em todas as plataformas" },
+      { type: "improvement", text: "Favicon do navegador também atualizado para o novo símbolo" },
+    ],
+  },
+  {
     version: "1.46.2",
     date: "2026-06-20",
     title: "Ícone do iOS com tamanho igual ao Android",
