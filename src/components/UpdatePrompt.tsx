@@ -80,36 +80,40 @@ export default function UpdatePrompt() {
   }, [checkForUpdate]);
 
   const handleUpdate = async () => {
-    // Show loading state or feedback
     localStorage.removeItem(NOTIFIED_VERSION_KEY);
-    
-    // Clear all caches
+
+    // 1. Ativar SW que estiver waiting (skipWaiting)
+    if ("serviceWorker" in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg?.waiting) {
+          reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        }
+        // Força check de update — se houver SW novo, browser baixa
+        await reg?.update().catch(() => {});
+      } catch (e) {
+        console.error("[Update] SW update error", e);
+      }
+    }
+
+    // 2. Limpar SOMENTE caches de HTML/assets dinâmicos do app
+    //    (preserva precache do Workbox, que será atualizado pelo novo SW)
     if ("caches" in window) {
       try {
         const names = await caches.keys();
-        await Promise.all(names.map((n) => caches.delete(n)));
-        console.log("[Update] Caches cleared");
+        await Promise.all(
+          names
+            .filter((n) => n.startsWith("engemase-"))
+            .map((n) => caches.delete(n))
+        );
       } catch (e) {
-        console.error("[Update] Error clearing caches", e);
+        console.error("[Update] cache cleanup error", e);
       }
     }
-    
-    // Unregister service workers
-    if ("serviceWorker" in navigator) {
-      try {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister()));
-        console.log("[Update] Service workers unregistered");
-      } catch (e) {
-        console.error("[Update] Error unregistering SW", e);
-      }
-    }
-    
-    // Clear storage for a fresh start if needed, but carefully
-    // We don't want to log out the user, but we want to clear version markers
-    
-    // Force reload from server bypassing cache
-    window.location.href = window.location.origin + window.location.pathname + "?v=" + Date.now();
+
+    // 3. Reload com bypass de HTTP cache (?v= invalida cache de CDN/browser)
+    window.location.href =
+      window.location.origin + window.location.pathname + "?v=" + Date.now();
   };
 
   // If we are in local development, we don't want to show the prompt constantly 
