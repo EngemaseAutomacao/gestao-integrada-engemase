@@ -5,9 +5,14 @@ import "./index.css";
 import "./i18n";
 import { APP_VERSION } from "./version.ts";
 import { initSentry } from "./lib/sentry";
+import { registerServiceWorker } from "./lib/registerSW";
 
 // Inicializa monitoramento de erros (no-op sem VITE_SENTRY_DSN)
 initSentry();
+
+// Registra o SW (gerado pelo vite-plugin-pwa em /sw.js) — só fora de preview/dev
+registerServiceWorker();
+
 
 // Run version check as plain JS BEFORE React mounts
 // This avoids the duplicate-React hook crash
