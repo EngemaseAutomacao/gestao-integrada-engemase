@@ -21,6 +21,7 @@ interface OfflineContextType {
   clearPendingOperations: () => void;
   syncPendingOperations: () => Promise<void>;
   dismissFailedOperation: (id: string) => void;
+  retryFailedOperation: (id: string) => void;
 }
 
 const OfflineContext = createContext<OfflineContextType | undefined>(undefined);
