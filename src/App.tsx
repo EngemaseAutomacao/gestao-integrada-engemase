@@ -59,9 +59,7 @@ const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 // AdminSiteTools removed
 
-const PontoDashboard = lazy(() => import("./pages/ponto/PontoDashboard"));
 const PontoRegister = lazy(() => import("./pages/ponto/PontoRegister"));
-const PontoHistory = lazy(() => import("./pages/ponto/PontoHistory"));
 const PontoAdmin = lazy(() => import("./pages/ponto/PontoAdmin"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Help = lazy(() => import("./pages/Help"));
