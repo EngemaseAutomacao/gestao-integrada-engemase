@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.43.1",
+    date: "2026-06-20",
+    title: "Limpeza: páginas não utilizadas removidas",
+    description: "Removidas seis telas antigas que já tinham sido substituídas por novas versões e ainda ficavam carregando código no fundo. O app fica mais leve, mais rápido para abrir e nada muda visualmente.",
+    changes: [
+      { type: "improvement", text: "Removidas telas legadas de Ferramentas (lista antiga), Histórico de Usuário, Lista e Histórico de Veículos, Painel de Ponto e Histórico de Ponto — todas já redirecionadas para as novas telas há tempos" },
+      { type: "improvement", text: "Bundle reduzido e tempo de carregamento ligeiramente menor" },
+    ],
+  },
+
+  {
     version: "1.43.0",
     date: "2026-06-20",
     title: "Modo Offline Híbrido: leitura, escrita e fila de pendências",
