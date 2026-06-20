@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/popover";
 
 export function OfflineIndicator() {
-  const { isOnline, pendingOperations, failedOperations, syncPendingOperations, dismissFailedOperation } = useOffline();
+  const { isOnline, pendingOperations, failedOperations, syncPendingOperations, dismissFailedOperation, retryFailedOperation } = useOffline();
   const [offlinePhotosCount, setOfflinePhotosCount] = useState(0);
 
   useEffect(() => {
