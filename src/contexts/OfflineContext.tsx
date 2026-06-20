@@ -390,6 +390,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
         clearPendingOperations,
         syncPendingOperations,
         dismissFailedOperation,
+        retryFailedOperation,
       }}
     >
       {children}
