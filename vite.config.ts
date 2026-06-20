@@ -2,7 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import { VitePWA } from "vite-plugin-pwa";
 import fs from "fs";
+
 
 // Read version from src/version.ts
 function getAppVersion() {
@@ -32,7 +34,24 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [react(), versionJsonPlugin(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    versionJsonPlugin(),
+    mode === "development" && componentTagger(),
+    VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
+      registerType: "autoUpdate",
+      injectRegister: null, // registramos manualmente via wrapper guardado
+      devOptions: { enabled: false }, // sem SW em dev/preview
+      injectManifest: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,json}"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      },
+      manifest: false, // mantém manifest.json existente em /public
+    }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

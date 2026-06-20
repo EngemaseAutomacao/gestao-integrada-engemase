@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.0",
+    date: "2026-06-20",
+    title: "Cache do app mais robusto contra telas em branco após atualização",
+    description: "O motor que cuida do cache do aplicativo foi modernizado: agora cada arquivo tem uma 'impressão digital' única gerada a cada nova versão, eliminando a chance do app ficar travado servindo arquivos antigos depois de uma atualização (causa comum de tela em branco). Todas as funcionalidades atuais — notificações push agrupadas, sincronização offline, lembretes em segundo plano e o banner de 'Atualizar' — continuam funcionando exatamente como antes.",
+    changes: [
+      { type: "improvement", text: "Cache de arquivos do app agora é versionado automaticamente a cada deploy (reduz risco de tela em branco)" },
+      { type: "improvement", text: "Registro do Service Worker centralizado em wrapper único — nunca registra em ambientes de preview/desenvolvimento" },
+      { type: "improvement", text: "Limpeza automática de caches obsoletos após cada nova versão" },
+    ],
+  },
+
+
+  {
     version: "1.45.1",
     date: "2026-06-20",
     title: "Correção: usuários antigos não precisam mais trocar senha",
