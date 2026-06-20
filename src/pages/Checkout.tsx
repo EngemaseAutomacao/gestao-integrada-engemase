@@ -355,6 +355,7 @@ export default function Checkout() {
 
       if (!isOnline) {
         addPendingOperation("checkout", checkoutData);
+        vibrate(VibrationPatterns.success);
         toast.success("Ferramenta retirada (offline)! Será sincronizada quando conectar.");
         navigate("/ferramentas");
         return;
@@ -362,7 +363,26 @@ export default function Checkout() {
 
       const { error } = await supabase.from("tool_checkouts").insert(checkoutData);
       if (error) throw error;
-      toast.success("Ferramenta retirada com sucesso!");
+      vibrate(VibrationPatterns.success);
+      toast.success("Ferramenta retirada com sucesso!", {
+        action: {
+          label: "Compartilhar",
+          onClick: () =>
+            shareContent({
+              title: "Retirada de ferramenta",
+              text: `Retirei uma ferramenta para a obra "${finalSite}". Devolução prevista: ${new Date(estimatedReturnDate).toLocaleDateString("pt-BR")}.`,
+            }),
+        },
+      });
+      const due = new Date(estimatedReturnDate).getTime();
+      if (due) {
+        scheduleLocalReminder({
+          title: "Lembrete de devolução",
+          body: `Ferramenta com devolução prevista para hoje.`,
+          showAt: due - 60 * 60 * 1000,
+          tag: `tool-return-${selectedToolId}`,
+        });
+      }
       navigate("/ferramentas");
     } catch (error: any) {
       toast.error("Erro ao retirar ferramenta", { description: error.message });
