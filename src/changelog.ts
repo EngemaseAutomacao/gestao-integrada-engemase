@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.2",
+    date: "2026-06-20",
+    title: "Ícone do iOS com tamanho igual ao Android",
+    description: "O ícone do app no iOS aparecia menor que no Android porque o Android corta automaticamente as bordas dos ícones (maskable) e o iOS não. Agora o ícone do iOS/desktop tem o logo ampliado para compensar essa diferença — visualmente igual em todas as plataformas.",
+    changes: [
+      { type: "fix", text: "Logo do ícone no iOS ampliado de ~78% para ~85% da área (compensa ausência de corte do iOS)" },
+      { type: "improvement", text: "Paridade visual entre ícone Android (com crop) e iOS/desktop (sem crop)" },
+    ],
+  },
+  {
     version: "1.46.1",
     date: "2026-06-20",
     title: "Ícone do app com fundo branco e abertura mais fluida",
