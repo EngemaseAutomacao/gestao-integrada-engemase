@@ -11,6 +11,21 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.44.0",
+    date: "2026-06-20",
+    title: "Mais cara de app: badge no ícone, vibração, compartilhar e lembretes",
+    description: "O app agora se comporta mais como um aplicativo nativo: o ícone na tela inicial mostra um número de notificações não lidas (como WhatsApp), vibra ao confirmar ações importantes, permite compartilhar comprovantes de retirada/devolução por qualquer app instalado, agenda lembretes locais antes da devolução prevista e (em Android) sincroniza pendências em segundo plano.",
+    changes: [
+      { type: "feature", text: "Badge de notificações não lidas no ícone do app (suportado em Android e desktop)" },
+      { type: "feature", text: "Botão 'Compartilhar' nos avisos de retirada e devolução de ferramentas" },
+      { type: "feature", text: "Vibração leve ao confirmar saída/devolução de ferramentas" },
+      { type: "feature", text: "Lembrete local automático 1 hora antes do horário previsto de devolução" },
+      { type: "feature", text: "Sincronização periódica em segundo plano da fila offline (Android com permissão)" },
+      { type: "improvement", text: "Download da Galeria pergunta onde salvar quando o navegador suporta (File System Access)" },
+    ],
+  },
+
+  {
     version: "1.43.1",
     date: "2026-06-20",
     title: "Limpeza: páginas não utilizadas removidas",

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { vibrate, VibrationPatterns, shareContent } from "@/lib/pwa";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 
 
@@ -177,6 +178,7 @@ export default function Checkin() {
 
       if (!isOnline) {
         addPendingOperation("checkin", checkinData);
+        vibrate(VibrationPatterns.success);
         toast.success("Ferramenta devolvida (offline)! Será sincronizada quando conectar.");
         navigate("/ferramentas");
         return;
@@ -189,7 +191,17 @@ export default function Checkin() {
 
       if (error) throw error;
 
-      toast.success("Ferramenta devolvida com sucesso!");
+      vibrate(VibrationPatterns.success);
+      toast.success("Ferramenta devolvida com sucesso!", {
+        action: {
+          label: "Compartilhar",
+          onClick: () =>
+            shareContent({
+              title: "Devolução de ferramenta",
+              text: "Devolvi uma ferramenta no Engemase.",
+            }),
+        },
+      });
       navigate("/ferramentas");
     } catch (error: any) {
       toast.error("Erro ao devolver ferramenta", {

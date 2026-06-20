@@ -179,6 +179,21 @@ self.addEventListener('sync', (event) => {
   }
 });
 
+// ---- Periodic Background Sync (Chromium Android, requer permissão) ----
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'engemase-periodic-sync') {
+    event.waitUntil(
+      (async () => {
+        await checkForUpdates();
+        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const client of clientList) {
+          client.postMessage({ type: 'TRIGGER_SYNC' });
+        }
+      })()
+    );
+  }
+});
+
 // ---- Push notifications ----
 self.addEventListener('push', (event) => {
   if (!event.data) {

@@ -145,13 +145,28 @@ export default function AdminGallery() {
     const url = signedUrls[fileName];
     if (!url) return;
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    a.target = "_blank";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try {
+      const { saveFileToDisk } = await import("@/lib/pwa");
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const ext = fileName.split(".").pop()?.toLowerCase() || "bin";
+      const mime = blob.type || (ext === "jpg" || ext === "jpeg" ? "image/jpeg" : ext === "png" ? "image/png" : "application/octet-stream");
+      await saveFileToDisk(blob, {
+        suggestedName: fileName,
+        mimeType: mime,
+        extension: `.${ext}`,
+        description: "Imagem",
+      });
+    } catch {
+      // fallback simples
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   };
 
   const openFolder = (folderName: string) => {

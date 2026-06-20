@@ -18,6 +18,7 @@ import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutoc
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle, CheckSquare, X } from "lucide-react";
 import { PhotoCapture } from "@/components/PhotoCapture";
+import { vibrate, VibrationPatterns, shareContent, scheduleLocalReminder } from "@/lib/pwa";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
@@ -280,6 +281,7 @@ export default function Checkout() {
 
       if (!isOnline) {
         rows.forEach(r => addPendingOperation("checkout", r));
+        vibrate(VibrationPatterns.success);
         toast.success(`${rows.length} ferramenta(s) retirada(s) (offline)! Sincronizando ao conectar.`);
         navigate("/ferramentas");
         return;
@@ -287,7 +289,18 @@ export default function Checkout() {
 
       const { error } = await supabase.from("tool_checkouts").insert(rows);
       if (error) throw error;
+      vibrate(VibrationPatterns.success);
       toast.success(`${rows.length} ferramenta(s) retirada(s) com sucesso!`);
+      // Agenda lembrete local 1h antes da devolução estimada
+      const due = new Date(estimatedReturnDate).getTime();
+      if (due) {
+        scheduleLocalReminder({
+          title: "Lembrete de devolução",
+          body: `${rows.length} ferramenta(s) com devolução prevista para hoje.`,
+          showAt: due - 60 * 60 * 1000,
+          tag: "tool-return-reminder",
+        });
+      }
       navigate("/ferramentas");
     } catch (error: any) {
       toast.error("Erro ao retirar ferramentas", { description: error.message });
@@ -342,6 +355,7 @@ export default function Checkout() {
 
       if (!isOnline) {
         addPendingOperation("checkout", checkoutData);
+        vibrate(VibrationPatterns.success);
         toast.success("Ferramenta retirada (offline)! Será sincronizada quando conectar.");
         navigate("/ferramentas");
         return;
@@ -349,7 +363,26 @@ export default function Checkout() {
 
       const { error } = await supabase.from("tool_checkouts").insert(checkoutData);
       if (error) throw error;
-      toast.success("Ferramenta retirada com sucesso!");
+      vibrate(VibrationPatterns.success);
+      toast.success("Ferramenta retirada com sucesso!", {
+        action: {
+          label: "Compartilhar",
+          onClick: () =>
+            shareContent({
+              title: "Retirada de ferramenta",
+              text: `Retirei uma ferramenta para a obra "${finalSite}". Devolução prevista: ${new Date(estimatedReturnDate).toLocaleDateString("pt-BR")}.`,
+            }),
+        },
+      });
+      const due = new Date(estimatedReturnDate).getTime();
+      if (due) {
+        scheduleLocalReminder({
+          title: "Lembrete de devolução",
+          body: `Ferramenta com devolução prevista para hoje.`,
+          showAt: due - 60 * 60 * 1000,
+          tag: `tool-return-${selectedToolId}`,
+        });
+      }
       navigate("/ferramentas");
     } catch (error: any) {
       toast.error("Erro ao retirar ferramenta", { description: error.message });

@@ -34,6 +34,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { Footer } from "@/components/Footer";
 import { PermissionsRequest } from "@/components/PermissionsRequest";
+import { useAppBadge } from "@/hooks/useAppBadge";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { CommandPalette } from "@/components/CommandPalette";
 import { Button } from "@/components/ui/button";
@@ -111,6 +112,8 @@ export default function Layout({ children }: LayoutProps) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  useAppBadge();
+  
   
   const isHomePage = location.pathname === '/';
   const adminToolRoutes = ['/admin/construction-sites?tab=ferramentas', '/admin/maintenance', '/admin/issues', '/admin/history'];
