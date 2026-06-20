@@ -73,6 +73,7 @@ const Changelog = lazy(() => import("./pages/Changelog"));
 const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
 const Historico = lazy(() => import("./pages/Historico"));
+const Pendencias = lazy(() => import("./pages/Pendencias"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
