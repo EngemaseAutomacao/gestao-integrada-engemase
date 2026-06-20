@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.4",
+    date: "2026-06-20",
+    title: "Botão 'Atualizar' agora funciona sem precisar limpar cache manualmente",
+    description: "O botão de atualizar do banner de nova versão estava servindo a tela antiga do cache em vez de buscar a versão nova do servidor, obrigando o usuário a forçar a limpeza do cache. Corrigido: o app agora sempre busca o index.html mais recente da rede em cada navegação (estratégia NetworkFirst), e o clique em 'Atualizar' ativa o novo Service Worker e recarrega com a versão correta.",
+    changes: [
+      { type: "fix", text: "Botão 'Atualizar' do banner de nova versão agora carrega a versão nova sem necessidade de limpar cache manualmente" },
+      { type: "fix", text: "Service Worker passou a usar NetworkFirst para navegações HTML (antes era cache-first, causa raiz do problema)" },
+      { type: "improvement", text: "Fluxo de update preserva precache de assets — mais rápido, sem re-baixar tudo do zero" },
+    ],
+  },
+  {
     version: "1.46.3",
     date: "2026-06-20",
     title: "Ícone do app agora usa o símbolo hexagonal Engemase",
