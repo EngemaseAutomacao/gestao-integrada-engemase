@@ -202,6 +202,7 @@ const App = () => (
                       <Route path="/transferencias" element={<Transfers />} />
                       <Route path="/meu-dia" element={<Navigate to="/historico" replace />} />
                       <Route path="/historico" element={<Historico />} />
+                      <Route path="/pendencias" element={<Pendencias />} />
                       <Route path="/report-issue" element={<ReportIssue />} />
                       <Route path="/changelog" element={<Changelog />} />
                       <Route path="/mobile-settings" element={<MobileNavSettings />} />
