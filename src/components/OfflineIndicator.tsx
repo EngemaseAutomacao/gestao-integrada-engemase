@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useOffline } from "@/contexts/OfflineContext";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, WifiOff, Clock, Image, AlertTriangle, X } from "lucide-react";
+import { Wifi, WifiOff, Clock, Image, AlertTriangle, X, RefreshCw, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getOfflinePhotosCount } from "@/hooks/useOfflinePhotos";
 import {
