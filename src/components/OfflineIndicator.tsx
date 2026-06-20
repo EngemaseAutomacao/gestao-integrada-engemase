@@ -131,14 +131,27 @@ export function OfflineIndicator() {
                         <p className="text-muted-foreground mt-0.5 line-clamp-2">{op.lastError}</p>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 w-5 p-0 shrink-0"
-                      onClick={() => dismissFailedOperation(op.id)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        title="Tentar novamente"
+                        disabled={!isOnline}
+                        onClick={() => retryFailedOperation(op.id)}
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        title="Descartar"
+                        onClick={() => dismissFailedOperation(op.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
