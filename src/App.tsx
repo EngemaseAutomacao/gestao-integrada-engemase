@@ -2,7 +2,10 @@
 import { lazy, Suspense } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "@tanstack/react-query";
+import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { APP_VERSION } from "@/version";
 import { getFriendlyErrorMessage } from "@/lib/errors";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
