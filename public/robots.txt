@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://gestao-integrada-engemase.lovable.app/sitemap.xml
