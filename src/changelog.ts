@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.16",
+    date: "2026-06-22",
+    title: "Aviso claro para senhas bloqueadas",
+    description: "O medidor de senha no admin deixou de chamar o formato de 'senha válida' quando a proteção do backend ainda pode bloquear senhas comuns ou vazadas.",
+    changes: [
+      { type: "fix", text: "Texto do medidor alterado para 'Requisitos atendidos' para não contradizer o bloqueio de segurança" },
+      { type: "improvement", text: "Erro de senha bloqueada agora também aparece abaixo do campo, além do aviso lateral" },
+    ],
+  },
+  {
     version: "1.46.15",
     date: "2026-06-22",
     title: "Medidor de força na tela do admin",
