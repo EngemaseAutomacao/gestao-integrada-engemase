@@ -14,6 +14,7 @@ import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock, RefreshCw }
 import { Switch } from "@/components/ui/switch";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
+import { PasswordStrengthField, passwordMeetsRequirements } from "@/components/PasswordStrengthField";
 
 interface Profile {
   id: string;
@@ -257,6 +258,11 @@ export default function AdminUsers() {
 
     if (!validation.success) {
       setPasswordError(validation.error.errors[0].message);
+      return;
+    }
+
+    if (!passwordMeetsRequirements(newPassword)) {
+      setPasswordError("A senha precisa ter 8+ caracteres, maiúscula, minúscula e número");
       return;
     }
 
@@ -699,15 +705,11 @@ export default function AdminUsers() {
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="newPassword">Nova Senha *</Label>
-              <Input
+              <PasswordStrengthField
                 id="newPassword"
-                type="password"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={setNewPassword}
                 placeholder="Digite a nova senha (mínimo 8 caracteres)"
-                required
-                minLength={8}
-                maxLength={128}
               />
               {passwordError && (
                 <p className="text-sm text-destructive">{passwordError}</p>
