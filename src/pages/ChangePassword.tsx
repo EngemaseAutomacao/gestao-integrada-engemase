@@ -145,17 +145,13 @@ export default function ChangePassword() {
               {newPassword.length > 0 && (
                 <div className="space-y-2 pt-1">
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
-                          key={i}
-                          className={`flex-1 transition-colors ${
-                            i <= strength.score ? strength.color : "bg-muted"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground min-w-[80px] text-right">
+                    <div className={`flex-1 h-1.5 rounded-full transition-colors ${strength.color}`} />
+                    <span
+                      className={`text-xs font-medium min-w-[140px] text-right flex items-center justify-end gap-1 ${
+                        strength.ok ? "text-primary" : "text-destructive"
+                      }`}
+                    >
+                      {strength.ok && <Check className="w-3.5 h-3.5" />}
                       {strength.label}
                     </span>
                   </div>
@@ -167,7 +163,11 @@ export default function ChangePassword() {
                         <li
                           key={req.label}
                           className={`flex items-center gap-2 text-xs transition-colors ${
-                            ok ? "text-chart-2" : "text-muted-foreground"
+                            ok
+                              ? "text-primary"
+                              : req.required
+                              ? "text-destructive"
+                              : "text-muted-foreground"
                           }`}
                         >
                           {ok ? (
@@ -180,6 +180,11 @@ export default function ChangePassword() {
                       );
                     })}
                   </ul>
+                  {strength.ok && (
+                    <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                      Evite senhas comuns, nomes próprios ou combinações já vazadas; elas ainda podem ser bloqueadas por segurança.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
