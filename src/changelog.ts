@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.5",
+    date: "2026-06-22",
+    title: "Mensagem clara ao alterar senha de usuário",
+    description: "Quando um administrador tentava definir uma senha que já apareceu em vazamentos públicos (proteção contra senhas comuns), o sistema mostrava apenas 'Ocorreu um erro'. Agora a mensagem explica exatamente o motivo e orienta o admin a escolher uma senha mais forte.",
+    changes: [
+      { type: "improvement", text: "Aviso específico quando a senha escolhida está em listas de vazamentos públicos" },
+      { type: "improvement", text: "Mensagens de erro do painel de administração de usuários ficaram mais claras" },
+    ],
+  },
+  {
     version: "1.46.4",
     date: "2026-06-20",
     title: "Botão 'Atualizar' agora funciona sem precisar limpar cache manualmente",
