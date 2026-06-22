@@ -56,7 +56,7 @@ export default function ChangePassword() {
     e.preventDefault();
 
     if (!requiredRequirementsMet) {
-      toast.error("A senha deve ter pelo menos 8 caracteres");
+      toast.error("A senha deve ter 8+ caracteres, maiúscula, minúscula e número");
       return;
     }
 
