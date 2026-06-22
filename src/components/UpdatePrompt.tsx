@@ -81,39 +81,39 @@ export default function UpdatePrompt() {
 
   const handleUpdate = async () => {
     localStorage.removeItem(NOTIFIED_VERSION_KEY);
+    localStorage.removeItem("engemase_app_version");
 
-    // 1. Ativar SW que estiver waiting (skipWaiting)
+    // 1. Desregistrar TODOS os service workers para garantir que o HTML
+    //    venha direto da rede no próximo carregamento.
     if ("serviceWorker" in navigator) {
       try {
-        const reg = await navigator.serviceWorker.getRegistration();
-        if (reg?.waiting) {
-          reg.waiting.postMessage({ type: "SKIP_WAITING" });
-        }
-        // Força check de update — se houver SW novo, browser baixa
-        await reg?.update().catch(() => {});
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(
+          regs.map(async (reg) => {
+            if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+            await reg.unregister().catch(() => {});
+          })
+        );
       } catch (e) {
-        console.error("[Update] SW update error", e);
+        console.error("[Update] SW unregister error", e);
       }
     }
 
-    // 2. Limpar SOMENTE caches de HTML/assets dinâmicos do app
-    //    (preserva precache do Workbox, que será atualizado pelo novo SW)
+    // 2. Limpar TODOS os caches (precache do Workbox + runtime).
+    //    O novo SW será registrado no próximo load e refará o precache.
     if ("caches" in window) {
       try {
         const names = await caches.keys();
-        await Promise.all(
-          names
-            .filter((n) => n.startsWith("engemase-"))
-            .map((n) => caches.delete(n))
-        );
+        await Promise.all(names.map((n) => caches.delete(n)));
       } catch (e) {
         console.error("[Update] cache cleanup error", e);
       }
     }
 
-    // 3. Reload com bypass de HTTP cache (?v= invalida cache de CDN/browser)
-    window.location.href =
-      window.location.origin + window.location.pathname + "?v=" + Date.now();
+    // 3. Hard reload com bypass de HTTP cache.
+    window.location.replace(
+      window.location.origin + window.location.pathname + "?v=" + Date.now()
+    );
   };
 
   // If we are in local development, we don't want to show the prompt constantly 
