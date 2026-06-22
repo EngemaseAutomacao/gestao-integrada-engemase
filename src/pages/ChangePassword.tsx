@@ -21,17 +21,14 @@ const REQUIREMENTS: Requirement[] = [
   { label: "Letra maiúscula (A-Z)", test: (pw) => /[A-Z]/.test(pw), required: true },
   { label: "Letra minúscula (a-z)", test: (pw) => /[a-z]/.test(pw), required: true },
   { label: "Número (0-9)", test: (pw) => /[0-9]/.test(pw), required: true },
-  { label: "Símbolo (recomendado)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: false },
+  { label: "Símbolo (ex: !@#$%)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: true },
 ];
 
-function getStrength(pw: string): { score: number; label: string; color: string } {
-  if (pw.length === 0) return { score: 0, label: "", color: "bg-muted" };
-  const passed = REQUIREMENTS.filter((r) => r.test(pw)).length;
-  if (pw.length < 8) return { score: 1, label: "Muito curta", color: "bg-destructive" };
-  if (passed <= 2) return { score: 2, label: "Fraca", color: "bg-destructive" };
-  if (passed === 3) return { score: 3, label: "Regular", color: "bg-yellow-500" };
-  if (passed === 4) return { score: 4, label: "Forte", color: "bg-primary" };
-  return { score: 5, label: "Muito forte", color: "bg-chart-2" };
+function getStrength(pw: string): { ok: boolean; label: string; color: string } {
+  if (pw.length === 0) return { ok: false, label: "", color: "bg-muted" };
+  const ok = REQUIREMENTS.filter((r) => r.required).every((r) => r.test(pw));
+  if (ok) return { ok: true, label: "Requisitos atendidos", color: "bg-primary" };
+  return { ok: false, label: "Não atende os requisitos", color: "bg-destructive" };
 }
 
 export default function ChangePassword() {
@@ -148,17 +145,13 @@ export default function ChangePassword() {
               {newPassword.length > 0 && (
                 <div className="space-y-2 pt-1">
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <div
-                          key={i}
-                          className={`flex-1 transition-colors ${
-                            i <= strength.score ? strength.color : "bg-muted"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground min-w-[80px] text-right">
+                    <div className={`flex-1 h-1.5 rounded-full transition-colors ${strength.color}`} />
+                    <span
+                      className={`text-xs font-medium min-w-[140px] text-right flex items-center justify-end gap-1 ${
+                        strength.ok ? "text-primary" : "text-destructive"
+                      }`}
+                    >
+                      {strength.ok && <Check className="w-3.5 h-3.5" />}
                       {strength.label}
                     </span>
                   </div>
@@ -170,7 +163,11 @@ export default function ChangePassword() {
                         <li
                           key={req.label}
                           className={`flex items-center gap-2 text-xs transition-colors ${
-                            ok ? "text-chart-2" : "text-muted-foreground"
+                            ok
+                              ? "text-primary"
+                              : req.required
+                              ? "text-destructive"
+                              : "text-muted-foreground"
                           }`}
                         >
                           {ok ? (
@@ -183,6 +180,11 @@ export default function ChangePassword() {
                       );
                     })}
                   </ul>
+                  {strength.ok && (
+                    <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+                      Evite senhas comuns, nomes próprios ou combinações já vazadas; elas ainda podem ser bloqueadas por segurança.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
