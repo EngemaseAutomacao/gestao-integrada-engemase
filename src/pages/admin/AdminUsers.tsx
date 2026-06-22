@@ -704,8 +704,10 @@ export default function AdminUsers() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Digite a nova senha (mínimo 6 caracteres)"
+                placeholder="Digite a nova senha (mínimo 8 caracteres)"
                 required
+                minLength={8}
+                maxLength={128}
               />
               {passwordError && (
                 <p className="text-sm text-destructive">{passwordError}</p>
