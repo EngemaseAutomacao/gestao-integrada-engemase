@@ -300,7 +300,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
           {!isMobile && (
             <NavLink to="/" className="flex items-center gap-2 shrink-0">
-              <img src={engemaseLogo} alt="Engemase" className="h-7 sm:h-8 w-auto" />
+              <img src={engemaseLogo} alt="Engemase Engenharia logotipo" className="h-7 sm:h-8 w-auto" />
             </NavLink>
           )}
 
@@ -331,7 +331,7 @@ export default function Layout({ children }: LayoutProps) {
           if (isHomePage) {
             return (
               <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                <img src={engemaseLogo} alt="Engemase" className="h-7 w-auto" />
+                <img src={engemaseLogo} alt="Engemase Engenharia logotipo" className="h-7 w-auto" />
               </div>
             );
           }
