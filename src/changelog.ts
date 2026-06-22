@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.6",
+    date: "2026-06-22",
+    title: "Correção da tela de carregamento travada",
+    description: "Em algumas situações (especialmente na tela de login), a tela de splash inicial permanecia visível indefinidamente, impedindo o acesso ao app. Agora ela é removida automaticamente assim que o app carrega, em qualquer rota.",
+    changes: [
+      { type: "fix", text: "Splash inicial não trava mais em rotas públicas como tela de login" },
+    ],
+  },
+  {
     version: "1.46.5",
     date: "2026-06-22",
     title: "Mensagem clara ao alterar senha de usuário",
