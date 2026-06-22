@@ -93,7 +93,11 @@ export function PasswordStrengthField({
                 <li
                   key={req.label}
                   className={`flex items-center gap-2 text-xs transition-colors ${
-                    ok ? "text-chart-2" : "text-muted-foreground"
+                    ok
+                      ? "text-chart-2"
+                      : req.required
+                      ? "text-destructive"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {ok ? (
