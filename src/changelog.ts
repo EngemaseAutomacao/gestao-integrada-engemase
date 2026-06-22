@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.15",
+    date: "2026-06-22",
+    title: "Medidor de força na tela do admin",
+    description: "O diálogo 'Alterar Senha do Usuário' (admin) agora mostra medidor de força, checklist de requisitos e botão de mostrar/ocultar senha.",
+    changes: [
+      { type: "improvement", text: "Medidor de força e requisitos visíveis ao alterar senha de outro usuário" },
+      { type: "feature", text: "Botão de olho para mostrar/ocultar a senha no diálogo administrativo" },
+    ],
+  },
+  {
     version: "1.46.14",
     date: "2026-06-22",
     title: "Regras de senha ajustadas",
