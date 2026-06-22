@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.14",
+    date: "2026-06-22",
+    title: "Regras de senha ajustadas",
+    description: "A senha agora exige 8 caracteres com maiúscula, minúscula e número. O medidor de força e o botão de mostrar senha foram corrigidos.",
+    changes: [
+      { type: "improvement", text: "Senha exige 8+ caracteres, letra maiúscula, minúscula e número (símbolo opcional)" },
+      { type: "fix", text: "Medidor de força da senha exibido corretamente" },
+      { type: "fix", text: "Botão de mostrar/ocultar senha (olho) funcionando" },
+    ],
+  },
+  {
     version: "1.46.13",
     date: "2026-06-22",
     title: "Senha mínima simplificada",
