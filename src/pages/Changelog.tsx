@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { changelog } from "@/changelog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Zap, Bug, Shield } from "lucide-react";
+import { Sparkles, Zap, Bug, Shield, RefreshCw, CheckCircle2 } from "lucide-react";
 import { APP_VERSION } from "@/version";
+import { toast } from "sonner";
 
 const typeConfig = {
   feature: { label: "Novo", icon: Sparkles, className: "bg-primary/10 text-primary border-primary/20" },
@@ -12,13 +15,73 @@ const typeConfig = {
 };
 
 export default function Changelog() {
+  const [checking, setChecking] = useState(false);
+
+  const handleCheckForUpdates = async () => {
+    setChecking(true);
+    try {
+      const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("Falha ao consultar versão");
+      const data = await res.json();
+      const latest: string | undefined = data?.version;
+
+      if (latest && latest !== APP_VERSION) {
+        toast.success(`Nova versão disponível: ${latest}`, {
+          description: "Clique em Atualizar para recarregar o app com a versão mais recente.",
+          action: {
+            label: "Atualizar",
+            onClick: async () => {
+              localStorage.removeItem("engemase_notified_version");
+              localStorage.removeItem("engemase_app_version");
+              if ("serviceWorker" in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map((r) => r.unregister().catch(() => {})));
+              }
+              if ("caches" in window) {
+                const names = await caches.keys();
+                await Promise.all(names.map((n) => caches.delete(n)));
+              }
+              window.location.replace(
+                window.location.origin + window.location.pathname + "?v=" + Date.now()
+              );
+            },
+          },
+          duration: 10000,
+        });
+      } else {
+        toast.success("Você já está na versão mais recente", {
+          description: `Versão ${APP_VERSION}`,
+          icon: <CheckCircle2 className="w-4 h-4" />,
+        });
+      }
+    } catch (err) {
+      toast.error("Não foi possível verificar atualizações", {
+        description: "Verifique sua conexão e tente novamente.",
+      });
+    } finally {
+      setChecking(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full min-h-0 gap-4">
-      <div className="shrink-0">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Notas de Atualização</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Versão atual: <span className="font-semibold text-primary">{APP_VERSION}</span>
-        </p>
+      <div className="shrink-0 flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Notas de Atualização</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            Versão atual: <span className="font-semibold text-primary">{APP_VERSION}</span>
+          </p>
+        </div>
+        <Button
+          onClick={handleCheckForUpdates}
+          disabled={checking}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${checking ? "animate-spin" : ""}`} />
+          {checking ? "Verificando..." : "Verificar atualizações"}
+        </Button>
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto space-y-4 pr-1">
