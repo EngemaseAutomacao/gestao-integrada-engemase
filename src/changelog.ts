@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.13",
+    date: "2026-06-22",
+    title: "Senha mínima simplificada",
+    description: "A alteração de senha voltou a exigir apenas 8 caracteres obrigatórios, mantendo as demais dicas apenas como recomendação visual.",
+    changes: [
+      { type: "fix", text: "A senha agora é liberada com 8 caracteres, sem obrigar maiúscula, minúscula, número e símbolo" },
+      { type: "improvement", text: "O medidor de força continua aparecendo, mas não bloqueia o salvamento da senha" },
+    ],
+  },
+  {
     version: "1.46.12",
     date: "2026-06-22",
     title: "Tela de alterar senha melhorada",

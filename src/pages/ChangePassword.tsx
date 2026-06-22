@@ -32,7 +32,7 @@ function getStrength(pw: string): { score: number; label: string; color: string 
   if (passed === 2) return { score: 2, label: "Regular", color: "bg-primary/60" };
   if (passed === 3) return { score: 3, label: "Boa", color: "bg-primary/75" };
   if (passed === 4) return { score: 4, label: "Forte", color: "bg-primary" };
-  return { score: 5, label: "Muito forte", color: "bg-green-600" };
+  return { score: 5, label: "Muito forte", color: "bg-chart-2" };
 }
 
 export default function ChangePassword() {
