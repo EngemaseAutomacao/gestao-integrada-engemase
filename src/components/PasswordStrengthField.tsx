@@ -19,7 +19,7 @@ const REQUIREMENTS: Requirement[] = [
 function getStrength(pw: string): { ok: boolean; label: string; color: string } {
   if (pw.length === 0) return { ok: false, label: "", color: "bg-muted" };
   const ok = REQUIREMENTS.filter((r) => r.required).every((r) => r.test(pw));
-  if (ok) return { ok: true, label: "Senha válida", color: "bg-chart-2" };
+  if (ok) return { ok: true, label: "Senha válida", color: "bg-primary" };
   return { ok: false, label: "Não atende os requisitos", color: "bg-destructive" };
 }
 
@@ -78,7 +78,7 @@ export function PasswordStrengthField({
             <div className={`flex-1 h-1.5 rounded-full transition-colors ${strength.color}`} />
             <span
               className={`text-xs font-medium min-w-[140px] text-right flex items-center justify-end gap-1 ${
-                strength.ok ? "text-chart-2" : "text-destructive"
+                strength.ok ? "text-primary" : "text-destructive"
               }`}
             >
               {strength.ok && <Check className="w-3.5 h-3.5" />}
@@ -94,7 +94,7 @@ export function PasswordStrengthField({
                   key={req.label}
                   className={`flex items-center gap-2 text-xs transition-colors ${
                     ok
-                      ? "text-chart-2"
+                      ? "text-primary"
                       : req.required
                       ? "text-destructive"
                       : "text-muted-foreground"
