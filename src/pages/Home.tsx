@@ -284,10 +284,13 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
       <div className="text-center mb-4 sm:mb-6">
-        <img src={engemaseLogo} alt="Engemase Engenharia" className="w-28 sm:w-48 h-auto mx-auto mb-2 sm:mb-4" />
+        <img src={engemaseLogo} alt="Engemase Engenharia logotipo" className="w-28 sm:w-48 h-auto mx-auto mb-2 sm:mb-4" />
         <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-0.5 sm:mb-2">
-          Bem-vindo, {profile?.full_name?.split(' ')[0]}!
+          Sistema de Gestão de Ativos — Engemase Engenharia
         </h1>
+        <p className="text-sm sm:text-lg text-foreground mt-1">
+          Bem-vindo, {profile?.full_name?.split(' ')[0]}!
+        </p>
         <p className="text-xs sm:text-base text-muted-foreground">
           Selecione o módulo que deseja acessar
         </p>
