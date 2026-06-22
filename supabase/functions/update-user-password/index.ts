@@ -6,10 +6,21 @@ const corsHeaders = {
 }
 
 function sanitizeError(error: unknown): string {
+  const anyErr = error as any;
+  const code = anyErr?.code;
+  const reasons: string[] = anyErr?.reasons ?? [];
   const msg = error instanceof Error ? error.message : '';
+
+  if (code === 'weak_password' || reasons.includes('pwned')) {
+    return 'Esta senha é muito comum ou já apareceu em vazamentos públicos. Escolha uma senha mais forte (combine letras maiúsculas, minúsculas, números e símbolos).';
+  }
+  if (code === 'same_password') {
+    return 'A nova senha não pode ser igual à senha atual.';
+  }
   if (msg.includes('Unauthorized') || msg.includes('Admin')) return 'Não autorizado';
   return 'Ocorreu um erro ao alterar a senha. Tente novamente.';
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
