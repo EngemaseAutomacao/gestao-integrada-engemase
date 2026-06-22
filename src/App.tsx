@@ -52,7 +52,7 @@ const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
 // AdminVehicleHistory removed - unused
 const ReportIssue = lazy(() => import("./pages/ReportIssue"));
 const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssue"));
-const AdminVehicleIssues = lazy(() => import("./pages/admin/AdminVehicleIssues"));
+// AdminVehicleIssues removed - unused
 const AdminProblemas = lazy(() => import("./pages/admin/AdminProblemas"));
 const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
 const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
