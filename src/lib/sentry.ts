@@ -17,7 +17,7 @@ export function initSentry(): void {
   // Não enviar erros do preview do editor Lovable
   const host = window.location.hostname;
   const isPreview =
-    host.endsWith("lovableproject.com") || host.endsWith("lovable.app") === false;
+    host.endsWith("lovableproject.com") || !host.endsWith("lovable.app");
 
   try {
     Sentry.init({
