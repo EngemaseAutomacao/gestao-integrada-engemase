@@ -261,6 +261,11 @@ export default function AdminUsers() {
       return;
     }
 
+    if (!passwordMeetsRequirements(newPassword)) {
+      setPasswordError("A senha precisa ter 8+ caracteres, maiúscula, minúscula e número");
+      return;
+    }
+
     if (!selectedUser) return;
 
     setLoading(true);
