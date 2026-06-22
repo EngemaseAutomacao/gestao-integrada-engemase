@@ -114,8 +114,8 @@ export default function ChangePassword() {
           <CardTitle className="text-2xl">Alterar Senha</CardTitle>
           <CardDescription>
             {isFirstLogin
-              ? "Este é seu primeiro acesso. Crie uma senha com pelo menos 8 caracteres para continuar."
-              : "Digite sua nova senha. Apenas 8 caracteres são obrigatórios; letras, números e símbolos só aumentam a força."}
+              ? "Primeiro acesso. Crie uma senha com 8+ caracteres, maiúscula, minúscula e número."
+              : "Mínimo: 8 caracteres com maiúscula, minúscula e número. Símbolo é opcional."}
           </CardDescription>
         </CardHeader>
         <CardContent>
