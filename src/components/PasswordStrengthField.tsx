@@ -13,7 +13,7 @@ const REQUIREMENTS: Requirement[] = [
   { label: "Letra maiúscula (A-Z)", test: (pw) => /[A-Z]/.test(pw), required: true },
   { label: "Letra minúscula (a-z)", test: (pw) => /[a-z]/.test(pw), required: true },
   { label: "Número (0-9)", test: (pw) => /[0-9]/.test(pw), required: true },
-  { label: "Símbolo (recomendado)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: false },
+  { label: "Símbolo (ex: !@#$%)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: true },
 ];
 
 function getStrength(pw: string): { ok: boolean; label: string; color: string } {
