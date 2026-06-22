@@ -38,7 +38,7 @@ const FuelRecords = lazy(() => import("./pages/vehicles/FuelRecords"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 // AdminTools removed - integrated into AdminConstructionSites
-const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
+// AdminHistory removed - unused (replaced by AdminHistorico)
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
