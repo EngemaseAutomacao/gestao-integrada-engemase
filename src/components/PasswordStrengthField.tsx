@@ -16,15 +16,13 @@ const REQUIREMENTS: Requirement[] = [
   { label: "Símbolo (recomendado)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: false },
 ];
 
-function getStrength(pw: string): { score: number; label: string; color: string } {
-  if (pw.length === 0) return { score: 0, label: "", color: "bg-muted" };
-  const passed = REQUIREMENTS.filter((r) => r.test(pw)).length;
-  if (pw.length < 8) return { score: 1, label: "Muito curta", color: "bg-destructive" };
-  if (passed <= 2) return { score: 2, label: "Fraca", color: "bg-destructive" };
-  if (passed === 3) return { score: 3, label: "Regular", color: "bg-yellow-500" };
-  if (passed === 4) return { score: 4, label: "Forte", color: "bg-primary" };
-  return { score: 5, label: "Muito forte", color: "bg-chart-2" };
+function getStrength(pw: string): { ok: boolean; label: string; color: string } {
+  if (pw.length === 0) return { ok: false, label: "", color: "bg-muted" };
+  const ok = REQUIREMENTS.filter((r) => r.required).every((r) => r.test(pw));
+  if (ok) return { ok: true, label: "Senha válida", color: "bg-chart-2" };
+  return { ok: false, label: "Não atende os requisitos", color: "bg-destructive" };
 }
+
 
 export function passwordMeetsRequirements(pw: string): boolean {
   return REQUIREMENTS.filter((r) => r.required).every((r) => r.test(pw));
