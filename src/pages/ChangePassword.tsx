@@ -13,23 +13,25 @@ import engemaseLogo from "@/assets/engemase-logo.png";
 type Requirement = {
   label: string;
   test: (pw: string) => boolean;
+  required: boolean;
 };
 
 const REQUIREMENTS: Requirement[] = [
-  { label: "Pelo menos 8 caracteres", test: (pw) => pw.length >= 8 },
-  { label: "Uma letra maiúscula (A-Z)", test: (pw) => /[A-Z]/.test(pw) },
-  { label: "Uma letra minúscula (a-z)", test: (pw) => /[a-z]/.test(pw) },
-  { label: "Um número (0-9)", test: (pw) => /[0-9]/.test(pw) },
-  { label: "Um símbolo (!@#$...)", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+  { label: "Pelo menos 8 caracteres", test: (pw) => pw.length >= 8, required: true },
+  { label: "Letra maiúscula (recomendado)", test: (pw) => /[A-Z]/.test(pw), required: false },
+  { label: "Letra minúscula (recomendado)", test: (pw) => /[a-z]/.test(pw), required: false },
+  { label: "Número (recomendado)", test: (pw) => /[0-9]/.test(pw), required: false },
+  { label: "Símbolo (recomendado)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: false },
 ];
 
 function getStrength(pw: string): { score: number; label: string; color: string } {
   const passed = REQUIREMENTS.filter((r) => r.test(pw)).length;
   if (pw.length === 0) return { score: 0, label: "", color: "bg-muted" };
-  if (passed <= 1) return { score: 1, label: "Muito fraca", color: "bg-destructive" };
-  if (passed === 2) return { score: 2, label: "Fraca", color: "bg-orange-500" };
-  if (passed === 3) return { score: 3, label: "Razoável", color: "bg-yellow-500" };
-  if (passed === 4) return { score: 4, label: "Forte", color: "bg-chart-2" };
+  if (pw.length < 8) return { score: 1, label: "Muito curta", color: "bg-destructive" };
+  if (passed === 1) return { score: 1, label: "Básica", color: "bg-primary/50" };
+  if (passed === 2) return { score: 2, label: "Regular", color: "bg-primary/60" };
+  if (passed === 3) return { score: 3, label: "Boa", color: "bg-primary/75" };
+  if (passed === 4) return { score: 4, label: "Forte", color: "bg-primary" };
   return { score: 5, label: "Muito forte", color: "bg-green-600" };
 }
 
@@ -44,8 +46,8 @@ export default function ChangePassword() {
   const isFirstLogin = profile?.first_login === true;
 
   const strength = useMemo(() => getStrength(newPassword), [newPassword]);
-  const allRequirementsMet = useMemo(
-    () => REQUIREMENTS.every((r) => r.test(newPassword)),
+  const requiredRequirementsMet = useMemo(
+    () => REQUIREMENTS.filter((r) => r.required).every((r) => r.test(newPassword)),
     [newPassword]
   );
   const passwordsMatch =
@@ -54,8 +56,8 @@ export default function ChangePassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!allRequirementsMet) {
-      toast.error("A senha não atende a todos os requisitos");
+    if (!requiredRequirementsMet) {
+      toast.error("A senha deve ter pelo menos 8 caracteres");
       return;
     }
 
@@ -113,8 +115,8 @@ export default function ChangePassword() {
           <CardTitle className="text-2xl">Alterar Senha</CardTitle>
           <CardDescription>
             {isFirstLogin
-              ? "Este é seu primeiro acesso. Crie uma senha forte com pelo menos 8 caracteres para continuar."
-              : "Digite sua nova senha (mínimo 8 caracteres, com letras, números e símbolos)."}
+              ? "Este é seu primeiro acesso. Crie uma senha com pelo menos 8 caracteres para continuar."
+              : "Digite sua nova senha. Apenas 8 caracteres são obrigatórios; letras, números e símbolos só aumentam a força."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -238,7 +240,7 @@ export default function ChangePassword() {
               <Button
                 type="submit"
                 className={isFirstLogin ? "w-full" : "flex-1"}
-                disabled={loading || !allRequirementsMet || !passwordsMatch}
+                disabled={loading || !requiredRequirementsMet || !passwordsMatch}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Salvar Nova Senha
