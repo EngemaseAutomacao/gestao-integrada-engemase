@@ -82,3 +82,15 @@ createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );
 
+// Global splash fallback: hide once React has mounted, regardless of route.
+// (Layout only hides splash on authenticated routes; public routes like /auth
+// would otherwise leave the splash visible forever.)
+const hideSplash = () => {
+  const splash = document.getElementById("splash-screen");
+  if (!splash) return;
+  splash.style.transition = "opacity 300ms ease";
+  splash.style.opacity = "0";
+  setTimeout(() => splash.remove(), 350);
+};
+requestAnimationFrame(() => setTimeout(hideSplash, 100));
+
