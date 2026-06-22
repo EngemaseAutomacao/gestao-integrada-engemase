@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.12",
+    date: "2026-06-22",
+    title: "Tela de alterar senha melhorada",
+    description: "A tela de alteração de senha agora mostra os requisitos em tempo real, um medidor de força e um botão de olho para ver a senha digitada.",
+    changes: [
+      { type: "feature", text: "Botão de olho para mostrar/ocultar a senha" },
+      { type: "feature", text: "Lista de requisitos da senha com check em tempo real (8 caracteres, maiúscula, minúscula, número, símbolo)" },
+      { type: "feature", text: "Medidor visual de força da senha (Muito fraca → Muito forte)" },
+      { type: "improvement", text: "Mínimo aumentado de 6 para 8 caracteres + confirmação de que as senhas coincidem em tempo real" },
+    ],
+  },
+  {
     version: "1.46.11",
     date: "2026-06-22",
     title: "Barra de título azul no app instalado",
