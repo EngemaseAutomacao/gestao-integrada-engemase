@@ -14,6 +14,7 @@ import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock, RefreshCw }
 import { Switch } from "@/components/ui/switch";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
+import { PasswordStrengthField, passwordMeetsRequirements } from "@/components/PasswordStrengthField";
 
 interface Profile {
   id: string;
