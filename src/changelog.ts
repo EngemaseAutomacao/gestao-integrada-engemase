@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.10",
+    date: "2026-06-22",
+    title: "Botão para verificar atualizações",
+    description: "Agora você pode checar manualmente se há uma nova versão direto da tela de Notas de Atualização, sem precisar esperar a verificação automática.",
+    changes: [
+      { type: "feature", text: "Botão 'Verificar atualizações' na tela de Notas de Atualização" },
+      { type: "improvement", text: "Se houver nova versão, um aviso aparece com botão para atualizar imediatamente" },
+    ],
+  },
+  {
     version: "1.46.9",
     date: "2026-06-22",
     title: "Inspeção geral e correções de estabilidade",
