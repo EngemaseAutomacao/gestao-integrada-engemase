@@ -272,7 +272,18 @@ export default function AdminUsers() {
         },
       });
 
-      if (error) throw error;
+      // Edge function returned non-2xx: try to parse the error body for a friendly message
+      if (error) {
+        let friendly = error.message;
+        try {
+          const ctx = (error as any).context;
+          if (ctx && typeof ctx.json === 'function') {
+            const body = await ctx.json();
+            if (body?.error) friendly = body.error;
+          }
+        } catch { /* keep default */ }
+        throw new Error(friendly);
+      }
       if (data?.error) throw new Error(data.error);
 
       toast.success(`Senha de ${selectedUser.full_name} alterada com sucesso!`);
@@ -286,6 +297,7 @@ export default function AdminUsers() {
     } finally {
       setLoading(false);
     }
+
   };
 
   const getCategoryBadge = (category: string) => {
