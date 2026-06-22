@@ -18,19 +18,18 @@ type Requirement = {
 
 const REQUIREMENTS: Requirement[] = [
   { label: "Pelo menos 8 caracteres", test: (pw) => pw.length >= 8, required: true },
-  { label: "Letra maiúscula (recomendado)", test: (pw) => /[A-Z]/.test(pw), required: false },
-  { label: "Letra minúscula (recomendado)", test: (pw) => /[a-z]/.test(pw), required: false },
-  { label: "Número (recomendado)", test: (pw) => /[0-9]/.test(pw), required: false },
+  { label: "Letra maiúscula (A-Z)", test: (pw) => /[A-Z]/.test(pw), required: true },
+  { label: "Letra minúscula (a-z)", test: (pw) => /[a-z]/.test(pw), required: true },
+  { label: "Número (0-9)", test: (pw) => /[0-9]/.test(pw), required: true },
   { label: "Símbolo (recomendado)", test: (pw) => /[^A-Za-z0-9]/.test(pw), required: false },
 ];
 
 function getStrength(pw: string): { score: number; label: string; color: string } {
-  const passed = REQUIREMENTS.filter((r) => r.test(pw)).length;
   if (pw.length === 0) return { score: 0, label: "", color: "bg-muted" };
+  const passed = REQUIREMENTS.filter((r) => r.test(pw)).length;
   if (pw.length < 8) return { score: 1, label: "Muito curta", color: "bg-destructive" };
-  if (passed === 1) return { score: 1, label: "Básica", color: "bg-primary/50" };
-  if (passed === 2) return { score: 2, label: "Regular", color: "bg-primary/60" };
-  if (passed === 3) return { score: 3, label: "Boa", color: "bg-primary/75" };
+  if (passed <= 2) return { score: 2, label: "Fraca", color: "bg-destructive" };
+  if (passed === 3) return { score: 3, label: "Regular", color: "bg-yellow-500" };
   if (passed === 4) return { score: 4, label: "Forte", color: "bg-primary" };
   return { score: 5, label: "Muito forte", color: "bg-chart-2" };
 }
@@ -57,7 +56,7 @@ export default function ChangePassword() {
     e.preventDefault();
 
     if (!requiredRequirementsMet) {
-      toast.error("A senha deve ter pelo menos 8 caracteres");
+      toast.error("A senha deve ter 8+ caracteres, maiúscula, minúscula e número");
       return;
     }
 
@@ -115,8 +114,8 @@ export default function ChangePassword() {
           <CardTitle className="text-2xl">Alterar Senha</CardTitle>
           <CardDescription>
             {isFirstLogin
-              ? "Este é seu primeiro acesso. Crie uma senha com pelo menos 8 caracteres para continuar."
-              : "Digite sua nova senha. Apenas 8 caracteres são obrigatórios; letras, números e símbolos só aumentam a força."}
+              ? "Primeiro acesso. Crie uma senha com 8+ caracteres, maiúscula, minúscula e número."
+              : "Mínimo: 8 caracteres com maiúscula, minúscula e número. Símbolo é opcional."}
           </CardDescription>
         </CardHeader>
         <CardContent>
