@@ -12,6 +12,7 @@ import engemaseLogo from "@/assets/engemase-logo.png";
 export default function Auth() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn, user, profile } = useAuth();
   const navigate = useNavigate();
