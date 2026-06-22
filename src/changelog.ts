@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.11",
+    date: "2026-06-22",
+    title: "Barra de título azul no app instalado",
+    description: "A barra superior (com os botões fechar/minimizar/maximizar) do app instalado no computador agora usa o azul Engemase em vez de branco.",
+    changes: [
+      { type: "improvement", text: "Cor de tema do PWA alterada para azul Engemase (#264a6b)" },
+    ],
+  },
+  {
     version: "1.46.10",
     date: "2026-06-22",
     title: "Botão para verificar atualizações",
