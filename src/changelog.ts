@@ -18,6 +18,7 @@ export const changelog: ChangelogEntry[] = [
     changes: [
       { type: "fix", text: "A senha agora é liberada com 8 caracteres, sem obrigar maiúscula, minúscula, número e símbolo" },
       { type: "improvement", text: "O medidor de força continua aparecendo, mas não bloqueia o salvamento da senha" },
+      { type: "fix", text: "A tela administrativa de alteração de senha também informa corretamente o mínimo de 8 caracteres" },
     ],
   },
   {
