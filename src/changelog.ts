@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.8",
+    date: "2026-06-22",
+    title: "Botão de atualização agora funciona",
+    description: "O botão 'Atualizar' do banner de nova versão não estava aplicando a atualização — o app continuava na versão antiga após recarregar. Agora o app desregistra o service worker e limpa todos os caches antes de recarregar, garantindo que a nova versão seja carregada.",
+    changes: [
+      { type: "fix", text: "Botão 'Atualizar' do banner agora força o carregamento da nova versão" },
+    ],
+  },
+  {
     version: "1.46.7",
     date: "2026-06-22",
     title: "Novo ícone do app",
