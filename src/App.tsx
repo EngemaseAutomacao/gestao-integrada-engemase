@@ -38,21 +38,21 @@ const FuelRecords = lazy(() => import("./pages/vehicles/FuelRecords"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 // AdminTools removed - integrated into AdminConstructionSites
-const AdminHistory = lazy(() => import("./pages/admin/AdminHistory"));
+// AdminHistory removed - unused (replaced by AdminHistorico)
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 
-const AdminIssues = lazy(() => import("./pages/admin/AdminIssues"));
+// AdminIssues removed - unused (replaced by AdminProblemas)
 const AdminConstructionSites = lazy(() => import("./pages/admin/AdminConstructionSites"));
 const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminDataRetention = lazy(() => import("./pages/admin/AdminDataRetention"));
 const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
-const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory"));
+// AdminVehicleHistory removed - unused
 const ReportIssue = lazy(() => import("./pages/ReportIssue"));
 const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssue"));
-const AdminVehicleIssues = lazy(() => import("./pages/admin/AdminVehicleIssues"));
+// AdminVehicleIssues removed - unused
 const AdminProblemas = lazy(() => import("./pages/admin/AdminProblemas"));
 const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
 const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));

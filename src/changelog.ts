@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.9",
+    date: "2026-06-22",
+    title: "Inspeção geral e correções de estabilidade",
+    description: "Varredura completa do sistema corrigindo inconsistências que poderiam impedir o app de carregar ou atualizar corretamente.",
+    changes: [
+      { type: "fix", text: "Arquivo de versão sincronizado — evita banner de atualização em loop" },
+      { type: "fix", text: "Detecção correta de ambiente preview vs produção no monitoramento de erros" },
+      { type: "improvement", text: "Removidos imports de páginas obsoletas, reduzindo o tamanho do bundle" },
+    ],
+  },
+  {
     version: "1.46.8",
     date: "2026-06-22",
     title: "Botão de atualização agora funciona",
