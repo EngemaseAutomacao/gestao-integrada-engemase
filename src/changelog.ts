@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.46.7",
+    date: "2026-06-22",
+    title: "Novo ícone do app",
+    description: "Atualizamos o ícone do PWA (tela inicial, favicon, splash) para a nova versão circular do símbolo Engemase.",
+    changes: [
+      { type: "improvement", text: "Novo ícone aplicado em todos os tamanhos (Android, iOS, desktop, favicon)" },
+    ],
+  },
+  {
     version: "1.46.6",
     date: "2026-06-22",
     title: "Correção da tela de carregamento travada",
