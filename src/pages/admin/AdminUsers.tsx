@@ -700,15 +700,11 @@ export default function AdminUsers() {
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="newPassword">Nova Senha *</Label>
-              <Input
+              <PasswordStrengthField
                 id="newPassword"
-                type="password"
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={setNewPassword}
                 placeholder="Digite a nova senha (mínimo 8 caracteres)"
-                required
-                minLength={8}
-                maxLength={128}
               />
               {passwordError && (
                 <p className="text-sm text-destructive">{passwordError}</p>
