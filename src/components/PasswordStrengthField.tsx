@@ -19,7 +19,7 @@ const REQUIREMENTS: Requirement[] = [
 function getStrength(pw: string): { ok: boolean; label: string; color: string } {
   if (pw.length === 0) return { ok: false, label: "", color: "bg-muted" };
   const ok = REQUIREMENTS.filter((r) => r.required).every((r) => r.test(pw));
-  if (ok) return { ok: true, label: "Senha válida", color: "bg-primary" };
+  if (ok) return { ok: true, label: "Requisitos atendidos", color: "bg-primary" };
   return { ok: false, label: "Não atende os requisitos", color: "bg-destructive" };
 }
 
@@ -110,6 +110,11 @@ export function PasswordStrengthField({
               );
             })}
           </ul>
+          {strength.ok && (
+            <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+              Evite senhas comuns, nomes próprios ou combinações já vazadas; elas ainda podem ser bloqueadas por segurança.
+            </p>
+          )}
         </div>
       )}
     </div>

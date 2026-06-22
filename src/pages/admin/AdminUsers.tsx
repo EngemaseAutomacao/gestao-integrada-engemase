@@ -297,8 +297,10 @@ export default function AdminUsers() {
       setNewPassword("");
       setSelectedUser(null);
     } catch (error: any) {
+      const message = error?.message || "Ocorreu um erro ao alterar a senha";
+      setPasswordError(message);
       toast.error("Erro ao alterar senha", {
-        description: error.message,
+        description: message,
       });
     } finally {
       setLoading(false);
