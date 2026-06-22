@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,22 +7,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, KeyRound } from "lucide-react";
+import { Loader2, KeyRound, Eye, EyeOff, Check, X } from "lucide-react";
 import engemaseLogo from "@/assets/engemase-logo.png";
+
+type Requirement = {
+  label: string;
+  test: (pw: string) => boolean;
+};
+
+const REQUIREMENTS: Requirement[] = [
+  { label: "Pelo menos 8 caracteres", test: (pw) => pw.length >= 8 },
+  { label: "Uma letra maiúscula (A-Z)", test: (pw) => /[A-Z]/.test(pw) },
+  { label: "Uma letra minúscula (a-z)", test: (pw) => /[a-z]/.test(pw) },
+  { label: "Um número (0-9)", test: (pw) => /[0-9]/.test(pw) },
+  { label: "Um símbolo (!@#$...)", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+];
+
+function getStrength(pw: string): { score: number; label: string; color: string } {
+  const passed = REQUIREMENTS.filter((r) => r.test(pw)).length;
+  if (pw.length === 0) return { score: 0, label: "", color: "bg-muted" };
+  if (passed <= 1) return { score: 1, label: "Muito fraca", color: "bg-destructive" };
+  if (passed === 2) return { score: 2, label: "Fraca", color: "bg-orange-500" };
+  if (passed === 3) return { score: 3, label: "Razoável", color: "bg-yellow-500" };
+  if (passed === 4) return { score: 4, label: "Forte", color: "bg-chart-2" };
+  return { score: 5, label: "Muito forte", color: "bg-green-600" };
+}
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isFirstLogin = profile?.first_login === true;
 
+  const strength = useMemo(() => getStrength(newPassword), [newPassword]);
+  const allRequirementsMet = useMemo(
+    () => REQUIREMENTS.every((r) => r.test(newPassword)),
+    [newPassword]
+  );
+  const passwordsMatch =
+    confirmPassword.length > 0 && newPassword === confirmPassword;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (newPassword.length < 6) {
-      toast.error("A nova senha deve ter pelo menos 6 caracteres");
+    if (!allRequirementsMet) {
+      toast.error("A senha não atende a todos os requisitos");
       return;
     }
 
@@ -38,11 +71,18 @@ export default function ChangePassword() {
       });
 
       if (updateError) {
-        toast.error("Erro ao alterar senha", { description: updateError.message });
+        const msg = updateError.message?.toLowerCase() || "";
+        if (msg.includes("pwned") || msg.includes("weak")) {
+          toast.error("Senha muito comum", {
+            description:
+              "Esta senha aparece em vazamentos públicos. Escolha uma combinação mais única.",
+          });
+        } else {
+          toast.error("Erro ao alterar senha", { description: updateError.message });
+        }
         return;
       }
 
-      // Mark first_login as false
       if (user) {
         await supabase
           .from("profiles")
@@ -72,38 +112,121 @@ export default function ChangePassword() {
           </div>
           <CardTitle className="text-2xl">Alterar Senha</CardTitle>
           <CardDescription>
-            {isFirstLogin 
-              ? "Este é seu primeiro acesso. Por segurança, crie uma nova senha para continuar."
-              : "Digite sua nova senha abaixo."
-            }
+            {isFirstLogin
+              ? "Este é seu primeiro acesso. Crie uma senha forte com pelo menos 8 caracteres para continuar."
+              : "Digite sua nova senha (mínimo 8 caracteres, com letras, números e símbolos)."}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="newPassword">Nova Senha</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                placeholder="••••••••"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNew ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNew((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showNew ? "Ocultar senha" : "Mostrar senha"}
+                  tabIndex={-1}
+                >
+                  {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {newPassword.length > 0 && (
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div
+                          key={i}
+                          className={`flex-1 transition-colors ${
+                            i <= strength.score ? strength.color : "bg-muted"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground min-w-[80px] text-right">
+                      {strength.label}
+                    </span>
+                  </div>
+
+                  <ul className="space-y-1 pt-1">
+                    {REQUIREMENTS.map((req) => {
+                      const ok = req.test(newPassword);
+                      return (
+                        <li
+                          key={req.label}
+                          className={`flex items-center gap-2 text-xs transition-colors ${
+                            ok ? "text-chart-2" : "text-muted-foreground"
+                          }`}
+                        >
+                          {ok ? (
+                            <Check className="w-3.5 h-3.5 shrink-0" />
+                          ) : (
+                            <X className="w-3.5 h-3.5 shrink-0" />
+                          )}
+                          <span>{req.label}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showConfirm ? "Ocultar senha" : "Mostrar senha"}
+                  tabIndex={-1}
+                >
+                  {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {confirmPassword.length > 0 && (
+                <p
+                  className={`text-xs flex items-center gap-1.5 ${
+                    passwordsMatch ? "text-chart-2" : "text-destructive"
+                  }`}
+                >
+                  {passwordsMatch ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" /> As senhas coincidem
+                    </>
+                  ) : (
+                    <>
+                      <X className="w-3.5 h-3.5" /> As senhas não coincidem
+                    </>
+                  )}
+                </p>
+              )}
             </div>
 
             <div className="flex gap-2">
@@ -112,7 +235,11 @@ export default function ChangePassword() {
                   Voltar
                 </Button>
               )}
-              <Button type="submit" className={isFirstLogin ? "w-full" : "flex-1"} disabled={loading}>
+              <Button
+                type="submit"
+                className={isFirstLogin ? "w-full" : "flex-1"}
+                disabled={loading || !allRequirementsMet || !passwordsMatch}
+              >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Salvar Nova Senha
               </Button>
