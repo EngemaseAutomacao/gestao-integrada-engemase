@@ -280,13 +280,12 @@ export default function UnifiedHistory({
   }
 
   return (
-    <div className="space-y-4 max-w-3xl mx-auto animate-fade-in">
+    <div className="animate-fade-in">
       {!embedded && (
-        <div className="hidden sm:block">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{title}</h1>
-          <p className="text-muted-foreground mt-1">{description}</p>
-        </div>
+        <ModuleHero eyebrow="Módulo · Histórico" title={title || "Meu Histórico"} subtitle={description} />
       )}
+      <div className={`space-y-4 max-w-3xl mx-auto ${!embedded ? "px-3 sm:px-6 -mt-14 sm:-mt-16 relative z-10" : ""}`}>
+
 
       <div className="flex gap-2 items-center justify-between flex-wrap" role="group" aria-label="Filtros do histórico">
         <div className="flex gap-2 flex-wrap">

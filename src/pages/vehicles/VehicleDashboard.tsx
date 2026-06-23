@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Cog } from "lucide-react";
+import { ModuleHero } from "@/components/ModuleHero";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -102,81 +103,69 @@ export default function VehicleDashboard() {
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
-        <div className="hidden sm:block">
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-            <Car className="w-8 h-8 text-primary" />
-            Veículos
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Painel e lista unificados — busque, filtre e gerencie entradas e saídas
-          </p>
-        </div>
+      <div className="shrink-0 pb-3 sm:pb-4">
+        <ModuleHero
+          eyebrow="Módulo · Veículos"
+          title="Painel da Frota"
+          subtitle="Busque, filtre e gerencie entradas e saídas de veículos"
+          floating={
+            <div className="space-y-3 sm:space-y-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Disponíveis</p>
+                  <p className="text-xl sm:text-3xl font-bold text-success mt-1">{stats?.available || 0}</p>
+                </div>
+                <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
+                  <p className="text-xl sm:text-3xl font-bold mt-1">{stats?.totalVehicles || 0}</p>
+                </div>
+                <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Em Uso</p>
+                  <p className="text-xl sm:text-3xl font-bold text-warning mt-1">{stats?.inUse || 0}</p>
+                </div>
+              </div>
 
-        {myVehicleCheckouts && myVehicleCheckouts.length > 0 && (
-          <Card
-            className="border-primary/50 bg-primary/5 cursor-pointer"
-            onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
-          >
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm sm:text-base flex items-center justify-between text-primary">
-                <span className="flex items-center gap-2">
-                  <Car className="w-4 h-4" />
-                  Meus Veículos em Uso ({myVehicleCheckouts.length})
-                </span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${myVehiclesExpanded ? "rotate-180" : ""}`} />
-              </CardTitle>
-            </CardHeader>
-            {myVehiclesExpanded && (
-              <CardContent className="space-y-2 max-h-[250px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
-                {myVehicleCheckouts.map((checkout: any) => (
-                  <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {checkout.vehicles?.name} - {checkout.vehicles?.plate}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>KM: {checkout.km_checkout}</span>
-                        <span>Saída: {format(new Date(checkout.checkout_date), "dd/MM HH:mm", { locale: ptBR })}</span>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="outline" className="text-xs gap-1 shrink-0" onClick={() => navigate(`/veiculos/chegada`)}>
-                      Devolução <ArrowRight className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ))}
-              </CardContent>
-            )}
-          </Card>
-        )}
-
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Disponíveis</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-success">{stats?.available || 0}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold">{stats?.totalVehicles || 0}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-xs sm:text-sm font-medium">Em Uso</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-warning">{stats?.inUse || 0}</div>
-            </CardContent>
-          </Card>
-        </div>
+              {myVehicleCheckouts && myVehicleCheckouts.length > 0 && (
+                <Card
+                  className="border-primary/50 bg-primary/5 cursor-pointer"
+                  onClick={() => setMyVehiclesExpanded(!myVehiclesExpanded)}
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm sm:text-base flex items-center justify-between text-primary">
+                      <span className="flex items-center gap-2">
+                        <Car className="w-4 h-4" />
+                        Meus Veículos em Uso ({myVehicleCheckouts.length})
+                      </span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${myVehiclesExpanded ? "rotate-180" : ""}`} />
+                    </CardTitle>
+                  </CardHeader>
+                  {myVehiclesExpanded && (
+                    <CardContent className="space-y-2 max-h-[250px] overflow-y-auto pt-0" onClick={(e) => e.stopPropagation()}>
+                      {myVehicleCheckouts.map((checkout: any) => (
+                        <div key={checkout.id} className="flex items-center justify-between gap-2 p-2 rounded-md bg-background/80">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {checkout.vehicles?.name} - {checkout.vehicles?.plate}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>KM: {checkout.km_checkout}</span>
+                              <span>Saída: {format(new Date(checkout.checkout_date), "dd/MM HH:mm", { locale: ptBR })}</span>
+                            </div>
+                          </div>
+                          <Button size="sm" variant="outline" className="text-xs gap-1 shrink-0" onClick={() => navigate(`/veiculos/chegada`)}>
+                            Devolução <ArrowRight className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </CardContent>
+                  )}
+                </Card>
+              )}
+            </div>
+          }
+        />
       </div>
+
 
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0">
