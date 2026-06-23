@@ -163,18 +163,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (username: string, password: string) => {
     try {
-      const { data: email, error: lookupError } = await supabase
-        .rpc("get_email_from_username", { _username: username });
+      // Server-side username -> email lookup + sign-in via edge function.
+      // Prevents user enumeration: backend always returns a generic error.
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "login-with-username",
+        { body: { username, password } },
+      );
 
-      if (lookupError || !email) {
-        return { error: { message: "Usuário não encontrado" } };
+      if (fnError || !data?.session) {
+        return { error: { message: data?.error ?? "Usuário ou senha inválidos" } };
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password,
+      const { error: setError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
       });
-      return { error };
+      return { error: setError };
     } catch (err) {
       return { error: { message: "Erro ao fazer login" } };
     }
