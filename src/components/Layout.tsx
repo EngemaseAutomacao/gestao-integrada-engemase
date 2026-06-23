@@ -338,11 +338,12 @@ export default function Layout({ children }: LayoutProps) {
           const IconComponent = icon;
           if (!title) return null;
           return (
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-              {IconComponent && <IconComponent className="w-4 h-4 text-primary" />}
-              <span className="text-sm font-semibold text-foreground">{title}</span>
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5 max-w-[55%] px-2">
+              {IconComponent && <IconComponent className="w-4 h-4 text-primary shrink-0" />}
+              <span className="text-sm font-semibold text-foreground truncate">{title}</span>
             </div>
           );
+
         })()}
 
         {/* Right side */}
