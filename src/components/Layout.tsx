@@ -282,17 +282,19 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* Mobile: Search button next to back button */}
           {isMobile && (
-            <Sheet>
-              <SheetTrigger asChild>
+            <Dialog>
+              <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Buscar">
                   <Search className="h-4 w-4" />
                 </Button>
-              </SheetTrigger>
-              <SheetContent side="top" className="pt-10">
+              </DialogTrigger>
+              <DialogContent className="top-4 translate-y-0 w-[calc(100%-2rem)] max-w-md p-4 gap-2 rounded-2xl">
+                <DialogTitle className="text-sm font-semibold text-muted-foreground">Buscar</DialogTitle>
                 <GlobalSearch />
-              </SheetContent>
-            </Sheet>
+              </DialogContent>
+            </Dialog>
           )}
+
 
           {/* Logo - desktop always, mobile only on non-home pages hidden (title takes center) */}
           {!isMobile && (
