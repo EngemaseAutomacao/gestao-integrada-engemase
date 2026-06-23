@@ -26,6 +26,7 @@ interface PendingItem {
   estimated_return_date: string | null;
   selected_tag: string | null;
   construction_site: string | null;
+  notes: string | null;
   tools: { name: string; tag: string | null } | null;
 }
 
