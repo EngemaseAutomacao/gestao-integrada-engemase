@@ -368,6 +368,7 @@ export default function Checkin() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
