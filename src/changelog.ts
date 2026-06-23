@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.58.0",
+    date: "2026-06-23",
+    title: "Nova tela de login",
+    description: "Tela de login redesenhada com identidade Engemase: fundo com brilho azul suave, cartão arredondado, campos com ícones e botão de acesso destacado.",
+    changes: [
+      { type: "improvement", text: "Login com layout moderno alinhado ao novo padrão visual" },
+      { type: "improvement", text: "Campos de usuário e senha com ícones e melhor contraste" },
+      { type: "improvement", text: "Background decorativo com gradiente e padrão sutil de pontos" },
+    ],
+  },
+  {
     version: "1.57.0",
     date: "2026-06-23",
     title: "Hero unificado em todos os módulos",
