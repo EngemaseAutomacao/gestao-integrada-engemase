@@ -328,10 +328,41 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
     if (body.subscription) {
+      // SECURITY: this branch is invoked by the DB trigger via pg_net.
+      // Require either a valid cron secret (defense-in-depth) OR a valid admin JWT,
+      // AND restrict the endpoint to a known push-service allowlist to prevent SSRF.
+      const isCron = await verifyCronSecret(req, supabase)
+      let authorized = isCron
+      if (!authorized) {
+        const authHeader = req.headers.get('Authorization')
+        if (authHeader?.toLowerCase().startsWith('bearer ')) {
+          const token = authHeader.slice(7)
+          const { data: { user: caller } } = await supabase.auth.getUser(token)
+          if (caller) {
+            const { data: callerProfile } = await supabase
+              .from('profiles').select('role').eq('id', caller.id).maybeSingle()
+            if (callerProfile?.role === 'admin') authorized = true
+          }
+        }
+      }
+      if (!authorized) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
       const { subscription, title, body: messageBody, tag, data } = body
 
       if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth) {
         return new Response(JSON.stringify({ error: 'Invalid subscription data' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      if (!isAllowedPushEndpoint(subscription.endpoint)) {
+        return new Response(JSON.stringify({ error: 'Push endpoint not in allowlist' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
@@ -353,6 +384,7 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+
 
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
