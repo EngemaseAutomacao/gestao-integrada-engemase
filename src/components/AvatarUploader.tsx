@@ -17,8 +17,7 @@ export function AvatarUploader({ fallback, className, size = "sm" }: AvatarUploa
   const [uploading, setUploading] = useState(false);
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
-  // Resolve signed URL when avatar_url changes
-  useState(() => {
+  useEffect(() => {
     let active = true;
     (async () => {
       if (!profile?.avatar_url) {
@@ -33,7 +32,7 @@ export function AvatarUploader({ fallback, className, size = "sm" }: AvatarUploa
     return () => {
       active = false;
     };
-  });
+  }, [profile?.avatar_url]);
 
   const handleFile = async (file: File) => {
     if (!user) return;
