@@ -1,14 +1,20 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, jsonResponse, verifyCronSecret, verifyAdmin, getAdminClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // Auth: cron secret OR admin JWT
+  const adminClient = getAdminClient();
+  const isCron = await verifyCronSecret(req, adminClient);
+  if (!isCron) {
+    const adminId = await verifyAdmin(req, adminClient);
+    if (!adminId) return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
+
 
   try {
     const TRELLO_API_KEY = Deno.env.get("TRELLO_API_KEY");

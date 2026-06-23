@@ -1,14 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, jsonResponse, verifyUser, getAdminClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+
+  // Auth: any authenticated user
+  const userId = await verifyUser(req, getAdminClient());
+  if (!userId) return jsonResponse({ error: "Unauthorized" }, 401);
+
+
 
   try {
     const { checkout_photo_path, checkin_photo_path } = await req.json();

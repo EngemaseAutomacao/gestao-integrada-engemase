@@ -1,14 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders, jsonResponse, verifyAdmin, getAdminClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Auth: admin-only (storage mutations)
+  const adminId = await verifyAdmin(req, getAdminClient());
+  if (!adminId) return jsonResponse({ error: "Unauthorized" }, 401);
+
+
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
