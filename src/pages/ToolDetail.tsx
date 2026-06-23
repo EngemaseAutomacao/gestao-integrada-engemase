@@ -231,9 +231,9 @@ export default function ToolDetail() {
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm">
+          <div className="flex flex-col gap-1.5 text-xs md:text-sm">
             {checkout.construction_site && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="truncate">{checkout.construction_site}</span>
               </div>
@@ -243,6 +243,7 @@ export default function ToolDetail() {
               <span>{getDaysUsed(checkout)} dias</span>
             </div>
           </div>
+
 
           {checkout.notes && (
             <div className="text-xs md:text-sm bg-muted/50 rounded-md p-2 border-l-2 border-primary">
