@@ -266,7 +266,7 @@ export default function ToolDetail() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+    <div className="flex flex-col gap-4 md:gap-6 h-full min-h-0 pb-2">
       <ModuleHero
         eyebrow="Módulo · Ferramentas"
         title={tool.name}
@@ -342,8 +342,8 @@ export default function ToolDetail() {
 
 
       {/* Usage History */}
-      <Card>
-        <CardHeader className="p-4 md:p-6">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="p-4 md:p-6 shrink-0">
           <CardTitle className="flex items-center gap-2 text-base md:text-lg">
             <History className="w-4 h-4 md:w-5 md:h-5" />
             Histórico de Uso
@@ -352,14 +352,15 @@ export default function ToolDetail() {
             {checkouts.length} registros de uso
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0 flex-1 min-h-0 flex flex-col">
+
           {checkouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhum uso registrado
             </p>
           ) : hasMultipleTags ? (
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="w-full flex gap-1 p-1 overflow-x-auto justify-start h-auto">
+            <Tabs defaultValue="all" className="w-full flex-1 min-h-0 flex flex-col">
+              <TabsList className="w-full flex gap-1 p-1 overflow-x-auto justify-start h-auto shrink-0">
                 <TabsTrigger value="all" className="text-xs px-3 py-1.5 shrink-0 rounded-md">
                   Todos <span className="ml-1 opacity-70">({checkouts.length})</span>
                 </TabsTrigger>
@@ -369,11 +370,11 @@ export default function ToolDetail() {
                   </TabsTrigger>
                 ))}
               </TabsList>
-              <TabsContent value="all" className="space-y-3 mt-3 max-h-[65vh] overflow-y-auto pr-1">
+              <TabsContent value="all" className="space-y-3 mt-3 flex-1 min-h-0 overflow-y-auto pr-1">
                 {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
               </TabsContent>
               {tags.map((tag) => (
-                <TabsContent key={tag} value={tag} className="space-y-3 mt-3 max-h-[65vh] overflow-y-auto pr-1">
+                <TabsContent key={tag} value={tag} className="space-y-3 mt-3 flex-1 min-h-0 overflow-y-auto pr-1">
                   {getCheckoutsForTag(tag).length === 0 ? (
                     <p className="text-center text-muted-foreground py-6 text-sm">
                       Nenhum uso registrado para TAG {tag}
@@ -385,10 +386,11 @@ export default function ToolDetail() {
               ))}
             </Tabs>
           ) : (
-            <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+            <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
               {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
             </div>
           )}
+
 
 
         </CardContent>
