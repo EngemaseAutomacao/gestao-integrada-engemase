@@ -417,6 +417,17 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Rate limit admin broadcast branch: 50 pushes / minute / admin.
+    const blocked = await enforceRateLimit({
+      key: `send-push:${caller.id}`,
+      limit: 50,
+      windowSeconds: 60,
+      admin: supabase,
+    })
+    if (blocked) return blocked
+
+
+
     const { userId, title, body: msgBody, type, toolId, checkoutId } = body
 
     if (!userId || !title) {
