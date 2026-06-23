@@ -334,62 +334,62 @@ export default function Home() {
         </div>
       )}
 
-      <div className="flex flex-wrap justify-center gap-3 sm:gap-6 max-w-5xl w-full">
-        <div id="tour-ferramentas" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+      <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+        <div id="tour-ferramentas">
           <ModuleCard
             title="Ferramentas"
             description="Retiradas, devoluções e manutenções"
-            icon={<Wrench className="w-6 h-6 text-primary" />}
+            icon={<Wrench className="w-6 h-6" />}
             to="/ferramentas"
             pendingCount={toolPending}
             overdueCount={toolOverdue + toolIssuesOpen}
           />
         </div>
 
-        <div id="tour-veiculos" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-veiculos">
           <ModuleCard
             title="Veículos"
             description="Entradas e saídas de veículos"
-            icon={<Car className="w-6 h-6 text-primary" />}
+            icon={<Car className="w-6 h-6" />}
             to="/veiculos"
             pendingCount={vehiclePending}
             overdueCount={vehicleOverdue + vehicleIssuesOpen}
           />
         </div>
 
-        <div id="tour-ponto" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-ponto">
           <ModuleCard
             title="Ponto Online"
             description="Registre pontos em atividades externas"
-            icon={<Clock className="w-6 h-6 text-primary" />}
+            icon={<Clock className="w-6 h-6" />}
             to="/ponto"
           />
         </div>
 
-        <div id="tour-historico" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-historico">
           <ModuleCard
             title="Meu Histórico"
             description="Veja todas as suas movimentações"
-            icon={<History className="w-6 h-6 text-primary" />}
+            icon={<History className="w-6 h-6" />}
             to="/historico"
           />
         </div>
 
-        <div id="tour-transferencias" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-transferencias">
           <ModuleCard
             title="Transferências"
             description="Handover de ferramentas e veículos"
-            icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+            icon={<ArrowRightLeft className="w-6 h-6" />}
             to="/transferencias"
           />
         </div>
 
         {isAdmin && (
-          <div id="tour-admin" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <div id="tour-admin">
             <ModuleCard
               title="Administração"
               description="Usuários, relatórios e configurações"
-              icon={<Shield className="w-6 h-6 text-orange-500" />}
+              icon={<Shield className="w-6 h-6" />}
               to="/admin"
               variant="admin"
             />
@@ -397,7 +397,7 @@ export default function Home() {
         )}
 
         {!isStandalone && (
-          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <div>
             <InstallPWACard isIOS={isIOS} />
           </div>
         )}
