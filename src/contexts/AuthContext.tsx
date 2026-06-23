@@ -14,6 +14,7 @@ interface Profile {
   role: "admin" | "employee" | "third_party";
   approved: boolean;
   first_login: boolean;
+  avatar_url?: string | null;
 }
 
 interface AuthContextType {

@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.53.0",
+    date: "2026-06-23",
+    title: "Foto de perfil no painel inicial",
+    description: "O quadrado do logo no cabeçalho do painel agora aceita uma foto de perfil opcional. Basta clicar para enviar uma imagem (até 5MB). A foto aparece apenas ali no painel.",
+    changes: [
+      { type: "feature", text: "Clique no quadrado do logo para enviar uma foto de perfil" },
+      { type: "feature", text: "Cada usuário controla sua própria foto, salva com segurança" },
+      { type: "improvement", text: "Sem foto enviada, o logo da Engemase continua aparecendo normalmente" },
+    ],
+  },
+  {
     version: "1.52.0",
     date: "2026-06-23",
     title: "Visual de app também no desktop",

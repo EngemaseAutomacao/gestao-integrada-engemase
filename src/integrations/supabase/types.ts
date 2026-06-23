@@ -518,6 +518,7 @@ export type Database = {
       profiles: {
         Row: {
           approved: boolean
+          avatar_url: string | null
           category: Database["public"]["Enums"]["user_category"]
           company: string | null
           created_at: string
@@ -531,6 +532,7 @@ export type Database = {
         }
         Insert: {
           approved?: boolean
+          avatar_url?: string | null
           category?: Database["public"]["Enums"]["user_category"]
           company?: string | null
           created_at?: string
@@ -544,6 +546,7 @@ export type Database = {
         }
         Update: {
           approved?: boolean
+          avatar_url?: string | null
           category?: Database["public"]["Enums"]["user_category"]
           company?: string | null
           created_at?: string
