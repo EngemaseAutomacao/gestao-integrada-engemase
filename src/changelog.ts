@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.55.0",
+    date: "2026-06-23",
+    title: "Layouts dos módulos refinados no desktop",
+    description: "Os menus internos dos módulos (Ferramentas, Veículos) agora seguem o mesmo padrão visual do painel inicial no desktop: destaque grande para o módulo principal, cards com hover elevado e seção de administração com banners completos.",
+    changes: [
+      { type: "improvement", text: "Tile principal em destaque no desktop com gradiente e informação ampliada" },
+      { type: "improvement", text: "Cards dos módulos com hover elevado e rótulo de ação 'Acessar'" },
+      { type: "improvement", text: "Seção de administração com banners largos no estilo do painel inicial" },
+    ],
+  },
+  {
     version: "1.53.0",
     date: "2026-06-23",
     title: "Foto de perfil no painel inicial",
