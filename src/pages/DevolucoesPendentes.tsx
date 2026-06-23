@@ -26,6 +26,7 @@ interface PendingItem {
   estimated_return_date: string | null;
   selected_tag: string | null;
   construction_site: string | null;
+  notes: string | null;
   tools: { name: string; tag: string | null } | null;
 }
 
@@ -45,7 +46,7 @@ export default function DevolucoesPendentes() {
       const { data, error } = await supabase
         .from("tool_checkouts")
         .select(
-          "id, tool_id, checkout_date, estimated_return_date, selected_tag, construction_site, tools (name, tag)"
+          "id, tool_id, checkout_date, estimated_return_date, selected_tag, construction_site, notes, tools (name, tag)"
         )
         .eq("user_id", profile.id)
         .eq("status", "checked_out")
@@ -219,6 +220,11 @@ export default function DevolucoesPendentes() {
                   {p.construction_site && (
                     <p className="text-[11px] text-muted-foreground truncate">
                       Obra: {p.construction_site}
+                    </p>
+                  )}
+                  {p.notes && (
+                    <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 italic">
+                      Obs: {p.notes}
                     </p>
                   )}
                 </div>
