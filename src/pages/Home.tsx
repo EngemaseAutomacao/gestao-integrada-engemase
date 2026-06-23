@@ -572,11 +572,17 @@ export default function Home() {
           <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
           <div className="absolute bottom-0 right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
           <div className="relative flex items-center gap-3">
-            <img
-              src={engemaseLogo}
-              alt="Engemase"
-              className="w-11 h-11 rounded-xl bg-white/10 p-1.5 backdrop-blur-sm shrink-0 object-contain"
+            <AvatarUploader
+              size="sm"
+              fallback={
+                <img
+                  src={engemaseLogo}
+                  alt="Engemase"
+                  className="w-full h-full p-1.5 object-contain"
+                />
+              }
             />
+
             <div className="flex-1 min-w-0">
               <p className="text-[10px] uppercase tracking-[0.2em] opacity-80 font-semibold">
                 {roleLabel}
