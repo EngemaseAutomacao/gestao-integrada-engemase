@@ -564,25 +564,11 @@ export default function Home() {
       overdueCount: vehicleOverdue + vehicleIssuesOpen,
     },
     {
-      id: "tour-ponto",
-      title: "Ponto Online",
-      description: "Registre pontos em atividades externas",
-      icon: <Clock className="w-6 h-6" />,
-      to: "/ponto",
-    },
-    {
       id: "tour-historico",
       title: "Meu Histórico",
       description: "Veja todas as suas movimentações",
       icon: <History className="w-6 h-6" />,
       to: "/historico",
-    },
-    {
-      id: "tour-transferencias",
-      title: "Transferências",
-      description: "Handover de ferramentas e veículos",
-      icon: <ArrowRightLeft className="w-6 h-6" />,
-      to: "/transferencias",
     },
     ...(isAdmin
       ? [
