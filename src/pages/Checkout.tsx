@@ -79,9 +79,9 @@ export default function Checkout() {
   const [bulkSearch, setBulkSearch] = useState("");
   const [tagError, setTagError] = useState("");
 
-  // Photo state
-  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
-  const [photoConfirmed, setPhotoConfirmed] = useState(false);
+  // Tool condition at checkout
+  const [toolCondition, setToolCondition] = useState<string>("");
+
 
   const selectedTool = tools.find(t => t.id === selectedToolId);
   const allToolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
