@@ -535,17 +535,6 @@ export default function Checkout() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes_bulk">Observações (opcional)</Label>
-                <Textarea
-                  id="notes_bulk"
-                  placeholder="Observação aplicada a todas as retiradas..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="condition_bulk">Estado da Ferramenta *</Label>
                 <Select value={toolCondition} onValueChange={setToolCondition}>
                   <SelectTrigger id="condition_bulk">
@@ -557,6 +546,18 @@ export default function Checkout() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes_bulk">Observações (opcional)</Label>
+                <Textarea
+                  id="notes_bulk"
+                  placeholder="Observação aplicada a todas as retiradas..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                />
+              </div>
+
 
 
               <div
