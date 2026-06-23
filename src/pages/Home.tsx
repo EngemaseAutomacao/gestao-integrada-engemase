@@ -638,40 +638,139 @@ export default function Home() {
   }
 
   // -------- DESKTOP / TABLET LAYOUT --------
+  const firstName = profile?.full_name?.split(" ")[0] || "";
+  const roleLabel =
+    profile?.role === "admin"
+      ? "Administrador"
+      : profile?.role === "third_party"
+      ? "Terceiro"
+      : "Colaborador";
+  const adminModuleDesk = modules.find((m) => m.variant === "admin");
+  const regularModulesDesk = modules.filter((m) => m.variant !== "admin");
+  const [featuredDesk, ...restDesk] = regularModulesDesk;
+
   return (
-    <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
-      <div className="text-center mb-4 sm:mb-6">
-        <img src={engemaseLogo} alt="Engemase Engenharia logotipo" className="w-28 sm:w-48 h-auto mx-auto mb-2 sm:mb-4" />
-        <h1 className="text-xl sm:text-3xl font-bold text-foreground mb-0.5 sm:mb-2">
-          Sistema de Gestão de Ativos — Engemase Engenharia
-        </h1>
-        <p className="text-sm sm:text-lg text-foreground mt-1">
-          Bem-vindo, {profile?.full_name?.split(" ")[0]}!
-        </p>
-        <p className="text-xs sm:text-base text-muted-foreground">
-          Selecione o módulo que deseja acessar
-        </p>
-      </div>
+    <div className="flex flex-col flex-1 -mx-3 sm:-mx-6 -mt-3 sm:-mt-6 pb-8">
+      <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-8 lg:px-12 pt-10 pb-28 rounded-b-[2rem]">
+        <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-32 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute top-12 right-48 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto flex items-center gap-5">
+          <img
+            src={engemaseLogo}
+            alt="Engemase Engenharia"
+            className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-white/10 p-2 backdrop-blur-sm shrink-0 object-contain"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs uppercase tracking-[0.25em] opacity-80 font-semibold">
+              {roleLabel} · Engemase
+            </p>
+            <h1 className="font-display text-3xl lg:text-4xl font-bold leading-tight">
+              Olá, {firstName} 👋
+            </h1>
+            <p className="text-sm lg:text-base opacity-90 mt-1">
+              Sistema de Gestão de Ativos — selecione um módulo para começar
+            </p>
+          </div>
+        </div>
+      </header>
 
       {user && (
-        <div className="mb-4 sm:mb-6">
-          <SummaryCards userId={user.id} />
+        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full">
+          <div className="rounded-2xl bg-card border shadow-elevated p-4">
+            <SummaryCards userId={user.id} />
+          </div>
         </div>
       )}
 
-      <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-        {modules.map((m) => (
-          <div id={m.id} key={m.id}>
-            <ModuleCard {...m} />
-          </div>
-        ))}
-        {!isStandalone && (
-          <div>
-            <InstallPWACard isIOS={isIOS} />
+      <div className="px-6 lg:px-12 max-w-6xl mx-auto w-full">
+        <div className="flex items-center justify-between mb-4 px-1">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+            Acesso rápido
+          </p>
+          <span className="text-xs text-muted-foreground">
+            {regularModulesDesk.length} módulos disponíveis
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {featuredDesk && (
+            <div id={featuredDesk.id} className="col-span-2 lg:row-span-2">
+              <FeaturedTileLarge {...featuredDesk} />
+            </div>
+          )}
+          {restDesk.map((m) => (
+            <div id={m.id} key={m.id}>
+              <ModuleCard {...m} />
+            </div>
+          ))}
+          {!isStandalone && (
+            <div>
+              <InstallPWACard isIOS={isIOS} />
+            </div>
+          )}
+        </div>
+
+        {adminModuleDesk && (
+          <div id={adminModuleDesk.id} className="mt-6">
+            <AdminBanner {...adminModuleDesk} />
           </div>
         )}
       </div>
     </div>
   );
+}
+
+function FeaturedTileLarge({
+  title,
+  description,
+  icon,
+  to,
+  disabled,
+  badgeCount,
+  pendingCount,
+  overdueCount,
+}: ModuleCardProps) {
+  const urgent = (overdueCount || 0) + (badgeCount || 0);
+  const pending = pendingCount || 0;
+
+  const body = (
+    <div className="relative h-full min-h-[260px] overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/15 via-primary/5 to-card p-6 transition-all hover:shadow-elevated hover:-translate-y-0.5 hover:border-primary/60 flex flex-col justify-between">
+      <div className="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-primary/10" />
+      <div className="absolute right-12 bottom-8 w-20 h-20 rounded-full bg-primary/5" />
+      <div className="relative">
+        <div className="flex items-start justify-between mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-md">
+            {icon}
+          </div>
+          {urgent > 0 ? (
+            <span className="px-3 py-1 rounded-full bg-destructive text-destructive-foreground text-xs font-bold">
+              {urgent} urgente{urgent > 1 ? "s" : ""}
+            </span>
+          ) : pending > 0 ? (
+            <span className="px-3 py-1 rounded-full bg-warning text-warning-foreground text-xs font-bold">
+              {pending} pendente{pending > 1 ? "s" : ""}
+            </span>
+          ) : (
+            <span className="px-3 py-1 rounded-full bg-success/10 text-success text-xs font-bold uppercase tracking-wider">
+              Ativo
+            </span>
+          )}
+        </div>
+        <p className="text-[11px] uppercase tracking-wider text-primary font-bold mb-1">
+          Módulo principal
+        </p>
+        <h3 className="font-display text-2xl font-bold mb-2">{title}</h3>
+        <p className="text-sm text-muted-foreground max-w-md">{description}</p>
+      </div>
+      <div className="relative mt-6 pt-4 border-t border-border/60 flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">Abrir módulo completo</span>
+        <span className="text-sm font-semibold text-primary">Acessar →</span>
+      </div>
+    </div>
+  );
+
+  if (disabled || !to) return body;
+  return <Link to={to} className="block h-full">{body}</Link>;
 }
 
