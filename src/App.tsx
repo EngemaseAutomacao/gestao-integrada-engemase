@@ -33,8 +33,6 @@ const VehicleDashboard = lazy(() => import("./pages/vehicles/VehicleDashboard"))
 const VehicleCheckout = lazy(() => import("./pages/vehicles/VehicleCheckout"));
 const VehicleCheckin = lazy(() => import("./pages/vehicles/VehicleCheckin"));
 const VehicleDetail = lazy(() => import("./pages/vehicles/VehicleDetail"));
-const VehicleAnalytics = lazy(() => import("./pages/vehicles/VehicleAnalytics"));
-const FuelRecords = lazy(() => import("./pages/vehicles/FuelRecords"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 // AdminTools removed - integrated into AdminConstructionSites
