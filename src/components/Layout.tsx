@@ -281,8 +281,8 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           )}
 
-          {/* Mobile: Theme toggle in place of search */}
-          {isMobile && <ThemeToggle />}
+          {/* Mobile: Theme toggle only on home page */}
+          {isMobile && isHomePage && <ThemeToggle />}
 
 
 
