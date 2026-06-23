@@ -40,6 +40,20 @@
     <script type="application/ld+json">
       {"@context":"https://schema.org","@type":"WebSite","name":"Gestão Integrada Engemase","url":"https://gestao-integrada-engemase.lovable.app/","description":"Sistema interno da Engemase Engenharia para controle de ferramentas, veículos e jornada de trabalho."}
     </script>
+    <!-- Theme bootstrap (anti-FOUC): applies stored or system theme before React mounts -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("engemase-ui-theme") || "system";
+          var resolved = stored === "system"
+            ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+            : stored;
+          var root = document.documentElement;
+          root.classList.remove("light", "dark");
+          root.classList.add(resolved);
+        } catch (e) {}
+      })();
+    </script>
 </head>
 
   <body>
