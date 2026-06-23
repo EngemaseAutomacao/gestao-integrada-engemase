@@ -438,41 +438,81 @@ export default function Home() {
   // -------- MOBILE LAYOUT --------
   if (isMobile) {
     const firstName = profile?.full_name?.split(" ")[0] || "";
+    const roleLabel =
+      profile?.role === "admin"
+        ? "Administrador"
+        : profile?.role === "third_party"
+        ? "Terceiro"
+        : "Colaborador";
+
+    const adminModule = modules.find((m) => m.variant === "admin");
+    const regularModules = modules.filter((m) => m.variant !== "admin");
+    const [featured, ...rest] = regularModules;
+
     return (
-      <div className="flex flex-col flex-1 px-4 pt-4 pb-6">
-        <header className="flex items-center gap-3 mb-4">
-          <img
-            src={engemaseLogo}
-            alt="Engemase Engenharia"
-            className="w-10 h-10 rounded-lg shrink-0 object-contain"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-              Engemase
-            </p>
-            <h1 className="font-display text-lg font-bold leading-tight truncate">
-              Olá, {firstName}
-            </h1>
+      <div className="flex flex-col flex-1 pb-6">
+        {/* Hero */}
+        <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-5 pt-6 pb-20 rounded-b-3xl">
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+          <div className="relative flex items-center gap-3">
+            <img
+              src={engemaseLogo}
+              alt="Engemase"
+              className="w-11 h-11 rounded-xl bg-white/10 p-1.5 backdrop-blur-sm shrink-0 object-contain"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-[0.2em] opacity-80 font-semibold">
+                {roleLabel}
+              </p>
+              <h1 className="font-display text-xl font-bold leading-tight truncate">
+                Olá, {firstName} 👋
+              </h1>
+            </div>
           </div>
         </header>
 
+        {/* Floating status card */}
         {user && (
-          <div className="mb-5">
-            <SummaryCards userId={user.id} />
+          <div className="px-4 -mt-14 mb-5 relative z-10">
+            <div className="rounded-2xl bg-card border shadow-elevated p-3">
+              <SummaryCards userId={user.id} />
+            </div>
           </div>
         )}
 
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-1">
-          Módulos
-        </p>
-        <div className="flex flex-col gap-2">
-          {modules.map((m) => (
-            <div id={m.id} key={m.id}>
-              <ModuleListItem {...m} />
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Acesso rápido
+            </p>
+            <span className="text-[11px] text-muted-foreground">
+              {regularModules.length} módulos
+            </span>
+          </div>
+
+          {featured && (
+            <div id={featured.id} className="mb-3">
+              <FeaturedTile {...featured} />
             </div>
-          ))}
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            {rest.map((m) => (
+              <div id={m.id} key={m.id}>
+                <CompactTile {...m} />
+              </div>
+            ))}
+          </div>
+
+          {adminModule && (
+            <div id={adminModule.id} className="mt-4">
+              <AdminBanner {...adminModule} />
+            </div>
+          )}
+
           {!isStandalone && (
-            <div className="mt-2">
+            <div className="mt-4">
               <InstallPWACard isIOS={isIOS} />
             </div>
           )}
