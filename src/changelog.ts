@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.59.0",
+    date: "2026-06-23",
+    title: "Módulos Ponto Online e Transferências removidos",
+    description: "Os módulos de Ponto Online e Transferências foram descontinuados. A navegação, Home, sidebar e atalhos foram atualizados.",
+    changes: [
+      { type: "improvement", text: "Cards de Ponto e Transferências removidos da Home" },
+      { type: "improvement", text: "Sidebar e barra mobile sem entradas de Ponto/Transferências" },
+      { type: "improvement", text: "Rotas /ponto/* e /transferencias redirecionam para a Home" },
+      { type: "improvement", text: "Tutorial de onboarding e seção de Ajuda atualizados" },
+    ],
+  },
+  {
     version: "1.58.0",
     date: "2026-06-23",
     title: "Nova tela de login",
