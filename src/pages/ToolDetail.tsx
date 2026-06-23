@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
 import { SignedImage } from "@/components/SignedImage";
+import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -264,17 +265,12 @@ export default function ToolDetail() {
 
   return (
     <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="min-w-0">
-            <h2 className="text-xl md:text-3xl font-bold tracking-tight truncate">{tool.name}</h2>
-            <p className="text-xs md:text-sm text-muted-foreground">Detalhes e histórico completo</p>
-          </div>
-        </div>
-      </div>
+      <ModuleHero
+        eyebrow="Módulo · Ferramentas"
+        title={tool.name}
+        subtitle="Detalhes e histórico completo"
+      />
+
 
       {/* Tool Overview */}
       <Card>

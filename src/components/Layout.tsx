@@ -255,18 +255,10 @@ export default function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm sticky top-0 z-40 px-2 sm:px-4 md:px-6">
         <div className="h-full max-w-6xl mx-auto w-full flex items-center justify-between relative">
-        <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
-          {/* Mobile: Back button when inside a module */}
-          {isMobile && !isHomePage && (
-            <NavLink to="/">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground" aria-label="Voltar ao menu">
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-            </NavLink>
-          )}
-
+        <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[40px]")}>
           {/* Mobile: Theme toggle only on home page */}
           {isMobile && isHomePage && <ThemeToggle />}
+
 
 
 

@@ -53,7 +53,7 @@ interface UnifiedHistoryProps {
 export default function UnifiedHistory({
   embedded = false,
   title = "Meu Histórico",
-  description = "Visão unificada de ferramentas, veículos e ponto — use os filtros para refinar",
+  description = "Visão unificada de ferramentas e veículos — use os filtros para refinar",
 }: UnifiedHistoryProps) {
   const { profile } = useAuth();
   const [searchParams] = useSearchParams();

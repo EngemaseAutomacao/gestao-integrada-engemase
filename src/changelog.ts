@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.59.1",
+    date: "2026-06-23",
+    title: "Detalhes e Histórico no novo padrão visual",
+    description: "Páginas de detalhe de ferramenta/veículo e Histórico Geral agora usam o cabeçalho azul ModuleHero. Botão de voltar removido do header mobile (a navegação já está disponível na barra inferior).",
+    changes: [
+      { type: "improvement", text: "Detalhe de Ferramenta com ModuleHero" },
+      { type: "improvement", text: "Detalhe de Veículo com ModuleHero" },
+      { type: "improvement", text: "Histórico Geral (admin) com ModuleHero" },
+      { type: "improvement", text: "Header mobile sem botão de voltar redundante" },
+    ],
+  },
+  {
     version: "1.59.0",
     date: "2026-06-23",
     title: "Módulos Ponto Online e Transferências removidos",
