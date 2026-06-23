@@ -79,9 +79,9 @@ export default function Checkout() {
   const [bulkSearch, setBulkSearch] = useState("");
   const [tagError, setTagError] = useState("");
 
-  // Photo state
-  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
-  const [photoConfirmed, setPhotoConfirmed] = useState(false);
+  // Tool condition at checkout
+  const [toolCondition, setToolCondition] = useState<string>("");
+
 
   const selectedTool = tools.find(t => t.id === selectedToolId);
   const allToolTags = selectedTool?.tag ? selectedTool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
@@ -90,7 +90,7 @@ export default function Checkout() {
 
   const { data: constructionSites } = useActiveConstructionSites();
 
-  const hasUnsavedData = !!(constructionSite || notes || estimatedReturnDate || photoConfirmed || bulkSelections.size > 0);
+  const hasUnsavedData = !!(constructionSite || notes || estimatedReturnDate || toolCondition || bulkSelections.size > 0);
   useUnsavedChanges(hasUnsavedData);
 
   useEffect(() => {
@@ -272,8 +272,8 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      let photoUrl: string | null = null;
-      if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
+      const conditionPrefix = toolCondition ? `[Estado: ${toolCondition}]` : "";
+      const finalNotes = [conditionPrefix, notes.trim()].filter(Boolean).join(" ") || null;
 
       const effectiveUserId = isAdmin && responsibleUserId ? responsibleUserId : profile!.id;
       const rows = Array.from(bulkSelections.entries()).map(([toolId, sel]) => {
@@ -286,10 +286,11 @@ export default function Checkout() {
           status: "checked_out" as const,
           construction_site: finalSite,
           estimated_return_date: new Date(estimatedReturnDate).toISOString(),
-          notes: notes.trim() || null,
-          checkout_photo_url: photoUrl,
+          notes: finalNotes,
+          checkout_photo_url: null,
           selected_tag: tags.length > 1 ? (sel.selectedTag || null) : (tags.length === 1 ? tags[0] : null),
         };
+
       });
 
       if (!isOnline) {
@@ -351,8 +352,8 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      let photoUrl: string | null = null;
-      if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
+      const conditionPrefix = toolCondition ? `[Estado: ${toolCondition}]` : "";
+      const finalNotes = [conditionPrefix, notes.trim()].filter(Boolean).join(" ") || null;
 
       const checkoutData = {
         tool_id: selectedToolId,
@@ -361,10 +362,11 @@ export default function Checkout() {
         status: "checked_out" as const,
         construction_site: finalSite,
         estimated_return_date: new Date(estimatedReturnDate).toISOString(),
-        notes: notes.trim() || null,
-        checkout_photo_url: photoUrl,
+        notes: finalNotes,
+        checkout_photo_url: null,
         selected_tag: hasMultipleTags ? selectedTag : (toolTags.length === 1 ? toolTags[0] : null),
       };
+
 
       if (!isOnline) {
         addPendingOperation("checkout", checkoutData);
@@ -404,11 +406,6 @@ export default function Checkout() {
     }
   };
 
-  const handlePhotoCapture = (dataUrl: string) => {
-    setPhotoDataUrl(dataUrl);
-    setPhotoConfirmed(true);
-    toast.success("Foto confirmada!");
-  };
 
   return (
     <div className="space-y-6">
@@ -549,26 +546,18 @@ export default function Checkout() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Foto (opcional, aplicada a todas)</Label>
-                  {photoConfirmed && (
-                    <Badge variant="secondary" className="gap-1">
-                      <CheckCircle className="w-3 h-3" /> Capturada
-                    </Badge>
-                  )}
-                </div>
-                {!photoConfirmed ? (
-                  <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado das ferramentas" />
-                ) : (
-                  <div className="relative">
-                    <img src={photoDataUrl!} alt="Foto capturada" className="w-full h-48 object-cover rounded-lg" />
-                    <Button type="button" variant="outline" size="sm" className="absolute top-2 right-2"
-                      onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}>
-                      Refazer
-                    </Button>
-                  </div>
-                )}
+                <Label htmlFor="condition_bulk">Estado da Ferramenta *</Label>
+                <Select value={toolCondition} onValueChange={setToolCondition}>
+                  <SelectTrigger id="condition_bulk">
+                    <SelectValue placeholder="Selecione o estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Completo">Completo</SelectItem>
+                    <SelectItem value="Incompleto">Incompleto</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
 
               <div
                 role="alert"
@@ -666,24 +655,18 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label>Foto da Ferramenta (opcional)</Label>
-                {photoConfirmed && (
-                  <Badge variant="secondary" className="gap-1"><CheckCircle className="w-3 h-3" /> Capturada</Badge>
-                )}
-              </div>
-              {!photoConfirmed ? (
-                <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado da ferramenta" />
-              ) : (
-                <div className="relative">
-                  <img src={photoDataUrl!} alt="Foto capturada" className="w-full h-48 object-cover rounded-lg" />
-                  <Button type="button" variant="outline" size="sm" className="absolute top-2 right-2"
-                    onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}>
-                    Refazer
-                  </Button>
-                </div>
-              )}
+              <Label htmlFor="condition">Estado da Ferramenta *</Label>
+              <Select value={toolCondition} onValueChange={setToolCondition}>
+                <SelectTrigger id="condition">
+                  <SelectValue placeholder="Selecione o estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Completo">Completo</SelectItem>
+                  <SelectItem value="Incompleto">Incompleto</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
 
             <div
               role="alert"
