@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.47.0",
+    date: "2026-06-23",
+    title: "Módulos de Combustível e Analytics removidos",
+    description: "Os módulos de Registro de Combustível e Analytics de Veículos foram removidos do sistema por não serem utilizados. O manual do usuário foi atualizado.",
+    changes: [
+      { type: "improvement", text: "Removido o módulo 'Combustível' do menu, da paleta de comandos e do menu de Veículos" },
+      { type: "improvement", text: "Removido o módulo 'Analytics de Veículos' do menu lateral" },
+      { type: "improvement", text: "Rotas antigas /veiculos/combustivel e /veiculos/analytics agora redirecionam para o painel de Veículos" },
+      { type: "improvement", text: "FAQ da Ajuda atualizado, sem referência a abastecimento" },
+      { type: "improvement", text: "Manual do usuário (PDF) regenerado sem as seções removidas" },
+    ],
+  },
+  {
     version: "1.46.16",
     date: "2026-06-22",
     title: "Aviso claro para senhas bloqueadas",
