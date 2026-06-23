@@ -52,6 +52,18 @@ export default function Checkout() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [constructionSite, setConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
+  const [returnDays, setReturnDays] = useState<string>("");
+  const handleReturnDaysChange = (value: string) => {
+    setReturnDays(value);
+    const days = parseInt(value, 10);
+    if (!Number.isNaN(days)) {
+      const d = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+      setEstimatedReturnDate(d.toISOString());
+    } else {
+      setEstimatedReturnDate("");
+    }
+  };
+
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingTools, setLoadingTools] = useState(true);
@@ -510,15 +522,19 @@ export default function Checkout() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="estimated_return_bulk">Previsão de Devolução *</Label>
-                  <input
-                    id="estimated_return_bulk"
-                    type="datetime-local"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    value={estimatedReturnDate}
-                    onChange={(e) => setEstimatedReturnDate(e.target.value)}
-                    required
-                  />
+                  <Select value={returnDays} onValueChange={handleReturnDaysChange}>
+                    <SelectTrigger id="estimated_return_bulk">
+                      <SelectValue placeholder="Selecione o prazo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 Dia</SelectItem>
+                      <SelectItem value="7">7 Dias</SelectItem>
+                      <SelectItem value="15">15 Dias</SelectItem>
+                      <SelectItem value="30">30 Dias</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+
               </div>
 
               <div className="space-y-2">
@@ -628,16 +644,20 @@ export default function Checkout() {
 
               <div className="space-y-2">
                 <Label htmlFor="estimated_return">Previsão de Devolução *</Label>
-                <input
-                  id="estimated_return"
-                  type="datetime-local"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={estimatedReturnDate}
-                  onChange={(e) => setEstimatedReturnDate(e.target.value)}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">Informe até quando você planeja usar a ferramenta</p>
+                <Select value={returnDays} onValueChange={handleReturnDaysChange}>
+                  <SelectTrigger id="estimated_return">
+                    <SelectValue placeholder="Selecione o prazo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Dia</SelectItem>
+                    <SelectItem value="7">7 Dias</SelectItem>
+                    <SelectItem value="15">15 Dias</SelectItem>
+                    <SelectItem value="30">30 Dias</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">A devolução será prevista para a data de hoje somada ao prazo selecionado.</p>
               </div>
+
             </div>
 
             <div className="space-y-2">
