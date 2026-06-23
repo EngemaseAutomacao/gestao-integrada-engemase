@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Home, Wrench, Car, Clock, Shield, Settings, BarChart3, Package, History, Bell, Fuel, ArrowRightLeft } from "lucide-react";
+import { Home, Wrench, Car, Shield, Settings, BarChart3, Package, History, Bell, Fuel } from "lucide-react";
 
 export interface NavTabItem {
   id: string;
@@ -13,8 +13,7 @@ export const ALL_TAB_OPTIONS: NavTabItem[] = [
   { id: "home", label: "Início", icon: Home, path: "/" },
   { id: "ferramentas", label: "Ferramentas", icon: Wrench, path: "/ferramentas" },
   { id: "veiculos", label: "Veículos", icon: Car, path: "/veiculos" },
-  { id: "ponto", label: "Ponto", icon: Clock, path: "/ponto" },
-  
+  { id: "historico", label: "Histórico", icon: History, path: "/historico" },
   { id: "admin", label: "Admin", icon: Shield, path: "/admin", adminOnly: true },
 ];
 
