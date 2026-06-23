@@ -723,6 +723,12 @@ export default function Home() {
               Sistema de Gestão de Ativos — selecione um módulo para começar
             </p>
           </div>
+
+          {!isStandalone && (
+            <div className="hidden md:block shrink-0 self-start">
+              <InstallPWAHeroButton isIOS={isIOS} />
+            </div>
+          )}
         </div>
       </header>
 
