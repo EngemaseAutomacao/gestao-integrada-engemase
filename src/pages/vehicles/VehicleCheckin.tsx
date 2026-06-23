@@ -332,6 +332,7 @@ export default function VehicleCheckin() {
   return (
     <div className="space-y-6">
       <ModuleHero
+        narrow
         eyebrow="Módulo · Veículos"
         title="Registrar Chegada"
         subtitle="Registre a chegada de um veículo"

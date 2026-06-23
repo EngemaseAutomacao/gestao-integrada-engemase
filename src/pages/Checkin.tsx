@@ -222,6 +222,7 @@ export default function Checkin() {
   return (
     <div className="space-y-6">
       <ModuleHero
+        narrow
         eyebrow="Módulo · Ferramentas"
         title="Registrar Devolução"
         subtitle="Registre a devolução de uma ferramenta"

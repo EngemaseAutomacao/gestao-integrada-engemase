@@ -401,6 +401,7 @@ export default function Checkout() {
   return (
     <div className="space-y-6">
       <ModuleHero
+        narrow
         eyebrow="Módulo · Ferramentas"
         title="Registrar Saída"
         subtitle={bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}

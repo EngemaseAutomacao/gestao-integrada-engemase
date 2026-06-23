@@ -332,6 +332,7 @@ export default function VehicleCheckout() {
   return (
     <div className="space-y-6">
       <ModuleHero
+        narrow
         eyebrow="Módulo · Veículos"
         title="Registrar Saída"
         subtitle="Registre a saída de um veículo"
