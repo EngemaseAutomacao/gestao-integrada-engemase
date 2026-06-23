@@ -74,8 +74,6 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
   '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
   '/veiculos/historico': { title: 'Meu Histórico', icon: History },
-  '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
-  '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
   '/ponto': { title: 'Ponto Online', icon: MapPin },
   '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
   '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
