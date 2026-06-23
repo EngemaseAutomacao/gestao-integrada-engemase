@@ -184,7 +184,7 @@ export default function DevolucoesPendentes() {
               const info = (
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium truncate">
+                    <p className="text-sm font-medium break-words">
                       {p.tools?.name || "Ferramenta"}
                     </p>
                     {p.selected_tag && (
@@ -259,13 +259,13 @@ export default function DevolucoesPendentes() {
                           className="flex items-center gap-3 flex-1 min-w-0"
                         >
                           <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                               overdue
                                 ? "bg-destructive/10 text-destructive"
                                 : "bg-warning/10 text-warning"
                             }`}
                           >
-                            <Clock className="w-5 h-5" />
+                            <Clock className="w-3.5 h-3.5" />
                           </div>
                           {info}
                           <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
