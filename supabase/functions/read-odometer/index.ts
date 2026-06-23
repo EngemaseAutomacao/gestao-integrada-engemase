@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { corsHeaders, jsonResponse, verifyUser, getAdminClient } from "../_shared/auth.ts";
+import { enforceRateLimit } from "../_shared/rateLimit.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -7,8 +8,20 @@ Deno.serve(async (req) => {
   }
 
   // Auth: any authenticated user
-  const userId = await verifyUser(req, getAdminClient());
+  const admin = getAdminClient();
+  const userId = await verifyUser(req, admin);
   if (!userId) return jsonResponse({ error: "Unauthorized" }, 401);
+
+  // Rate limit: 10 requests / minute / user (Gemini calls are expensive).
+  const blocked = await enforceRateLimit({
+    key: `read-odometer:${userId}`,
+    limit: 10,
+    windowSeconds: 60,
+    admin,
+  });
+  if (blocked) return blocked;
+
+
 
 
 
