@@ -1314,7 +1314,6 @@ export type Database = {
       get_approved_users: {
         Args: never
         Returns: {
-          email: string
           full_name: string
           id: string
         }[]
@@ -1342,6 +1341,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      verify_cron_secret: { Args: { _secret: string }; Returns: boolean }
     }
     Enums: {
       checkout_status: "checked_out" | "checked_in"
