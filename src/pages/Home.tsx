@@ -707,11 +707,10 @@ export default function Home() {
       </header>
 
       {user && (
-        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full space-y-4">
+        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full">
           <div className="rounded-2xl bg-card border shadow-elevated p-4">
             <SummaryCards userId={user.id} />
           </div>
-          <HomePendingCard userId={user.id} />
         </div>
       )}
 
