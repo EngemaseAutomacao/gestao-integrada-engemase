@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.56.0",
+    date: "2026-06-23",
+    title: "Painel de Ferramentas com hero unificado",
+    description: "O dashboard de Ferramentas agora abre com o mesmo hero azul gradiente do painel inicial e dos menus de módulo, com cartões flutuantes de estatísticas (Disponíveis, Total, Em Uso) sobrepostos ao hero.",
+    changes: [
+      { type: "improvement", text: "Hero azul gradiente no topo do painel de Ferramentas" },
+      { type: "improvement", text: "Cartões de estatísticas flutuantes com sombra elevada" },
+      { type: "improvement", text: "Padrão visual consistente entre painel inicial, menus e dashboards" },
+    ],
+  },
+  {
     version: "1.55.0",
     date: "2026-06-23",
     title: "Layouts dos módulos refinados no desktop",
