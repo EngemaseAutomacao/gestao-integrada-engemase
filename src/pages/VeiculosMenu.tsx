@@ -1,14 +1,88 @@
-import { Car, Upload, LogIn, History, Fuel, AlertCircle, ClipboardList, ArrowRightLeft } from "lucide-react";
+import { Car, Upload, LogIn, History, AlertCircle, ClipboardList, ArrowRightLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 import { MenuCard } from "@/components/MenuCard";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileModuleMenu, MobileMenuItem } from "@/components/MobileModuleMenu";
 
 
 export default function VeiculosMenu() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
+  const isMobile = useIsMobile();
 
   const { vehicleIssuesOpen } = useUrgencyBadges();
+
+  if (isMobile) {
+    const items: MobileMenuItem[] = [
+      {
+        title: "Painel Geral",
+        description: "Visão geral da frota",
+        icon: <Car className="w-6 h-6" />,
+        to: "/veiculos/dashboard",
+      },
+      {
+        title: "Registrar Saída",
+        description: "Saída de veículo",
+        icon: <Upload className="w-5 h-5" />,
+        to: "/veiculos/saida",
+      },
+      {
+        title: "Registrar Devolução",
+        description: "Chegada do veículo",
+        icon: <LogIn className="w-5 h-5" />,
+        to: "/veiculos/chegada",
+      },
+      {
+        title: "Meu Histórico",
+        description: "Suas movimentações",
+        icon: <History className="w-5 h-5" />,
+        to: "/veiculos/historico",
+      },
+      {
+        title: "Reportar Problema",
+        description: "Informar defeito",
+        icon: <AlertCircle className="w-5 h-5" />,
+        to: "/veiculos/report-issue",
+        badgeCount: vehicleIssuesOpen,
+      },
+      {
+        title: "Transferências",
+        description: "Transferir posse",
+        icon: <ArrowRightLeft className="w-5 h-5" />,
+        to: "/transferencias",
+      },
+    ];
+
+    const adminItems: MobileMenuItem[] = isAdmin
+      ? [
+          {
+            title: "Problemas",
+            description: "Gerenciar problemas",
+            icon: <AlertCircle className="w-5 h-5" />,
+            to: "/admin/vehicle-issues",
+            badgeCount: vehicleIssuesOpen,
+          },
+          {
+            title: "Histórico Geral",
+            description: "Todas movimentações",
+            icon: <ClipboardList className="w-5 h-5" />,
+            to: "/admin/vehicle-history",
+          },
+        ]
+      : [];
+
+    return (
+      <MobileModuleMenu
+        eyebrow="Módulo"
+        title="Veículos"
+        subtitle="Entradas e saídas da frota"
+        heroIcon={<Car className="w-5 h-5" />}
+        items={items}
+        adminItems={adminItems}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
