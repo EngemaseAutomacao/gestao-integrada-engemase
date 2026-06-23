@@ -52,6 +52,18 @@ export default function Checkout() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [constructionSite, setConstructionSite] = useState("");
   const [estimatedReturnDate, setEstimatedReturnDate] = useState("");
+  const [returnDays, setReturnDays] = useState<string>("");
+  const handleReturnDaysChange = (value: string) => {
+    setReturnDays(value);
+    const days = parseInt(value, 10);
+    if (!Number.isNaN(days)) {
+      const d = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+      setEstimatedReturnDate(d.toISOString());
+    } else {
+      setEstimatedReturnDate("");
+    }
+  };
+
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingTools, setLoadingTools] = useState(true);
