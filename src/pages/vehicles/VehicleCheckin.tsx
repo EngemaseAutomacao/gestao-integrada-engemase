@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModuleHero } from "@/components/ModuleHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -329,18 +330,14 @@ export default function VehicleCheckin() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="hidden sm:block">
-        <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
-          <ArrowLeftCircle className="w-8 h-8 text-primary" />
-          Registrar Chegada
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Registre a chegada de um veículo
-        </p>
-      </div>
+    <div className="space-y-6">
+      <ModuleHero
+        eyebrow="Módulo · Veículos"
+        title="Registrar Chegada"
+        subtitle="Registre a chegada de um veículo"
+      />
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
         {/* Vehicle Selection */}
         <Card>
           <CardHeader>

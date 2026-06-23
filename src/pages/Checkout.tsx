@@ -8,6 +8,7 @@ import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModuleHero } from "@/components/ModuleHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -398,33 +399,28 @@ export default function Checkout() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Button variant="ghost" onClick={() => navigate("/ferramentas")} className="gap-2">
-        <ArrowLeft className="w-4 h-4" />
-        Voltar
-      </Button>
+    <div className="space-y-6">
+      <ModuleHero
+        eyebrow="Módulo · Ferramentas"
+        title="Registrar Saída"
+        subtitle={bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}
+      />
+
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex items-center justify-end">
+          {bulkMode ? (
+            <Button type="button" variant="outline" size="sm" className="gap-1" onClick={exitBulkMode}>
+              <X className="w-4 h-4" /> Sair do modo múltiplo
+            </Button>
+          ) : (
+            <Button type="button" variant="outline" size="sm" className="gap-1" onClick={enterBulkMode}>
+              <CheckSquare className="w-4 h-4" /> Selecionar várias
+            </Button>
+          )}
+        </div>
 
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div>
-              <CardTitle>Registrar Saída</CardTitle>
-              <CardDescription>
-                {bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}
-              </CardDescription>
-            </div>
-            {bulkMode ? (
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={exitBulkMode}>
-                <X className="w-4 h-4" /> Sair do modo múltiplo
-              </Button>
-            ) : (
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={enterBulkMode}>
-                <CheckSquare className="w-4 h-4" /> Selecionar várias
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {isAdmin && (
             <div className="space-y-2 mb-6 p-3 border rounded-md bg-muted/30">
               <Label htmlFor="responsible_user">Responsável pela retirada (admin)</Label>
@@ -688,6 +684,7 @@ export default function Checkout() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModuleHero } from "@/components/ModuleHero";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -219,18 +220,16 @@ export default function Checkin() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Button variant="ghost" onClick={() => navigate("/ferramentas")} className="gap-2">
-        <ArrowLeft className="w-4 h-4" />
-        Voltar
-      </Button>
+    <div className="space-y-6">
+      <ModuleHero
+        eyebrow="Módulo · Ferramentas"
+        title="Registrar Devolução"
+        subtitle="Registre a devolução de uma ferramenta"
+      />
 
+      <div className="max-w-4xl mx-auto space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Devolver Ferramenta</CardTitle>
-          <CardDescription>Registre a devolução de uma ferramenta</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {checkouts.length === 0 && !loadingCheckouts ? (
             <p className="text-center text-muted-foreground py-8">
               Você não possui ferramentas para devolver
@@ -369,6 +368,7 @@ export default function Checkin() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
