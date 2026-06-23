@@ -47,30 +47,12 @@ function buildStepsForRole(role: Role): DriveStep[] {
     },
   };
 
-  const ponto: DriveStep = {
-    element: "#tour-ponto",
-    popover: {
-      title: "Ponto Online",
-      description:
-        "Marque entrada e saída com geolocalização. Acompanhe seu histórico de horas trabalhadas direto no sistema.",
-    },
-  };
-
   const historico: DriveStep = {
     element: "#tour-historico",
     popover: {
       title: "Meu Histórico",
       description:
-        "Veja todas as suas movimentações (ferramentas, veículos, ponto) em um só lugar, com exportação em PDF e Excel.",
-    },
-  };
-
-  const transferencias: DriveStep = {
-    element: "#tour-transferencias",
-    popover: {
-      title: "Transferências",
-      description:
-        "Faça handover de ferramentas e veículos para outro usuário. Toda transferência passa por aprovação do administrador.",
+        "Veja todas as suas movimentações (ferramentas e veículos) em um só lugar, com exportação em PDF e Excel.",
     },
   };
 
@@ -104,14 +86,10 @@ function buildStepsForRole(role: Role): DriveStep[] {
   };
 
   if (role === "admin") {
-    return [welcome, ferramentas, veiculos, ponto, historico, transferencias, admin, busca, final];
+    return [welcome, ferramentas, veiculos, historico, admin, busca, final];
   }
-  if (role === "third_party") {
-    // Terceiros normalmente não usam Ponto Online nem Administração
-    return [welcome, ferramentas, veiculos, historico, transferencias, busca, final];
-  }
-  // employee (Engemase)
-  return [welcome, ferramentas, veiculos, ponto, historico, transferencias, busca, final];
+  // employee / third_party
+  return [welcome, ferramentas, veiculos, historico, busca, final];
 }
 
 export function OnboardingTutorial() {
