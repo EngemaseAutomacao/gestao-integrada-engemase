@@ -1,5 +1,5 @@
 // Version is auto-incremented. Update PATCH for fixes, MINOR for features, MAJOR for breaking changes.
-export const APP_VERSION = "1.50.0";
+export const APP_VERSION = "1.51.0";
 
 // Injected by Vite at build time via define in vite.config.ts
 declare const __BUILD_DATE__: string;
