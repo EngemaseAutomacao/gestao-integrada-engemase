@@ -222,6 +222,11 @@ export default function DevolucoesPendentes() {
                       Obra: {p.construction_site}
                     </p>
                   )}
+                  {p.notes && (
+                    <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 italic">
+                      Obs: {p.notes}
+                    </p>
+                  )}
                 </div>
               );
 
