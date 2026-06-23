@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Shield, Download, Package, Loader2, Building2, Share, History, ChevronRight } from "lucide-react";
+import { Wrench, Car, Shield, Download, Package, Loader2, Building2, Share, History, ChevronRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,7 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import engemaseIcon from "@/assets/engemase-icon.png.asset.json";
-import { HomePendingCard } from "@/components/home/HomePendingCard";
+import { useHomePendingCount } from "@/hooks/useHomePendingCount";
 
 
 interface BeforeInstallPromptEvent extends Event {
@@ -520,6 +520,7 @@ export default function Home() {
     vehicleOverdue,
     vehicleIssuesOpen 
   } = useUrgencyBadges();
+  const { data: pendingCount } = useHomePendingCount(user?.id);
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -548,6 +549,15 @@ export default function Home() {
       to: "/veiculos",
       pendingCount: vehiclePending,
       overdueCount: vehicleOverdue + vehicleIssuesOpen,
+    },
+    {
+      id: "tour-pendencias",
+      title: "Pendências",
+      description: "Ferramentas que você precisa devolver",
+      icon: <Clock className="w-6 h-6" />,
+      to: "/devolucoes-pendentes",
+      pendingCount: (pendingCount?.total || 0) - (pendingCount?.overdue || 0),
+      overdueCount: pendingCount?.overdue || 0,
     },
     {
       id: "tour-historico",
@@ -611,13 +621,13 @@ export default function Home() {
 
         {/* Floating status card */}
         {user && (
-          <div className="px-4 -mt-14 mb-5 relative z-10 space-y-3">
+          <div className="px-4 -mt-14 mb-5 relative z-10">
             <div className="rounded-2xl bg-card border shadow-elevated p-3">
               <SummaryCards userId={user.id} />
             </div>
-            <HomePendingCard userId={user.id} />
           </div>
         )}
+
 
 
         <div className="px-4">
@@ -707,11 +717,10 @@ export default function Home() {
       </header>
 
       {user && (
-        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full space-y-4">
+        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full">
           <div className="rounded-2xl bg-card border shadow-elevated p-4">
             <SummaryCards userId={user.id} />
           </div>
-          <HomePendingCard userId={user.id} />
         </div>
       )}
 

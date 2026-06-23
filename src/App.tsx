@@ -57,6 +57,7 @@ const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 // AdminSiteTools removed
 
+const DevolucoesPendentes = lazy(() => import("./pages/DevolucoesPendentes"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Help = lazy(() => import("./pages/Help"));
 const Changelog = lazy(() => import("./pages/Changelog"));
@@ -192,6 +193,7 @@ const App = () => (
                       <Route path="/meu-dia" element={<Navigate to="/historico" replace />} />
                       <Route path="/historico" element={<Historico />} />
                       <Route path="/pendencias" element={<Pendencias />} />
+                      <Route path="/devolucoes-pendentes" element={<DevolucoesPendentes />} />
                       <Route path="/report-issue" element={<ReportIssue />} />
                       <Route path="/changelog" element={<Changelog />} />
                       <Route path="/mobile-settings" element={<MobileNavSettings />} />
