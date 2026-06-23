@@ -119,22 +119,48 @@ export function PendingCheckoutsCard({
                   className={`flex-1 min-w-0 ${multiSelectMode ? "cursor-pointer" : ""}`}
                   onClick={() => multiSelectMode && toggleSelectCheckout(checkout.id)}
                 >
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
-                    {checkout.selected_tag && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
-                        {checkout.selected_tag}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {checkout.estimated_return_date && (
-                      <span className={isOverdue ? "text-destructive font-medium" : ""}>
-                        {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
-                      </span>
-                    )}
-                  </div>
+                  {multiSelectMode ? (
+                    <>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium truncate">{checkout.tools?.name}</p>
+                        {checkout.selected_tag && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
+                            {checkout.selected_tag}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {checkout.estimated_return_date && (
+                          <span className={isOverdue ? "text-destructive font-medium" : ""}>
+                            {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      to={`/ferramentas/${checkout.tool_id}`}
+                      className="block hover:opacity-80 transition-opacity"
+                    >
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium truncate underline-offset-2 hover:underline">{checkout.tools?.name}</p>
+                        {checkout.selected_tag && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-mono">
+                            {checkout.selected_tag}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {checkout.estimated_return_date && (
+                          <span className={isOverdue ? "text-destructive font-medium" : ""}>
+                            {isOverdue ? "⚠️ Atrasado" : `Devolver até ${format(new Date(checkout.estimated_return_date), "dd/MM", { locale: ptBR })}`}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  )}
                 </div>
+
                 {!multiSelectMode && (
                   <div className="flex gap-1 shrink-0">
                     {isOverdue && (
