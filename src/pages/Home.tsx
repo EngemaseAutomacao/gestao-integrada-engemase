@@ -16,7 +16,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-function InstallPWACard({ isIOS }: { isIOS: boolean }) {
+function useInstallPrompt(isIOS: boolean) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
@@ -33,11 +33,15 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const choice = await deferredPrompt.userChoice;
-      if (choice.outcome === "accepted") {
-        setDeferredPrompt(null);
-      }
+      if (choice.outcome === "accepted") setDeferredPrompt(null);
     }
   };
+
+  return { deferredPrompt, handleInstall };
+}
+
+function InstallPWACard({ isIOS }: { isIOS: boolean }) {
+  const { deferredPrompt, handleInstall } = useInstallPrompt(isIOS);
 
   if (isIOS) {
     return (
@@ -76,6 +80,48 @@ function InstallPWACard({ isIOS }: { isIOS: boolean }) {
     </Card>
   );
 }
+
+function InstallPWAHeroButton({ isIOS }: { isIOS: boolean }) {
+  const { deferredPrompt, handleInstall } = useInstallPrompt(isIOS);
+  const [showIOSHint, setShowIOSHint] = useState(false);
+
+  if (!isIOS && !deferredPrompt) return null;
+
+  if (isIOS) {
+    return (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setShowIOSHint((v) => !v)}
+          className="group inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-md px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg hover:bg-white/20 transition-all"
+          aria-label="Como instalar o app"
+        >
+          <Share className="w-4 h-4" />
+          <span>Instalar app</span>
+        </button>
+        {showIOSHint && (
+          <div className="absolute right-0 mt-2 w-64 rounded-xl bg-card text-card-foreground border shadow-elevated p-3 text-xs leading-relaxed z-20">
+            Toque em <strong>Compartilhar</strong> <Share className="w-3 h-3 inline" /> e depois em <strong>"Adicionar à Tela de Início"</strong>.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleInstall}
+      className="group inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-md px-4 py-2 text-sm font-medium text-primary-foreground shadow-lg hover:bg-white/20 hover:scale-[1.02] transition-all"
+      aria-label="Instalar aplicativo"
+    >
+      <Download className="w-4 h-4" />
+      <span>Instalar app</span>
+      <span className="opacity-70 group-hover:translate-x-0.5 transition-transform">→</span>
+    </button>
+  );
+}
+
 
 interface ModuleCardProps {
   title: string;
@@ -677,6 +723,12 @@ export default function Home() {
               Sistema de Gestão de Ativos — selecione um módulo para começar
             </p>
           </div>
+
+          {!isStandalone && (
+            <div className="hidden md:block shrink-0 self-start">
+              <InstallPWAHeroButton isIOS={isIOS} />
+            </div>
+          )}
         </div>
       </header>
 
@@ -709,11 +761,8 @@ export default function Home() {
               <ModuleCard {...m} />
             </div>
           ))}
-          {!isStandalone && (
-            <div>
-              <InstallPWACard isIOS={isIOS} />
-            </div>
-          )}
+
+
         </div>
 
         {adminModuleDesk && (
