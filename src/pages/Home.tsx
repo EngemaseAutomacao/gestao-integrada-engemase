@@ -663,11 +663,17 @@ export default function Home() {
         <div className="absolute bottom-0 right-32 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
         <div className="absolute top-12 right-48 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
         <div className="relative max-w-6xl mx-auto flex items-center gap-5">
-          <img
-            src={engemaseLogo}
-            alt="Engemase Engenharia"
-            className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-white/10 p-2 backdrop-blur-sm shrink-0 object-contain"
+          <AvatarUploader
+            size="lg"
+            fallback={
+              <img
+                src={engemaseLogo}
+                alt="Engemase Engenharia"
+                className="w-full h-full object-contain"
+              />
+            }
           />
+
           <div className="flex-1 min-w-0">
             <p className="text-xs uppercase tracking-[0.25em] opacity-80 font-semibold">
               {roleLabel} · Engemase
