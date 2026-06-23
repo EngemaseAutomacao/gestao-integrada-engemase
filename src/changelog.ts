@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.51.0",
+    date: "2026-06-23",
+    title: "Visual de app aplicado a Ferramentas e Veículos",
+    description: "Os menus de Ferramentas e Veículos agora compartilham o mesmo visual de aplicativo do painel inicial no celular: cabeçalho colorido, tile principal em destaque e bento grid.",
+    changes: [
+      { type: "feature", text: "Menu de Ferramentas no celular com hero azul, Painel Geral em destaque e grade 2 colunas" },
+      { type: "feature", text: "Menu de Veículos no celular com mesmo padrão visual unificado" },
+      { type: "feature", text: "Seção 'Administração' separada com destaque amarelo para administradores" },
+      { type: "improvement", text: "Desktop e tablet mantêm o layout em grade já existente" },
+    ],
+  },
+  {
     version: "1.50.0",
     date: "2026-06-23",
     title: "Painel inicial com cara de app no celular",
