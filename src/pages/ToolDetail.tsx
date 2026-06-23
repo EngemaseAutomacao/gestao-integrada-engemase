@@ -233,11 +233,12 @@ export default function ToolDetail() {
 
           <div className="flex flex-col gap-1.5 text-xs md:text-sm">
             {checkout.construction_site && (
-              <div className="flex items-center gap-1.5 min-w-0">
-                <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                <span className="truncate">{checkout.construction_site}</span>
+              <div className="flex items-start gap-1.5 min-w-0">
+                <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                <span className="break-words">{checkout.construction_site}</span>
               </div>
             )}
+
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span>{getDaysUsed(checkout)} dias</span>
