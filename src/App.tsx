@@ -57,6 +57,7 @@ const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 // AdminSiteTools removed
 
+const DevolucoesPendentes = lazy(() => import("./pages/DevolucoesPendentes"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Help = lazy(() => import("./pages/Help"));
 const Changelog = lazy(() => import("./pages/Changelog"));
