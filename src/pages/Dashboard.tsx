@@ -376,30 +376,56 @@ export default function Dashboard() {
           </div>
 
           {pendingCheckouts && pendingCheckouts.length > 0 && (
-            <Card className="border-warning/50 bg-warning/5">
-              <CardContent className="p-3 sm:p-4 flex items-center gap-3 flex-wrap">
-                <div className="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center shrink-0">
-                  <Clock className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold">
-                    {pendingCheckouts.length} devolução{pendingCheckouts.length > 1 ? "ões" : ""} pendente{pendingCheckouts.length > 1 ? "s" : ""}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Acesse a página de pendências para devolver.
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => navigate("/devolucoes-pendentes")}
-                  className="gap-1 shrink-0"
-                >
-                  Ver pendências <ArrowRight className="w-3 h-3" />
-                </Button>
-              </CardContent>
-            </Card>
+            pendingCollapsed ? (
+              <button
+                type="button"
+                onClick={togglePendingCollapsed}
+                className="w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md border border-warning/40 bg-warning/5 hover:bg-warning/10 transition-colors text-left"
+                aria-label="Expandir pendências"
+              >
+                <span className="flex items-center gap-2 text-xs font-medium text-warning">
+                  <Clock className="w-3.5 h-3.5" />
+                  {pendingCheckouts.length} pendência{pendingCheckouts.length > 1 ? "s" : ""}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-warning" />
+              </button>
+            ) : (
+              <Card className="border-warning/50 bg-warning/5">
+                <CardContent className="p-3 sm:p-4 flex items-center gap-3 flex-wrap">
+                  <div className="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center shrink-0">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold">
+                      {pendingCheckouts.length} devolução{pendingCheckouts.length > 1 ? "ões" : ""} pendente{pendingCheckouts.length > 1 ? "s" : ""}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Acesse a página de pendências para devolver.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate("/devolucoes-pendentes")}
+                    className="gap-1 shrink-0"
+                  >
+                    Ver pendências <ArrowRight className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={togglePendingCollapsed}
+                    className="shrink-0 h-8 w-8"
+                    aria-label="Minimizar"
+                    title="Minimizar"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )
           )}
+
 
         </div>
       </div>
