@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.49.0",
+    date: "2026-06-23",
+    title: "Layout dedicado para celular",
+    description: "O painel inicial agora detecta o dispositivo e mostra um layout otimizado para celular (lista vertical estilo app) e outro para desktop (grade de cards).",
+    changes: [
+      { type: "feature", text: "No celular, os módulos aparecem como linhas com ícone, título, descrição, badge de pendências e seta — visual de app nativo" },
+      { type: "feature", text: "Cabeçalho compacto no mobile (logo pequeno + 'Olá, [nome]') libera espaço para a lista" },
+      { type: "improvement", text: "No desktop e tablet, mantida a grade de cards lançada na v1.48.0" },
+      { type: "improvement", text: "Mesmo conteúdo nos dois layouts — sem perda de funcionalidade" },
+    ],
+  },
+  {
     version: "1.48.0",
     date: "2026-06-23",
     title: "Painel inicial mais profissional e interativo",
