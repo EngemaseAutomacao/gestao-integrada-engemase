@@ -551,6 +551,15 @@ export default function Home() {
       overdueCount: vehicleOverdue + vehicleIssuesOpen,
     },
     {
+      id: "tour-pendencias",
+      title: "Pendências",
+      description: "Ferramentas que você precisa devolver",
+      icon: <Clock className="w-6 h-6" />,
+      to: "/devolucoes-pendentes",
+      pendingCount: (pendingCount?.total || 0) - (pendingCount?.overdue || 0),
+      overdueCount: pendingCount?.overdue || 0,
+    },
+    {
       id: "tour-historico",
       title: "Meu Histórico",
       description: "Veja todas as suas movimentações",
