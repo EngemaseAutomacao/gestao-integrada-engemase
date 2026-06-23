@@ -415,7 +415,7 @@ export default function ToolDetail() {
               Nenhum problema reportado
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
               {issues.map((issue) => (
                 <Card key={issue.id} className="border-l-4 border-l-primary">
                   <CardContent className="p-3 md:p-4">
