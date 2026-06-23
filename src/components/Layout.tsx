@@ -92,6 +92,7 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
   '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
   '/historico': { title: 'Meu Histórico', icon: History },
+  '/devolucoes-pendentes': { title: 'Devoluções Pendentes', icon: History },
   '/ajuda': { title: 'Ajuda', icon: HelpCircle },
   '/changelog': { title: 'Notas de Atualização', icon: FileText },
   '/change-password': { title: 'Alterar Senha', icon: Settings },
