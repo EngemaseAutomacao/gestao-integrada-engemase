@@ -146,7 +146,6 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Menu", url: "/veiculos", icon: Car },
     { title: "Painel Geral", url: "/veiculos/dashboard", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
-    { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
     ...(isAdmin ? [
       { title: "Problemas", url: "/admin/vehicle-issues", icon: AlertCircle },
