@@ -36,38 +36,6 @@ const faqSections = [
     ]
   },
   {
-    title: "Ponto Online",
-    icon: MapPin,
-    questions: [
-      {
-        q: "Como registrar meu ponto?",
-        a: "Acesse o módulo Ponto Online e clique em 'Registrar Ponto'. O sistema agora registra automaticamente como 'Uso Interno' para maior agilidade. Confirme para registrar a entrada ou saída."
-      },
-      {
-        q: "Como ver meu histórico de ponto?",
-        a: "Acesse 'Histórico de Ponto' no módulo Ponto Online para visualizar todos os seus registros com datas, horários e localizações."
-      },
-    ]
-  },
-  {
-    title: "Transferências",
-    icon: ArrowLeftRight,
-    questions: [
-      {
-        q: "Como transferir uma ferramenta ou veículo para outro usuário?",
-        a: "No Dashboard ou na lista de itens, localize o item que está com você e use a opção 'Transferir'. Selecione o usuário de destino e confirme. O outro usuário precisará aceitar a transferência."
-      },
-      {
-        q: "Como aceitar uma transferência?",
-        a: "Acesse o módulo de 'Transferências' ou clique na notificação recebida. Você verá os itens pendentes de aceite. Basta conferir e confirmar o recebimento."
-      },
-      {
-        q: "Posso cancelar uma transferência?",
-        a: "Sim, enquanto o destinatário não aceitar, quem iniciou a transferência pode cancelá-la na tela de 'Transferências Pendentes'."
-      },
-    ]
-  },
-  {
     title: "Geral",
     icon: HelpCircle,
     questions: [
