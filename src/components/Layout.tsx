@@ -270,7 +270,8 @@ export default function Layout({ children }: LayoutProps) {
       <CommandPalette />
       <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-hidden">
       {/* Header */}
-      <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-2 sm:px-4 sticky top-0 z-40 relative">
+      <header className="h-12 sm:h-14 border-b bg-card/80 backdrop-blur-sm sticky top-0 z-40">
+        <div className="h-full max-w-6xl mx-auto w-full flex items-center justify-between px-2 sm:px-4 lg:px-6 relative">
         <div className={cn("flex items-center gap-1.5 sm:gap-3", isMobile && "min-w-[100px]")}>
           {/* Mobile: Back button when inside a module */}
           {isMobile && !isHomePage && (
@@ -402,6 +403,7 @@ export default function Layout({ children }: LayoutProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+        </div>
         </div>
       </header>
 
