@@ -411,16 +411,15 @@ export default function Dashboard() {
                   >
                     Ver pendências <ArrowRight className="w-3 h-3" />
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
+                  <button
+                    type="button"
                     onClick={togglePendingCollapsed}
-                    className="shrink-0 h-8 w-8"
+                    className="shrink-0 h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground transition-colors"
                     aria-label="Minimizar"
                     title="Minimizar"
                   >
-                    <ChevronUp className="w-4 h-4" />
-                  </Button>
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
                 </CardContent>
               </Card>
             )
