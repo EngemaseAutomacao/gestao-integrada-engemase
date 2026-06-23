@@ -192,6 +192,72 @@ function ModuleCard({
   );
 }
 
+function ModuleListItem({
+  title,
+  description,
+  icon,
+  to,
+  disabled,
+  comingSoon,
+  variant = "default",
+  badgeCount,
+  pendingCount,
+  overdueCount,
+}: ModuleCardProps) {
+  const isAdmin = variant === "admin";
+  const urgent = overdueCount || badgeCount || 0;
+  const pending = pendingCount || 0;
+
+  const row = (
+    <div
+      className={`group relative flex items-center gap-3 rounded-xl border bg-card p-3 active:scale-[0.99] transition-all ${
+        disabled ? "opacity-60" : "hover:border-primary/60 hover:shadow-soft"
+      } ${isAdmin ? "border-warning/40 bg-warning/5" : ""}`}
+    >
+      <div
+        className={`shrink-0 w-11 h-11 rounded-lg flex items-center justify-center ${
+          isAdmin ? "bg-warning/15 text-warning" : "bg-primary/10 text-primary"
+        }`}
+      >
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <h3 className="font-display font-semibold text-sm truncate">{title}</h3>
+          {comingSoon && (
+            <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+              Em Breve
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground line-clamp-1">{description}</p>
+      </div>
+      <div className="flex flex-col items-end gap-1 shrink-0">
+        {urgent > 0 && (
+          <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+            {urgent}
+          </span>
+        )}
+        {urgent === 0 && pending > 0 && (
+          <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-warning text-warning-foreground text-[10px] font-bold flex items-center justify-center">
+            {pending}
+          </span>
+        )}
+        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      </div>
+    </div>
+  );
+
+  if (disabled || !to) return row;
+  return (
+    <Link to={to} className="block">
+      {row}
+    </Link>
+  );
+}
+
+
+
 interface HomeSummary {
   toolsInUse: number;
   vehiclesOut: number;
