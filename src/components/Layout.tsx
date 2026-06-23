@@ -74,8 +74,6 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
   '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
   '/veiculos/historico': { title: 'Meu Histórico', icon: History },
-  '/veiculos/combustivel': { title: 'Combustível', icon: Fuel },
-  '/veiculos/analytics': { title: 'Analytics', icon: BarChart3 },
   '/ponto': { title: 'Ponto Online', icon: MapPin },
   '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
   '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
@@ -148,7 +146,6 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Menu", url: "/veiculos", icon: Car },
     { title: "Painel Geral", url: "/veiculos/dashboard", icon: Car },
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
-    { title: "Combustível", url: "/veiculos/combustivel", icon: Fuel },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
     ...(isAdmin ? [
       { title: "Problemas", url: "/admin/vehicle-issues", icon: AlertCircle },
@@ -160,7 +157,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Dashboard", url: "/admin", icon: BarChart3 },
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Analytics Geral", url: "/admin/analytics", icon: BarChart3 },
-    { title: "Analytics de Veículos", url: "/veiculos/analytics", icon: BarChart3 },
+    
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
     
     { title: "Notificações", url: "/admin/notifications", icon: Bell },

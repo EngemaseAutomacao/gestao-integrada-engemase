@@ -33,10 +33,6 @@ const faqSections = [
         q: "Como registrar a chegada de um veículo?",
         a: "Acesse o módulo Veículos, clique em 'Registrar Chegada', informe a quilometragem de retorno, se abasteceu, e tire as fotos do veículo."
       },
-      {
-        q: "Como registrar um abastecimento?",
-        a: "Acesse a seção 'Combustível' no módulo Veículos. Preencha os dados do abastecimento como litros, valor e quilometragem."
-      },
     ]
   },
   {

@@ -33,8 +33,6 @@ const VehicleDashboard = lazy(() => import("./pages/vehicles/VehicleDashboard"))
 const VehicleCheckout = lazy(() => import("./pages/vehicles/VehicleCheckout"));
 const VehicleCheckin = lazy(() => import("./pages/vehicles/VehicleCheckin"));
 const VehicleDetail = lazy(() => import("./pages/vehicles/VehicleDetail"));
-const VehicleAnalytics = lazy(() => import("./pages/vehicles/VehicleAnalytics"));
-const FuelRecords = lazy(() => import("./pages/vehicles/FuelRecords"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 // AdminTools removed - integrated into AdminConstructionSites
@@ -156,8 +154,8 @@ const App = () => (
                       <Route path="/veiculos/chegada" element={<VehicleCheckin />} />
                       <Route path="/veiculos/historico" element={<Navigate to="/historico?tipo=vehicle" replace />} />
                       <Route path="/veiculos/menu" element={<VeiculosMenu />} />
-                      <Route path="/veiculos/combustivel" element={<FuelRecords />} />
-                      <Route path="/veiculos/analytics" element={<VehicleAnalytics />} />
+                      <Route path="/veiculos/combustivel" element={<Navigate to="/veiculos/dashboard" replace />} />
+                      <Route path="/veiculos/analytics" element={<Navigate to="/veiculos/dashboard" replace />} />
                       <Route path="/admin/vehicle-history" element={<Navigate to="/admin/historico?tab=veiculos" replace />} />
                       <Route path="/admin/vehicle-issues" element={<Navigate to="/admin/problemas?tab=veiculos" replace />} />
                       <Route path="/veiculos/report-issue" element={<ReportVehicleIssue />} />
