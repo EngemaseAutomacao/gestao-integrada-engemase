@@ -53,8 +53,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { DashboardSkeleton as PageSkeleton } from "@/components/PageSkeleton";
+import { prefetchMainRoutes } from "@/lib/prefetchRoutes";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 
