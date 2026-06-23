@@ -196,18 +196,6 @@ export default function Layout({ children }: LayoutProps) {
         color: "text-primary"
       };
     }
-    if (location.pathname.startsWith('/ponto')) {
-      return {
-        title: "Ponto",
-        icon: MapPin,
-        items: [
-          { title: "Registrar Ponto", url: "/ponto/registrar", icon: MapPin },
-          { title: "Meu Histórico", url: "/ponto/historico", icon: History },
-          ...(isAdmin ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }] : []),
-        ],
-        color: "text-primary"
-      };
-    }
     return null;
   };
 
