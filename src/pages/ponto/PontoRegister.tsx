@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadDataUrlImage } from "@/lib/storageUtils";
 import { compressDataUrl } from "@/lib/imageCompression";
 import { toast } from "sonner";
+import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -275,13 +276,14 @@ export default function PontoRegister() {
   }
 
   return (
-    <div className="space-y-6 max-w-lg mx-auto">
-      <div className="hidden sm:block">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Registrar Ponto</h1>
-        <p className="text-muted-foreground mt-1">
-          {format(currentTime, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-        </p>
-      </div>
+    <div>
+      <ModuleHero
+        eyebrow="Módulo · Ponto"
+        title="Registrar Ponto"
+        subtitle={format(currentTime, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+      />
+      <div className="space-y-6 max-w-lg mx-auto px-3 sm:px-6 -mt-14 sm:-mt-16 relative z-10">
+
 
       {!isOnline && (
         <Card className="border-yellow-500/50 bg-yellow-500/10">
@@ -355,6 +357,7 @@ export default function PontoRegister() {
         <MapPin className="w-3 h-3 inline mr-1" />
         Sua localização será registrada automaticamente (GPS de alta precisão)
       </p>
+      </div>
     </div>
   );
 }
