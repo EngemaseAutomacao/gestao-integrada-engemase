@@ -8,7 +8,7 @@ import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AvatarUploader } from "@/components/AvatarUploader";
+import engemaseIcon from "@/assets/engemase-icon.png.asset.json";
 
 
 interface BeforeInstallPromptEvent extends Event {
