@@ -352,8 +352,8 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      let photoUrl: string | null = null;
-      if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
+      const conditionPrefix = toolCondition ? `[Estado: ${toolCondition}]` : "";
+      const finalNotes = [conditionPrefix, notes.trim()].filter(Boolean).join(" ") || null;
 
       const checkoutData = {
         tool_id: selectedToolId,
@@ -362,10 +362,11 @@ export default function Checkout() {
         status: "checked_out" as const,
         construction_site: finalSite,
         estimated_return_date: new Date(estimatedReturnDate).toISOString(),
-        notes: notes.trim() || null,
-        checkout_photo_url: photoUrl,
+        notes: finalNotes,
+        checkout_photo_url: null,
         selected_tag: hasMultipleTags ? selectedTag : (toolTags.length === 1 ? toolTags[0] : null),
       };
+
 
       if (!isOnline) {
         addPendingOperation("checkout", checkoutData);
