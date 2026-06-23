@@ -342,8 +342,8 @@ export default function ToolDetail() {
 
 
       {/* Usage History */}
-      <Card>
-        <CardHeader className="p-4 md:p-6">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="p-4 md:p-6 shrink-0">
           <CardTitle className="flex items-center gap-2 text-base md:text-lg">
             <History className="w-4 h-4 md:w-5 md:h-5" />
             Histórico de Uso
@@ -352,7 +352,8 @@ export default function ToolDetail() {
             {checkouts.length} registros de uso
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0 flex-1 min-h-0 flex flex-col">
+
           {checkouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhum uso registrado
