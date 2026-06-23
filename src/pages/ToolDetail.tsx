@@ -100,6 +100,8 @@ export default function ToolDetail() {
   const [checkouts, setCheckouts] = useState<CheckoutRecord[]>([]);
   const [issues, setIssues] = useState<ToolIssue[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tagFilter, setTagFilter] = useState<string>("all");
+
 
   const tags = tool?.tag ? tool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
   const hasMultipleTags = tags.length > 1;
