@@ -590,6 +590,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          bucket_key: string
+          created_at: string
+          id: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          created_at?: string
+          id?: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          bucket_key?: string
+          created_at?: string
+          id?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       sync_state: {
         Row: {
           key: string
@@ -1300,6 +1324,7 @@ export type Database = {
       check_return_reminders: { Args: never; Returns: undefined }
       check_vehicle_overdue_return: { Args: never; Returns: undefined }
       cleanup_old_notifications: { Args: never; Returns: undefined }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       execute_asset_transfer: {
         Args: { transfer_id: string }
         Returns: undefined
