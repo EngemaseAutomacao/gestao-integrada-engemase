@@ -87,64 +87,95 @@ interface ModuleCardProps {
   overdueCount?: number;
 }
 
-function ModuleCard({ 
-  title, 
-  description, 
-  icon, 
-  to, 
-  disabled, 
-  comingSoon, 
-  variant = "default", 
+function ModuleCard({
+  title,
+  description,
+  icon,
+  to,
+  disabled,
+  comingSoon,
+  variant = "default",
   badgeCount,
   pendingCount,
-  overdueCount
+  overdueCount,
 }: ModuleCardProps) {
   const isAdmin = variant === "admin";
+  const urgentCount = overdueCount || badgeCount || 0;
+
+  const statusBadge = (() => {
+    if (comingSoon) {
+      return { label: "Em Breve", className: "bg-muted text-muted-foreground" };
+    }
+    if (urgentCount > 0) {
+      return {
+        label: `${urgentCount} Urgente${urgentCount > 1 ? "s" : ""}`,
+        className: "bg-destructive/10 text-destructive dark:bg-destructive/20",
+      };
+    }
+    if (pendingCount && pendingCount > 0) {
+      return {
+        label: `${pendingCount} Pendente${pendingCount > 1 ? "s" : ""}`,
+        className: "bg-warning/10 text-warning dark:bg-warning/20",
+      };
+    }
+    if (!disabled) {
+      return { label: "Ativo", className: "bg-success/10 text-success dark:bg-success/20" };
+    }
+    return null;
+  })();
 
   const content = (
-    <Card className={`relative overflow-hidden transition-all duration-300 ${
-      disabled
-        ? 'opacity-60 cursor-not-allowed'
-        : 'hover:shadow-lg hover:scale-[1.02] cursor-pointer hover:border-primary'
-    } ${isAdmin ? 'border-orange-500/50 bg-orange-500/5' : ''}`}>
-      {comingSoon && (
-        <div className="absolute top-2 right-2 bg-muted text-muted-foreground text-[10px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-          <Clock className="w-2.5 h-2.5" />
-          Em Breve
+    <Card
+      className={`group relative h-full overflow-hidden border transition-all duration-300 ${
+        disabled
+          ? "opacity-60 cursor-not-allowed"
+          : "cursor-pointer hover:-translate-y-1 hover:shadow-elevated hover:border-primary/60"
+      } ${isAdmin ? "border-warning/40 bg-warning/5" : "bg-card"}`}
+    >
+      <div className="p-5 flex flex-col h-full">
+        <div className="flex justify-between items-start mb-4">
+          <div
+            className={`p-3 rounded-lg transition-colors ${
+              isAdmin
+                ? "bg-warning/10 text-warning group-hover:bg-warning group-hover:text-warning-foreground"
+                : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+            }`}
+          >
+            {icon}
+          </div>
+          {statusBadge && (
+            <span
+              className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded ${statusBadge.className}`}
+            >
+              {statusBadge.label}
+            </span>
+          )}
         </div>
-      )}
-      
-      {/* Badges container */}
-      <div className="absolute top-2 left-2 right-2 flex justify-between pointer-events-none">
-        {pendingCount !== undefined && pendingCount > 0 ? (
-          <div className="bg-yellow-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm pointer-events-auto">
-            {pendingCount}
-          </div>
-        ) : <div />}
-        
-        {(overdueCount !== undefined && overdueCount > 0) || (badgeCount !== undefined && badgeCount > 0) ? (
-          <div className="bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center shadow-sm pointer-events-auto">
-            {overdueCount || badgeCount}
-          </div>
-        ) : null}
-      </div>
 
-      <CardHeader className="text-center pb-1 px-3 pt-6">
-        <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
-          isAdmin ? 'bg-orange-500/10' : 'bg-primary/10'
-        }`}>
-          {icon}
-        </div>
-        <CardTitle className="text-sm sm:text-base leading-tight">{title}</CardTitle>
-        <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
-      </CardHeader>
-      <CardContent className="text-center pb-3 px-3 pt-0">
-        {!disabled && (
-          <span className={`text-xs font-medium ${isAdmin ? 'text-orange-500' : 'text-primary'}`}>
-            Acessar →
+        <h3 className="font-display text-lg font-bold leading-tight mb-1 text-foreground">
+          {title}
+        </h3>
+        <p className="text-xs text-muted-foreground line-clamp-2">{description}</p>
+
+        <div className="mt-4 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">
+            {disabled
+              ? "Indisponível"
+              : isAdmin
+              ? "Painel administrativo"
+              : "Abrir módulo"}
           </span>
-        )}
-      </CardContent>
+          {!disabled && (
+            <span
+              className={`font-semibold transition-transform group-hover:translate-x-0.5 ${
+                isAdmin ? "text-warning" : "text-primary"
+              }`}
+            >
+              Acessar →
+            </span>
+          )}
+        </div>
+      </div>
     </Card>
   );
 
@@ -153,7 +184,7 @@ function ModuleCard({
   }
 
   return (
-    <Link to={to} className="block">
+    <Link to={to} className="block h-full">
       {content}
     </Link>
   );
@@ -303,62 +334,62 @@ export default function Home() {
         </div>
       )}
 
-      <div className="flex flex-wrap justify-center gap-3 sm:gap-6 max-w-5xl w-full">
-        <div id="tour-ferramentas" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+      <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+        <div id="tour-ferramentas">
           <ModuleCard
             title="Ferramentas"
             description="Retiradas, devoluções e manutenções"
-            icon={<Wrench className="w-6 h-6 text-primary" />}
+            icon={<Wrench className="w-6 h-6" />}
             to="/ferramentas"
             pendingCount={toolPending}
             overdueCount={toolOverdue + toolIssuesOpen}
           />
         </div>
 
-        <div id="tour-veiculos" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-veiculos">
           <ModuleCard
             title="Veículos"
             description="Entradas e saídas de veículos"
-            icon={<Car className="w-6 h-6 text-primary" />}
+            icon={<Car className="w-6 h-6" />}
             to="/veiculos"
             pendingCount={vehiclePending}
             overdueCount={vehicleOverdue + vehicleIssuesOpen}
           />
         </div>
 
-        <div id="tour-ponto" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-ponto">
           <ModuleCard
             title="Ponto Online"
             description="Registre pontos em atividades externas"
-            icon={<Clock className="w-6 h-6 text-primary" />}
+            icon={<Clock className="w-6 h-6" />}
             to="/ponto"
           />
         </div>
 
-        <div id="tour-historico" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-historico">
           <ModuleCard
             title="Meu Histórico"
             description="Veja todas as suas movimentações"
-            icon={<History className="w-6 h-6 text-primary" />}
+            icon={<History className="w-6 h-6" />}
             to="/historico"
           />
         </div>
 
-        <div id="tour-transferencias" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+        <div id="tour-transferencias">
           <ModuleCard
             title="Transferências"
             description="Handover de ferramentas e veículos"
-            icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
+            icon={<ArrowRightLeft className="w-6 h-6" />}
             to="/transferencias"
           />
         </div>
 
         {isAdmin && (
-          <div id="tour-admin" className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <div id="tour-admin">
             <ModuleCard
               title="Administração"
               description="Usuários, relatórios e configurações"
-              icon={<Shield className="w-6 h-6 text-orange-500" />}
+              icon={<Shield className="w-6 h-6" />}
               to="/admin"
               variant="admin"
             />
@@ -366,7 +397,7 @@ export default function Home() {
         )}
 
         {!isStandalone && (
-          <div className="w-[calc(50%-0.375rem)] lg:w-[calc(25%-1.125rem)]">
+          <div>
             <InstallPWACard isIOS={isIOS} />
           </div>
         )}
