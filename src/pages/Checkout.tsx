@@ -406,11 +406,6 @@ export default function Checkout() {
     }
   };
 
-  const handlePhotoCapture = (dataUrl: string) => {
-    setPhotoDataUrl(dataUrl);
-    setPhotoConfirmed(true);
-    toast.success("Foto confirmada!");
-  };
 
   return (
     <div className="space-y-6">
