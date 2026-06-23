@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.50.0",
+    date: "2026-06-23",
+    title: "Painel inicial com cara de app no celular",
+    description: "O painel inicial no celular foi totalmente redesenhado com visual de aplicativo nativo: cabeçalho colorido com saudação, cartão flutuante de status e bento grid de módulos.",
+    changes: [
+      { type: "feature", text: "Cabeçalho azul com gradiente, saudação personalizada e identificação do perfil (Administrador, Colaborador, Terceiro)" },
+      { type: "feature", text: "Cartão flutuante de status (ferramentas em uso, veículos, ponto) sobreposto ao cabeçalho" },
+      { type: "feature", text: "Módulo principal em destaque (tile grande) + grade 2 colunas (bento) para os demais módulos" },
+      { type: "feature", text: "Faixa exclusiva de Administração com destaque visual em amarelo para administradores" },
+      { type: "improvement", text: "Badges de urgência e pendências mais visíveis em cada módulo" },
+    ],
+  },
+  {
     version: "1.49.0",
     date: "2026-06-23",
     title: "Layout dedicado para celular",

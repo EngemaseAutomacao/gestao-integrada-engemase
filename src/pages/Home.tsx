@@ -256,6 +256,122 @@ function ModuleListItem({
   );
 }
 
+function FeaturedTile({
+  title,
+  description,
+  icon,
+  to,
+  disabled,
+  badgeCount,
+  pendingCount,
+  overdueCount,
+}: ModuleCardProps) {
+  const urgent = (overdueCount || 0) + (badgeCount || 0);
+  const pending = pendingCount || 0;
+
+  const body = (
+    <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/10 via-card to-card p-4 active:scale-[0.99] transition-all shadow-soft">
+      <div className="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-primary/10" />
+      <div className="relative flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-md shrink-0">
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-display font-bold text-base">{title}</h3>
+            {urgent > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold">
+                {urgent} urgente{urgent > 1 ? "s" : ""}
+              </span>
+            )}
+            {urgent === 0 && pending > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-warning text-warning-foreground text-[10px] font-bold">
+                {pending} pendente{pending > 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{description}</p>
+          <span className="text-[11px] font-semibold text-primary mt-1 inline-block">Abrir agora →</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (disabled || !to) return body;
+  return <Link to={to} className="block">{body}</Link>;
+}
+
+function CompactTile({
+  title,
+  description,
+  icon,
+  to,
+  disabled,
+  comingSoon,
+  badgeCount,
+  pendingCount,
+  overdueCount,
+}: ModuleCardProps) {
+  const urgent = (overdueCount || 0) + (badgeCount || 0);
+  const pending = pendingCount || 0;
+  const hasBadge = urgent > 0 || pending > 0;
+
+  const body = (
+    <div
+      className={`relative h-full rounded-2xl border bg-card p-3.5 active:scale-[0.97] transition-all ${
+        disabled ? "opacity-60" : "hover:border-primary/60 hover:shadow-soft"
+      }`}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          {icon}
+        </div>
+        {hasBadge && (
+          <span
+            className={`min-w-[22px] h-[22px] px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center ${
+              urgent > 0
+                ? "bg-destructive text-destructive-foreground"
+                : "bg-warning text-warning-foreground"
+            }`}
+          >
+            {urgent > 0 ? urgent : pending}
+          </span>
+        )}
+        {comingSoon && (
+          <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+            Em Breve
+          </span>
+        )}
+      </div>
+      <h3 className="font-display font-semibold text-sm leading-tight">{title}</h3>
+      <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{description}</p>
+    </div>
+  );
+
+  if (disabled || !to) return body;
+  return <Link to={to} className="block h-full">{body}</Link>;
+}
+
+function AdminBanner({ title, description, icon, to }: ModuleCardProps) {
+  const body = (
+    <div className="relative overflow-hidden rounded-2xl border border-warning/40 bg-gradient-to-r from-warning/15 via-warning/10 to-transparent p-4 active:scale-[0.99] transition-all">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-xl bg-warning text-warning-foreground flex items-center justify-center shrink-0">
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-warning font-bold">Painel</p>
+          <h3 className="font-display font-bold text-sm">{title}</h3>
+          <p className="text-[11px] text-muted-foreground line-clamp-1">{description}</p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-warning shrink-0" />
+      </div>
+    </div>
+  );
+  if (!to) return body;
+  return <Link to={to} className="block">{body}</Link>;
+}
+
 
 
 interface HomeSummary {
@@ -381,7 +497,7 @@ export default function Home() {
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
   }, []);
 
-  const modules = [
+  const modules: (ModuleCardProps & { id: string })[] = [
     {
       id: "tour-ferramentas",
       title: "Ferramentas",
@@ -438,41 +554,81 @@ export default function Home() {
   // -------- MOBILE LAYOUT --------
   if (isMobile) {
     const firstName = profile?.full_name?.split(" ")[0] || "";
+    const roleLabel =
+      profile?.role === "admin"
+        ? "Administrador"
+        : profile?.role === "third_party"
+        ? "Terceiro"
+        : "Colaborador";
+
+    const adminModule = modules.find((m) => m.variant === "admin");
+    const regularModules = modules.filter((m) => m.variant !== "admin");
+    const [featured, ...rest] = regularModules;
+
     return (
-      <div className="flex flex-col flex-1 px-4 pt-4 pb-6">
-        <header className="flex items-center gap-3 mb-4">
-          <img
-            src={engemaseLogo}
-            alt="Engemase Engenharia"
-            className="w-10 h-10 rounded-lg shrink-0 object-contain"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
-              Engemase
-            </p>
-            <h1 className="font-display text-lg font-bold leading-tight truncate">
-              Olá, {firstName}
-            </h1>
+      <div className="flex flex-col flex-1 pb-6">
+        {/* Hero */}
+        <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-5 pt-6 pb-20 rounded-b-3xl">
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
+          <div className="relative flex items-center gap-3">
+            <img
+              src={engemaseLogo}
+              alt="Engemase"
+              className="w-11 h-11 rounded-xl bg-white/10 p-1.5 backdrop-blur-sm shrink-0 object-contain"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-[0.2em] opacity-80 font-semibold">
+                {roleLabel}
+              </p>
+              <h1 className="font-display text-xl font-bold leading-tight truncate">
+                Olá, {firstName} 👋
+              </h1>
+            </div>
           </div>
         </header>
 
+        {/* Floating status card */}
         {user && (
-          <div className="mb-5">
-            <SummaryCards userId={user.id} />
+          <div className="px-4 -mt-14 mb-5 relative z-10">
+            <div className="rounded-2xl bg-card border shadow-elevated p-3">
+              <SummaryCards userId={user.id} />
+            </div>
           </div>
         )}
 
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-1">
-          Módulos
-        </p>
-        <div className="flex flex-col gap-2">
-          {modules.map((m) => (
-            <div id={m.id} key={m.id}>
-              <ModuleListItem {...m} />
+        <div className="px-4">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Acesso rápido
+            </p>
+            <span className="text-[11px] text-muted-foreground">
+              {regularModules.length} módulos
+            </span>
+          </div>
+
+          {featured && (
+            <div id={featured.id} className="mb-3">
+              <FeaturedTile {...featured} />
             </div>
-          ))}
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            {rest.map((m) => (
+              <div id={m.id} key={m.id}>
+                <CompactTile {...m} />
+              </div>
+            ))}
+          </div>
+
+          {adminModule && (
+            <div id={adminModule.id} className="mt-4">
+              <AdminBanner {...adminModule} />
+            </div>
+          )}
+
           {!isStandalone && (
-            <div className="mt-2">
+            <div className="mt-4">
               <InstallPWACard isIOS={isIOS} />
             </div>
           )}
