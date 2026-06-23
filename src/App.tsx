@@ -57,12 +57,9 @@ const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 // AdminSiteTools removed
 
-const PontoRegister = lazy(() => import("./pages/ponto/PontoRegister"));
-const PontoAdmin = lazy(() => import("./pages/ponto/PontoAdmin"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Help = lazy(() => import("./pages/Help"));
 const Changelog = lazy(() => import("./pages/Changelog"));
-const Transfers = lazy(() => import("./pages/Transfers"));
 const MobileNavSettings = lazy(() => import("./pages/MobileNavSettings"));
 const Historico = lazy(() => import("./pages/Historico"));
 const Pendencias = lazy(() => import("./pages/Pendencias"));
@@ -186,12 +183,12 @@ const App = () => (
                       <Route path="/admin/audit" element={<Navigate to="/admin/auditoria?tab=auditoria" replace />} />
                       <Route path="/admin/auditoria" element={<AdminAuditoria />} />
 
-                      {/* Ponto Online Routes */}
-                      <Route path="/ponto" element={<Navigate to="/ponto/registrar" replace />} />
-                      <Route path="/ponto/registrar" element={<PontoRegister />} />
-                      <Route path="/ponto/historico" element={<Navigate to="/historico?tipo=ponto" replace />} />
-                      <Route path="/ponto/admin" element={<PontoAdmin />} />
-                      <Route path="/transferencias" element={<Transfers />} />
+                      {/* Ponto Online & Transferências removidos — redirect para Home */}
+                      <Route path="/ponto" element={<Navigate to="/" replace />} />
+                      <Route path="/ponto/registrar" element={<Navigate to="/" replace />} />
+                      <Route path="/ponto/historico" element={<Navigate to="/historico" replace />} />
+                      <Route path="/ponto/admin" element={<Navigate to="/" replace />} />
+                      <Route path="/transferencias" element={<Navigate to="/" replace />} />
                       <Route path="/meu-dia" element={<Navigate to="/historico" replace />} />
                       <Route path="/historico" element={<Historico />} />
                       <Route path="/pendencias" element={<Pendencias />} />

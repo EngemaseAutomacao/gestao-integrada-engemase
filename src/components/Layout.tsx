@@ -75,10 +75,6 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/veiculos/saida': { title: 'Registrar Saída', icon: Upload },
   '/veiculos/chegada': { title: 'Registrar Devolução', icon: LogIn },
   '/veiculos/historico': { title: 'Meu Histórico', icon: History },
-  '/ponto': { title: 'Ponto Online', icon: MapPin },
-  '/ponto/registrar': { title: 'Registrar Ponto', icon: MapPin },
-  '/ponto/historico': { title: 'Histórico de Ponto', icon: History },
-  '/ponto/admin': { title: 'Gerenciar Pontos', icon: Users },
   '/admin': { title: 'Administração', icon: Settings },
   '/admin/users': { title: 'Usuários', icon: Users },
   '/admin/tools': { title: 'Gestão Administrativa', icon: Settings },
@@ -94,7 +90,6 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
   '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
   '/historico': { title: 'Meu Histórico', icon: History },
-  '/transferencias': { title: 'Transferências', icon: ArrowRightLeft },
   '/ajuda': { title: 'Ajuda', icon: HelpCircle },
   '/changelog': { title: 'Notas de Atualização', icon: FileText },
   '/change-password': { title: 'Alterar Senha', icon: Settings },
@@ -198,18 +193,6 @@ export default function Layout({ children }: LayoutProps) {
         title: "Administração", 
         icon: Settings, 
         items: adminMenuItems,
-        color: "text-primary"
-      };
-    }
-    if (location.pathname.startsWith('/ponto')) {
-      return {
-        title: "Ponto",
-        icon: MapPin,
-        items: [
-          { title: "Registrar Ponto", url: "/ponto/registrar", icon: MapPin },
-          { title: "Meu Histórico", url: "/ponto/historico", icon: History },
-          ...(isAdmin ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }] : []),
-        ],
         color: "text-primary"
       };
     }

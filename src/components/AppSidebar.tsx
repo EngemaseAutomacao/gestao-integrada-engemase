@@ -73,7 +73,6 @@ export function AppSidebar() {
       items: [
         { title: "Início", url: "/", icon: Home },
         { title: "Meu Histórico", url: "/historico", icon: History },
-        { title: "Transferências", url: "/transferencias", icon: ArrowRightLeft },
       ],
     },
     {
@@ -86,18 +85,6 @@ export function AppSidebar() {
       label: "Veículos",
       items: [
         { title: "Painel & Catálogo", url: "/veiculos/dashboard", icon: Package, badge: vehicleBadgeCount },
-        ...(isAdmin
-          ? []
-          : []),
-      ],
-    },
-    {
-      label: "Ponto Online",
-      items: [
-        { title: "Registrar", url: "/ponto/registrar", icon: Clock },
-        ...(isAdmin
-          ? [{ title: "Gerenciar Pontos", url: "/ponto/admin", icon: Users }]
-          : []),
       ],
     },
     ...(isAdmin

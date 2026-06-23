@@ -48,9 +48,6 @@ const NAV_SHORTCUTS = [
   { label: "Veículos", url: "/veiculos", icon: Car, keywords: "veiculos cars" },
   { label: "Lista de Veículos", url: "/veiculos/lista", icon: Package, keywords: "veiculos lista" },
   
-  { label: "Ponto Online", url: "/ponto/registrar", icon: MapPin, keywords: "ponto registro entrada saida" },
-  { label: "Histórico de Ponto", url: "/ponto/historico", icon: History, keywords: "ponto historico" },
-  { label: "Transferências", url: "/transferencias", icon: ClipboardList, keywords: "transferencia handover" },
   { label: "Notas de Atualização", url: "/changelog", icon: FileText, keywords: "changelog versao novidades" },
   { label: "Ajuda", url: "/ajuda", icon: AlertCircle, keywords: "ajuda help" },
 ];
