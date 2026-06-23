@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Clock, Shield, Download, Package, Loader2, Building2, Share, History, ArrowRightLeft } from "lucide-react";
+import { Wrench, Car, Clock, Shield, Download, Package, Loader2, Building2, Share, History, ArrowRightLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
