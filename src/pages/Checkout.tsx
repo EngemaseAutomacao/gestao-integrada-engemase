@@ -272,8 +272,8 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      let photoUrl: string | null = null;
-      if (photoDataUrl) photoUrl = await uploadImage(photoDataUrl, "photo");
+      const conditionPrefix = toolCondition ? `[Estado: ${toolCondition}]` : "";
+      const finalNotes = [conditionPrefix, notes.trim()].filter(Boolean).join(" ") || null;
 
       const effectiveUserId = isAdmin && responsibleUserId ? responsibleUserId : profile!.id;
       const rows = Array.from(bulkSelections.entries()).map(([toolId, sel]) => {
@@ -286,10 +286,11 @@ export default function Checkout() {
           status: "checked_out" as const,
           construction_site: finalSite,
           estimated_return_date: new Date(estimatedReturnDate).toISOString(),
-          notes: notes.trim() || null,
-          checkout_photo_url: photoUrl,
+          notes: finalNotes,
+          checkout_photo_url: null,
           selected_tag: tags.length > 1 ? (sel.selectedTag || null) : (tags.length === 1 ? tags[0] : null),
         };
+
       });
 
       if (!isOnline) {
