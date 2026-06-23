@@ -359,21 +359,21 @@ export default function ToolDetail() {
             </p>
           ) : hasMultipleTags ? (
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 h-auto gap-1 p-1">
-                <TabsTrigger value="all" className="text-[11px] px-1.5 py-1.5 truncate">
-                  Todos ({checkouts.length})
+              <TabsList className="w-full flex gap-1 p-1 overflow-x-auto justify-start h-auto">
+                <TabsTrigger value="all" className="text-xs px-3 py-1.5 shrink-0 rounded-md">
+                  Todos <span className="ml-1 opacity-70">({checkouts.length})</span>
                 </TabsTrigger>
-                {tags.slice(0, 2).map((tag) => (
-                  <TabsTrigger key={tag} value={tag} className="text-[11px] px-1.5 py-1.5 truncate">
-                    {tag} ({getCheckoutsForTag(tag).length})
+                {tags.map((tag) => (
+                  <TabsTrigger key={tag} value={tag} className="text-xs px-3 py-1.5 shrink-0 rounded-md font-mono">
+                    {tag} <span className="ml-1 opacity-70 font-sans">({getCheckoutsForTag(tag).length})</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
-              <TabsContent value="all" className="space-y-3 mt-3 max-h-[420px] overflow-y-auto pr-1">
+              <TabsContent value="all" className="space-y-3 mt-3 max-h-[65vh] overflow-y-auto pr-1">
                 {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
               </TabsContent>
               {tags.map((tag) => (
-                <TabsContent key={tag} value={tag} className="space-y-3 mt-3 max-h-[420px] overflow-y-auto pr-1">
+                <TabsContent key={tag} value={tag} className="space-y-3 mt-3 max-h-[65vh] overflow-y-auto pr-1">
                   {getCheckoutsForTag(tag).length === 0 ? (
                     <p className="text-center text-muted-foreground py-6 text-sm">
                       Nenhum uso registrado para TAG {tag}
@@ -385,10 +385,11 @@ export default function ToolDetail() {
               ))}
             </Tabs>
           ) : (
-            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
               {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
             </div>
           )}
+
 
         </CardContent>
       </Card>
