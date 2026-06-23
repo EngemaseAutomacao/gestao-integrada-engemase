@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.60.0",
+    date: "2026-06-23",
+    title: "Pendências na Home e navegação mais fluida",
+    description: "Novo card de devoluções pendentes na tela inicial com acesso direto aos detalhes da ferramenta. Transições entre páginas ficaram mais rápidas e sem o flash do layout antigo.",
+    changes: [
+      { type: "feature", text: "Card de Devoluções Pendentes na Home" },
+      { type: "improvement", text: "Clique no nome da ferramenta abre a tela de detalhes" },
+      { type: "improvement", text: "Skeleton exibido imediatamente ao mudar de página" },
+      { type: "improvement", text: "Pré-carregamento das páginas principais em segundo plano" },
+    ],
+  },
+  {
     version: "1.59.1",
     date: "2026-06-23",
     title: "Detalhes e Histórico no novo padrão visual",

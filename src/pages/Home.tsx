@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import engemaseIcon from "@/assets/engemase-icon.png.asset.json";
+import { HomePendingCard } from "@/components/home/HomePendingCard";
 
 
 interface BeforeInstallPromptEvent extends Event {
@@ -610,12 +611,14 @@ export default function Home() {
 
         {/* Floating status card */}
         {user && (
-          <div className="px-4 -mt-14 mb-5 relative z-10">
+          <div className="px-4 -mt-14 mb-5 relative z-10 space-y-3">
             <div className="rounded-2xl bg-card border shadow-elevated p-3">
               <SummaryCards userId={user.id} />
             </div>
+            <HomePendingCard userId={user.id} />
           </div>
         )}
+
 
         <div className="px-4">
           <div className="flex items-center justify-between mb-3 px-1">
@@ -704,10 +707,11 @@ export default function Home() {
       </header>
 
       {user && (
-        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full">
+        <div className="px-6 lg:px-12 -mt-16 mb-8 relative z-10 max-w-6xl mx-auto w-full space-y-4">
           <div className="rounded-2xl bg-card border shadow-elevated p-4">
             <SummaryCards userId={user.id} />
           </div>
+          <HomePendingCard userId={user.id} />
         </div>
       )}
 

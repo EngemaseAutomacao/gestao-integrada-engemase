@@ -53,7 +53,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { DashboardSkeleton as PageSkeleton } from "@/components/PageSkeleton";
+import { prefetchMainRoutes } from "@/lib/prefetchRoutes";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -107,6 +109,9 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   useAppBadge();
+  useEffect(() => { prefetchMainRoutes(); }, []);
+  
+
   
   
   const isHomePage = location.pathname === '/';
@@ -384,7 +389,9 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn("flex-1 min-h-0 overflow-auto p-3 sm:p-4 md:p-6", isMobile && "pb-20")}>
-        {children}
+        <Suspense key={location.pathname} fallback={<PageSkeleton />}>
+          {children}
+        </Suspense>
       </main>
 
       {/* Footer - hidden on mobile */}
