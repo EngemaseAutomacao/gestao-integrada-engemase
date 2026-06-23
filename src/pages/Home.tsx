@@ -520,6 +520,7 @@ export default function Home() {
     vehicleOverdue,
     vehicleIssuesOpen 
   } = useUrgencyBadges();
+  const { data: pendingCount } = useHomePendingCount(user?.id);
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
