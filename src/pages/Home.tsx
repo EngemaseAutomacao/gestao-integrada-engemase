@@ -497,7 +497,7 @@ export default function Home() {
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
   }, []);
 
-  const modules = [
+  const modules: (ModuleCardProps & { id: string })[] = [
     {
       id: "tour-ferramentas",
       title: "Ferramentas",
