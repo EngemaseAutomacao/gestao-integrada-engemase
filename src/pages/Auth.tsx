@@ -116,17 +116,9 @@ export default function Auth() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-sm font-semibold">
-                    Senha
-                  </Label>
-                  <Link
-                    to="/reset-password"
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    Esqueceu?
-                  </Link>
-                </div>
+                <Label htmlFor="password" className="text-sm font-semibold">
+                  Senha
+                </Label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
