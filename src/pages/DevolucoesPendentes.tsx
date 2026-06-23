@@ -130,7 +130,7 @@ export default function DevolucoesPendentes() {
               className="gap-1"
               onClick={() => setMultiSelectMode(true)}
             >
-              <CheckSquare className="w-4 h-4" /> Selecionar várias
+              <CheckSquare className="w-4 h-4" /> Devolução em lote
             </Button>
           ) : (
             <div className="flex items-center gap-2 flex-wrap">
