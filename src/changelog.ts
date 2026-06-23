@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.52.0",
+    date: "2026-06-23",
+    title: "Visual de app também no desktop",
+    description: "O painel inicial e os menus de Ferramentas/Veículos no desktop agora compartilham o mesmo estilo do celular: hero azul com gradiente, cartão flutuante de status e bento grid com módulo principal em destaque.",
+    changes: [
+      { type: "feature", text: "Hero azul com saudação personalizada no topo do painel inicial em telas grandes" },
+      { type: "feature", text: "Bento grid: módulo principal (Ferramentas) ocupa célula grande à esquerda; demais módulos à direita" },
+      { type: "feature", text: "Menus de Ferramentas e Veículos com mesmo hero unificado no desktop" },
+      { type: "improvement", text: "Cartão flutuante de status (ferramentas, veículos, ponto) sobreposto ao hero" },
+    ],
+  },
+  {
     version: "1.51.0",
     date: "2026-06-23",
     title: "Visual de app aplicado a Ferramentas e Veículos",

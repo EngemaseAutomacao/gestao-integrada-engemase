@@ -13,7 +13,7 @@ export default function VeiculosMenu() {
 
   const { vehicleIssuesOpen } = useUrgencyBadges();
 
-  if (isMobile) {
+  if (true) {
     const items: MobileMenuItem[] = [
       {
         title: "Painel Geral",

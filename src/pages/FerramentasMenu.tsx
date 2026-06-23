@@ -13,7 +13,7 @@ export default function FerramentasMenu() {
 
   const { toolOverdue, toolIssuesOpen } = useUrgencyBadges();
 
-  if (isMobile) {
+  if (true) {
     const items: MobileMenuItem[] = [
       {
         title: "Painel Geral",
