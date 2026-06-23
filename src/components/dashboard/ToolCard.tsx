@@ -74,18 +74,37 @@ export function ToolCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold text-sm sm:text-base capitalize">{tool.name.toLowerCase()}</h3>
-                {tool.tag && tool.tag.split(",").map(t => t.trim()).filter(Boolean).map((tag) => {
-                  const mine = userTags.has(tag);
+                {(() => {
+                  const allTags = tool.tag ? tool.tag.split(",").map(t => t.trim()).filter(Boolean) : [];
+                  const MAX_VISIBLE = 5;
+                  const mineTags = allTags.filter(t => userTags.has(t));
+                  const otherTags = allTags.filter(t => !userTags.has(t));
+                  const ordered = [...mineTags, ...otherTags];
+                  const visible = ordered.slice(0, MAX_VISIBLE);
+                  const hidden = ordered.length - visible.length;
                   return (
-                    <Badge
-                      key={tag}
-                      className={`text-xs ${mine ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
-                      variant={mine ? "default" : "secondary"}
-                    >
-                      {mine ? `🔧 ${tag}` : tag}
-                    </Badge>
+                    <>
+                      {visible.map((tag) => {
+                        const mine = userTags.has(tag);
+                        return (
+                          <Badge
+                            key={tag}
+                            className={`text-xs ${mine ? "bg-warning text-warning-foreground hover:bg-warning/90" : ""}`}
+                            variant={mine ? "default" : "secondary"}
+                          >
+                            {mine ? `🔧 ${tag}` : tag}
+                          </Badge>
+                        );
+                      })}
+                      {hidden > 0 && (
+                        <Badge variant="outline" className="text-xs" title={ordered.slice(MAX_VISIBLE).join(", ")}>
+                          +{hidden}
+                        </Badge>
+                      )}
+                    </>
                   );
-                })}
+                })()}
+
                 {tool.brand && <Badge variant="outline" className="text-xs">{tool.brand}</Badge>}
                 {tool.employee_only && <Badge variant="outline" className="text-xs">Apenas Funcionários</Badge>}
                 {isOverdue && (
