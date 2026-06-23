@@ -325,30 +325,61 @@ export default function Dashboard() {
     return <DashboardSkeleton />;
   }
 
+  const available = tools.reduce((acc, t) => acc + t.quantity_available, 0);
+  const total = tools.reduce((acc, t) => acc + t.quantity_total, 0);
+  const inUse = tools.reduce((acc, t) => acc + (t.quantity_total - t.quantity_available), 0);
+
   return (
     <div className="flex flex-col h-full min-h-0">
-      <div className="shrink-0 space-y-3 sm:space-y-4 pb-3 sm:pb-4">
-        <div className="hidden sm:block">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Ferramentas</h2>
-          <p className="text-sm text-muted-foreground">Painel e catálogo unificados — busque, filtre e gerencie retiradas e devoluções</p>
+      <div className="shrink-0 -mx-3 sm:-mx-6 -mt-3 sm:-mt-6 pb-3 sm:pb-4">
+        <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-5 sm:px-8 lg:px-12 pt-6 sm:pt-8 lg:pt-10 pb-20 sm:pb-24 lg:pb-28 rounded-b-3xl lg:rounded-b-[2rem]">
+          <div className="absolute -top-10 -right-10 w-40 h-40 lg:w-96 lg:h-96 rounded-full bg-white/10 blur-2xl lg:blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-6 lg:right-32 w-24 h-24 lg:w-40 lg:h-40 rounded-full bg-white/5 pointer-events-none" />
+          <div className="relative max-w-6xl mx-auto">
+            <p className="text-[10px] lg:text-xs uppercase tracking-[0.25em] opacity-80 font-semibold">
+              Módulo · Ferramentas
+            </p>
+            <h1 className="font-display text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold leading-tight">
+              Painel e Catálogo
+            </h1>
+            <p className="text-[11px] sm:text-sm lg:text-base opacity-90 line-clamp-2 lg:mt-1 max-w-2xl">
+              Busque, filtre e gerencie retiradas e devoluções de ferramentas
+            </p>
+          </div>
+        </header>
+
+        <div className="px-3 sm:px-6 lg:px-12 -mt-14 sm:-mt-16 relative z-10 max-w-6xl mx-auto w-full space-y-3 sm:space-y-4">
+          <div className="grid gap-2 sm:gap-4 grid-cols-3">
+            <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Disponíveis</p>
+              <p className="text-xl sm:text-3xl font-bold text-success mt-1">{available}</p>
+            </div>
+            <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
+              <p className="text-xl sm:text-3xl font-bold mt-1">{total}</p>
+            </div>
+            <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Em Uso</p>
+              <p className="text-xl sm:text-3xl font-bold text-warning mt-1">{inUse}</p>
+            </div>
+          </div>
+
+          <PendingCheckoutsCard
+            pendingCheckouts={(pendingCheckouts || []) as any}
+            multiSelectMode={multiSelectMode}
+            setMultiSelectMode={setMultiSelectMode}
+            selectedCheckouts={selectedCheckouts}
+            toggleSelectCheckout={toggleSelectCheckout}
+            toggleSelectAll={toggleSelectAll}
+            exitMultiSelect={exitMultiSelect}
+            bulkReturnLoading={bulkReturnLoading}
+            handleBulkReturn={handleBulkReturn}
+            handleCheckin={handleCheckin}
+            openExtendDialog={openExtendDialog}
+          />
         </div>
-
-        <PendingCheckoutsCard
-          pendingCheckouts={(pendingCheckouts || []) as any}
-          multiSelectMode={multiSelectMode}
-          setMultiSelectMode={setMultiSelectMode}
-          selectedCheckouts={selectedCheckouts}
-          toggleSelectCheckout={toggleSelectCheckout}
-          toggleSelectAll={toggleSelectAll}
-          exitMultiSelect={exitMultiSelect}
-          bulkReturnLoading={bulkReturnLoading}
-          handleBulkReturn={handleBulkReturn}
-          handleCheckin={handleCheckin}
-          openExtendDialog={openExtendDialog}
-        />
-
-        <ToolStats tools={tools} />
       </div>
+
 
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0">
