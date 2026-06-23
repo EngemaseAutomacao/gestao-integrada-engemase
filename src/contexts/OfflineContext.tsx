@@ -59,7 +59,11 @@ function isRecoverableError(error: any): boolean {
 }
 
 function getBackoffMs(retryCount: number): number {
-  return Math.min(2000 * Math.pow(2, retryCount), 30000);
+  // Exponential backoff: 2s, 4s, 8s, 16s, 30s (cap)
+  const base = Math.min(2000 * Math.pow(2, retryCount), 30000);
+  // ±25% jitter to avoid thundering herd when multiple clients reconnect simultaneously
+  const jitter = base * 0.25 * (Math.random() * 2 - 1);
+  return Math.max(500, Math.round(base + jitter));
 }
 
 // ID mapping for local-to-server resolution
