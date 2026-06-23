@@ -655,24 +655,18 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label>Foto da Ferramenta (opcional)</Label>
-                {photoConfirmed && (
-                  <Badge variant="secondary" className="gap-1"><CheckCircle className="w-3 h-3" /> Capturada</Badge>
-                )}
-              </div>
-              {!photoConfirmed ? (
-                <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado da ferramenta" />
-              ) : (
-                <div className="relative">
-                  <img src={photoDataUrl!} alt="Foto capturada" className="w-full h-48 object-cover rounded-lg" />
-                  <Button type="button" variant="outline" size="sm" className="absolute top-2 right-2"
-                    onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}>
-                    Refazer
-                  </Button>
-                </div>
-              )}
+              <Label htmlFor="condition">Estado da Ferramenta *</Label>
+              <Select value={toolCondition} onValueChange={setToolCondition}>
+                <SelectTrigger id="condition">
+                  <SelectValue placeholder="Selecione o estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Completo">Completo</SelectItem>
+                  <SelectItem value="Incompleto">Incompleto</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
 
             <div
               role="alert"
