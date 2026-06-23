@@ -651,11 +651,6 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Observações (opcional)</Label>
-              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="condition">Estado da Ferramenta *</Label>
               <Select value={toolCondition} onValueChange={setToolCondition}>
                 <SelectTrigger id="condition">
@@ -667,6 +662,12 @@ export default function Checkout() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Observações (opcional)</Label>
+              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+            </div>
+
 
 
             <div
