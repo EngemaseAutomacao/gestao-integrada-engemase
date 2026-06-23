@@ -364,19 +364,32 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <PendingCheckoutsCard
-            pendingCheckouts={(pendingCheckouts || []) as any}
-            multiSelectMode={multiSelectMode}
-            setMultiSelectMode={setMultiSelectMode}
-            selectedCheckouts={selectedCheckouts}
-            toggleSelectCheckout={toggleSelectCheckout}
-            toggleSelectAll={toggleSelectAll}
-            exitMultiSelect={exitMultiSelect}
-            bulkReturnLoading={bulkReturnLoading}
-            handleBulkReturn={handleBulkReturn}
-            handleCheckin={handleCheckin}
-            openExtendDialog={openExtendDialog}
-          />
+          {pendingCheckouts && pendingCheckouts.length > 0 && (
+            <Card className="border-warning/50 bg-warning/5">
+              <CardContent className="p-3 sm:p-4 flex items-center gap-3 flex-wrap">
+                <div className="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">
+                    {pendingCheckouts.length} devolução{pendingCheckouts.length > 1 ? "ões" : ""} pendente{pendingCheckouts.length > 1 ? "s" : ""}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Acesse a página de pendências para devolver.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate("/devolucoes-pendentes")}
+                  className="gap-1 shrink-0"
+                >
+                  Ver pendências <ArrowRight className="w-3 h-3" />
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
         </div>
       </div>
 
