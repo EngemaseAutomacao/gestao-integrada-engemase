@@ -755,11 +755,8 @@ export default function Home() {
               <ModuleCard {...m} />
             </div>
           ))}
-          {!isStandalone && (
-            <div>
-              <InstallPWACard isIOS={isIOS} />
-            </div>
-          )}
+
+
         </div>
 
         {adminModuleDesk && (
