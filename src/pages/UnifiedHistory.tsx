@@ -550,6 +550,7 @@ export default function UnifiedHistory({
           </div>
         ))
       )}
+      </div>
     </div>
   );
 }
