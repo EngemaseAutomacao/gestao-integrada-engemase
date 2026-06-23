@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.48.0",
+    date: "2026-06-23",
+    title: "Painel inicial mais profissional e interativo",
+    description: "Os cards do painel inicial foram redesenhados com nova tipografia (Space Grotesk + DM Sans), ícone destacado, badges de status (Ativo, Pendente, Urgente) e microinterações no hover.",
+    changes: [
+      { type: "improvement", text: "Cards de módulo com ícone à esquerda, status à direita e link 'Acessar →' separado por divisória" },
+      { type: "improvement", text: "Hover com elevação, sombra suave e troca de cor do ícone para o azul institucional" },
+      { type: "improvement", text: "Tipografia atualizada: Space Grotesk nos títulos e DM Sans no corpo" },
+      { type: "improvement", text: "Grid uniforme (2 colunas no celular, 4 no desktop) substituindo o layout flex antigo" },
+      { type: "improvement", text: "Badges padronizadas para usar tokens semânticos (compatível com tema claro e escuro)" },
+    ],
+  },
+  {
     version: "1.47.0",
     date: "2026-06-23",
     title: "Módulos de Combustível e Analytics removidos",
