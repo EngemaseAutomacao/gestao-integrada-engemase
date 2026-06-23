@@ -184,7 +184,7 @@ export default function DevolucoesPendentes() {
               const info = (
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-medium truncate">
+                    <p className="text-sm font-medium break-words">
                       {p.tools?.name || "Ferramenta"}
                     </p>
                     {p.selected_tag && (
