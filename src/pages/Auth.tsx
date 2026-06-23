@@ -105,7 +105,7 @@ export default function Auth() {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="seu_usuario"
+                    placeholder="nome.sobrenome"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
