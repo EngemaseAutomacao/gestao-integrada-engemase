@@ -157,7 +157,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Dashboard", url: "/admin", icon: BarChart3 },
     { title: "Usuários", url: "/admin/users", icon: Users },
     { title: "Analytics Geral", url: "/admin/analytics", icon: BarChart3 },
-    { title: "Analytics de Veículos", url: "/veiculos/analytics", icon: BarChart3 },
+    
     { title: "Relatórios", url: "/admin/reports", icon: FileText },
     
     { title: "Notificações", url: "/admin/notifications", icon: Bell },
