@@ -360,38 +360,40 @@ export default function ToolDetail() {
             <p className="text-center text-muted-foreground py-6 text-sm">
               Nenhum uso registrado
             </p>
-          ) : hasMultipleTags ? (
-            <Tabs defaultValue="all" className="w-full flex-1 min-h-0 flex flex-col">
-              <TabsList className="w-full flex gap-1 p-1 overflow-x-auto justify-start h-auto shrink-0">
-                <TabsTrigger value="all" className="text-xs px-3 py-1.5 shrink-0 rounded-md">
-                  Todos <span className="ml-1 opacity-70">({checkouts.length})</span>
-                </TabsTrigger>
-                {tags.map((tag) => (
-                  <TabsTrigger key={tag} value={tag} className="text-xs px-3 py-1.5 shrink-0 rounded-md font-mono">
-                    {tag} <span className="ml-1 opacity-70 font-sans">({getCheckoutsForTag(tag).length})</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              <TabsContent value="all" className="space-y-3 mt-3 flex-1 min-h-0 overflow-y-auto pr-1">
-                {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
-              </TabsContent>
-              {tags.map((tag) => (
-                <TabsContent key={tag} value={tag} className="space-y-3 mt-3 flex-1 min-h-0 overflow-y-auto pr-1">
-                  {getCheckoutsForTag(tag).length === 0 ? (
-                    <p className="text-center text-muted-foreground py-6 text-sm">
-                      Nenhum uso registrado para TAG {tag}
-                    </p>
-                  ) : (
-                    getCheckoutsForTag(tag).map((checkout) => renderCheckoutCard(checkout))
-                  )}
-                </TabsContent>
-              ))}
-            </Tabs>
           ) : (
-            <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
-              {checkouts.map((checkout) => renderCheckoutCard(checkout, true))}
+            <div className="flex-1 min-h-0 flex flex-col gap-3">
+              {hasMultipleTags && (
+                <Select value={tagFilter} onValueChange={setTagFilter}>
+                  <SelectTrigger className="w-full h-9 text-xs shrink-0">
+                    <SelectValue placeholder="Filtrar por TAG" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all" className="text-xs">
+                      Todas as TAGs ({checkouts.length})
+                    </SelectItem>
+                    {tags.map((tag) => (
+                      <SelectItem key={tag} value={tag} className="text-xs">
+                        <span className="font-mono">{tag}</span>
+                        <span className="ml-2 opacity-70">({getCheckoutsForTag(tag).length})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
+                {(tagFilter === "all" ? checkouts : getCheckoutsForTag(tagFilter)).length === 0 ? (
+                  <p className="text-center text-muted-foreground py-6 text-sm">
+                    Nenhum uso registrado para TAG {tagFilter}
+                  </p>
+                ) : (
+                  (tagFilter === "all" ? checkouts : getCheckoutsForTag(tagFilter)).map((checkout) =>
+                    renderCheckoutCard(checkout, tagFilter === "all")
+                  )
+                )}
+              </div>
             </div>
           )}
+
 
 
 
