@@ -266,7 +266,7 @@ export default function ToolDetail() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+    <div className="flex flex-col gap-4 md:gap-6 h-full min-h-0 pb-2">
       <ModuleHero
         eyebrow="Módulo · Ferramentas"
         title={tool.name}
