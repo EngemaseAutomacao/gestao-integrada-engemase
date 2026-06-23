@@ -52,6 +52,17 @@ export default function Dashboard() {
   const [tools, setTools] = useState<Tool[]>(cachedTools || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [pendingCollapsed, setPendingCollapsed] = useState<boolean>(
+    () => typeof window !== "undefined" && localStorage.getItem("pending-banner-collapsed") === "1"
+  );
+  const togglePendingCollapsed = () => {
+    setPendingCollapsed((v) => {
+      const next = !v;
+      try { localStorage.setItem("pending-banner-collapsed", next ? "1" : "0"); } catch {}
+      return next;
+    });
+  };
+  
   
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedCheckouts, setSelectedCheckouts] = useState<Set<string>>(new Set());
