@@ -390,7 +390,16 @@ export default function Dashboard() {
                 <ChevronDown className="w-3.5 h-3.5 text-warning" />
               </button>
             ) : (
-              <Card className="border-warning/50 bg-warning/5">
+              <Card className="border-warning/50 bg-warning/5 relative">
+                <button
+                  type="button"
+                  onClick={togglePendingCollapsed}
+                  className="absolute top-1.5 right-1.5 z-10 h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Minimizar"
+                  title="Minimizar"
+                >
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </button>
                 <CardContent className="p-3 sm:p-4 flex items-center gap-3 flex-wrap">
                   <div className="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center shrink-0">
                     <Clock className="w-4 h-4" />
@@ -411,15 +420,6 @@ export default function Dashboard() {
                   >
                     Ver pendências <ArrowRight className="w-3 h-3" />
                   </Button>
-                  <button
-                    type="button"
-                    onClick={togglePendingCollapsed}
-                    className="shrink-0 h-6 w-6 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label="Minimizar"
-                    title="Minimizar"
-                  >
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  </button>
                 </CardContent>
               </Card>
             )
