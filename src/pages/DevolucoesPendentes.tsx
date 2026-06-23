@@ -46,7 +46,7 @@ export default function DevolucoesPendentes() {
       const { data, error } = await supabase
         .from("tool_checkouts")
         .select(
-          "id, tool_id, checkout_date, estimated_return_date, selected_tag, construction_site, tools (name, tag)"
+          "id, tool_id, checkout_date, estimated_return_date, selected_tag, construction_site, notes, tools (name, tag)"
         )
         .eq("user_id", profile.id)
         .eq("status", "checked_out")
