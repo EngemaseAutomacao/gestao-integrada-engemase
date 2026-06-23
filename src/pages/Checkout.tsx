@@ -90,7 +90,7 @@ export default function Checkout() {
 
   const { data: constructionSites } = useActiveConstructionSites();
 
-  const hasUnsavedData = !!(constructionSite || notes || estimatedReturnDate || photoConfirmed || bulkSelections.size > 0);
+  const hasUnsavedData = !!(constructionSite || notes || estimatedReturnDate || toolCondition || bulkSelections.size > 0);
   useUnsavedChanges(hasUnsavedData);
 
   useEffect(() => {
