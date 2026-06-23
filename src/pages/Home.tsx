@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import engemaseIcon from "@/assets/engemase-icon.png.asset.json";
+import { HomePendingCard } from "@/components/home/HomePendingCard";
 
 
 interface BeforeInstallPromptEvent extends Event {
