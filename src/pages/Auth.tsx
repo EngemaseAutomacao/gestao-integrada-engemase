@@ -4,10 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, User, Lock } from "lucide-react";
 import engemaseLogo from "@/assets/engemase-logo.png";
+import { APP_VERSION } from "@/version";
 
 export default function Auth() {
   const [username, setUsername] = useState("");
@@ -51,71 +51,139 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto w-48 h-auto">
-            <img src={engemaseLogo} alt="Engemase Engenharia" width={672} height={294} fetchPriority="high" decoding="async" className="w-full h-auto" />
+    <div className="min-h-dvh w-full flex items-center justify-center bg-background p-4 relative overflow-hidden">
+      {/* Decorative background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-[15%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute -bottom-[15%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.04] dark:opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+      </div>
+
+      <div className="relative w-full max-w-md">
+        {/* Logo & Header */}
+        <div className="text-center mb-8">
+          <div className="mx-auto w-40 mb-4">
+            <img
+              src={engemaseLogo}
+              alt="Engemase Engenharia"
+              width={672}
+              height={294}
+              fetchPriority="high"
+              decoding="async"
+              className="w-full h-auto"
+            />
           </div>
-          <CardTitle className="text-2xl">Sistema de Gestão de Ativos</CardTitle>
-          <CardDescription>
-            Entre com sua conta
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Usuário</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="seu_usuario"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Gestão Integrada
+          </p>
+        </div>
+
+        {/* Login Card */}
+        <div className="bg-card rounded-3xl shadow-xl border border-border overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="mb-6">
+              <h1 className="text-xl font-bold text-foreground">Bem-vindo</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Acesse sua conta para continuar
+              </p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Entrar
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Não tem uma conta?{" "}
-            <Link to="/register" className="text-primary underline font-medium">
-              Criar conta
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm font-semibold">
+                  Usuário
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="seu_usuario"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    className="pl-10 h-11 rounded-xl"
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm font-semibold">
+                    Senha
+                  </Label>
+                  <Link
+                    to="/reset-password"
+                    className="text-xs font-semibold text-primary hover:underline"
+                  >
+                    Esqueceu?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="pl-10 pr-10 h-11 rounded-xl"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-11 rounded-xl font-semibold shadow-md shadow-primary/20"
+                disabled={loading}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Acessar Sistema
+              </Button>
+            </form>
+          </div>
+
+          <div className="px-6 sm:px-8 py-4 bg-muted/40 border-t border-border text-center">
+            <p className="text-sm text-muted-foreground">
+              Novo colaborador?{" "}
+              <Link
+                to="/register"
+                className="font-bold text-primary hover:underline"
+              >
+                Solicitar acesso
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-6 text-center text-[11px] text-muted-foreground/70 uppercase tracking-widest">
+          v{APP_VERSION} · Engemase Engenharia
+        </p>
+      </div>
     </div>
   );
 }
