@@ -611,13 +611,13 @@ export default function Home() {
 
         {/* Floating status card */}
         {user && (
-          <div className="px-4 -mt-14 mb-5 relative z-10 space-y-3">
+          <div className="px-4 -mt-14 mb-5 relative z-10">
             <div className="rounded-2xl bg-card border shadow-elevated p-3">
               <SummaryCards userId={user.id} />
             </div>
-            <HomePendingCard userId={user.id} />
           </div>
         )}
+
 
 
         <div className="px-4">
