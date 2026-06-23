@@ -14,6 +14,7 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ModuleHero } from "@/components/ModuleHero";
 
 interface Transfer {
   id: string;
@@ -360,11 +361,15 @@ export default function Transfers() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0 gap-6">
-      <div className="shrink-0 hidden sm:block">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Transferências</h2>
-        <p className="text-sm text-muted-foreground">Gerencie transferências de ferramentas e veículos</p>
+    <div className="flex flex-col h-full min-h-0">
+      <div className="shrink-0 pb-4">
+        <ModuleHero
+          eyebrow="Módulo · Transferências"
+          title="Transferências"
+          subtitle="Gerencie transferências de ferramentas e veículos"
+        />
       </div>
+
 
       <Tabs defaultValue={pendingForMe.length > 0 ? "received" : isAdmin && pendingApproval.length > 0 ? "approval" : "all"} className="flex-1 min-h-0 flex flex-col">
         <TabsList className="shrink-0">

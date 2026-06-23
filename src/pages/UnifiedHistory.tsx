@@ -15,6 +15,7 @@ import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 import { toast } from "sonner";
+import { ModuleHero } from "@/components/ModuleHero";
 
 interface UnifiedEvent {
   id: string;
