@@ -90,31 +90,30 @@ export function MobileModuleMenu({
 
   return (
     <div className="flex flex-col flex-1 pb-6 -mx-3 sm:-mx-6 -mt-3 sm:-mt-6">
-      <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-5 pt-6 pb-20 rounded-b-3xl">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-        <div className="absolute bottom-0 right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
-        <div className="relative flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center shrink-0">
+      <header className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-5 lg:px-12 pt-6 lg:pt-10 pb-20 lg:pb-28 rounded-b-3xl lg:rounded-b-[2rem]">
+        <div className="absolute -top-10 -right-10 w-40 h-40 lg:w-96 lg:h-96 rounded-full bg-white/10 blur-2xl lg:blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-6 lg:right-32 w-24 h-24 lg:w-40 lg:h-40 rounded-full bg-white/5 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto flex items-center gap-3 lg:gap-5">
+          <div className="w-11 h-11 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center shrink-0">
             {heroIcon}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.2em] opacity-80 font-semibold">
+            <p className="text-[10px] lg:text-xs uppercase tracking-[0.2em] opacity-80 font-semibold">
               {eyebrow}
             </p>
-            <h1 className="font-display text-xl font-bold leading-tight truncate">{title}</h1>
-            <p className="text-[11px] opacity-80 line-clamp-1">{subtitle}</p>
+            <h1 className="font-display text-xl lg:text-3xl font-bold leading-tight truncate">{title}</h1>
+            <p className="text-[11px] lg:text-sm opacity-80 line-clamp-1">{subtitle}</p>
           </div>
         </div>
       </header>
 
-      <div className="px-4 -mt-14 relative z-10">
-        {featured && (
-          <div className="mb-3">
-            <FeaturedTile item={featured} />
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
+      <div className="px-4 lg:px-12 -mt-14 lg:-mt-16 relative z-10 max-w-6xl mx-auto w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+          {featured && (
+            <div className="col-span-2 lg:row-span-2">
+              <FeaturedTile item={featured} />
+            </div>
+          )}
           {rest.map((item) => (
             <Tile key={item.to + item.title} item={item} />
           ))}
@@ -122,10 +121,10 @@ export function MobileModuleMenu({
 
         {adminItems.length > 0 && (
           <>
-            <p className="text-[11px] uppercase tracking-wider text-warning font-bold mt-5 mb-2 px-1">
+            <p className="text-[11px] lg:text-xs uppercase tracking-wider text-warning font-bold mt-5 mb-2 px-1">
               Administração
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
               {adminItems.map((item) => (
                 <Tile key={item.to + item.title} item={{ ...item, variant: "admin" }} />
               ))}
