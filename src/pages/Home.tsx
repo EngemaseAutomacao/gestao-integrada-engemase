@@ -374,12 +374,114 @@ export default function Home() {
 
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
   }, []);
 
+  const modules = [
+    {
+      id: "tour-ferramentas",
+      title: "Ferramentas",
+      description: "Retiradas, devoluções e manutenções",
+      icon: <Wrench className="w-6 h-6" />,
+      to: "/ferramentas",
+      pendingCount: toolPending,
+      overdueCount: toolOverdue + toolIssuesOpen,
+    },
+    {
+      id: "tour-veiculos",
+      title: "Veículos",
+      description: "Entradas e saídas de veículos",
+      icon: <Car className="w-6 h-6" />,
+      to: "/veiculos",
+      pendingCount: vehiclePending,
+      overdueCount: vehicleOverdue + vehicleIssuesOpen,
+    },
+    {
+      id: "tour-ponto",
+      title: "Ponto Online",
+      description: "Registre pontos em atividades externas",
+      icon: <Clock className="w-6 h-6" />,
+      to: "/ponto",
+    },
+    {
+      id: "tour-historico",
+      title: "Meu Histórico",
+      description: "Veja todas as suas movimentações",
+      icon: <History className="w-6 h-6" />,
+      to: "/historico",
+    },
+    {
+      id: "tour-transferencias",
+      title: "Transferências",
+      description: "Handover de ferramentas e veículos",
+      icon: <ArrowRightLeft className="w-6 h-6" />,
+      to: "/transferencias",
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: "tour-admin",
+            title: "Administração",
+            description: "Usuários, relatórios e configurações",
+            icon: <Shield className="w-6 h-6" />,
+            to: "/admin",
+            variant: "admin" as const,
+          },
+        ]
+      : []),
+  ];
+
+  // -------- MOBILE LAYOUT --------
+  if (isMobile) {
+    const firstName = profile?.full_name?.split(" ")[0] || "";
+    return (
+      <div className="flex flex-col flex-1 px-4 pt-4 pb-6">
+        <header className="flex items-center gap-3 mb-4">
+          <img
+            src={engemaseLogo}
+            alt="Engemase Engenharia"
+            className="w-10 h-10 rounded-lg shrink-0 object-contain"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Engemase
+            </p>
+            <h1 className="font-display text-lg font-bold leading-tight truncate">
+              Olá, {firstName}
+            </h1>
+          </div>
+        </header>
+
+        {user && (
+          <div className="mb-5">
+            <SummaryCards userId={user.id} />
+          </div>
+        )}
+
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 px-1">
+          Módulos
+        </p>
+        <div className="flex flex-col gap-2">
+          {modules.map((m) => (
+            <div id={m.id} key={m.id}>
+              <ModuleListItem {...m} />
+            </div>
+          ))}
+          {!isStandalone && (
+            <div className="mt-2">
+              <InstallPWACard isIOS={isIOS} />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // -------- DESKTOP / TABLET LAYOUT --------
   return (
     <div className="flex flex-col items-center justify-center p-3 sm:p-6 flex-1">
       <div className="text-center mb-4 sm:mb-6">
@@ -388,14 +490,13 @@ export default function Home() {
           Sistema de Gestão de Ativos — Engemase Engenharia
         </h1>
         <p className="text-sm sm:text-lg text-foreground mt-1">
-          Bem-vindo, {profile?.full_name?.split(' ')[0]}!
+          Bem-vindo, {profile?.full_name?.split(" ")[0]}!
         </p>
         <p className="text-xs sm:text-base text-muted-foreground">
           Selecione o módulo que deseja acessar
         </p>
       </div>
 
-      {/* Summary Cards */}
       {user && (
         <div className="mb-4 sm:mb-6">
           <SummaryCards userId={user.id} />
@@ -403,67 +504,11 @@ export default function Home() {
       )}
 
       <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-        <div id="tour-ferramentas">
-          <ModuleCard
-            title="Ferramentas"
-            description="Retiradas, devoluções e manutenções"
-            icon={<Wrench className="w-6 h-6" />}
-            to="/ferramentas"
-            pendingCount={toolPending}
-            overdueCount={toolOverdue + toolIssuesOpen}
-          />
-        </div>
-
-        <div id="tour-veiculos">
-          <ModuleCard
-            title="Veículos"
-            description="Entradas e saídas de veículos"
-            icon={<Car className="w-6 h-6" />}
-            to="/veiculos"
-            pendingCount={vehiclePending}
-            overdueCount={vehicleOverdue + vehicleIssuesOpen}
-          />
-        </div>
-
-        <div id="tour-ponto">
-          <ModuleCard
-            title="Ponto Online"
-            description="Registre pontos em atividades externas"
-            icon={<Clock className="w-6 h-6" />}
-            to="/ponto"
-          />
-        </div>
-
-        <div id="tour-historico">
-          <ModuleCard
-            title="Meu Histórico"
-            description="Veja todas as suas movimentações"
-            icon={<History className="w-6 h-6" />}
-            to="/historico"
-          />
-        </div>
-
-        <div id="tour-transferencias">
-          <ModuleCard
-            title="Transferências"
-            description="Handover de ferramentas e veículos"
-            icon={<ArrowRightLeft className="w-6 h-6" />}
-            to="/transferencias"
-          />
-        </div>
-
-        {isAdmin && (
-          <div id="tour-admin">
-            <ModuleCard
-              title="Administração"
-              description="Usuários, relatórios e configurações"
-              icon={<Shield className="w-6 h-6" />}
-              to="/admin"
-              variant="admin"
-            />
+        {modules.map((m) => (
+          <div id={m.id} key={m.id}>
+            <ModuleCard {...m} />
           </div>
-        )}
-
+        ))}
         {!isStandalone && (
           <div>
             <InstallPWACard isIOS={isIOS} />
@@ -473,3 +518,4 @@ export default function Home() {
     </div>
   );
 }
+
