@@ -109,6 +109,9 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   useAppBadge();
+  useEffect(() => { prefetchMainRoutes(); }, []);
+  
+
   
   
   const isHomePage = location.pathname === '/';
