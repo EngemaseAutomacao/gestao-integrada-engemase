@@ -385,7 +385,9 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn("flex-1 min-h-0 overflow-auto p-3 sm:p-4 md:p-6", isMobile && "pb-20")}>
-        {children}
+        <Suspense key={location.pathname} fallback={<PageSkeleton />}>
+          {children}
+        </Suspense>
       </main>
 
       {/* Footer - hidden on mobile */}
