@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.57.0",
+    date: "2026-06-23",
+    title: "Hero unificado em todos os módulos",
+    description: "Os painéis de Veículos, Histórico, Transferências e Registrar Ponto agora compartilham o mesmo hero azul gradiente do painel de Ferramentas, criando uma experiência visual consistente em todo o sistema.",
+    changes: [
+      { type: "improvement", text: "Painel de Veículos com hero gradiente e cartões flutuantes" },
+      { type: "improvement", text: "Histórico, Transferências e Ponto com cabeçalho azul unificado" },
+      { type: "improvement", text: "Componente ModuleHero reutilizável para futuras telas" },
+    ],
+  },
+  {
     version: "1.56.0",
     date: "2026-06-23",
     title: "Painel de Ferramentas com hero unificado",

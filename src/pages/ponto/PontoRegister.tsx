@@ -357,6 +357,7 @@ export default function PontoRegister() {
         <MapPin className="w-3 h-3 inline mr-1" />
         Sua localização será registrada automaticamente (GPS de alta precisão)
       </p>
+      </div>
     </div>
   );
 }
