@@ -424,7 +424,6 @@ function AdminBanner({ title, description, icon, to }: ModuleCardProps) {
 interface HomeSummary {
   toolsInUse: number;
   vehiclesOut: number;
-  pontoOpen: boolean;
 }
 
 function SummaryCards({ userId }: { userId: string }) {
@@ -434,7 +433,7 @@ function SummaryCards({ userId }: { userId: string }) {
   useEffect(() => {
     const load = async () => {
       try {
-        const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
+        const [toolsRes, vehiclesRes] = await Promise.all([
           supabase
             .from("tool_checkouts")
             .select("id", { count: "exact", head: true })
@@ -445,18 +444,11 @@ function SummaryCards({ userId }: { userId: string }) {
             .select("id", { count: "exact", head: true })
             .eq("user_id", userId)
             .eq("status", "checked_out"),
-          supabase
-            .from("time_entries")
-            .select("id")
-            .eq("user_id", userId)
-            .eq("status", "open")
-            .limit(1),
         ]);
 
         setSummary({
           toolsInUse: toolsRes.count || 0,
           vehiclesOut: vehiclesRes.count || 0,
-          pontoOpen: (pontoRes.data?.length || 0) > 0,
         });
       } catch (e) {
         console.error("Error loading summary:", e);
@@ -492,13 +484,6 @@ function SummaryCards({ userId }: { userId: string }) {
       color: summary.vehiclesOut > 0 ? "text-primary" : "text-muted-foreground",
       bgColor: summary.vehiclesOut > 0 ? "bg-primary/10" : "bg-muted",
     },
-    {
-      label: "Ponto",
-      value: summary.pontoOpen ? "Aberto" : "Fechado",
-      icon: <Clock className="w-4 h-4" />,
-      color: summary.pontoOpen ? "text-success" : "text-muted-foreground",
-      bgColor: summary.pontoOpen ? "bg-success/10" : "bg-muted",
-    },
   ];
 
   return (
@@ -511,7 +496,7 @@ function SummaryCards({ userId }: { userId: string }) {
           >
             <span className={item.color}>{item.icon}</span>
             <span className={`text-xs font-medium ${item.color}`}>
-              {typeof item.value === "number" ? `${item.value} ${item.label.toLowerCase()}` : `${item.label}: ${item.value}`}
+              {`${item.value} ${item.label.toLowerCase()}`}
             </span>
           </div>
         ))}
