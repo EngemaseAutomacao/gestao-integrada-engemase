@@ -45,6 +45,8 @@ const NAV_SHORTCUTS = [
   { label: "Registrar Saída de Ferramenta", url: "/ferramentas/retirada", icon: Upload, keywords: "retirada checkout saida" },
   { label: "Registrar Devolução de Ferramenta", url: "/ferramentas/devolucao", icon: LogIn, keywords: "devolucao checkin" },
   { label: "Meu Histórico de Ferramentas", url: "/ferramentas/historico", icon: History, keywords: "historico" },
+  { label: "Histórico Geral", url: "/admin/historico", icon: ClipboardList, keywords: "historico geral ferramentas veiculos movimentacoes" },
+
   { label: "Veículos", url: "/veiculos", icon: Car, keywords: "veiculos cars" },
   { label: "Lista de Veículos", url: "/veiculos/lista", icon: Package, keywords: "veiculos lista" },
   
