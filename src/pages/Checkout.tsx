@@ -379,6 +379,7 @@ export default function Checkout() {
         notes: finalNotes,
         checkout_photo_url: null,
         selected_tag: hasMultipleTags ? selectedTag : (toolTags.length === 1 ? toolTags[0] : null),
+        ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
 
