@@ -77,6 +77,7 @@ export default function Checkout() {
   const [bulkSelections, setBulkSelections] = useState<Map<string, BulkSelection>>(new Map());
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");
+  const [bulkSelectionConfirmed, setBulkSelectionConfirmed] = useState(false);
   const [tagError, setTagError] = useState("");
 
   // Tool condition at checkout
