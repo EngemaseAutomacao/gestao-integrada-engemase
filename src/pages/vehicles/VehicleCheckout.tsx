@@ -417,7 +417,7 @@ export default function VehicleCheckout() {
                       checked={manualMode}
                       onCheckedChange={(v) => {
                         setManualMode(v);
-                        if (!v) { setResponsibleUserId(""); setManualDate(""); }
+                        if (!v) { setResponsibleUserId(""); setManualDate(""); setSkipPhotos(false); }
                       }}
                     />
                   </div>
