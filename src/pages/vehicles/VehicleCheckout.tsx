@@ -448,7 +448,15 @@ export default function VehicleCheckout() {
                         max={new Date().toISOString().slice(0, 16)}
                         onChange={(e) => setManualDate(e.target.value)}
                       />
-                      <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos são opcionais no modo manual e podem vir da galeria.</p>
+                      <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos podem vir da galeria no modo manual.</p>
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t">
+                        <Label htmlFor="skip_photos_vehicle" className="cursor-pointer text-sm">Dispensar fotos obrigatórias</Label>
+                        <Switch
+                          id="skip_photos_vehicle"
+                          checked={skipPhotos}
+                          onCheckedChange={setSkipPhotos}
+                        />
+                      </div>
                     </>
                   )}
                 </div>
