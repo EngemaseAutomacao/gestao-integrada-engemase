@@ -254,18 +254,21 @@ export default function Checkin() {
                     }}
                     disabled={loadingCheckouts}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a ferramenta" />
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione a ferramenta" className="truncate" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
                       {checkouts.map((checkout) => (
-                        <SelectItem key={checkout.id} value={checkout.id}>
-                          {checkout.tools.name}
-                          {checkout.selected_tag ? ` (TAG: ${checkout.selected_tag})` : ""}
-                          {isAdmin && checkout.profiles?.full_name ? ` — ${checkout.profiles.full_name}` : ""}
+                        <SelectItem key={checkout.id} value={checkout.id} className="whitespace-normal break-words pr-8">
+                          <span className="block text-sm leading-snug">
+                            {checkout.tools.name}
+                            {checkout.selected_tag ? ` (TAG: ${checkout.selected_tag})` : ""}
+                            {isAdmin && checkout.profiles?.full_name ? ` — ${checkout.profiles.full_name}` : ""}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
+
                   </Select>
                 </div>
 
