@@ -33,6 +33,7 @@ export default function VehicleCheckout() {
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
   const [manualMode, setManualMode] = useState(false);
   const [manualDate, setManualDate] = useState<string>("");
+  const [skipPhotos, setSkipPhotos] = useState(false);
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   const { isOnline, addPendingOperation } = useOffline();
