@@ -71,6 +71,7 @@ export default function Checkout() {
 
   // Admin: responsible user (defaults to self)
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [manualMode, setManualMode] = useState(false);
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   // Bulk mode
