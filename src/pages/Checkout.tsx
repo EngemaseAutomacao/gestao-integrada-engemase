@@ -410,17 +410,20 @@ export default function Checkout() {
 
 
   return (
-    <div className="space-y-3">
-      <ModuleHero
-        narrow
-        compact
-        eyebrow="Módulo · Ferramentas"
-        title="Registrar Saída"
-        subtitle={bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}
-      />
+    <div className="h-full flex flex-col overflow-hidden space-y-3">
+      <div className="shrink-0">
+        <ModuleHero
+          narrow
+          compact
+          eyebrow="Módulo · Ferramentas"
+          title="Registrar Saída"
+          subtitle={bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}
+        />
+      </div>
 
-      <div className="max-w-4xl mx-auto space-y-3">
+      <div className="max-w-4xl w-full mx-auto flex-1 min-h-0 overflow-auto space-y-3">
       <Card>
+
         <CardContent className="p-4 sm:p-5">
           {isAdmin && (
 
