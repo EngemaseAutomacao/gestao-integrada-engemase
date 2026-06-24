@@ -78,6 +78,8 @@ export default function Checkout() {
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");
   const [bulkSelectionConfirmed, setBulkSelectionConfirmed] = useState(false);
+  const [preBulkToolId, setPreBulkToolId] = useState<string>("");
+  const [preBulkTag, setPreBulkTag] = useState<string>("");
   const [tagError, setTagError] = useState("");
 
   // Tool condition at checkout
@@ -224,6 +226,8 @@ export default function Checkout() {
   }, [tools, bulkSearch]);
 
   const enterBulkMode = () => {
+    setPreBulkToolId(selectedToolId);
+    setPreBulkTag(selectedTag);
     setBulkMode(true);
     setSelectedToolId("");
     setSelectedTag("");
@@ -234,7 +238,12 @@ export default function Checkout() {
     setBulkSelections(new Map());
     setBulkSearch("");
     setBulkSelectionConfirmed(false);
+    setSelectedToolId(preBulkToolId);
+    setSelectedTag(preBulkTag);
+    setPreBulkToolId("");
+    setPreBulkTag("");
   };
+
 
   const handleBulkCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
