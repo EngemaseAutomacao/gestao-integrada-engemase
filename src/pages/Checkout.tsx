@@ -586,7 +586,7 @@ export default function Checkout() {
               <div className="flex gap-3">
                 <Button type="submit" disabled={loading || bulkSelections.size === 0 || !constructionSite.trim() || !estimatedReturnDate} className="flex-1">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Confirmar Saída de {bulkSelections.size || ""} {bulkSelections.size === 1 ? "Ferramenta" : "Ferramentas"}
+                  Confirmar Saída
                 </Button>
                 <Button type="button" variant="outline" onClick={exitBulkMode}>Cancelar</Button>
               </div>
