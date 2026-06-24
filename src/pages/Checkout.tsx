@@ -78,6 +78,8 @@ export default function Checkout() {
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");
   const [bulkSelectionConfirmed, setBulkSelectionConfirmed] = useState(false);
+  const [preBulkToolId, setPreBulkToolId] = useState<string>("");
+  const [preBulkTag, setPreBulkTag] = useState<string>("");
   const [tagError, setTagError] = useState("");
 
   // Tool condition at checkout
