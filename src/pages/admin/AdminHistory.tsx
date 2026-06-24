@@ -23,6 +23,8 @@ import { Navigate } from "react-router-dom";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 
+type HistoryCategory = "engemase_employee" | "third_party" | "socios" | null;
+
 interface HistoryEntry {
   id: string;
   checkout_date: string;
@@ -41,7 +43,7 @@ interface HistoryEntry {
   } | null;
   profiles: {
     full_name: string;
-    category: "engemase_employee" | "third_party" | "socios" | null;
+    category: HistoryCategory;
   } | null;
   checked_out_by_profile: {
     full_name: string;
@@ -73,7 +75,7 @@ export default function AdminHistory() {
         checkout_signature_url: entry.checkout_signature_url,
         checkin_signature_url: entry.checkin_signature_url,
         tools: entry.tool_name || entry.tool_tag ? { name: entry.tool_name || "Ferramenta", tag: entry.tool_tag } : null,
-        profiles: { full_name: entry.user_full_name || "Usuário não encontrado", category: entry.user_category as HistoryEntry["profiles"]["category"] },
+        profiles: { full_name: entry.user_full_name || "Usuário não encontrado", category: entry.user_category as HistoryCategory },
         checked_out_by_profile: entry.checked_out_by_full_name ? { full_name: entry.checked_out_by_full_name } : null,
         checked_in_by_profile: entry.checked_in_by_full_name ? { full_name: entry.checked_in_by_full_name } : null,
         notes: entry.notes,
@@ -170,14 +172,14 @@ export default function AdminHistory() {
     setPeriodFilter("all");
   };
 
-  const getCategoryLabel = (category: "engemase_employee" | "third_party" | "socios" | null | undefined) => {
+  const getCategoryLabel = (category: HistoryCategory | undefined) => {
     if (category === "engemase_employee") return "Funcionário";
     if (category === "socios") return "Sócio";
     if (category === "third_party") return "Terceirizado";
     return "-";
   };
 
-  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios" | null | undefined) => {
+  const getCategoryBadge = (category: HistoryCategory | undefined) => {
     if (category === "engemase_employee") {
       return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
     }
