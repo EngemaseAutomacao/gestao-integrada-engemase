@@ -419,17 +419,6 @@ export default function Checkout() {
       <div className="max-w-4xl mx-auto space-y-6">
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center justify-end -mt-2 mb-4">
-            {bulkMode ? (
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={exitBulkMode}>
-                <X className="w-4 h-4" /> Sair do modo múltiplo
-              </Button>
-            ) : (
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={enterBulkMode}>
-                <CheckSquare className="w-4 h-4" /> Retirada em Lote
-              </Button>
-            )}
-          </div>
           {isAdmin && (
 
             <div className="space-y-2 mb-6 p-3 border rounded-md bg-muted/30">
