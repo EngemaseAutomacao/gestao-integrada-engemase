@@ -560,18 +560,6 @@ export default function Checkout() {
 
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="condition_bulk">Estado da Ferramenta *</Label>
-                <Select value={toolCondition} onValueChange={setToolCondition}>
-                  <SelectTrigger id="condition_bulk">
-                    <SelectValue placeholder="Selecione o estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Incompleta">Incompleta</SelectItem>
-                    <SelectItem value="Completa">Completa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="notes_bulk">Observações (opcional)</Label>
