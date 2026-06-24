@@ -11,6 +11,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.61.0",
+    date: "2026-06-24",
+    title: "Retirada e devolução manual com mais flexibilidade",
+    description: "Admins agora controlam quando agir em nome de outro usuário através de um botão de Modo Manual. Nele é possível escolher data retroativa, usar fotos da galeria e dispensar fotos obrigatórias quando necessário.",
+    changes: [
+      { type: "feature", text: "Modo Manual para retirada e devolução de ferramentas e veículos" },
+      { type: "feature", text: "Seleção de data e hora retroativa no modo manual" },
+      { type: "feature", text: "Opção de dispensar fotos obrigatórias no modo manual de veículos" },
+      { type: "improvement", text: "Fotos podem vir da galeria quando admin atua manualmente" },
+      { type: "improvement", text: "Lista de outros usuários só aparece quando o Modo Manual é ativado" },
+    ],
+  },
+  {
     version: "1.60.0",
     date: "2026-06-23",
     title: "Pendências na Home e navegação mais fluida",
