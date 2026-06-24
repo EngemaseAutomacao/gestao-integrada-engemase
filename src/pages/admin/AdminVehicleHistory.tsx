@@ -796,14 +796,17 @@ export default function AdminVehicleHistory() {
                             )}
                           </DialogContent>
                         </Dialog>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => setDeleteDialog({ open: true, entry })}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeleteDialog({ open: true, entry })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+
                       </div>
                     </div>
                   </Card>
