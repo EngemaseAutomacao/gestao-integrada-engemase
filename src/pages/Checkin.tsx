@@ -319,19 +319,8 @@ export default function Checkin() {
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
-                {selectedCheckoutId && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    asChild
-                    className="w-full"
-                  >
-                    <Link to={`/report-issue?checkoutId=${selectedCheckoutId}`}>
-                      <AlertCircle className="h-4 w-4 mr-2" />
-                      Reportar Problema
-                    </Link>
-                  </Button>
-                )}
+                {selectedCheckoutId && false && null}
+
                 <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="w-full">
                   Cancelar
                 </Button>
