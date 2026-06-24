@@ -131,9 +131,9 @@ export default function AdminVehicleHistory() {
         user_id: profile!.id,
         user_name: profile!.full_name,
         details: {
-          vehicle_name: deleteDialog.entry.vehicles.name,
-          plate: deleteDialog.entry.vehicles.plate,
-          user_name: deleteDialog.entry.profiles.full_name,
+          vehicle_name: deleteDialog.entry.vehicles?.name ?? "Veículo removido",
+          plate: deleteDialog.entry.vehicles?.plate ?? "-",
+          user_name: deleteDialog.entry.profiles?.full_name ?? "Usuário removido",
           reason,
         },
       });
@@ -165,16 +165,16 @@ export default function AdminVehicleHistory() {
 
   const filteredHistory = history.filter((entry) => {
     const matchesSearch =
-      entry.vehicles.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.vehicles.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.vehicles?.name ?? "Veículo removido".toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.vehicles?.plate ?? "-".toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.profiles?.full_name ?? "Usuário removido".toLowerCase().includes(searchQuery.toLowerCase()) ||
       (entry.destination && entry.destination.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesStatus =
       statusFilter === "all" || entry.status === statusFilter;
 
     const matchesCategory =
-      categoryFilter === "all" || entry.profiles.category === categoryFilter;
+      categoryFilter === "all" || entry.profiles?.category === categoryFilter;
 
     const dateRange = getDateRange();
     const matchesPeriod = !dateRange || (
@@ -290,10 +290,10 @@ export default function AdminVehicleHistory() {
     }
     const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Status"];
     const rows = filteredHistory.map((e) => [
-      e.vehicles.name,
-      e.vehicles.plate,
-      e.profiles.full_name,
-      e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      e.vehicles?.name ?? "Veículo removido",
+      e.vehicles?.plate ?? "-",
+      e.profiles?.full_name ?? "Usuário removido",
+      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
       e.destination || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.km_checkout.toLocaleString(),
@@ -318,10 +318,10 @@ export default function AdminVehicleHistory() {
     }
     const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "KM Percorridos", "Abastecido", "Status", "Retirado por", "Devolvido por", "Observações"];
     const rows = filteredHistory.map((e) => [
-      e.vehicles.name,
-      e.vehicles.plate,
-      e.profiles.full_name,
-      e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      e.vehicles?.name ?? "Veículo removido",
+      e.vehicles?.plate ?? "-",
+      e.profiles?.full_name ?? "Usuário removido",
+      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
       e.destination || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.km_checkout,
@@ -486,8 +486,8 @@ export default function AdminVehicleHistory() {
                 id: entry.id,
                 date: entry.status === "checked_in" && entry.checkin_date ? entry.checkin_date : entry.checkout_date,
                 action: entry.status === "checked_out" ? "Retirada" : "Devolução",
-                description: `${entry.vehicles.name} (${entry.vehicles.plate})${entry.destination ? ` — ${entry.destination}` : ""}${entry.km_checkin !== null ? ` • ${(entry.km_checkin - entry.km_checkout).toLocaleString()} km` : ""}`,
-                user: entry.profiles.full_name,
+                description: `${entry.vehicles?.name ?? "Veículo removido"} (${entry.vehicles?.plate ?? "-"})${entry.destination ? ` — ${entry.destination}` : ""}${entry.km_checkin !== null ? ` • ${(entry.km_checkin - entry.km_checkout).toLocaleString()} km` : ""}`,
+                user: entry.profiles?.full_name ?? "Usuário removido",
                 type: entry.status === "checked_out" ? "checkout" : "checkin",
               }))}
             />
@@ -513,10 +513,10 @@ export default function AdminVehicleHistory() {
                   <TableBody>
                     {filteredHistory.map((entry) => (
                       <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.vehicles.name}</TableCell>
-                        <TableCell>{entry.vehicles.plate}</TableCell>
-                        <TableCell>{entry.profiles.full_name}</TableCell>
-                        <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
+                        <TableCell className="font-medium">{entry.vehicles?.name ?? "Veículo removido"}</TableCell>
+                        <TableCell>{entry.vehicles?.plate ?? "-"}</TableCell>
+                        <TableCell>{entry.profiles?.full_name ?? "Usuário removido"}</TableCell>
+                        <TableCell>{getCategoryBadge(entry.profiles?.category)}</TableCell>
                         <TableCell>{entry.destination || "-"}</TableCell>
                         <TableCell>
                           {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
@@ -562,12 +562,12 @@ export default function AdminVehicleHistory() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Veículo</p>
-                                        <p className="font-semibold">{selectedEntry.vehicles.name} - {selectedEntry.vehicles.plate}</p>
+                                        <p className="font-semibold">{selectedEntry.vehicles?.name ?? "Veículo removido"} - {selectedEntry.vehicles?.plate ?? "-"}</p>
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                        <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
-                                        {getCategoryBadge(selectedEntry.profiles.category)}
+                                        <p className="font-semibold">{selectedEntry.profiles?.full_name ?? "Usuário removido"}</p>
+                                        {getCategoryBadge(selectedEntry.profiles?.category)}
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Destino</p>
@@ -745,10 +745,10 @@ export default function AdminVehicleHistory() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">
-                          {entry.vehicles.name} - {entry.vehicles.plate}
+                          {entry.vehicles?.name ?? "Veículo removido"} - {entry.vehicles?.plate ?? "-"}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {entry.profiles.full_name} • {entry.destination || "Sem destino"}
+                          {entry.profiles?.full_name ?? "Usuário removido"} • {entry.destination || "Sem destino"}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-muted-foreground">
@@ -780,11 +780,11 @@ export default function AdminVehicleHistory() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                   <div>
                                     <p className="text-sm font-medium text-muted-foreground">Veículo</p>
-                                    <p className="font-semibold">{selectedEntry.vehicles.name} - {selectedEntry.vehicles.plate}</p>
+                                    <p className="font-semibold">{selectedEntry.vehicles?.name ?? "Veículo removido"} - {selectedEntry.vehicles?.plate ?? "-"}</p>
                                   </div>
                                   <div>
                                     <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                    <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                    <p className="font-semibold">{selectedEntry.profiles?.full_name ?? "Usuário removido"}</p>
                                   </div>
                                 </div>
                               </div>
@@ -815,7 +815,7 @@ export default function AdminVehicleHistory() {
         onConfirm={handleDeleteEntry}
         title="Excluir Registro do Histórico"
         description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
-        itemName={deleteDialog.entry ? `${deleteDialog.entry.vehicles.name} (${deleteDialog.entry.vehicles.plate}) - ${deleteDialog.entry.profiles.full_name}` : ""}
+        itemName={deleteDialog.entry ? `${deleteDialog.entry.vehicles?.name ?? "Veículo removido"} (${deleteDialog.entry.vehicles?.plate ?? "-"}) - ${deleteDialog.entry.profiles?.full_name ?? "Usuário removido"}` : ""}
       />
     </div>
   );
