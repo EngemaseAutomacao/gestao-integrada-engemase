@@ -436,6 +436,15 @@ export default function VehicleCheckout() {
                           <strong>Retirada manual:</strong> ação será registrada no log. Justificativa obrigatória no campo Observações (mín. 5 caracteres).
                         </div>
                       )}
+                      <Label htmlFor="manual_date_vehicle">Data e hora da saída (retroativa, opcional)</Label>
+                      <Input
+                        id="manual_date_vehicle"
+                        type="datetime-local"
+                        value={manualDate}
+                        max={new Date().toISOString().slice(0, 16)}
+                        onChange={(e) => setManualDate(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos são opcionais no modo manual e podem vir da galeria.</p>
                     </>
                   )}
                 </div>
