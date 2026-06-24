@@ -490,6 +490,7 @@ export default function VehicleCheckin() {
                 onPhotoChange={handlePhotoChange}
                 includeDashboard
                 vehicleType={vehicleType}
+                allowGallery={isAdmin && manualMode}
               />
 
               {/* Odometer estimation result */}
