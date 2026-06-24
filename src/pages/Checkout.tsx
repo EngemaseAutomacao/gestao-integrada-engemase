@@ -573,8 +573,8 @@ export default function Checkout() {
                   placeholder="Observação aplicada a todas as retiradas..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={1}
-                  className="min-h-9"
+                  rows={2}
+
 
                 />
               </div>
