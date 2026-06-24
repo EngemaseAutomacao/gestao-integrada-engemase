@@ -446,7 +446,13 @@ export default function Checkout() {
           {bulkMode ? (
             <form onSubmit={handleBulkCheckout} className="space-y-6">
               <div className="space-y-2">
-                <Label>Ferramentas * ({bulkSelections.size} selecionada{bulkSelections.size === 1 ? "" : "s"})</Label>
+                <Label className="flex items-center justify-between gap-2">
+                  <span>Ferramentas * ({bulkSelections.size} selecionada{bulkSelections.size === 1 ? "" : "s"})</span>
+                  <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={exitBulkMode}>
+                    <X className="w-3.5 h-3.5" /> Sair
+                  </Button>
+                </Label>
+
                 <Input
                   placeholder="Buscar por nome ou TAG..."
                   value={bulkSearch}
