@@ -351,6 +351,21 @@ export default function VehicleCheckin() {
             <CardDescription>Escolha o veículo que está retornando</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {isAdmin && (
+              <div className="flex items-center justify-between gap-2 p-2 border rounded-md bg-muted/30">
+                <Label htmlFor="manual_mode_vehicle_checkin" className="cursor-pointer text-sm">
+                  Devolução manual (em nome de outro)
+                </Label>
+                <Switch
+                  id="manual_mode_vehicle_checkin"
+                  checked={manualMode}
+                  onCheckedChange={(v) => {
+                    setManualMode(v);
+                    setSelectedCheckout("");
+                  }}
+                />
+              </div>
+            )}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -360,6 +375,7 @@ export default function VehicleCheckin() {
                 className="pl-10"
               />
             </div>
+
 
             {isLoading ? (
               <p className="text-muted-foreground text-center py-4">Carregando veículos...</p>
