@@ -32,6 +32,7 @@ export default function VehicleCheckout() {
   const isAdmin = profile?.role === "admin";
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
   const [manualMode, setManualMode] = useState(false);
+  const [manualDate, setManualDate] = useState<string>("");
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   const { isOnline, addPendingOperation } = useOffline();
@@ -231,6 +232,7 @@ export default function VehicleCheckout() {
         status: "checked_out",
         is_outside_city: isOutsideCity,
         estimated_return_time: estimatedReturnTime,
+        ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
 
@@ -276,15 +278,17 @@ export default function VehicleCheckout() {
         return;
       }
 
-      if (!allPhotos) {
+      const photosOptional = isAdmin && manualMode;
+      if (!photosOptional && !allPhotos) {
         throw new Error(isPlatform
           ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
           : "Tire todas as fotos do veículo (incluindo painel)");
       }
 
-      // Upload all required photos in parallel
+      // Upload available photos in parallel
+      const photoKeysToUpload = requiredPhotoKeys.filter((key) => !!photos[key]);
       const uploadResults = await Promise.all(
-        requiredPhotoKeys.map(async (key) => {
+        photoKeysToUpload.map(async (key) => {
           const url = await uploadPhoto(photos[key]!, `${key}_out`);
           return { key, url };
         })
@@ -412,7 +416,7 @@ export default function VehicleCheckout() {
                       checked={manualMode}
                       onCheckedChange={(v) => {
                         setManualMode(v);
-                        if (!v) setResponsibleUserId("");
+                        if (!v) { setResponsibleUserId(""); setManualDate(""); }
                       }}
                     />
                   </div>
@@ -435,6 +439,15 @@ export default function VehicleCheckout() {
                           <strong>Retirada manual:</strong> ação será registrada no log. Justificativa obrigatória no campo Observações (mín. 5 caracteres).
                         </div>
                       )}
+                      <Label htmlFor="manual_date_vehicle">Data e hora da saída (retroativa, opcional)</Label>
+                      <Input
+                        id="manual_date_vehicle"
+                        type="datetime-local"
+                        value={manualDate}
+                        max={new Date().toISOString().slice(0, 16)}
+                        onChange={(e) => setManualDate(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos são opcionais no modo manual e podem vir da galeria.</p>
                     </>
                   )}
                 </div>
@@ -623,6 +636,7 @@ export default function VehicleCheckout() {
                 onPhotoChange={handlePhotoChange}
                 includeDashboard={!isPlatform}
                 vehicleType={vehicleType}
+                allowGallery={isAdmin && manualMode}
               />
             </CardContent>
           </Card>
@@ -640,7 +654,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos) || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos && !(isAdmin && manualMode)) || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}

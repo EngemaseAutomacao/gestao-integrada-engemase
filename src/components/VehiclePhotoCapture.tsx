@@ -34,6 +34,7 @@ interface VehiclePhotoCaptureProps {
   onPhotoChange: (key: string, file: File | null, preview: string | null) => void;
   includeDashboard?: boolean;
   vehicleType?: VehicleKind;
+  allowGallery?: boolean;
 }
 
 export function getRequiredPhotoKeys(vehicleType: VehicleKind = "vehicle", includeDashboard = false): string[] {
@@ -43,7 +44,7 @@ export function getRequiredPhotoKeys(vehicleType: VehicleKind = "vehicle", inclu
   return includeDashboard ? [...BASE_ANGLES.map(a => a.key), DASHBOARD_ANGLE.key] : BASE_ANGLES.map(a => a.key);
 }
 
-export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false, vehicleType = "vehicle" }: VehiclePhotoCaptureProps) {
+export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false, vehicleType = "vehicle", allowGallery = false }: VehiclePhotoCaptureProps) {
   const ANGLES: PhotoAngle[] = vehicleType === "platform"
     ? [...BASE_ANGLES, ...PLATFORM_EXTRA_ANGLES]
     : (includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES);
@@ -84,7 +85,7 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
               ref={(el) => { inputRefs.current[angle.key] = el; }}
               type="file"
               accept="image/*"
-              capture="environment"
+              {...(allowGallery ? {} : { capture: "environment" as const })}
               className="hidden"
               onChange={(e) => handleFileChange(angle.key, e)}
             />

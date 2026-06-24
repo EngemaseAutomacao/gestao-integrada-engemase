@@ -72,6 +72,7 @@ export default function Checkout() {
   // Admin: responsible user (defaults to self)
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
   const [manualMode, setManualMode] = useState(false);
+  const [manualDate, setManualDate] = useState<string>("");
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   // Bulk mode
@@ -378,6 +379,7 @@ export default function Checkout() {
         notes: finalNotes,
         checkout_photo_url: null,
         selected_tag: hasMultipleTags ? selectedTag : (toolTags.length === 1 ? toolTags[0] : null),
+        ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
 
@@ -448,7 +450,7 @@ export default function Checkout() {
                   checked={manualMode}
                   onCheckedChange={(v) => {
                     setManualMode(v);
-                    if (!v) setResponsibleUserId("");
+                    if (!v) { setResponsibleUserId(""); setManualDate(""); }
                   }}
                 />
               </div>
@@ -467,6 +469,15 @@ export default function Checkout() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
+                  <Label htmlFor="manual_date_tool">Data e hora da retirada (retroativa, opcional)</Label>
+                  <Input
+                    id="manual_date_tool"
+                    type="datetime-local"
+                    value={manualDate}
+                    max={new Date().toISOString().slice(0, 16)}
+                    onChange={(e) => setManualDate(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual.</p>
                   {responsibleUserId && responsibleUserId !== profile!.id && (
                     <div className="mt-2 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
                       <strong>Retirada manual:</strong> ação será registrada como "manual_checkout_by_admin". Justificativa obrigatória no campo Observações (mín. 5 caracteres).

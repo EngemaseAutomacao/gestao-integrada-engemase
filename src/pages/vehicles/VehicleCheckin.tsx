@@ -44,6 +44,7 @@ export default function VehicleCheckin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [refueled, setRefueled] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [manualDate, setManualDate] = useState<string>("");
 
   // Odometer estimation state
   const [odometerResult, setOdometerResult] = useState<OdometerResult | null>(null);
@@ -129,7 +130,7 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (!isPlatform && refueled === null) throw new Error("Informe se o veículo foi abastecido");
+      if (!isPlatform && refueled === null && !(isAdmin && manualMode)) throw new Error("Informe se o veículo foi abastecido");
 
       const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
       const isAdminActingForOther = !!(isAdmin && currentCheckoutData?.user_id && currentCheckoutData.user_id !== user.id);
@@ -139,7 +140,7 @@ export default function VehicleCheckin() {
 
       const updateData: any = {
         status: "checked_in",
-        checkin_date: new Date().toISOString(),
+        checkin_date: (isAdmin && manualMode && manualDate ? new Date(manualDate) : new Date()).toISOString(),
         checked_in_by: user.id,
         notes: notes || undefined,
         km_checkin_automatic: false,
@@ -200,17 +201,19 @@ export default function VehicleCheckin() {
         return;
       }
 
-      if (!allPhotos) {
+      const photosOptional = isAdmin && manualMode;
+      if (!photosOptional && !allPhotos) {
         throw new Error(isPlatform
           ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
           : "Tire todas as fotos do veículo (incluindo painel)");
       }
 
-      // Upload all required photos in parallel (skip if already uploaded - retry after manual km)
+      // Upload provided photos in parallel (skip if already uploaded - retry after manual km)
       let urls = uploadedPhotoUrls;
       if (!urls) {
+        const keysToUpload = requiredPhotoKeys.filter((key) => !!photos[key]);
         const uploadResults = await Promise.all(
-          requiredPhotoKeys.map(async (key) => {
+          keysToUpload.map(async (key) => {
             const url = await uploadPhoto(photos[key]!, `${key}_in`);
             return { key, url };
           })
@@ -352,18 +355,34 @@ export default function VehicleCheckin() {
           </CardHeader>
           <CardContent className="space-y-4">
             {isAdmin && (
-              <div className="flex items-center justify-between gap-2 p-2 border rounded-md bg-muted/30">
-                <Label htmlFor="manual_mode_vehicle_checkin" className="cursor-pointer text-sm">
-                  Devolução manual (em nome de outro)
-                </Label>
-                <Switch
-                  id="manual_mode_vehicle_checkin"
-                  checked={manualMode}
-                  onCheckedChange={(v) => {
-                    setManualMode(v);
-                    setSelectedCheckout("");
-                  }}
-                />
+              <div className="space-y-2 p-2 border rounded-md bg-muted/30">
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="manual_mode_vehicle_checkin" className="cursor-pointer text-sm">
+                    Devolução manual (em nome de outro)
+                  </Label>
+                  <Switch
+                    id="manual_mode_vehicle_checkin"
+                    checked={manualMode}
+                    onCheckedChange={(v) => {
+                      setManualMode(v);
+                      setSelectedCheckout("");
+                      if (!v) setManualDate("");
+                    }}
+                  />
+                </div>
+                {manualMode && (
+                  <>
+                    <Label htmlFor="manual_date_vehicle_checkin">Data e hora da chegada (retroativa, opcional)</Label>
+                    <Input
+                      id="manual_date_vehicle_checkin"
+                      type="datetime-local"
+                      value={manualDate}
+                      max={new Date().toISOString().slice(0, 16)}
+                      onChange={(e) => setManualDate(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos são opcionais no modo manual e podem vir da galeria.</p>
+                  </>
+                )}
               </div>
             )}
             <div className="relative">
@@ -471,6 +490,7 @@ export default function VehicleCheckin() {
                 onPhotoChange={handlePhotoChange}
                 includeDashboard
                 vehicleType={vehicleType}
+                allowGallery={isAdmin && manualMode}
               />
 
               {/* Odometer estimation result */}
@@ -568,8 +588,8 @@ export default function VehicleCheckin() {
             type="submit"
             disabled={
               !selectedCheckout || 
-              (isOnline && !allPhotos) || 
-              refueled === null || 
+              (isOnline && !allPhotos && !(isAdmin && manualMode)) || 
+              (refueled === null && !(isAdmin && manualMode)) || 
               checkinMutation.isPending ||
               isEstimatingKm
             }
