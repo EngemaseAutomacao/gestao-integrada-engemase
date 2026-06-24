@@ -226,6 +226,8 @@ export default function Checkout() {
   }, [tools, bulkSearch]);
 
   const enterBulkMode = () => {
+    setPreBulkToolId(selectedToolId);
+    setPreBulkTag(selectedTag);
     setBulkMode(true);
     setSelectedToolId("");
     setSelectedTag("");
@@ -236,7 +238,12 @@ export default function Checkout() {
     setBulkSelections(new Map());
     setBulkSearch("");
     setBulkSelectionConfirmed(false);
+    setSelectedToolId(preBulkToolId);
+    setSelectedTag(preBulkTag);
+    setPreBulkToolId("");
+    setPreBulkTag("");
   };
+
 
   const handleBulkCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
