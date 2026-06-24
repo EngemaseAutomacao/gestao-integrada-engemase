@@ -575,7 +575,7 @@ export default function Checkout() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={1}
-                  className="min-h-9 resize-none"
+                  className="min-h-9 resize-none overflow-hidden"
                 />
 
               </div>
