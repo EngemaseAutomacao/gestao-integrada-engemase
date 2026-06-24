@@ -349,7 +349,10 @@ export default function UnifiedHistory({
         </div>
       </div>
 
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardContent className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-4">
       {Object.keys(grouped).length === 0 ? (
+
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
             Nenhuma atividade no período selecionado
