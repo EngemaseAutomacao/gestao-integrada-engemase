@@ -419,17 +419,6 @@ export default function Checkout() {
       <div className="max-w-4xl mx-auto space-y-6">
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center justify-end -mt-2 mb-4">
-            {bulkMode ? (
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={exitBulkMode}>
-                <X className="w-4 h-4" /> Sair do modo múltiplo
-              </Button>
-            ) : (
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={enterBulkMode}>
-                <CheckSquare className="w-4 h-4" /> Retirada em Lote
-              </Button>
-            )}
-          </div>
           {isAdmin && (
 
             <div className="space-y-2 mb-6 p-3 border rounded-md bg-muted/30">
@@ -457,7 +446,13 @@ export default function Checkout() {
           {bulkMode ? (
             <form onSubmit={handleBulkCheckout} className="space-y-6">
               <div className="space-y-2">
-                <Label>Ferramentas * ({bulkSelections.size} selecionada{bulkSelections.size === 1 ? "" : "s"})</Label>
+                <Label className="flex items-center justify-between gap-2">
+                  <span>Ferramentas * ({bulkSelections.size} selecionada{bulkSelections.size === 1 ? "" : "s"})</span>
+                  <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={exitBulkMode}>
+                    <X className="w-3.5 h-3.5" /> Sair
+                  </Button>
+                </Label>
+
                 <Input
                   placeholder="Buscar por nome ou TAG..."
                   value={bulkSearch}
@@ -581,7 +576,13 @@ export default function Checkout() {
           <form onSubmit={handleCheckout} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
-                <Label htmlFor="tool">Ferramenta *</Label>
+                <Label htmlFor="tool" className="flex items-center justify-between gap-2">
+                  <span>Ferramenta *</span>
+                  <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={enterBulkMode}>
+                    <CheckSquare className="w-3.5 h-3.5" /> Retirada em Lote
+                  </Button>
+                </Label>
+
                 <Select
                   key={selectedToolId || "empty"}
                   value={selectedToolId}
