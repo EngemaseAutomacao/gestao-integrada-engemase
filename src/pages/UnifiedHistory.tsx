@@ -291,7 +291,7 @@ export default function UnifiedHistory({
 
 
 
-      <div className="flex gap-2 items-center justify-between flex-wrap" role="group" aria-label="Filtros do histórico">
+      <div className="flex gap-2 items-center justify-between flex-wrap shrink-0" role="group" aria-label="Filtros do histórico">
         <div className="flex gap-2 flex-wrap">
           <Select value={periodFilter} onValueChange={setPeriodFilter}>
             <SelectTrigger className="w-[140px]" aria-label="Filtrar por período">
