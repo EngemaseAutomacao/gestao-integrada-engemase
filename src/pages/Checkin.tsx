@@ -177,7 +177,7 @@ export default function Checkin() {
         checkoutId: selectedCheckoutId,
         updates: {
           status: "checked_in" as const,
-          checkin_date: new Date().toISOString(),
+          checkin_date: (isAdmin && manualMode && manualDate ? new Date(manualDate) : new Date()).toISOString(),
           checked_in_by: profile!.id,
           notes: notes.trim() ? notes : null,
           checkin_photo_url: photoUrl,
