@@ -309,7 +309,7 @@ export default function Checkin() {
                   placeholder={isAdminActingForOther ? "Ex.: usuário ausente, ferramenta devolvida no almoxarifado..." : "Adicione observações sobre o retorno..."}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
+                  rows={2}
                   required={isAdminActingForOther}
                 />
               </div>
