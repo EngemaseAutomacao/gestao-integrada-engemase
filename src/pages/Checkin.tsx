@@ -319,7 +319,7 @@ export default function Checkin() {
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
-                {selectedCheckoutId && false && null}
+                
 
                 <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="w-full">
                   Cancelar
