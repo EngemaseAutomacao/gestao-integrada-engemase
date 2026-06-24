@@ -239,21 +239,37 @@ export default function Checkin() {
       <Card>
         <CardContent className="pt-4">
           {isAdmin && (
-            <div className="flex items-center justify-between gap-2 mb-4 p-2 border rounded-md bg-muted/30">
-              <Label htmlFor="manual_mode_checkin" className="cursor-pointer text-sm">
-                Devolução manual (em nome de outro)
-              </Label>
-              <Switch
-                id="manual_mode_checkin"
-                checked={manualMode}
-                onCheckedChange={(v) => {
-                  setManualMode(v);
-                  setSelectedCheckoutId("");
-                  setSelectedToolName("");
-                  setSelectedTag("");
-                  setSelectedSite("");
-                }}
-              />
+            <div className="space-y-2 mb-4 p-2 border rounded-md bg-muted/30">
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="manual_mode_checkin" className="cursor-pointer text-sm">
+                  Devolução manual (em nome de outro)
+                </Label>
+                <Switch
+                  id="manual_mode_checkin"
+                  checked={manualMode}
+                  onCheckedChange={(v) => {
+                    setManualMode(v);
+                    setSelectedCheckoutId("");
+                    setSelectedToolName("");
+                    setSelectedTag("");
+                    setSelectedSite("");
+                    if (!v) setManualDate("");
+                  }}
+                />
+              </div>
+              {manualMode && (
+                <>
+                  <Label htmlFor="manual_date_checkin">Data e hora da devolução (retroativa, opcional)</Label>
+                  <Input
+                    id="manual_date_checkin"
+                    type="datetime-local"
+                    value={manualDate}
+                    max={new Date().toISOString().slice(0, 16)}
+                    onChange={(e) => setManualDate(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual.</p>
+                </>
+              )}
             </div>
           )}
           {visibleCheckouts.length === 0 && !loadingCheckouts ? (
