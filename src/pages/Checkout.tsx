@@ -475,7 +475,7 @@ export default function Checkout() {
                     onChange={(e) => setBulkSearch(e.target.value)}
                   />
                 )}
-                <div className="border rounded-md divide-y max-h-[171px] overflow-y-auto">
+                <div className="border rounded-md divide-y max-h-[114px] overflow-y-auto">
                   {(() => {
                     const list = bulkSelectionConfirmed
                       ? tools.filter(t => bulkSelections.has(t.id))
@@ -573,8 +573,8 @@ export default function Checkout() {
                   placeholder="Observação aplicada a todas as retiradas..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={1}
-                  className="min-h-9"
+                  rows={2}
+
 
                 />
               </div>
@@ -692,7 +692,7 @@ export default function Checkout() {
 
             <div className="space-y-2">
               <Label htmlFor="notes">Observações (opcional)</Label>
-              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={1} className="min-h-9" />
+              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
             </div>
 
 
