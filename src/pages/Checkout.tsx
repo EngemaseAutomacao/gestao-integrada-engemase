@@ -570,7 +570,13 @@ export default function Checkout() {
           <form onSubmit={handleCheckout} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               <div className="space-y-2">
-                <Label htmlFor="tool">Ferramenta *</Label>
+                <Label htmlFor="tool" className="flex items-center justify-between gap-2">
+                  <span>Ferramenta *</span>
+                  <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={enterBulkMode}>
+                    <CheckSquare className="w-3.5 h-3.5" /> Retirada em Lote
+                  </Button>
+                </Label>
+
                 <Select
                   key={selectedToolId || "empty"}
                   value={selectedToolId}
