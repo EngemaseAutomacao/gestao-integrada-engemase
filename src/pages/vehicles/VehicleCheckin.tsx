@@ -44,6 +44,7 @@ export default function VehicleCheckin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [refueled, setRefueled] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
+  const [manualDate, setManualDate] = useState<string>("");
 
   // Odometer estimation state
   const [odometerResult, setOdometerResult] = useState<OdometerResult | null>(null);
