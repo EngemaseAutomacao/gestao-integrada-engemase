@@ -313,54 +313,14 @@ export default function Checkin() {
                   required={isAdminActingForOther}
                 />
               </div>
-              {/* Photo Capture */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Foto da Ferramenta (opcional)</Label>
-                  {photoConfirmed && (
-                    <Badge variant="secondary" className="gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Capturada
-                    </Badge>
-                  )}
-                </div>
-
-                {!photoConfirmed ? (
-                  <PhotoCapture onCapture={handlePhotoCapture} title="Registrar estado da ferramenta na devolução" />
-                ) : (
-                  <div className="relative">
-                    <img src={photoDataUrl!} alt="Foto capturada" className="w-full h-48 object-cover rounded-lg" />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => { setPhotoConfirmed(false); setPhotoDataUrl(null); }}
-                    >
-                      Refazer
-                    </Button>
-                  </div>
-                )}
-              </div>
 
               <div className="flex flex-col gap-3">
                 <Button type="submit" disabled={loading || !selectedCheckoutId} className="w-full">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Devolução
                 </Button>
-                {selectedCheckoutId && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    asChild
-                    className="w-full"
-                  >
-                    <Link to={`/report-issue?checkoutId=${selectedCheckoutId}`}>
-                      <AlertCircle className="h-4 w-4 mr-2" />
-                      Reportar Problema
-                    </Link>
-                  </Button>
-                )}
+                
+
                 <Button type="button" variant="outline" onClick={() => navigate("/ferramentas")} className="w-full">
                   Cancelar
                 </Button>
