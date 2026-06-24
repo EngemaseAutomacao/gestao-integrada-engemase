@@ -528,7 +528,7 @@ export default function Checkout() {
                     disabled={bulkSelections.size === 0}
                     onClick={() => setBulkSelectionConfirmed(true)}
                   >
-                    OK · Confirmar seleção ({bulkSelections.size})
+                    Confirmar Saída
                   </Button>
                 )}
               </div>
