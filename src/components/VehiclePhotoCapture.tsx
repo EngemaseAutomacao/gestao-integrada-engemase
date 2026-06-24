@@ -44,7 +44,7 @@ export function getRequiredPhotoKeys(vehicleType: VehicleKind = "vehicle", inclu
   return includeDashboard ? [...BASE_ANGLES.map(a => a.key), DASHBOARD_ANGLE.key] : BASE_ANGLES.map(a => a.key);
 }
 
-export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false, vehicleType = "vehicle" }: VehiclePhotoCaptureProps) {
+export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false, vehicleType = "vehicle", allowGallery = false }: VehiclePhotoCaptureProps) {
   const ANGLES: PhotoAngle[] = vehicleType === "platform"
     ? [...BASE_ANGLES, ...PLATFORM_EXTRA_ANGLES]
     : (includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES);
