@@ -125,9 +125,11 @@ export default function AdminHistory() {
     }
   };
 
-  if (!profile || profile.role !== "admin") {
+  if (!profile) {
     return <Navigate to="/" />;
   }
+  const isAdmin = profile.role === "admin";
+
 
   const getDateRange = () => {
     const now = new Date();
