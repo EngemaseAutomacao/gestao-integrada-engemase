@@ -14,9 +14,10 @@ export default function AdminHistorico() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "ferramentas";
 
-  if (!profile || profile.role !== "admin") {
+  if (!profile) {
     return <Navigate to="/" />;
   }
+
 
   return (
     <div className="space-y-6">
