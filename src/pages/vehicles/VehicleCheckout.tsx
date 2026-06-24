@@ -232,6 +232,7 @@ export default function VehicleCheckout() {
         status: "checked_out",
         is_outside_city: isOutsideCity,
         estimated_return_time: estimatedReturnTime,
+        ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
 
