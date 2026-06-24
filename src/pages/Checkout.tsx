@@ -408,20 +408,21 @@ export default function Checkout() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <ModuleHero
         narrow
+        compact
         eyebrow="Módulo · Ferramentas"
         title="Registrar Saída"
         subtitle={bulkMode ? "Selecione várias ferramentas para retirar de uma vez" : "Registre a saída de uma ferramenta"}
       />
 
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-3">
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-4 sm:p-5">
           {isAdmin && (
 
-            <div className="space-y-2 mb-6 p-3 border rounded-md bg-muted/30">
+            <div className="space-y-2 mb-4 p-2 border rounded-md bg-muted/30">
               <Label htmlFor="responsible_user">Responsável pela retirada (admin)</Label>
               <Select value={responsibleUserId || profile!.id} onValueChange={(v) => setResponsibleUserId(v === profile!.id ? "" : v)}>
                 <SelectTrigger id="responsible_user">
@@ -444,7 +445,7 @@ export default function Checkout() {
           )}
 
           {bulkMode ? (
-            <form onSubmit={handleBulkCheckout} className="space-y-6">
+            <form onSubmit={handleBulkCheckout} className="space-y-4">
               <div className="space-y-2">
                 <Label className="flex items-center justify-between gap-2">
                   <span>Ferramentas * ({bulkSelections.size} selecionada{bulkSelections.size === 1 ? "" : "s"})</span>
@@ -503,7 +504,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="construction_site_bulk">Obra de Destino *</Label>
                   <ConstructionSiteAutocomplete
@@ -549,7 +550,7 @@ export default function Checkout() {
                   placeholder="Observação aplicada a todas as retiradas..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
+                  rows={2}
                 />
               </div>
 
@@ -564,7 +565,7 @@ export default function Checkout() {
                 {tagError}
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3">
                 <Button type="submit" disabled={loading || bulkSelections.size === 0 || !constructionSite.trim() || !estimatedReturnDate} className="flex-1">
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Confirmar Saída de {bulkSelections.size || ""} {bulkSelections.size === 1 ? "Ferramenta" : "Ferramentas"}
@@ -573,8 +574,8 @@ export default function Checkout() {
               </div>
             </form>
           ) : (
-          <form onSubmit={handleCheckout} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <form onSubmit={handleCheckout} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="tool" className="flex items-center justify-between gap-2">
                   <span>Ferramenta *</span>
@@ -666,7 +667,7 @@ export default function Checkout() {
 
             <div className="space-y-2">
               <Label htmlFor="notes">Observações (opcional)</Label>
-              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
             </div>
 
 
@@ -680,7 +681,7 @@ export default function Checkout() {
               {tagError}
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3">
               <Button type="submit" disabled={loading || !selectedToolId || (hasMultipleTags && !selectedTag) || !constructionSite.trim() || !estimatedReturnDate} className="flex-1">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Confirmar Saída
