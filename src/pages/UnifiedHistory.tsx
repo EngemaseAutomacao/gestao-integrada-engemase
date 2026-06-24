@@ -281,11 +281,14 @@ export default function UnifiedHistory({
   }
 
   return (
-    <div className="animate-fade-in">
+    <div className={`animate-fade-in ${!embedded ? "flex flex-col h-full min-h-0" : ""}`}>
       {!embedded && (
-        <ModuleHero eyebrow="Módulo · Histórico" title={title || "Meu Histórico"} subtitle={description} />
+        <div className="shrink-0">
+          <ModuleHero eyebrow="Módulo · Histórico" title={title || "Meu Histórico"} subtitle={description} />
+        </div>
       )}
-      <div className={`space-y-4 max-w-3xl mx-auto ${!embedded ? "px-3 sm:px-6 -mt-14 sm:-mt-16 relative z-10" : ""}`}>
+      <div className={`space-y-4 max-w-3xl mx-auto w-full ${!embedded ? "px-3 sm:px-6 -mt-14 sm:-mt-16 relative z-10 flex-1 min-h-0 flex flex-col" : ""}`}>
+
 
 
       <div className="flex gap-2 items-center justify-between flex-wrap" role="group" aria-label="Filtros do histórico">
