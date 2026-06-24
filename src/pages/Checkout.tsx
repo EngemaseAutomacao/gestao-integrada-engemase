@@ -463,7 +463,7 @@ export default function Checkout() {
                   value={bulkSearch}
                   onChange={(e) => setBulkSearch(e.target.value)}
                 />
-                <div className="border rounded-md max-h-[360px] overflow-y-auto divide-y">
+                <div className="border rounded-md divide-y">
                   {filteredTools.length === 0 && (
                     <p className="text-sm text-muted-foreground p-3">Nenhuma ferramenta encontrada.</p>
                   )}
