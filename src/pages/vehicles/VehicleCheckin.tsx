@@ -367,7 +367,7 @@ export default function VehicleCheckin() {
                     onCheckedChange={(v) => {
                       setManualMode(v);
                       setSelectedCheckout("");
-                      if (!v) setManualDate("");
+                      if (!v) { setManualDate(""); setSkipPhotos(false); }
                     }}
                   />
                 </div>
