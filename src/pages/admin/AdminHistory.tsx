@@ -143,8 +143,8 @@ export default function AdminHistory() {
 
   const filteredHistory = history.filter((entry) => {
     const matchesSearch = 
-      entry.tools?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles?.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.tools?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (entry.construction_site && entry.construction_site.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesStatus = 

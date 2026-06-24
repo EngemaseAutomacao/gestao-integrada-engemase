@@ -165,9 +165,9 @@ export default function AdminVehicleHistory() {
 
   const filteredHistory = history.filter((entry) => {
     const matchesSearch =
-      entry.vehicles?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.vehicles?.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles?.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.vehicles?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.vehicles?.plate?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (entry.destination && entry.destination.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesStatus =
