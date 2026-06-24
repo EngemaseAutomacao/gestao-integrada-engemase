@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import VehiclePhotoCapture, { getRequiredPhotoKeys } from "@/components/VehiclePhotoCapture";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 interface OdometerResult {
   checkout_km: number | null;
@@ -42,6 +43,7 @@ export default function VehicleCheckin() {
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [refueled, setRefueled] = useState<string | null>(null);
+  const [manualMode, setManualMode] = useState(false);
 
   // Odometer estimation state
   const [odometerResult, setOdometerResult] = useState<OdometerResult | null>(null);
@@ -295,7 +297,10 @@ export default function VehicleCheckin() {
     }
   });
 
-  const filteredCheckouts = activeCheckouts?.filter(checkout =>
+  const baseCheckouts = isAdmin && !manualMode
+    ? activeCheckouts?.filter((c: any) => c.user_id === user?.id)
+    : activeCheckouts;
+  const filteredCheckouts = baseCheckouts?.filter((checkout: any) =>
     checkout.vehicles.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     checkout.vehicles.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
     checkout.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -346,6 +351,21 @@ export default function VehicleCheckin() {
             <CardDescription>Escolha o veículo que está retornando</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {isAdmin && (
+              <div className="flex items-center justify-between gap-2 p-2 border rounded-md bg-muted/30">
+                <Label htmlFor="manual_mode_vehicle_checkin" className="cursor-pointer text-sm">
+                  Devolução manual (em nome de outro)
+                </Label>
+                <Switch
+                  id="manual_mode_vehicle_checkin"
+                  checked={manualMode}
+                  onCheckedChange={(v) => {
+                    setManualMode(v);
+                    setSelectedCheckout("");
+                  }}
+                />
+              </div>
+            )}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -355,6 +375,7 @@ export default function VehicleCheckin() {
                 className="pl-10"
               />
             </div>
+
 
             {isLoading ? (
               <p className="text-muted-foreground text-center py-4">Carregando veículos...</p>
@@ -395,7 +416,9 @@ export default function VehicleCheckin() {
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-4">
-                Nenhum veículo em uso no momento
+                {isAdmin && !manualMode
+                  ? "Você não possui veículos em uso. Ative \"Devolução manual\" para devolver em nome de outro usuário."
+                  : "Nenhum veículo em uso no momento"}
               </p>
             )}
           </CardContent>

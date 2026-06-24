@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { vibrate, VibrationPatterns, shareContent } from "@/lib/pwa";
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from "lucide-react";
@@ -53,6 +54,7 @@ export default function Checkin() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
+  const [manualMode, setManualMode] = useState(false);
   const toolIdParam = searchParams.get("toolId");
   const checkoutIdParam = searchParams.get("checkoutId");
 
@@ -134,6 +136,10 @@ export default function Checkin() {
 
   const selectedCheckout = checkouts.find(c => c.id === selectedCheckoutId);
   const isAdminActingForOther = !!(isAdmin && selectedCheckout && selectedCheckout.user_id !== profile?.id);
+  const visibleCheckouts = isAdmin && !manualMode
+    ? checkouts.filter(c => c.user_id === profile?.id)
+    : checkouts;
+
 
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,9 +237,29 @@ export default function Checkin() {
       <div className="max-w-4xl mx-auto space-y-4">
       <Card>
         <CardContent className="pt-4">
-          {checkouts.length === 0 && !loadingCheckouts ? (
+          {isAdmin && (
+            <div className="flex items-center justify-between gap-2 mb-4 p-2 border rounded-md bg-muted/30">
+              <Label htmlFor="manual_mode_checkin" className="cursor-pointer text-sm">
+                Devolução manual (em nome de outro)
+              </Label>
+              <Switch
+                id="manual_mode_checkin"
+                checked={manualMode}
+                onCheckedChange={(v) => {
+                  setManualMode(v);
+                  setSelectedCheckoutId("");
+                  setSelectedToolName("");
+                  setSelectedTag("");
+                  setSelectedSite("");
+                }}
+              />
+            </div>
+          )}
+          {visibleCheckouts.length === 0 && !loadingCheckouts ? (
             <p className="text-center text-muted-foreground py-8">
-              Você não possui ferramentas para devolver
+              {isAdmin && !manualMode
+                ? "Você não possui ferramentas para devolver. Ative \"Devolução manual\" para devolver em nome de outro usuário."
+                : "Nenhuma ferramenta para devolver"}
             </p>
           ) : (
             <form onSubmit={handleCheckin} className="space-y-4">
@@ -258,7 +284,7 @@ export default function Checkin() {
                       <SelectValue placeholder="Selecione a ferramenta" className="truncate" />
                     </SelectTrigger>
                     <SelectContent className="max-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)]">
-                      {checkouts.map((checkout) => (
+                      {visibleCheckouts.map((checkout) => (
                         <SelectItem key={checkout.id} value={checkout.id} className="whitespace-normal break-words pr-8">
                           <span className="block text-sm leading-snug">
                             {checkout.tools.name}

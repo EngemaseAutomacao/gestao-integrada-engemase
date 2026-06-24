@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CheckCircle, CheckSquare, X } from "lucide-react";
@@ -70,6 +71,7 @@ export default function Checkout() {
 
   // Admin: responsible user (defaults to self)
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [manualMode, setManualMode] = useState(false);
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   // Bulk mode
@@ -439,26 +441,42 @@ export default function Checkout() {
           {isAdmin && (
 
             <div className="space-y-2 mb-4 p-2 border rounded-md bg-muted/30">
-              <Label htmlFor="responsible_user">Responsável pela retirada (admin)</Label>
-              <Select value={responsibleUserId || profile!.id} onValueChange={(v) => setResponsibleUserId(v === profile!.id ? "" : v)}>
-                <SelectTrigger id="responsible_user">
-                  <SelectValue placeholder="Selecione o responsável" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={profile!.id}>Eu mesmo ({profile!.full_name})</SelectItem>
-                  {approvedUsers.filter(u => u.id !== profile!.id).map(u => (
-                    <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
-              {responsibleUserId && responsibleUserId !== profile!.id && (
-                <div className="mt-2 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
-                  <strong>Retirada manual:</strong> ação será registrada como "manual_checkout_by_admin". Justificativa obrigatória no campo Observações (mín. 5 caracteres).
-                </div>
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="manual_mode_tool" className="cursor-pointer">Retirada manual (em nome de outro)</Label>
+                <Switch
+                  id="manual_mode_tool"
+                  checked={manualMode}
+                  onCheckedChange={(v) => {
+                    setManualMode(v);
+                    if (!v) setResponsibleUserId("");
+                  }}
+                />
+              </div>
+              {manualMode && (
+                <>
+                  <Label htmlFor="responsible_user">Responsável pela retirada</Label>
+                  <Select value={responsibleUserId || profile!.id} onValueChange={(v) => setResponsibleUserId(v === profile!.id ? "" : v)}>
+                    <SelectTrigger id="responsible_user">
+                      <SelectValue placeholder="Selecione o responsável" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={profile!.id}>Eu mesmo ({profile!.full_name})</SelectItem>
+                      {approvedUsers.filter(u => u.id !== profile!.id).map(u => (
+                        <SelectItem key={u.id} value={u.id}>{u.full_name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
+                  {responsibleUserId && responsibleUserId !== profile!.id && (
+                    <div className="mt-2 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
+                      <strong>Retirada manual:</strong> ação será registrada como "manual_checkout_by_admin". Justificativa obrigatória no campo Observações (mín. 5 caracteres).
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
+
 
           {bulkMode ? (
             <form onSubmit={handleBulkCheckout} className="space-y-4">
