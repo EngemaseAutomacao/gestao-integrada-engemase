@@ -449,7 +449,7 @@ export default function Checkout() {
                   checked={manualMode}
                   onCheckedChange={(v) => {
                     setManualMode(v);
-                    if (!v) setResponsibleUserId("");
+                    if (!v) { setResponsibleUserId(""); setManualDate(""); }
                   }}
                 />
               </div>
