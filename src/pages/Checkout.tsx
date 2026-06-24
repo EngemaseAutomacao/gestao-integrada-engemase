@@ -470,7 +470,7 @@ export default function Checkout() {
                     onChange={(e) => setBulkSearch(e.target.value)}
                   />
                 )}
-                <div className="border rounded-md divide-y max-h-[280px] overflow-y-auto">
+                <div className="border rounded-md divide-y max-h-[186px] overflow-y-auto">
                   {(() => {
                     const list = bulkSelectionConfirmed
                       ? tools.filter(t => bulkSelections.has(t.id))
@@ -528,7 +528,7 @@ export default function Checkout() {
                     disabled={bulkSelections.size === 0}
                     onClick={() => setBulkSelectionConfirmed(true)}
                   >
-                    OK · Confirmar seleção ({bulkSelections.size})
+                    Confirmar Saída
                   </Button>
                 )}
               </div>
