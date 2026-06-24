@@ -45,6 +45,7 @@ export default function VehicleCheckin() {
   const [refueled, setRefueled] = useState<string | null>(null);
   const [manualMode, setManualMode] = useState(false);
   const [manualDate, setManualDate] = useState<string>("");
+  const [skipPhotos, setSkipPhotos] = useState(false);
 
   // Odometer estimation state
   const [odometerResult, setOdometerResult] = useState<OdometerResult | null>(null);
@@ -201,7 +202,7 @@ export default function VehicleCheckin() {
         return;
       }
 
-      const photosOptional = isAdmin && manualMode;
+      const photosOptional = isAdmin && manualMode && skipPhotos;
       if (!photosOptional && !allPhotos) {
         throw new Error(isPlatform
           ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
@@ -366,7 +367,7 @@ export default function VehicleCheckin() {
                     onCheckedChange={(v) => {
                       setManualMode(v);
                       setSelectedCheckout("");
-                      if (!v) setManualDate("");
+                      if (!v) { setManualDate(""); setSkipPhotos(false); }
                     }}
                   />
                 </div>
@@ -380,7 +381,15 @@ export default function VehicleCheckin() {
                       max={new Date().toISOString().slice(0, 16)}
                       onChange={(e) => setManualDate(e.target.value)}
                     />
-                    <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos são opcionais no modo manual e podem vir da galeria.</p>
+                    <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos podem vir da galeria no modo manual.</p>
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t">
+                      <Label htmlFor="skip_photos_vehicle_checkin" className="cursor-pointer text-sm">Dispensar fotos obrigatórias</Label>
+                      <Switch
+                        id="skip_photos_vehicle_checkin"
+                        checked={skipPhotos}
+                        onCheckedChange={setSkipPhotos}
+                      />
+                    </div>
                   </>
                 )}
               </div>
@@ -588,7 +597,7 @@ export default function VehicleCheckin() {
             type="submit"
             disabled={
               !selectedCheckout || 
-              (isOnline && !allPhotos && !(isAdmin && manualMode)) || 
+              (isOnline && !allPhotos && !(isAdmin && manualMode && skipPhotos)) || 
               (refueled === null && !(isAdmin && manualMode)) || 
               checkinMutation.isPending ||
               isEstimatingKm

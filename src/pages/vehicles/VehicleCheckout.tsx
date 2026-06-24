@@ -33,6 +33,7 @@ export default function VehicleCheckout() {
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
   const [manualMode, setManualMode] = useState(false);
   const [manualDate, setManualDate] = useState<string>("");
+  const [skipPhotos, setSkipPhotos] = useState(false);
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   const { isOnline, addPendingOperation } = useOffline();
@@ -278,7 +279,7 @@ export default function VehicleCheckout() {
         return;
       }
 
-      const photosOptional = isAdmin && manualMode;
+      const photosOptional = isAdmin && manualMode && skipPhotos;
       if (!photosOptional && !allPhotos) {
         throw new Error(isPlatform
           ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
@@ -416,7 +417,7 @@ export default function VehicleCheckout() {
                       checked={manualMode}
                       onCheckedChange={(v) => {
                         setManualMode(v);
-                        if (!v) { setResponsibleUserId(""); setManualDate(""); }
+                        if (!v) { setResponsibleUserId(""); setManualDate(""); setSkipPhotos(false); }
                       }}
                     />
                   </div>
@@ -447,7 +448,15 @@ export default function VehicleCheckout() {
                         max={new Date().toISOString().slice(0, 16)}
                         onChange={(e) => setManualDate(e.target.value)}
                       />
-                      <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos são opcionais no modo manual e podem vir da galeria.</p>
+                      <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual. Fotos podem vir da galeria no modo manual.</p>
+                      <div className="flex items-center justify-between gap-2 pt-2 border-t">
+                        <Label htmlFor="skip_photos_vehicle" className="cursor-pointer text-sm">Dispensar fotos obrigatórias</Label>
+                        <Switch
+                          id="skip_photos_vehicle"
+                          checked={skipPhotos}
+                          onCheckedChange={setSkipPhotos}
+                        />
+                      </div>
                     </>
                   )}
                 </div>
@@ -654,7 +663,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos && !(isAdmin && manualMode)) || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos && !(isAdmin && manualMode && skipPhotos)) || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}
