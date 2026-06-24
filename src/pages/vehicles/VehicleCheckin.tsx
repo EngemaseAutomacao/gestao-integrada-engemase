@@ -201,17 +201,19 @@ export default function VehicleCheckin() {
         return;
       }
 
-      if (!allPhotos) {
+      const photosOptional = isAdmin && manualMode;
+      if (!photosOptional && !allPhotos) {
         throw new Error(isPlatform
           ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
           : "Tire todas as fotos do veículo (incluindo painel)");
       }
 
-      // Upload all required photos in parallel (skip if already uploaded - retry after manual km)
+      // Upload provided photos in parallel (skip if already uploaded - retry after manual km)
       let urls = uploadedPhotoUrls;
       if (!urls) {
+        const keysToUpload = requiredPhotoKeys.filter((key) => !!photos[key]);
         const uploadResults = await Promise.all(
-          requiredPhotoKeys.map(async (key) => {
+          keysToUpload.map(async (key) => {
             const url = await uploadPhoto(photos[key]!, `${key}_in`);
             return { key, url };
           })
