@@ -85,7 +85,7 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
               ref={(el) => { inputRefs.current[angle.key] = el; }}
               type="file"
               accept="image/*"
-              capture="environment"
+              {...(allowGallery ? {} : { capture: "environment" as const })}
               className="hidden"
               onChange={(e) => handleFileChange(angle.key, e)}
             />
