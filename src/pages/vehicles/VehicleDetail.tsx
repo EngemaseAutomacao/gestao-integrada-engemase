@@ -142,7 +142,7 @@ export default function VehicleDetail() {
         subtitle="Detalhes e histórico completo"
         floating={
           <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
               <div>
                 <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Placa</p>
                 <Badge variant="secondary" className="text-xs font-mono mt-1">{vehicle.plate}</Badge>
@@ -159,6 +159,18 @@ export default function VehicleDetail() {
                   <p className="text-sm font-medium mt-1">{vehicle.model}</p>
                 </div>
               )}
+              {vehicle.color && (
+                <div>
+                  <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Cor</p>
+                  <p className="text-sm font-medium mt-1">{vehicle.color}</p>
+                </div>
+              )}
+              {vehicle.year && (
+                <div>
+                  <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Ano</p>
+                  <p className="text-sm font-medium mt-1">{vehicle.year}</p>
+                </div>
+              )}
               <div>
                 <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Status</p>
                 <Badge className={`mt-1 ${isAvailable ? "bg-green-500" : "bg-yellow-500"}`}>
@@ -170,32 +182,7 @@ export default function VehicleDetail() {
         }
       />
 
-      {(vehicle.color || vehicle.year) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Car className="w-5 h-5" />
-              Informações do Veículo
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 p-4 md:p-6">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-              {vehicle.color && (
-                <div>
-                  <p className="text-xs md:text-sm font-medium">Cor</p>
-                  <p className="text-sm text-muted-foreground">{vehicle.color}</p>
-                </div>
-              )}
-              {vehicle.year && (
-                <div>
-                  <p className="text-xs md:text-sm font-medium">Ano</p>
-                  <p className="text-sm text-muted-foreground">{vehicle.year}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+
 
 
       {/* Checkout History */}
