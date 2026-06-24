@@ -283,12 +283,6 @@ export default function VehicleDetail() {
               {issues.length} problemas registrados
             </CardDescription>
           </div>
-          <Button asChild size="sm" className="w-full sm:w-auto">
-            <Link to={`/veiculos/report-issue?vehicleId=${id}`}>
-              <AlertCircle className="h-4 w-4 mr-2" />
-              Reportar Problema
-            </Link>
-          </Button>
         </CardHeader>
         <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
           {issues.length === 0 ? (
