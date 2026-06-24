@@ -73,8 +73,10 @@ export function AppSidebar() {
       items: [
         { title: "Início", url: "/", icon: Home },
         { title: "Meu Histórico", url: "/historico", icon: History },
+        { title: "Histórico Geral", url: "/admin/historico", icon: ClipboardList },
       ],
     },
+
     {
       label: "Ferramentas",
       items: [

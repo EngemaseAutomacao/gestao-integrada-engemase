@@ -14,17 +14,19 @@ export default function AdminHistorico() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "ferramentas";
 
-  if (!profile || profile.role !== "admin") {
+  if (!profile) {
     return <Navigate to="/" />;
   }
+
 
   return (
     <div className="space-y-6">
       <ModuleHero
-        eyebrow="Módulo · Administração"
+        eyebrow="Módulo · Histórico"
         title="Histórico Geral"
         subtitle="Movimentações de ferramentas e veículos"
       />
+
 
       <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md">
