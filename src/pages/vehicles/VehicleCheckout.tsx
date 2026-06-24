@@ -636,6 +636,7 @@ export default function VehicleCheckout() {
                 onPhotoChange={handlePhotoChange}
                 includeDashboard={!isPlatform}
                 vehicleType={vehicleType}
+                allowGallery={isAdmin && manualMode}
               />
             </CardContent>
           </Card>
