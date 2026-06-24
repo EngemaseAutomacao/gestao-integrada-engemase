@@ -21,6 +21,8 @@ import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
+type VehicleHistoryCategory = "engemase_employee" | "third_party" | "socios" | null;
+
 interface VehicleHistoryEntry {
   id: string;
   checkout_date: string;
@@ -45,11 +47,11 @@ interface VehicleHistoryEntry {
   vehicles: {
     name: string;
     plate: string;
-  };
+  } | null;
   profiles: {
     full_name: string;
-    category: "engemase_employee" | "third_party" | "socios";
-  };
+    category: VehicleHistoryCategory;
+  } | null;
   checked_out_by_profile: {
     full_name: string;
   } | null;
@@ -64,37 +66,34 @@ export default function AdminVehicleHistory() {
   const { data: history = [], isLoading: loading } = useQuery<VehicleHistoryEntry[]>({
     queryKey: ["admin-vehicle-history"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("vehicle_checkouts")
-        .select(`
-          id,
-          checkout_date,
-          checkin_date,
-          status,
-          destination,
-          km_checkout,
-          km_checkin,
-          km_checkin_automatic,
-          refueled,
-          notes,
-          photo_front_checkout,
-          photo_back_checkout,
-          photo_left_checkout,
-          photo_right_checkout,
-          photo_dashboard_checkout,
-          photo_front_checkin,
-          photo_back_checkin,
-          photo_left_checkin,
-          photo_right_checkin,
-          photo_dashboard_checkin,
-          vehicles (name, plate),
-          profiles:profiles!vehicle_checkouts_user_id_fkey (full_name, category),
-          checked_out_by_profile:profiles!vehicle_checkouts_checked_out_by_fkey (full_name),
-          checked_in_by_profile:profiles!vehicle_checkouts_checked_in_by_fkey (full_name)
-        `)
-        .order("checkout_date", { ascending: false });
+      const { data, error } = await supabase.rpc("get_general_vehicle_history");
       if (error) throw error;
-      return (data as any) || [];
+      return (data || []).map((entry) => ({
+        id: entry.id,
+        checkout_date: entry.checkout_date,
+        checkin_date: entry.checkin_date,
+        status: entry.status,
+        destination: entry.destination,
+        km_checkout: entry.km_checkout,
+        km_checkin: entry.km_checkin,
+        km_checkin_automatic: entry.km_checkin_automatic,
+        refueled: entry.refueled,
+        notes: entry.notes,
+        photo_front_checkout: entry.photo_front_checkout,
+        photo_back_checkout: entry.photo_back_checkout,
+        photo_left_checkout: entry.photo_left_checkout,
+        photo_right_checkout: entry.photo_right_checkout,
+        photo_dashboard_checkout: entry.photo_dashboard_checkout,
+        photo_front_checkin: entry.photo_front_checkin,
+        photo_back_checkin: entry.photo_back_checkin,
+        photo_left_checkin: entry.photo_left_checkin,
+        photo_right_checkin: entry.photo_right_checkin,
+        photo_dashboard_checkin: entry.photo_dashboard_checkin,
+        vehicles: entry.vehicle_name || entry.vehicle_plate ? { name: entry.vehicle_name || "Veículo", plate: entry.vehicle_plate || "-" } : null,
+        profiles: { full_name: entry.user_full_name || "Usuário não encontrado", category: entry.user_category as VehicleHistoryCategory },
+        checked_out_by_profile: entry.checked_out_by_full_name ? { full_name: entry.checked_out_by_full_name } : null,
+        checked_in_by_profile: entry.checked_in_by_full_name ? { full_name: entry.checked_in_by_full_name } : null,
+      }));
     },
     staleTime: 30_000,
   });
@@ -196,12 +195,22 @@ export default function AdminVehicleHistory() {
     setPeriodFilter("all");
   };
 
-  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
+  const getCategoryLabel = (category: VehicleHistoryCategory | undefined) => {
+    if (category === "engemase_employee") return "Funcionário";
+    if (category === "socios") return "Sócio";
+    if (category === "third_party") return "Terceirizado";
+    return "-";
+  };
+
+  const getCategoryBadge = (category: VehicleHistoryCategory | undefined) => {
     if (category === "engemase_employee") {
       return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
     }
     if (category === "socios") {
       return <Badge className="bg-primary text-primary-foreground">Sócio</Badge>;
+    }
+    if (!category) {
+      return <span className="text-muted-foreground">-</span>;
     }
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };
@@ -294,8 +303,8 @@ export default function AdminVehicleHistory() {
     const rows = filteredHistory.map((e) => [
       e.vehicles?.name,
       e.vehicles?.plate,
-      e.profiles?.full_name,
-      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
+      e.profiles?.full_name || "Usuário não encontrado",
+      getCategoryLabel(e.profiles?.category),
       e.destination || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.km_checkout.toLocaleString(),
@@ -322,8 +331,8 @@ export default function AdminVehicleHistory() {
     const rows = filteredHistory.map((e) => [
       e.vehicles?.name,
       e.vehicles?.plate,
-      e.profiles?.full_name,
-      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
+      e.profiles?.full_name || "Usuário não encontrado",
+      getCategoryLabel(e.profiles?.category),
       e.destination || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.km_checkout,
