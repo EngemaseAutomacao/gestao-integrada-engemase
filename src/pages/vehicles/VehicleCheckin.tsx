@@ -416,7 +416,9 @@ export default function VehicleCheckin() {
               </div>
             ) : (
               <p className="text-muted-foreground text-center py-4">
-                Nenhum veículo em uso no momento
+                {isAdmin && !manualMode
+                  ? "Você não possui veículos em uso. Ative \"Devolução manual\" para devolver em nome de outro usuário."
+                  : "Nenhum veículo em uso no momento"}
               </p>
             )}
           </CardContent>
