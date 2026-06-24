@@ -1347,6 +1347,60 @@ export type Database = {
         }[]
       }
       get_email_from_username: { Args: { _username: string }; Returns: string }
+      get_general_tool_history: {
+        Args: never
+        Returns: {
+          checked_in_by_full_name: string
+          checked_out_by_full_name: string
+          checkin_date: string
+          checkin_photo_url: string
+          checkin_signature_url: string
+          checkout_date: string
+          checkout_photo_url: string
+          checkout_signature_url: string
+          construction_site: string
+          estimated_return_date: string
+          id: string
+          notes: string
+          selected_tag: string
+          status: string
+          tool_name: string
+          tool_tag: string
+          user_category: string
+          user_full_name: string
+        }[]
+      }
+      get_general_vehicle_history: {
+        Args: never
+        Returns: {
+          checked_in_by_full_name: string
+          checked_out_by_full_name: string
+          checkin_date: string
+          checkout_date: string
+          destination: string
+          id: string
+          km_checkin: number
+          km_checkin_automatic: boolean
+          km_checkout: number
+          notes: string
+          photo_back_checkin: string
+          photo_back_checkout: string
+          photo_dashboard_checkin: string
+          photo_dashboard_checkout: string
+          photo_front_checkin: string
+          photo_front_checkout: string
+          photo_left_checkin: string
+          photo_left_checkout: string
+          photo_right_checkin: string
+          photo_right_checkout: string
+          refueled: boolean
+          status: string
+          user_category: string
+          user_full_name: string
+          vehicle_name: string
+          vehicle_plate: string
+        }[]
+      }
       get_last_cron_run: { Args: { _jobname: string }; Returns: string }
       get_tool_usage_history: {
         Args: { tool_uuid: string }
