@@ -237,11 +237,12 @@ export default function VehicleDetail() {
 
                       <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm">
                         {checkout.destination && (
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                            <span className="truncate">{checkout.destination}</span>
+                          <div className="flex items-start gap-1.5 w-full min-w-0">
+                            <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                            <span className="break-words min-w-0 flex-1">{checkout.destination}</span>
                           </div>
                         )}
+
                         <div className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                           <span>{getDaysUsed(checkout)} dias</span>
