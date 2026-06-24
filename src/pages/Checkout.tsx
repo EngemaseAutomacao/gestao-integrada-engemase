@@ -573,7 +573,9 @@ export default function Checkout() {
                   placeholder="Observação aplicada a todas as retiradas..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
+                  rows={1}
+                  className="min-h-9"
+
                 />
               </div>
 
@@ -690,7 +692,7 @@ export default function Checkout() {
 
             <div className="space-y-2">
               <Label htmlFor="notes">Observações (opcional)</Label>
-              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+              <Textarea id="notes" placeholder="Adicione observações sobre o uso..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={1} className="min-h-9" />
             </div>
 
 
