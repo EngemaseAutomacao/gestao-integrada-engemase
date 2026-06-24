@@ -597,7 +597,7 @@ export default function VehicleCheckin() {
             type="submit"
             disabled={
               !selectedCheckout || 
-              (isOnline && !allPhotos && !(isAdmin && manualMode)) || 
+              (isOnline && !allPhotos && !(isAdmin && manualMode && skipPhotos)) || 
               (refueled === null && !(isAdmin && manualMode)) || 
               checkinMutation.isPending ||
               isEstimatingKm
