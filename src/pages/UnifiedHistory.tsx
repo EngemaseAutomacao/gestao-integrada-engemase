@@ -557,7 +557,10 @@ export default function UnifiedHistory({
           </div>
         ))
       )}
+        </CardContent>
+      </Card>
       </div>
     </div>
+
   );
 }
