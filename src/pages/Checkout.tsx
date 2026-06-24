@@ -77,6 +77,7 @@ export default function Checkout() {
   const [bulkSelections, setBulkSelections] = useState<Map<string, BulkSelection>>(new Map());
   const [bulkActiveTags, setBulkActiveTags] = useState<Record<string, string[]>>({});
   const [bulkSearch, setBulkSearch] = useState("");
+  const [bulkSelectionConfirmed, setBulkSelectionConfirmed] = useState(false);
   const [tagError, setTagError] = useState("");
 
   // Tool condition at checkout
@@ -232,6 +233,7 @@ export default function Checkout() {
     setBulkMode(false);
     setBulkSelections(new Map());
     setBulkSearch("");
+    setBulkSelectionConfirmed(false);
   };
 
   const handleBulkCheckout = async (e: React.FormEvent) => {
@@ -449,60 +451,88 @@ export default function Checkout() {
               <div className="space-y-2">
                 <Label className="flex items-center justify-between gap-2">
                   <span>Ferramentas * ({bulkSelections.size} selecionada{bulkSelections.size === 1 ? "" : "s"})</span>
-                  <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={exitBulkMode}>
-                    <X className="w-3.5 h-3.5" /> Sair
-                  </Button>
+                  <div className="flex gap-2">
+                    {bulkSelectionConfirmed && (
+                      <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={() => setBulkSelectionConfirmed(false)}>
+                        Editar
+                      </Button>
+                    )}
+                    <Button type="button" variant="outline" size="sm" className="gap-1 h-7" onClick={exitBulkMode}>
+                      <X className="w-3.5 h-3.5" /> Sair
+                    </Button>
+                  </div>
                 </Label>
 
-                <Input
-                  placeholder="Buscar por nome ou TAG..."
-                  value={bulkSearch}
-                  onChange={(e) => setBulkSearch(e.target.value)}
-                />
-                <div className="border rounded-md divide-y">
-                  {filteredTools.length === 0 && (
-                    <p className="text-sm text-muted-foreground p-3">Nenhuma ferramenta encontrada.</p>
-                  )}
-                  {filteredTools.map((tool) => {
-                    const isSelected = bulkSelections.has(tool.id);
-                    const tags = (tool.tag || "").split(",").map(s => s.trim()).filter(Boolean);
-                    const activeForTool = bulkActiveTags[tool.id] || [];
-                    const availableTags = tags.filter(t => !activeForTool.includes(t));
-                    const sel = bulkSelections.get(tool.id);
-                    return (
-                      <div key={tool.id} className="flex flex-col gap-2 p-2 sm:p-3 hover:bg-muted/40">
-                        <label className="flex items-start gap-3 cursor-pointer">
-                          <Checkbox checked={isSelected} onCheckedChange={() => toggleBulkTool(tool.id)} className="mt-1" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{tool.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              Disponível: {tool.quantity_available}
-                              {tags.length > 0 && ` · TAGs: ${tags.join(", ")}`}
-                            </p>
-                          </div>
-                        </label>
-                        {isSelected && tags.length > 1 && (
-                          <div className="pl-8">
-                            <Select
-                              value={sel?.selectedTag || ""}
-                              onValueChange={(v) => setBulkToolTag(tool.id, v)}
-                            >
-                              <SelectTrigger className="h-8 text-xs">
-                                <SelectValue placeholder={availableTags.length === 0 ? "Todas as TAGs em uso" : "Selecione a TAG"} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {availableTags.map((t) => (
-                                  <SelectItem key={t} value={t}>TAG {t}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                {!bulkSelectionConfirmed && (
+                  <Input
+                    placeholder="Buscar por nome ou TAG..."
+                    value={bulkSearch}
+                    onChange={(e) => setBulkSearch(e.target.value)}
+                  />
+                )}
+                <div className="border rounded-md divide-y max-h-[280px] overflow-y-auto">
+                  {(() => {
+                    const list = bulkSelectionConfirmed
+                      ? tools.filter(t => bulkSelections.has(t.id))
+                      : filteredTools;
+                    if (list.length === 0) {
+                      return <p className="text-sm text-muted-foreground p-3">Nenhuma ferramenta {bulkSelectionConfirmed ? "selecionada" : "encontrada"}.</p>;
+                    }
+                    return list.map((tool) => {
+                      const isSelected = bulkSelections.has(tool.id);
+                      const tags = (tool.tag || "").split(",").map(s => s.trim()).filter(Boolean);
+                      const activeForTool = bulkActiveTags[tool.id] || [];
+                      const availableTags = tags.filter(t => !activeForTool.includes(t));
+                      const sel = bulkSelections.get(tool.id);
+                      return (
+                        <div key={tool.id} className="flex flex-col gap-2 p-2 sm:p-3 hover:bg-muted/40">
+                          <label className={cn("flex items-start gap-3", !bulkSelectionConfirmed && "cursor-pointer")}>
+                            {!bulkSelectionConfirmed && (
+                              <Checkbox checked={isSelected} onCheckedChange={() => toggleBulkTool(tool.id)} className="mt-1" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{tool.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Disponível: {tool.quantity_available}
+                                {tags.length > 0 && ` · TAGs: ${tags.join(", ")}`}
+                              </p>
+                            </div>
+                          </label>
+                          {isSelected && tags.length > 1 && (
+                            <div className={bulkSelectionConfirmed ? "" : "pl-8"}>
+                              <Select
+                                value={sel?.selectedTag || ""}
+                                onValueChange={(v) => setBulkToolTag(tool.id, v)}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue placeholder={availableTags.length === 0 ? "Todas as TAGs em uso" : "Selecione a TAG"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableTags.map((t) => (
+                                    <SelectItem key={t} value={t}>TAG {t}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
+                {!bulkSelectionConfirmed && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-full"
+                    disabled={bulkSelections.size === 0}
+                    onClick={() => setBulkSelectionConfirmed(true)}
+                  >
+                    OK · Confirmar seleção ({bulkSelections.size})
+                  </Button>
+                )}
               </div>
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -537,8 +567,8 @@ export default function Checkout() {
                     <SelectValue placeholder="Selecione o estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Completo">Completo</SelectItem>
-                    <SelectItem value="Incompleto">Incompleto</SelectItem>
+                    <SelectItem value="Incompleta">Incompleta</SelectItem>
+                    <SelectItem value="Completa">Completa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -659,8 +689,8 @@ export default function Checkout() {
                   <SelectValue placeholder="Selecione o estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Completo">Completo</SelectItem>
-                  <SelectItem value="Incompleto">Incompleto</SelectItem>
+                  <SelectItem value="Incompleta">Incompleta</SelectItem>
+                  <SelectItem value="Completa">Completa</SelectItem>
                 </SelectContent>
               </Select>
             </div>
