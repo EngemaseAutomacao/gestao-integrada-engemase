@@ -646,7 +646,7 @@ export default function Checkout() {
                     <SelectItem value="30">30 Dias</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">A devolução será prevista para a data de hoje somada ao prazo selecionado.</p>
+                
               </div>
 
             </div>
