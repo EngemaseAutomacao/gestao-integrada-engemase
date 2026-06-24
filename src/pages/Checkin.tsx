@@ -136,6 +136,10 @@ export default function Checkin() {
 
   const selectedCheckout = checkouts.find(c => c.id === selectedCheckoutId);
   const isAdminActingForOther = !!(isAdmin && selectedCheckout && selectedCheckout.user_id !== profile?.id);
+  const visibleCheckouts = isAdmin && !manualMode
+    ? checkouts.filter(c => c.user_id === profile?.id)
+    : checkouts;
+
 
   const handleCheckin = async (e: React.FormEvent) => {
     e.preventDefault();
