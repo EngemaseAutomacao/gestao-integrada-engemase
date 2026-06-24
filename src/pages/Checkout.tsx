@@ -233,6 +233,7 @@ export default function Checkout() {
     setBulkMode(false);
     setBulkSelections(new Map());
     setBulkSearch("");
+    setBulkSelectionConfirmed(false);
   };
 
   const handleBulkCheckout = async (e: React.FormEvent) => {
