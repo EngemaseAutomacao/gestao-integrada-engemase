@@ -31,6 +31,7 @@ export default function VehicleCheckout() {
   const { user, profile } = useAuth();
   const isAdmin = profile?.role === "admin";
   const [responsibleUserId, setResponsibleUserId] = useState<string>("");
+  const [manualMode, setManualMode] = useState(false);
   const [approvedUsers, setApprovedUsers] = useState<{ id: string; full_name: string }[]>([]);
 
   const { isOnline, addPendingOperation } = useOffline();
