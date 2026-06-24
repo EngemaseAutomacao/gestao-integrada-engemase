@@ -567,8 +567,8 @@ export default function Checkout() {
                     <SelectValue placeholder="Selecione o estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Completo">Completo</SelectItem>
-                    <SelectItem value="Incompleto">Incompleto</SelectItem>
+                    <SelectItem value="Incompleta">Incompleta</SelectItem>
+                    <SelectItem value="Completa">Completa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
