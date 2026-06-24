@@ -444,7 +444,7 @@ export default function Dashboard() {
                 size="sm"
                 variant="default"
                 className="text-xs gap-1"
-                onClick={() => navigate("/checkout?bulk=1")}
+                onClick={() => navigate("/ferramentas/retirada?bulk=1")}
               >
                 <CheckSquare className="w-3.5 h-3.5" /> Saída em Lote
               </Button>
