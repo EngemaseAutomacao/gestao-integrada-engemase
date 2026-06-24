@@ -54,6 +54,7 @@ export default function Checkin() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingCheckouts, setLoadingCheckouts] = useState(true);
+  const [manualMode, setManualMode] = useState(false);
   const toolIdParam = searchParams.get("toolId");
   const checkoutIdParam = searchParams.get("checkoutId");
 
