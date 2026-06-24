@@ -410,7 +410,7 @@ export default function Checkout() {
 
 
   return (
-    <div className="h-full flex flex-col space-y-3 min-h-0">
+    <div className="h-full flex flex-col space-y-3 min-h-0 overflow-hidden">
       <div className="shrink-0 -mx-3 sm:-mx-4 md:-mx-6 -mt-3 sm:-mt-4 md:-mt-6">
         <ModuleHero
           narrow
