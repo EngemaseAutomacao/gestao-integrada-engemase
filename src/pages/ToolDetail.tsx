@@ -51,7 +51,7 @@ interface CheckoutRecord {
     full_name: string;
     email: string;
     category: string;
-  };
+  } | null;
 }
 
 interface ToolIssue {
@@ -198,7 +198,7 @@ export default function ToolDetail() {
         <div className="space-y-2 md:space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="font-semibold text-sm md:text-base truncate">{checkout.user_profile.full_name}</p>
+              <p className="font-semibold text-sm md:text-base truncate">{checkout.user_profile?.full_name || "Usuário não encontrado"}</p>
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
