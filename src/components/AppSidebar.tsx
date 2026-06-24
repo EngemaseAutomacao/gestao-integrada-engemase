@@ -97,7 +97,6 @@ export function AppSidebar() {
               { title: "Dashboard", url: "/admin", icon: Shield },
               { title: "Usuários", url: "/admin/users", icon: Users },
               { title: "Problemas", url: "/admin/problemas", icon: AlertCircle },
-              { title: "Histórico Geral", url: "/admin/historico", icon: ClipboardList },
               { title: "Obras e Clientes", url: "/admin/construction-sites", icon: Building2 },
               { title: "Analytics", url: "/admin/analytics-hub", icon: BarChart3 },
               { title: "Relatórios", url: "/admin/reports", icon: FileText },
