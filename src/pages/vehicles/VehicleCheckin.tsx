@@ -140,7 +140,7 @@ export default function VehicleCheckin() {
 
       const updateData: any = {
         status: "checked_in",
-        checkin_date: new Date().toISOString(),
+        checkin_date: (isAdmin && manualMode && manualDate ? new Date(manualDate) : new Date()).toISOString(),
         checked_in_by: user.id,
         notes: notes || undefined,
         km_checkin_automatic: false,
