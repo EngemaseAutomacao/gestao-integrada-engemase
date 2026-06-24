@@ -34,6 +34,7 @@ interface VehiclePhotoCaptureProps {
   onPhotoChange: (key: string, file: File | null, preview: string | null) => void;
   includeDashboard?: boolean;
   vehicleType?: VehicleKind;
+  allowGallery?: boolean;
 }
 
 export function getRequiredPhotoKeys(vehicleType: VehicleKind = "vehicle", includeDashboard = false): string[] {
