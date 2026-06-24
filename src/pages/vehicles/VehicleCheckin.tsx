@@ -297,7 +297,10 @@ export default function VehicleCheckin() {
     }
   });
 
-  const filteredCheckouts = activeCheckouts?.filter(checkout =>
+  const baseCheckouts = isAdmin && !manualMode
+    ? activeCheckouts?.filter((c: any) => c.user_id === user?.id)
+    : activeCheckouts;
+  const filteredCheckouts = baseCheckouts?.filter((checkout: any) =>
     checkout.vehicles.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     checkout.vehicles.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
     checkout.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
