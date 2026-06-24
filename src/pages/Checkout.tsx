@@ -475,7 +475,7 @@ export default function Checkout() {
                     onChange={(e) => setBulkSearch(e.target.value)}
                   />
                 )}
-                <div className="border rounded-md divide-y max-h-[186px] overflow-y-auto">
+                <div className="border rounded-md divide-y max-h-[171px] overflow-y-auto">
                   {(() => {
                     const list = bulkSelectionConfirmed
                       ? tools.filter(t => bulkSelections.has(t.id))
