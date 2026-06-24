@@ -22,7 +22,7 @@ export function ModuleHero({ eyebrow, title, subtitle, compact, floating, inline
       <header
         className={cn(
           "relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground px-4 sm:px-6 md:px-8 lg:px-12 rounded-b-3xl lg:rounded-b-[2rem]",
-          compact ? "pt-3 sm:pt-4 lg:pt-5 pb-5 sm:pb-6 lg:pb-8" : "pt-4 sm:pt-6 lg:pt-8 pb-8 sm:pb-12 lg:pb-16"
+          compact ? "pt-3 sm:pt-4 lg:pt-5 pb-5 sm:pb-6 lg:pb-8" : "pt-4 sm:pt-6 lg:pt-8 pb-16 sm:pb-20 lg:pb-24"
         )}
       >
         <div className="absolute -top-10 -right-10 w-40 h-40 lg:w-96 lg:h-96 rounded-full bg-white/10 blur-2xl lg:blur-3xl pointer-events-none" />
