@@ -135,65 +135,72 @@ export default function VehicleDetail() {
   const isAvailable = vehicle.status === "available";
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-20 md:pb-6">
+    <div className="flex flex-col gap-4 md:gap-6 h-full min-h-0 pb-2">
       <ModuleHero
         eyebrow="Módulo · Veículos"
         title={vehicle.name}
         subtitle="Detalhes e histórico completo"
-      />
-
-
-      {/* Vehicle Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Car className="w-5 h-5" />
-            Informações do Veículo
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 p-4 md:p-6">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-            <div>
-              <p className="text-xs md:text-sm font-medium">Placa</p>
-              <Badge variant="secondary" className="text-sm mt-1">{vehicle.plate}</Badge>
-            </div>
-            {vehicle.brand && (
+        floating={
+          <div className="rounded-2xl bg-card border shadow-elevated p-3 sm:p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               <div>
-                <p className="text-xs md:text-sm font-medium">Marca</p>
-                <p className="text-sm text-muted-foreground">{vehicle.brand}</p>
+                <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Placa</p>
+                <Badge variant="secondary" className="text-xs font-mono mt-1">{vehicle.plate}</Badge>
               </div>
-            )}
-            {vehicle.model && (
+              {vehicle.brand && (
+                <div>
+                  <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Marca</p>
+                  <p className="text-sm font-medium mt-1">{vehicle.brand}</p>
+                </div>
+              )}
+              {vehicle.model && (
+                <div>
+                  <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Modelo</p>
+                  <p className="text-sm font-medium mt-1">{vehicle.model}</p>
+                </div>
+              )}
               <div>
-                <p className="text-xs md:text-sm font-medium">Modelo</p>
-                <p className="text-sm text-muted-foreground">{vehicle.model}</p>
+                <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Status</p>
+                <Badge className={`mt-1 ${isAvailable ? "bg-green-500" : "bg-yellow-500"}`}>
+                  {isAvailable ? "Disponível" : "Em uso"}
+                </Badge>
               </div>
-            )}
-            {vehicle.color && (
-              <div>
-                <p className="text-xs md:text-sm font-medium">Cor</p>
-                <p className="text-sm text-muted-foreground">{vehicle.color}</p>
-              </div>
-            )}
-            {vehicle.year && (
-              <div>
-                <p className="text-xs md:text-sm font-medium">Ano</p>
-                <p className="text-sm text-muted-foreground">{vehicle.year}</p>
-              </div>
-            )}
-            <div>
-              <p className="text-xs md:text-sm font-medium">Status</p>
-              <Badge className={isAvailable ? "bg-green-500" : "bg-yellow-500"}>
-                {isAvailable ? "Disponível" : "Em uso"}
-              </Badge>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        }
+      />
+
+      {(vehicle.color || vehicle.year) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Car className="w-5 h-5" />
+              Informações do Veículo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 p-4 md:p-6">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {vehicle.color && (
+                <div>
+                  <p className="text-xs md:text-sm font-medium">Cor</p>
+                  <p className="text-sm text-muted-foreground">{vehicle.color}</p>
+                </div>
+              )}
+              {vehicle.year && (
+                <div>
+                  <p className="text-xs md:text-sm font-medium">Ano</p>
+                  <p className="text-sm text-muted-foreground">{vehicle.year}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
 
       {/* Checkout History */}
-      <Card>
-        <CardHeader className="p-4 md:p-6">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardHeader className="p-4 md:p-6 shrink-0">
           <CardTitle className="flex items-center gap-2 text-base md:text-lg">
             <History className="w-4 h-4 md:w-5 md:h-5" />
             Histórico de Uso
@@ -202,7 +209,8 @@ export default function VehicleDetail() {
             {checkouts.length} registros de uso
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
+        <CardContent className="p-4 md:p-6 pt-0 md:pt-0 flex-1 min-h-0 overflow-y-auto">
+
           {checkouts.length === 0 ? (
             <p className="text-center text-muted-foreground py-6 text-sm">Nenhum uso registrado</p>
           ) : (
