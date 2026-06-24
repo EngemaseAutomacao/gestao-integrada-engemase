@@ -202,7 +202,7 @@ export default function VehicleCheckin() {
         return;
       }
 
-      const photosOptional = isAdmin && manualMode;
+      const photosOptional = isAdmin && manualMode && skipPhotos;
       if (!photosOptional && !allPhotos) {
         throw new Error(isPlatform
           ? "Tire todas as fotos da plataforma (4 lados + controle + 4 rodas)"
