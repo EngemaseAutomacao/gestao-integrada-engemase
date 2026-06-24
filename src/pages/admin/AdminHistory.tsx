@@ -38,11 +38,11 @@ interface HistoryEntry {
   tools: {
     name: string;
     tag: string | null;
-  };
+  } | null;
   profiles: {
     full_name: string;
-    category: "engemase_employee" | "third_party" | "socios";
-  };
+    category: "engemase_employee" | "third_party" | "socios" | null;
+  } | null;
   checked_out_by_profile: {
     full_name: string;
   } | null;
@@ -58,29 +58,26 @@ export default function AdminHistory() {
   const { data: history = [], isLoading: loading } = useQuery<HistoryEntry[]>({
     queryKey: ["admin-history"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tool_checkouts")
-        .select(`
-          id,
-          checkout_date,
-          checkin_date,
-          status,
-          construction_site,
-          selected_tag,
-          estimated_return_date,
-          notes,
-          checkout_photo_url,
-          checkin_photo_url,
-          checkout_signature_url,
-          checkin_signature_url,
-          tools (name, tag),
-          profiles!tool_checkouts_user_id_fkey (full_name, category),
-          checked_out_by_profile:profiles!tool_checkouts_checked_out_by_fkey (full_name),
-          checked_in_by_profile:profiles!tool_checkouts_checked_in_by_fkey (full_name)
-        `)
-        .order("checkout_date", { ascending: false });
+      const { data, error } = await supabase.rpc("get_general_tool_history");
       if (error) throw error;
-      return (data as any) || [];
+      return (data || []).map((entry) => ({
+        id: entry.id,
+        checkout_date: entry.checkout_date,
+        checkin_date: entry.checkin_date,
+        status: entry.status,
+        construction_site: entry.construction_site,
+        selected_tag: entry.selected_tag,
+        estimated_return_date: entry.estimated_return_date,
+        checkout_photo_url: entry.checkout_photo_url,
+        checkin_photo_url: entry.checkin_photo_url,
+        checkout_signature_url: entry.checkout_signature_url,
+        checkin_signature_url: entry.checkin_signature_url,
+        tools: entry.tool_name || entry.tool_tag ? { name: entry.tool_name || "Ferramenta", tag: entry.tool_tag } : null,
+        profiles: { full_name: entry.user_full_name || "Usuário não encontrado", category: entry.user_category as HistoryEntry["profiles"]["category"] },
+        checked_out_by_profile: entry.checked_out_by_full_name ? { full_name: entry.checked_out_by_full_name } : null,
+        checked_in_by_profile: entry.checked_in_by_full_name ? { full_name: entry.checked_in_by_full_name } : null,
+        notes: entry.notes,
+      }));
     },
     staleTime: 30_000,
   });
@@ -173,12 +170,22 @@ export default function AdminHistory() {
     setPeriodFilter("all");
   };
 
-  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios") => {
+  const getCategoryLabel = (category: "engemase_employee" | "third_party" | "socios" | null | undefined) => {
+    if (category === "engemase_employee") return "Funcionário";
+    if (category === "socios") return "Sócio";
+    if (category === "third_party") return "Terceirizado";
+    return "-";
+  };
+
+  const getCategoryBadge = (category: "engemase_employee" | "third_party" | "socios" | null | undefined) => {
     if (category === "engemase_employee") {
       return <Badge className="bg-badge-employee text-badge-employee-foreground">Funcionário</Badge>;
     }
     if (category === "socios") {
       return <Badge className="bg-primary text-primary-foreground">Sócio</Badge>;
+    }
+    if (!category) {
+      return <span className="text-muted-foreground">-</span>;
     }
     return <Badge className="bg-badge-thirdparty text-badge-thirdparty-foreground">Terceirizado</Badge>;
   };
@@ -202,8 +209,8 @@ export default function AdminHistory() {
     const rows = filteredHistory.map((e) => [
       e.tools?.name,
       e.selected_tag || e.tools?.tag || "-",
-      e.profiles?.full_name,
-      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
+      e.profiles?.full_name || "Usuário não encontrado",
+      getCategoryLabel(e.profiles?.category),
       e.construction_site || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
@@ -229,8 +236,8 @@ export default function AdminHistory() {
     const rows = filteredHistory.map((e) => [
       e.tools?.name,
       e.selected_tag || e.tools?.tag || "-",
-      e.profiles?.full_name,
-      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
+      e.profiles?.full_name || "Usuário não encontrado",
+      getCategoryLabel(e.profiles?.category),
       e.construction_site || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
