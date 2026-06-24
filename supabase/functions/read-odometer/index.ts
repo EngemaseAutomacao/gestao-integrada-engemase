@@ -35,11 +35,54 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Path shape validation: must be inside the veiculos/ prefix, no traversal.
+    const isSafePath = (p: unknown): p is string =>
+      typeof p === "string" &&
+      p.length > 0 &&
+      p.length < 512 &&
+      !p.includes("..") &&
+      !p.startsWith("/") &&
+      p.startsWith("veiculos/");
+
+    if (!isSafePath(checkout_photo_path) || !isSafePath(checkin_photo_path)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid photo path" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Ownership/authorization check: the checkout photo must belong to a vehicle_checkout
+    // owned by the caller, OR the caller must be an admin. This prevents arbitrary path
+    // -> signed URL bypass of storage RLS.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+    const isAdmin = profile?.role === "admin";
+
+    if (!isAdmin) {
+      const { data: ownedCheckout } = await supabase
+        .from("vehicle_checkouts")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("photo_dashboard_checkout", checkout_photo_path)
+        .maybeSingle();
+
+      if (!ownedCheckout) {
+        return new Response(
+          JSON.stringify({ error: "Forbidden" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
 
     // Generate signed URLs for both photos
     const [checkoutUrlResult, checkinUrlResult] = await Promise.all([
