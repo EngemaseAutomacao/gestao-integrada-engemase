@@ -220,7 +220,7 @@ export default function Checkin() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ModuleHero
         narrow
         eyebrow="Módulo · Ferramentas"
@@ -228,15 +228,16 @@ export default function Checkin() {
         subtitle="Registre a devolução de uma ferramenta"
       />
 
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-4">
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="pt-4">
           {checkouts.length === 0 && !loadingCheckouts ? (
             <p className="text-center text-muted-foreground py-8">
               Você não possui ferramentas para devolver
             </p>
           ) : (
-            <form onSubmit={handleCheckin} className="space-y-6">
+            <form onSubmit={handleCheckin} className="space-y-4">
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="checkout">Ferramenta para Devolver *</Label>
