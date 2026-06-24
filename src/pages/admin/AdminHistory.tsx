@@ -110,8 +110,8 @@ export default function AdminHistory() {
         user_id: profile!.id,
         user_name: profile!.full_name,
         details: {
-          tool_name: deleteDialog.entry.tools.name,
-          user_name: deleteDialog.entry.profiles.full_name,
+          tool_name: deleteDialog.entry.tools?.name,
+          user_name: deleteDialog.entry.profiles?.full_name,
           reason,
         },
       });
@@ -143,15 +143,15 @@ export default function AdminHistory() {
 
   const filteredHistory = history.filter((entry) => {
     const matchesSearch = 
-      entry.tools.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.profiles.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.tools?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (entry.construction_site && entry.construction_site.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesStatus = 
       statusFilter === "all" || entry.status === statusFilter;
     
     const matchesCategory = 
-      categoryFilter === "all" || entry.profiles.category === categoryFilter;
+      categoryFilter === "all" || entry.profiles?.category === categoryFilter;
 
     const dateRange = getDateRange();
     const matchesPeriod = !dateRange || (
@@ -198,10 +198,10 @@ export default function AdminHistory() {
     }
     const headers = ["Ferramenta", "TAG", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Observações"];
     const rows = filteredHistory.map((e) => [
-      e.tools.name,
-      e.selected_tag || e.tools.tag || "-",
-      e.profiles.full_name,
-      e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      e.tools?.name,
+      e.selected_tag || e.tools?.tag || "-",
+      e.profiles?.full_name,
+      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
       e.construction_site || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
@@ -225,10 +225,10 @@ export default function AdminHistory() {
     }
     const headers = ["Ferramenta", "TAG", "Usuário", "Categoria", "Obra", "Retirada", "Devolução", "Status", "Retirado por", "Devolvido por", "Observações"];
     const rows = filteredHistory.map((e) => [
-      e.tools.name,
-      e.selected_tag || e.tools.tag || "-",
-      e.profiles.full_name,
-      e.profiles.category === "engemase_employee" ? "Funcionário" : e.profiles.category === "socios" ? "Sócio" : "Terceirizado",
+      e.tools?.name,
+      e.selected_tag || e.tools?.tag || "-",
+      e.profiles?.full_name,
+      e.profiles?.category === "engemase_employee" ? "Funcionário" : e.profiles?.category === "socios" ? "Sócio" : "Terceirizado",
       e.construction_site || "-",
       format(new Date(e.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
@@ -371,8 +371,8 @@ export default function AdminHistory() {
                 id: entry.id,
                 date: entry.status === "checked_in" && entry.checkin_date ? entry.checkin_date : entry.checkout_date,
                 action: entry.status === "checked_out" ? "Retirada" : "Devolução",
-                description: `${entry.tools.name}${entry.construction_site ? ` — ${entry.construction_site}` : ""}`,
-                user: entry.profiles.full_name,
+                description: `${entry.tools?.name}${entry.construction_site ? ` — ${entry.construction_site}` : ""}`,
+                user: entry.profiles?.full_name,
                 type: entry.status === "checked_out" ? "checkout" : "checkin",
               }))}
             />
@@ -398,17 +398,17 @@ export default function AdminHistory() {
                       <TableRow key={entry.id}>
                         <TableCell className="font-medium">
                           <div className="flex flex-col">
-                            <span>{entry.tools.name}</span>
-                            {(entry.selected_tag || entry.tools.tag) && (
+                            <span>{entry.tools?.name}</span>
+                            {(entry.selected_tag || entry.tools?.tag) && (
                               <span className="text-[10px] font-mono text-muted-foreground uppercase">
-                                TAG: {entry.selected_tag || entry.tools.tag}
+                                TAG: {entry.selected_tag || entry.tools?.tag}
                               </span>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>{entry.construction_site || "-"}</TableCell>
-                        <TableCell>{entry.profiles.full_name}</TableCell>
-                        <TableCell>{getCategoryBadge(entry.profiles.category)}</TableCell>
+                        <TableCell>{entry.profiles?.full_name}</TableCell>
+                        <TableCell>{getCategoryBadge(entry.profiles?.category)}</TableCell>
                         <TableCell>
                           {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                         </TableCell>
@@ -454,17 +454,17 @@ export default function AdminHistory() {
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                         <p className="font-semibold">
-                                          {selectedEntry.tools.name}
-                                          {(selectedEntry.selected_tag || selectedEntry.tools.tag) && (
+                                          {selectedEntry.tools?.name}
+                                          {(selectedEntry.selected_tag || selectedEntry.tools?.tag) && (
                                             <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded uppercase">
-                                              TAG: {selectedEntry.selected_tag || selectedEntry.tools.tag}
+                                              TAG: {selectedEntry.selected_tag || selectedEntry.tools?.tag}
                                             </span>
                                           )}
                                         </p>
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                        <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                        <p className="font-semibold">{selectedEntry.profiles?.full_name}</p>
                                       </div>
                                       <div>
                                         <p className="text-sm font-medium text-muted-foreground">Obra</p>
@@ -580,14 +580,14 @@ export default function AdminHistory() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-sm truncate flex items-center gap-2">
-                            {entry.tools.name}
-                            {(entry.selected_tag || entry.tools.tag) && (
+                            {entry.tools?.name}
+                            {(entry.selected_tag || entry.tools?.tag) && (
                               <Badge variant="outline" className="text-[10px] font-mono py-0 h-4 uppercase">
-                                {entry.selected_tag || entry.tools.tag}
+                                {entry.selected_tag || entry.tools?.tag}
                               </Badge>
                             )}
                           </h3>
-                          <p className="text-xs text-muted-foreground">{entry.profiles.full_name}</p>
+                          <p className="text-xs text-muted-foreground">{entry.profiles?.full_name}</p>
                           {entry.construction_site && (
                             <p className="text-xs text-muted-foreground">Obra: {entry.construction_site}</p>
                           )}
@@ -626,17 +626,17 @@ export default function AdminHistory() {
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
                                       <p className="font-semibold">
-                                        {selectedEntry.tools.name}
-                                        {(selectedEntry.selected_tag || selectedEntry.tools.tag) && (
+                                        {selectedEntry.tools?.name}
+                                        {(selectedEntry.selected_tag || selectedEntry.tools?.tag) && (
                                           <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded uppercase">
-                                            TAG: {selectedEntry.selected_tag || selectedEntry.tools.tag}
+                                            TAG: {selectedEntry.selected_tag || selectedEntry.tools?.tag}
                                           </span>
                                         )}
                                       </p>
                                     </div>
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                      <p className="font-semibold">{selectedEntry.profiles.full_name}</p>
+                                      <p className="font-semibold">{selectedEntry.profiles?.full_name}</p>
                                     </div>
                                     <div>
                                       <p className="text-sm font-medium text-muted-foreground">Obra</p>
@@ -698,7 +698,7 @@ export default function AdminHistory() {
         onConfirm={handleDeleteEntry}
         title="Excluir Registro do Histórico"
         description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
-        itemName={deleteDialog.entry ? `${deleteDialog.entry.tools.name} - ${deleteDialog.entry.profiles.full_name}` : ""}
+        itemName={deleteDialog.entry ? `${deleteDialog.entry.tools?.name} - ${deleteDialog.entry.profiles?.full_name}` : ""}
       />
     </div>
   );
