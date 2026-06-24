@@ -288,6 +288,12 @@ export default function Checkin() {
                 </div>
               </div>
 
+              {selectedCheckoutId && (
+                <div className="bg-muted/50 p-3 rounded-lg flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span>Item selecionado para devolução</span>
+                </div>
+              )}
 
               {isAdminActingForOther && (
                 <div className="bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-3 rounded-lg text-sm">
