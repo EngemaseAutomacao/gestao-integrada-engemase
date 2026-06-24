@@ -468,6 +468,15 @@ export default function Checkout() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">A ferramenta ficará vinculada a este usuário, que poderá devolvê-la.</p>
+                  <Label htmlFor="manual_date_tool">Data e hora da retirada (retroativa, opcional)</Label>
+                  <Input
+                    id="manual_date_tool"
+                    type="datetime-local"
+                    value={manualDate}
+                    max={new Date().toISOString().slice(0, 16)}
+                    onChange={(e) => setManualDate(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Deixe em branco para usar a data/hora atual.</p>
                   {responsibleUserId && responsibleUserId !== profile!.id && (
                     <div className="mt-2 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 p-2 rounded text-xs">
                       <strong>Retirada manual:</strong> ação será registrada como "manual_checkout_by_admin". Justificativa obrigatória no campo Observações (mín. 5 caracteres).
