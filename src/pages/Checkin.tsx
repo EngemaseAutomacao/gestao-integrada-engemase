@@ -311,6 +311,7 @@ export default function Checkin() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
+                  className="h-14 min-h-14 resize-none"
                   required={isAdminActingForOther}
                 />
               </div>
