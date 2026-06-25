@@ -7,8 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
-import { SignedImage } from "@/components/SignedImage";
+import { Package, History, Calendar, MapPin, Clock } from "lucide-react";
 import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -23,7 +22,6 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
-  image_url: string | null;
 }
 
 interface MaintenanceRecord {
@@ -51,19 +49,6 @@ interface CheckoutRecord {
     full_name: string;
     email: string;
     category: string;
-  } | null;
-}
-
-interface ToolIssue {
-  id: string;
-  title: string;
-  description: string;
-  severity: string;
-  status: string;
-  created_at: string;
-  photo_url: string | null;
-  reporter: {
-    full_name: string;
   } | null;
 }
 

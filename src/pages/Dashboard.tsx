@@ -34,7 +34,6 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
-  image_url: string | null;
 }
 
 const conditionLabels: Record<string, string> = {

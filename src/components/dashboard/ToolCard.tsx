@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SignedImage } from "@/components/SignedImage";
 import { CalendarPlus, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +14,6 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
-  image_url: string | null;
 }
 
 interface ToolCardProps {
@@ -34,7 +32,6 @@ export function ToolCard({
   userCheckouts,
   conditionLabels,
   onNavigate,
-  onEnlargeImage,
   onCheckout,
   onCheckin,
   onExtend,
@@ -59,18 +56,6 @@ export function ToolCard({
       <CardContent className="p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="flex gap-3 flex-1 min-w-0">
-            {tool.image_url && (
-              <div
-                className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-muted"
-                onClick={(e) => { e.stopPropagation(); onEnlargeImage(tool.image_url!); }}
-              >
-                {tool.image_url.startsWith("http") ? (
-                  <img src={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
-                ) : (
-                  <SignedImage storagePath={tool.image_url} alt={tool.name} className="w-full h-full object-cover" />
-                )}
-              </div>
-            )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold text-sm sm:text-base capitalize">{tool.name.toLowerCase()}</h3>
