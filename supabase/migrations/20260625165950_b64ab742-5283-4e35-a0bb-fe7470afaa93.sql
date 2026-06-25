@@ -1,0 +1,1 @@
+CREATE POLICY "Authenticated users can read tool-images" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'tool-images');
