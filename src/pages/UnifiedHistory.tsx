@@ -318,35 +318,36 @@ export default function UnifiedHistory({
           </Select>
         </div>
 
-        <div className="flex gap-2 items-center flex-wrap">
-          <div className="flex gap-1 bg-muted/50 p-1 rounded-md border">
+        <div className="flex gap-1.5 items-center flex-wrap">
+          <div className="flex gap-0.5 bg-muted/50 p-0.5 rounded-md border">
             <Button
               variant={viewMode === "list" ? "default" : "ghost"}
               size="icon"
-              className="h-8 w-8"
+              className="h-7 w-7"
               onClick={() => setViewMode("list")}
               title="Visualização em lista"
             >
-              <List className="w-4 h-4" />
+              <List className="w-3.5 h-3.5" />
             </Button>
             <Button
               variant={viewMode === "timeline" ? "default" : "ghost"}
               size="icon"
-              className="h-8 w-8"
+              className="h-7 w-7"
               onClick={() => setViewMode("timeline")}
               title="Visualização em timeline"
             >
-              <Clock className="w-4 h-4" />
+              <Clock className="w-3.5 h-3.5" />
             </Button>
           </div>
 
-          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1.5">
-            <FileText className="w-4 h-4" /> PDF
+          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1 h-7 px-2 text-xs">
+            <FileText className="w-3.5 h-3.5" /> PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1.5">
-            <FileSpreadsheet className="w-4 h-4" /> Excel
+          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1 h-7 px-2 text-xs">
+            <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
           </Button>
         </div>
+
 
       </div>
 
