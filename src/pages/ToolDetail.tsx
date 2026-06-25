@@ -271,7 +271,7 @@ export default function ToolDetail() {
         }
       />
 
-      {(tool.image_url || tool.description) && (
+      {tool.description && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -280,29 +280,10 @@ export default function ToolDetail() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 p-4 md:p-6">
-            {tool.image_url && (
-              <div className="w-full max-w-xs md:max-w-md mx-auto">
-                {tool.image_url.startsWith("http") ? (
-                  <img
-                    src={tool.image_url}
-                    alt={tool.name}
-                    className="w-full h-48 md:h-64 object-cover rounded-lg"
-                  />
-                ) : (
-                  <SignedImage
-                    storagePath={tool.image_url}
-                    alt={tool.name}
-                    className="w-full h-48 md:h-64 object-cover rounded-lg"
-                  />
-                )}
-              </div>
-            )}
-            {tool.description && (
-              <div>
-                <p className="text-xs md:text-sm font-medium mb-1">Descrição</p>
-                <p className="text-sm text-muted-foreground">{tool.description}</p>
-              </div>
-            )}
+            <div>
+              <p className="text-xs md:text-sm font-medium mb-1">Descrição</p>
+              <p className="text-sm text-muted-foreground">{tool.description}</p>
+            </div>
           </CardContent>
         </Card>
       )}
