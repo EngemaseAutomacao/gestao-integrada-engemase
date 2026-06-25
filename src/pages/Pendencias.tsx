@@ -18,9 +18,6 @@ import { ptBR } from "date-fns/locale";
 const OP_LABELS: Record<string, string> = {
   checkout: "Retirada de ferramenta",
   checkin: "Devolução de ferramenta",
-  issue: "Relato de problema",
-  ponto_in: "Entrada (ponto)",
-  ponto_out: "Saída (ponto)",
   vehicle_checkout: "Saída de veículo",
   vehicle_checkin: "Chegada de veículo",
 };

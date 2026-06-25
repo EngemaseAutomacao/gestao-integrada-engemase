@@ -17,9 +17,6 @@ import { ptBR } from "date-fns/locale";
 const OP_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
   checkout: { label: "Retirada de ferramenta", icon: <LogOut className="w-4 h-4 text-orange-500" /> },
   checkin: { label: "Devolução de ferramenta", icon: <LogIn className="w-4 h-4 text-green-500" /> },
-  issue: { label: "Relato de problema", icon: <AlertTriangle className="w-4 h-4 text-red-500" /> },
-  ponto_in: { label: "Entrada (ponto)", icon: <Clock className="w-4 h-4 text-blue-500" /> },
-  ponto_out: { label: "Saída (ponto)", icon: <Clock className="w-4 h-4 text-purple-500" /> },
   vehicle_checkout: { label: "Saída de veículo", icon: <Car className="w-4 h-4 text-orange-500" /> },
   vehicle_checkin: { label: "Chegada de veículo", icon: <Car className="w-4 h-4 text-green-500" /> },
 };

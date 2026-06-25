@@ -48,10 +48,7 @@ const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
 const AdminDataRetention = lazy(() => import("./pages/admin/AdminDataRetention"));
 const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
 // AdminVehicleHistory removed - unused
-const ReportIssue = lazy(() => import("./pages/ReportIssue"));
-const ReportVehicleIssue = lazy(() => import("./pages/vehicles/ReportVehicleIssue"));
-// AdminVehicleIssues removed - unused
-const AdminProblemas = lazy(() => import("./pages/admin/AdminProblemas"));
+// ReportIssue, ReportVehicleIssue, AdminProblemas removidos — módulo descontinuado
 const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
 const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
@@ -159,8 +156,8 @@ const App = () => (
                       <Route path="/veiculos/combustivel" element={<Navigate to="/veiculos/dashboard" replace />} />
                       <Route path="/veiculos/analytics" element={<Navigate to="/veiculos/dashboard" replace />} />
                       <Route path="/admin/vehicle-history" element={<Navigate to="/admin/historico?tab=veiculos" replace />} />
-                      <Route path="/admin/vehicle-issues" element={<Navigate to="/admin/problemas?tab=veiculos" replace />} />
-                      <Route path="/veiculos/report-issue" element={<ReportVehicleIssue />} />
+                      <Route path="/admin/vehicle-issues" element={<Navigate to="/admin" replace />} />
+                      <Route path="/veiculos/report-issue" element={<Navigate to="/veiculos" replace />} />
                       {/* Legacy routes - redirect to new paths */}
                       <Route path="/tools" element={<Navigate to="/ferramentas/lista" replace />} />
                       <Route path="/tools/:id" element={<ToolDetail />} />
@@ -180,8 +177,8 @@ const App = () => (
                       <Route path="/admin/maintenance" element={<Navigate to="/admin" replace />} />
                       <Route path="/admin/reports" element={<AdminReports />} />
                       <Route path="/admin/manual" element={<Navigate to="/admin" replace />} />
-                      <Route path="/admin/issues" element={<Navigate to="/admin/problemas?tab=ferramentas" replace />} />
-                      <Route path="/admin/problemas" element={<AdminProblemas />} />
+                      <Route path="/admin/issues" element={<Navigate to="/admin" replace />} />
+                      <Route path="/admin/problemas" element={<Navigate to="/admin" replace />} />
                       <Route path="/admin/construction-sites" element={<AdminConstructionSites />} />
                       <Route path="/admin/gallery" element={<AdminGallery />} />
                       <Route path="/admin/data-retention" element={<AdminDataRetention />} />
@@ -198,7 +195,7 @@ const App = () => (
                       <Route path="/historico" element={<Historico />} />
                       <Route path="/pendencias" element={<Pendencias />} />
                       <Route path="/devolucoes-pendentes" element={<DevolucoesPendentes />} />
-                      <Route path="/report-issue" element={<ReportIssue />} />
+                      <Route path="/report-issue" element={<Navigate to="/" replace />} />
                       <Route path="/changelog" element={<Changelog />} />
                       <Route path="/mobile-settings" element={<MobileNavSettings />} />
                       <Route path="/ajuda" element={<Help />} />

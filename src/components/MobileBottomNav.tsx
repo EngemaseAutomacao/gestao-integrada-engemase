@@ -34,7 +34,6 @@ export function MobileBottomNav() {
     if (path === "/") import("@/pages/Home");
     else if (path.startsWith("/ferramentas")) import("@/pages/FerramentasMenu");
     else if (path.startsWith("/veiculos")) import("@/pages/VeiculosMenu");
-    else if (path.startsWith("/ponto")) import("@/pages/ponto/PontoRegister");
     else if (path.startsWith("/admin")) import("@/pages/admin/AdminDashboard");
   };
 

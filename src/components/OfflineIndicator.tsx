@@ -37,9 +37,6 @@ export function OfflineIndicator() {
     const labels: Record<string, string> = {
       checkout: "Retirada de ferramenta",
       checkin: "Devolução de ferramenta",
-      issue: "Relato de problema",
-      ponto_in: "Registro de entrada (ponto)",
-      ponto_out: "Registro de saída (ponto)",
       vehicle_checkout: "Saída de veículo",
       vehicle_checkin: "Chegada de veículo",
     };
