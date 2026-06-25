@@ -285,7 +285,6 @@ export default function UnifiedHistory({
               <SelectItem value="all">Todos os módulos</SelectItem>
               <SelectItem value="tool">Ferramentas</SelectItem>
               <SelectItem value="vehicle">Veículos</SelectItem>
-              </SelectContent>
             </SelectContent>
           </Select>
         </div>
