@@ -287,7 +287,7 @@ export default function UnifiedHistory({
           <ModuleHero eyebrow="Módulo · Histórico" title={title || "Meu Histórico"} subtitle={description} />
         </div>
       )}
-      <div className={`space-y-4 max-w-3xl mx-auto w-full ${!embedded ? "px-3 sm:px-6 -mt-14 sm:-mt-16 relative z-10 flex-1 min-h-0 flex flex-col" : ""}`}>
+      <div className={`space-y-4 max-w-3xl mx-auto w-full ${!embedded ? "px-3 sm:px-6 pt-4 relative z-10 flex-1 min-h-0 flex flex-col" : ""}`}>
 
 
 
