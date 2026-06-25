@@ -27,14 +27,6 @@ interface FolderStructure {
 
 const FOLDER_TREE: FolderStructure[] = [
   {
-    label: "Ferramentas",
-    path: "ferramentas",
-    children: [
-      { label: "Entradas", path: "ferramentas/entradas" },
-      { label: "Saídas", path: "ferramentas/saidas" },
-    ],
-  },
-  {
     label: "Veículos",
     path: "veiculos",
     children: [
@@ -43,6 +35,7 @@ const FOLDER_TREE: FolderStructure[] = [
     ],
   },
 ];
+
 
 export default function AdminGallery() {
   const { profile } = useAuth();
