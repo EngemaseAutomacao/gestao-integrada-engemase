@@ -318,28 +318,28 @@ export default function UnifiedHistory({
           </Select>
         </div>
 
-        <div className="flex gap-1 bg-muted/50 p-1 rounded-md border">
-          <Button
-            variant={viewMode === "list" ? "default" : "ghost"}
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setViewMode("list")}
-            title="Visualização em lista"
-          >
-            <List className="w-4 h-4" />
-          </Button>
-          <Button
-            variant={viewMode === "timeline" ? "default" : "ghost"}
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setViewMode("timeline")}
-            title="Visualização em timeline"
-          >
-            <Clock className="w-4 h-4" />
-          </Button>
-        </div>
+        <div className="flex gap-2 items-center flex-wrap">
+          <div className="flex gap-1 bg-muted/50 p-1 rounded-md border">
+            <Button
+              variant={viewMode === "list" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("list")}
+              title="Visualização em lista"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === "timeline" ? "default" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("timeline")}
+              title="Visualização em timeline"
+            >
+              <Clock className="w-4 h-4" />
+            </Button>
+          </div>
 
-        <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1.5">
             <FileText className="w-4 h-4" /> PDF
           </Button>
@@ -347,6 +347,7 @@ export default function UnifiedHistory({
             <FileSpreadsheet className="w-4 h-4" /> Excel
           </Button>
         </div>
+
       </div>
 
       <Card className="flex-1 min-h-0 flex flex-col">
