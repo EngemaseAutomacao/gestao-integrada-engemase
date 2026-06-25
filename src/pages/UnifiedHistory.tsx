@@ -434,7 +434,7 @@ export default function UnifiedHistory({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
                       <div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          {ev.type === "ponto" ? "Início" : "Retirada"}
+                          Retirada
                         </p>
                         <p className="text-sm font-medium">
                           {format(new Date(ev.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
@@ -445,12 +445,12 @@ export default function UnifiedHistory({
                       </div>
                       <div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          {ev.type === "ponto" ? "Fim" : "Devolução"}
+                          Devolução
                         </p>
                         <p className="text-sm font-medium">
                           {ev.endDate 
                             ? format(new Date(ev.endDate), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                            : ev.type === "ponto" ? "Ainda aberto" : "Ainda em uso"}
+                            : "Ainda em uso"}
                         </p>
                         {ev.details?.checked_in_by && (
                           <p className="text-[10px] text-muted-foreground mt-0.5">Por: {ev.details.checked_in_by}</p>
