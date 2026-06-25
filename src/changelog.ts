@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.61.1",
+    date: "2026-06-25",
+    title: "Atualizações de segurança",
+    description: "Correções de segurança em dependências e ajuste de visibilidade das imagens de ferramentas para usuários autenticados.",
+    changes: [
+      { type: "security", text: "Atualização de dependências com vulnerabilidades conhecidas (jspdf, supabase-js)" },
+      { type: "security", text: "Imagens de ferramentas agora acessíveis a todos os usuários autenticados, mantendo o controle de escrita restrito a admins" },
+    ],
+  },
+  {
     version: "1.61.0",
     date: "2026-06-24",
     title: "Retirada e devolução manual com mais flexibilidade",
