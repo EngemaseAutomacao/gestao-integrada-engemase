@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Wrench, Car, Eye, List, FileText, FileSpreadsheet, Clock } from "lucide-react";
+import { Wrench, Car, Eye, List, FileText, FileSpreadsheet, Clock, MapPin, Camera } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SignedImage } from "@/components/SignedImage";
@@ -285,7 +285,7 @@ export default function UnifiedHistory({
               <SelectItem value="all">Todos os módulos</SelectItem>
               <SelectItem value="tool">Ferramentas</SelectItem>
               <SelectItem value="vehicle">Veículos</SelectItem>
-              <SelectItem value="ponto">Ponto</SelectItem>
+              </SelectContent>
             </SelectContent>
           </Select>
         </div>
