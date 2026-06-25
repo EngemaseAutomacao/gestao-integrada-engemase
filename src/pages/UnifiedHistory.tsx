@@ -187,13 +187,11 @@ export default function UnifiedHistory({
   const iconMap = {
     tool: <Wrench className="w-4 h-4" aria-hidden="true" />,
     vehicle: <Car className="w-4 h-4" aria-hidden="true" />,
-    ponto: <Clock className="w-4 h-4" aria-hidden="true" />,
   };
 
   const colorMap = {
     tool: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     vehicle: "bg-green-500/10 text-green-600 dark:text-green-400",
-    ponto: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   };
 
   const filtered = typeFilter === "all" ? events : events.filter((e) => e.type === typeFilter);
@@ -206,7 +204,7 @@ export default function UnifiedHistory({
   }, {});
 
   const typeLabel = (t: UnifiedEvent["type"]) =>
-    t === "tool" ? "Ferramenta" : t === "vehicle" ? "Veículo" : "Ponto";
+    t === "tool" ? "Ferramenta" : "Veículo";
 
   const buildExportRows = () =>
     filtered.map((ev) => [
