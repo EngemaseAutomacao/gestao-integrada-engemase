@@ -70,18 +70,13 @@ export default function VehicleDetail() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["vehicle-detail", id],
     queryFn: async () => {
-      const [vehicleRes, checkoutsRes, issuesRes, fuelRes] = await Promise.all([
+      const [vehicleRes, checkoutsRes, fuelRes] = await Promise.all([
         supabase.from("vehicles").select("*").eq("id", id!).maybeSingle(),
         supabase
           .from("vehicle_checkouts")
           .select(`id, checkout_date, checkin_date, status, destination, km_checkout, km_checkin, notes, user_profile:profiles!vehicle_checkouts_user_id_fkey(full_name, email)`)
           .eq("vehicle_id", id!)
           .order("checkout_date", { ascending: false }),
-        supabase
-          .from("vehicle_issues")
-          .select(`*, reporter:profiles!vehicle_issues_reported_by_fkey(full_name)`)
-          .eq("vehicle_id", id!)
-          .order("created_at", { ascending: false }),
         supabase
           .from("fuel_records")
           .select("id, refuel_date, liters, fuel_type, km_at_refuel, total_cost, gas_station")
@@ -93,7 +88,6 @@ export default function VehicleDetail() {
       return {
         vehicle: vehicleRes.data as Vehicle | null,
         checkouts: ((checkoutsRes.data as any) || []) as CheckoutRecord[],
-        issues: ((issuesRes.data as any) || []) as VehicleIssue[],
         fuelRecords: (fuelRes.data || []) as FuelRecord[],
       };
     },
@@ -103,7 +97,6 @@ export default function VehicleDetail() {
 
   const vehicle = data?.vehicle ?? null;
   const checkouts = data?.checkouts ?? [];
-  const issues = data?.issues ?? [];
   const fuelRecords = data?.fuelRecords ?? [];
 
   const getDaysUsed = (checkout: CheckoutRecord) => {
