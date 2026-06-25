@@ -83,7 +83,6 @@ export default function ToolDetail() {
   const [tool, setTool] = useState<Tool | null>(null);
   const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
   const [checkouts, setCheckouts] = useState<CheckoutRecord[]>([]);
-  const [issues, setIssues] = useState<ToolIssue[]>([]);
   const [loading, setLoading] = useState(true);
   const [tagFilter, setTagFilter] = useState<string>("all");
 
@@ -94,7 +93,6 @@ export default function ToolDetail() {
   useEffect(() => {
     if (id) {
       loadToolData();
-      loadIssues();
     }
   }, [id]);
 
@@ -147,25 +145,8 @@ export default function ToolDetail() {
     }
   };
 
-  const loadIssues = async () => {
-    if (!id) return;
 
-    try {
-      const { data, error } = await supabase
-        .from("tool_issues")
-        .select(`
-          *,
-          reporter:profiles!tool_issues_reported_by_fkey(full_name)
-        `)
-        .eq("tool_id", id)
-        .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setIssues(data as any || []);
-    } catch (error) {
-      console.error("Error loading issues:", error);
-    }
-  };
 
   const getCheckoutsForTag = (tag: string) => {
     return checkouts.filter(c => c.selected_tag === tag);
