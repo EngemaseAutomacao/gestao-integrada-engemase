@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Wrench, Car, Clock, Eye, Camera, MapPin, List, FileText, FileSpreadsheet } from "lucide-react";
+import { Wrench, Car, Eye, List, FileText, FileSpreadsheet, Clock, MapPin, Camera } from "lucide-react";
 import { format, subDays, subMonths, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SignedImage } from "@/components/SignedImage";
@@ -19,7 +19,7 @@ import { ModuleHero } from "@/components/ModuleHero";
 
 interface UnifiedEvent {
   id: string;
-  type: "tool" | "vehicle" | "ponto";
+  type: "tool" | "vehicle";
   date: string;
   title: string;
   subtitle: string;
@@ -86,7 +86,7 @@ export default function UnifiedHistory({
     setLoading(true);
     const since = getStartDate();
 
-    const [toolsRes, vehiclesRes, pontoRes] = await Promise.all([
+    const [toolsRes, vehiclesRes] = await Promise.all([
       supabase
         .from("tool_checkouts")
         .select(`
@@ -127,13 +127,6 @@ export default function UnifiedHistory({
         .eq("user_id", profile.id)
         .gte("checkout_date", since)
         .order("checkout_date", { ascending: false })
-        .limit(200),
-      supabase
-        .from("time_entries")
-        .select("id, clock_in, clock_out, status, construction_site, client_name, entry_type, notes")
-        .eq("user_id", profile.id)
-        .gte("clock_in", since)
-        .order("clock_in", { ascending: false })
         .limit(200),
     ]);
 
@@ -182,27 +175,8 @@ export default function UnifiedHistory({
       });
     });
 
-    (pontoRes.data || []).forEach((p: any) => {
-      const label = p.entry_type === "obra" ? (p.construction_site || "Obra") : (p.client_name || "Cliente");
-      const duration = p.clock_out
-        ? `${Math.round((new Date(p.clock_out).getTime() - new Date(p.clock_in).getTime()) / 60000)}min`
-        : "Aberto";
-      unified.push({
-        id: `ponto-${p.id}`,
-        type: "ponto",
-        date: p.clock_in,
-        title: `Ponto — ${label}`,
-        subtitle: duration,
-        status: p.status === "open" ? "Aberto" : "Fechado",
-        endDate: p.clock_out,
-        details: {
-          notes: p.notes,
-          construction_site: p.construction_site,
-          client_name: p.client_name,
-          entry_type: p.entry_type,
-        }
-      });
-    });
+
+
 
 
     unified.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -213,13 +187,11 @@ export default function UnifiedHistory({
   const iconMap = {
     tool: <Wrench className="w-4 h-4" aria-hidden="true" />,
     vehicle: <Car className="w-4 h-4" aria-hidden="true" />,
-    ponto: <Clock className="w-4 h-4" aria-hidden="true" />,
   };
 
   const colorMap = {
     tool: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     vehicle: "bg-green-500/10 text-green-600 dark:text-green-400",
-    ponto: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   };
 
   const filtered = typeFilter === "all" ? events : events.filter((e) => e.type === typeFilter);
@@ -232,7 +204,7 @@ export default function UnifiedHistory({
   }, {});
 
   const typeLabel = (t: UnifiedEvent["type"]) =>
-    t === "tool" ? "Ferramenta" : t === "vehicle" ? "Veículo" : "Ponto";
+    t === "tool" ? "Ferramenta" : "Veículo";
 
   const buildExportRows = () =>
     filtered.map((ev) => [
@@ -313,7 +285,6 @@ export default function UnifiedHistory({
               <SelectItem value="all">Todos os módulos</SelectItem>
               <SelectItem value="tool">Ferramentas</SelectItem>
               <SelectItem value="vehicle">Veículos</SelectItem>
-              <SelectItem value="ponto">Ponto</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -462,7 +433,7 @@ export default function UnifiedHistory({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
                       <div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          {ev.type === "ponto" ? "Início" : "Retirada"}
+                          Retirada
                         </p>
                         <p className="text-sm font-medium">
                           {format(new Date(ev.date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
@@ -473,12 +444,12 @@ export default function UnifiedHistory({
                       </div>
                       <div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          {ev.type === "ponto" ? "Fim" : "Devolução"}
+                          Devolução
                         </p>
                         <p className="text-sm font-medium">
                           {ev.endDate 
                             ? format(new Date(ev.endDate), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                            : ev.type === "ponto" ? "Ainda aberto" : "Ainda em uso"}
+                            : "Ainda em uso"}
                         </p>
                         {ev.details?.checked_in_by && (
                           <p className="text-[10px] text-muted-foreground mt-0.5">Por: {ev.details.checked_in_by}</p>

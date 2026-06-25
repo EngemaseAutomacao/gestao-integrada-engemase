@@ -81,7 +81,7 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/admin/users': { title: 'Usuários', icon: Users },
   '/admin/tools': { title: 'Gestão Administrativa', icon: Settings },
   '/admin/maintenance': { title: 'Manutenções', icon: Wrench },
-  '/admin/issues': { title: 'Problemas', icon: AlertCircle },
+  
   '/admin/history': { title: 'Histórico Geral', icon: ClipboardList },
   '/admin/analytics': { title: 'Analytics', icon: BarChart3 },
   '/admin/reports': { title: 'Relatórios', icon: FileText },
@@ -90,7 +90,7 @@ const routeTitleMap: Record<string, { title: string; icon: typeof Wrench }> = {
   '/admin/manual': { title: 'Entrada Manual', icon: Settings },
   '/admin/gallery': { title: 'Galeria', icon: Package },
   '/admin/vehicle-history': { title: 'Histórico Geral de Veículos', icon: ClipboardList },
-  '/admin/vehicle-issues': { title: 'Problemas de Veículos', icon: AlertCircle },
+  
   '/historico': { title: 'Meu Histórico', icon: History },
   '/devolucoes-pendentes': { title: 'Devoluções Pendentes', icon: History },
   '/ajuda': { title: 'Ajuda', icon: HelpCircle },
@@ -116,7 +116,7 @@ export default function Layout({ children }: LayoutProps) {
   
   
   const isHomePage = location.pathname === '/';
-  const adminToolRoutes = ['/admin/construction-sites?tab=ferramentas', '/admin/maintenance', '/admin/issues', '/admin/history'];
+  const adminToolRoutes = ['/admin/construction-sites?tab=ferramentas', '/admin/maintenance', '/admin/history'];
   const isAdminToolRoute = adminToolRoutes.some(r => location.pathname.startsWith(r));
   const isFerramentasModule = location.pathname.startsWith('/ferramentas') || 
                                location.pathname.startsWith('/tools') ||
@@ -125,7 +125,7 @@ export default function Layout({ children }: LayoutProps) {
                                location.pathname.startsWith('/history') ||
                                location.pathname.startsWith('/report-issue') ||
                                isAdminToolRoute;
-  const isAdminVehicleRoute = location.pathname === '/admin/vehicle-history' || location.pathname === '/admin/vehicle-issues';
+  const isAdminVehicleRoute = location.pathname === '/admin/vehicle-history';
   const isVeiculosModule = location.pathname.startsWith('/veiculos') || isAdminVehicleRoute;
   const isAdminModule = location.pathname.startsWith('/admin') && !isAdminToolRoute && !isAdminVehicleRoute;
 
@@ -139,7 +139,7 @@ export default function Layout({ children }: LayoutProps) {
     ...(isAdmin ? [
       { title: "Gerenciar Ferramentas", url: "/admin/construction-sites?tab=ferramentas", icon: Settings },
       { title: "Manutenções", url: "/admin/maintenance", icon: Wrench },
-      { title: "Problemas", url: "/admin/issues", icon: AlertCircle },
+      
       { title: "Histórico Geral", url: "/admin/history", icon: ClipboardList },
     ] : []),
   ];
@@ -150,7 +150,7 @@ export default function Layout({ children }: LayoutProps) {
     { title: "Lista de Veículos", url: "/veiculos/lista", icon: Package },
     { title: "Meu Histórico", url: "/veiculos/historico", icon: History },
     ...(isAdmin ? [
-      { title: "Problemas", url: "/admin/vehicle-issues", icon: AlertCircle },
+      
       { title: "Histórico Geral", url: "/admin/vehicle-history", icon: ClipboardList },
     ] : []),
   ];

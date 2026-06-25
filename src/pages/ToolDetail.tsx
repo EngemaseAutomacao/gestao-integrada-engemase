@@ -7,8 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Package, Wrench, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle } from "lucide-react";
-import { SignedImage } from "@/components/SignedImage";
+import { Package, History, Calendar, MapPin, Clock } from "lucide-react";
 import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -23,7 +22,6 @@ interface Tool {
   quantity_available: number;
   quantity_total: number;
   employee_only: boolean;
-  image_url: string | null;
 }
 
 interface MaintenanceRecord {
@@ -51,19 +49,6 @@ interface CheckoutRecord {
     full_name: string;
     email: string;
     category: string;
-  } | null;
-}
-
-interface ToolIssue {
-  id: string;
-  title: string;
-  description: string;
-  severity: string;
-  status: string;
-  created_at: string;
-  photo_url: string | null;
-  reporter: {
-    full_name: string;
   } | null;
 }
 
@@ -98,7 +83,6 @@ export default function ToolDetail() {
   const [tool, setTool] = useState<Tool | null>(null);
   const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
   const [checkouts, setCheckouts] = useState<CheckoutRecord[]>([]);
-  const [issues, setIssues] = useState<ToolIssue[]>([]);
   const [loading, setLoading] = useState(true);
   const [tagFilter, setTagFilter] = useState<string>("all");
 
@@ -109,7 +93,6 @@ export default function ToolDetail() {
   useEffect(() => {
     if (id) {
       loadToolData();
-      loadIssues();
     }
   }, [id]);
 
@@ -162,25 +145,8 @@ export default function ToolDetail() {
     }
   };
 
-  const loadIssues = async () => {
-    if (!id) return;
 
-    try {
-      const { data, error } = await supabase
-        .from("tool_issues")
-        .select(`
-          *,
-          reporter:profiles!tool_issues_reported_by_fkey(full_name)
-        `)
-        .eq("tool_id", id)
-        .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setIssues(data as any || []);
-    } catch (error) {
-      console.error("Error loading issues:", error);
-    }
-  };
 
   const getCheckoutsForTag = (tag: string) => {
     return checkouts.filter(c => c.selected_tag === tag);
@@ -305,7 +271,7 @@ export default function ToolDetail() {
         }
       />
 
-      {(tool.image_url || tool.description) && (
+      {tool.description && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -314,29 +280,10 @@ export default function ToolDetail() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 p-4 md:p-6">
-            {tool.image_url && (
-              <div className="w-full max-w-xs md:max-w-md mx-auto">
-                {tool.image_url.startsWith("http") ? (
-                  <img
-                    src={tool.image_url}
-                    alt={tool.name}
-                    className="w-full h-48 md:h-64 object-cover rounded-lg"
-                  />
-                ) : (
-                  <SignedImage
-                    storagePath={tool.image_url}
-                    alt={tool.name}
-                    className="w-full h-48 md:h-64 object-cover rounded-lg"
-                  />
-                )}
-              </div>
-            )}
-            {tool.description && (
-              <div>
-                <p className="text-xs md:text-sm font-medium mb-1">Descrição</p>
-                <p className="text-sm text-muted-foreground">{tool.description}</p>
-              </div>
-            )}
+            <div>
+              <p className="text-xs md:text-sm font-medium mb-1">Descrição</p>
+              <p className="text-sm text-muted-foreground">{tool.description}</p>
+            </div>
           </CardContent>
         </Card>
       )}

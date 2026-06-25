@@ -5,7 +5,7 @@ import { uploadFileImage } from "@/lib/storageUtils";
 
 interface PendingOperation {
   id: string;
-  type: "checkout" | "checkin" | "issue" | "ponto_in" | "ponto_out" | "vehicle_checkout" | "vehicle_checkin";
+  type: "checkout" | "checkin" | "vehicle_checkout" | "vehicle_checkin";
   data: any;
   timestamp: number;
   retryCount: number;
@@ -185,7 +185,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     return photoUrls;
   }, []);
 
-  // Sync photos stored in IndexedDB for ponto/tool operations
+  // Sync photos stored in IndexedDB for tool operations
   const syncGenericPhotos = useCallback(async (op: PendingOperation) => {
     const photos = await getPhotosByOperation(op.id);
     if (photos.length === 0) return null;
@@ -194,8 +194,7 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
     const photo = photos[0];
     const blob = new File([photo.blob], photo.fileName, { type: photo.blob.type || "image/jpeg" });
     const { uploadFileImage: uploadFn } = await import("@/lib/storageUtils");
-    // Correct folder: checkout/ponto_in = saidas; checkin/ponto_out = entradas
-    const isReturn = op.type === "checkin" || op.type === "ponto_out";
+    const isReturn = op.type === "checkin";
     const folder = isReturn ? "entradas" : "saidas";
     const url = await uploadFn(blob, "photo", "ferramentas", folder);
     await deletePhotosByOperation(op.id);
@@ -233,36 +232,6 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
             op.data.updates.checkin_photo_url = photoUrl;
           }
           const { error } = await supabase.from("tool_checkouts").update(op.data.updates).eq("id", realId);
-          if (error) throw error;
-
-        } else if (op.type === "issue") {
-          const { error } = await supabase.from("tool_issues").insert(op.data);
-          if (error) throw error;
-
-        } else if (op.type === "ponto_in") {
-          // Upload photo from IndexedDB if available
-          const photoUrl = await syncGenericPhotos(op);
-          if (photoUrl && !op.data.clock_in_photo_url) {
-            op.data.clock_in_photo_url = photoUrl;
-          }
-          const { data, error } = await supabase.from("time_entries").insert(op.data).select("id").single();
-          if (error) throw error;
-          // Map local ID to server ID for dependent ponto_out
-          if (data?.id && op.data._local_id) {
-            idMap[op.data._local_id] = data.id;
-            // Clean internal field
-            delete op.data._local_id;
-          }
-
-        } else if (op.type === "ponto_out") {
-          // Resolve local entry ID to server ID
-          const realEntryId = idMap[op.data.entryId] ?? op.data.entryId;
-          // Upload photo from IndexedDB if available
-          const photoUrl = await syncGenericPhotos(op);
-          if (photoUrl && !op.data.updates.clock_out_photo_url) {
-            op.data.updates.clock_out_photo_url = photoUrl;
-          }
-          const { error } = await supabase.from("time_entries").update(op.data.updates).eq("id", realEntryId);
           if (error) throw error;
 
         } else if (op.type === "vehicle_checkout") {

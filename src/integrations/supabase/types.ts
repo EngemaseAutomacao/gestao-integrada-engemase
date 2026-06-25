@@ -668,89 +668,6 @@ export type Database = {
         }
         Relationships: []
       }
-      time_entries: {
-        Row: {
-          client_name: string | null
-          clock_in: string
-          clock_in_address: string | null
-          clock_in_latitude: number | null
-          clock_in_longitude: number | null
-          clock_in_photo_url: string | null
-          clock_out: string | null
-          clock_out_address: string | null
-          clock_out_latitude: number | null
-          clock_out_longitude: number | null
-          clock_out_photo_url: string | null
-          construction_site: string | null
-          created_at: string
-          distance_from_site_meters: number | null
-          entry_date: string
-          entry_type: string
-          id: string
-          location_alert: boolean
-          notes: string | null
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          client_name?: string | null
-          clock_in?: string
-          clock_in_address?: string | null
-          clock_in_latitude?: number | null
-          clock_in_longitude?: number | null
-          clock_in_photo_url?: string | null
-          clock_out?: string | null
-          clock_out_address?: string | null
-          clock_out_latitude?: number | null
-          clock_out_longitude?: number | null
-          clock_out_photo_url?: string | null
-          construction_site?: string | null
-          created_at?: string
-          distance_from_site_meters?: number | null
-          entry_date?: string
-          entry_type?: string
-          id?: string
-          location_alert?: boolean
-          notes?: string | null
-          status?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          client_name?: string | null
-          clock_in?: string
-          clock_in_address?: string | null
-          clock_in_latitude?: number | null
-          clock_in_longitude?: number | null
-          clock_in_photo_url?: string | null
-          clock_out?: string | null
-          clock_out_address?: string | null
-          clock_out_latitude?: number | null
-          clock_out_longitude?: number | null
-          clock_out_photo_url?: string | null
-          construction_site?: string | null
-          created_at?: string
-          distance_from_site_meters?: number | null
-          entry_date?: string
-          entry_type?: string
-          id?: string
-          location_alert?: boolean
-          notes?: string | null
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "time_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tool_checkouts: {
         Row: {
           checked_in_by: string | null
@@ -843,86 +760,6 @@ export type Database = {
           },
         ]
       }
-      tool_issues: {
-        Row: {
-          checkout_id: string | null
-          created_at: string
-          description: string
-          id: string
-          photo_url: string | null
-          reported_by: string
-          resolution_notes: string | null
-          resolved_at: string | null
-          resolved_by: string | null
-          severity: Database["public"]["Enums"]["issue_severity"]
-          status: Database["public"]["Enums"]["issue_status"]
-          title: string
-          tool_id: string
-          updated_at: string
-        }
-        Insert: {
-          checkout_id?: string | null
-          created_at?: string
-          description: string
-          id?: string
-          photo_url?: string | null
-          reported_by: string
-          resolution_notes?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: Database["public"]["Enums"]["issue_severity"]
-          status?: Database["public"]["Enums"]["issue_status"]
-          title: string
-          tool_id: string
-          updated_at?: string
-        }
-        Update: {
-          checkout_id?: string | null
-          created_at?: string
-          description?: string
-          id?: string
-          photo_url?: string | null
-          reported_by?: string
-          resolution_notes?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: Database["public"]["Enums"]["issue_severity"]
-          status?: Database["public"]["Enums"]["issue_status"]
-          title?: string
-          tool_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tool_issues_checkout_id_fkey"
-            columns: ["checkout_id"]
-            isOneToOne: false
-            referencedRelation: "tool_checkouts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tool_issues_reported_by_fkey"
-            columns: ["reported_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tool_issues_resolved_by_fkey"
-            columns: ["resolved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tool_issues_tool_id_fkey"
-            columns: ["tool_id"]
-            isOneToOne: false
-            referencedRelation: "tools"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tools: {
         Row: {
           brand: string | null
@@ -932,7 +769,6 @@ export type Database = {
           description: string | null
           employee_only: boolean
           id: string
-          image_url: string | null
           name: string
           qr_code: string | null
           quantity_available: number
@@ -948,7 +784,6 @@ export type Database = {
           description?: string | null
           employee_only?: boolean
           id?: string
-          image_url?: string | null
           name: string
           qr_code?: string | null
           quantity_available?: number
@@ -964,7 +799,6 @@ export type Database = {
           description?: string | null
           employee_only?: boolean
           id?: string
-          image_url?: string | null
           name?: string
           qr_code?: string | null
           quantity_available?: number
@@ -1172,86 +1006,6 @@ export type Database = {
           },
           {
             foreignKeyName: "vehicle_checkouts_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vehicle_issues: {
-        Row: {
-          checkout_id: string | null
-          created_at: string
-          description: string
-          id: string
-          photo_url: string | null
-          reported_by: string
-          resolution_notes: string | null
-          resolved_at: string | null
-          resolved_by: string | null
-          severity: Database["public"]["Enums"]["issue_severity"]
-          status: Database["public"]["Enums"]["issue_status"]
-          title: string
-          updated_at: string
-          vehicle_id: string
-        }
-        Insert: {
-          checkout_id?: string | null
-          created_at?: string
-          description: string
-          id?: string
-          photo_url?: string | null
-          reported_by: string
-          resolution_notes?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: Database["public"]["Enums"]["issue_severity"]
-          status?: Database["public"]["Enums"]["issue_status"]
-          title: string
-          updated_at?: string
-          vehicle_id: string
-        }
-        Update: {
-          checkout_id?: string | null
-          created_at?: string
-          description?: string
-          id?: string
-          photo_url?: string | null
-          reported_by?: string
-          resolution_notes?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: Database["public"]["Enums"]["issue_severity"]
-          status?: Database["public"]["Enums"]["issue_status"]
-          title?: string
-          updated_at?: string
-          vehicle_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "vehicle_issues_checkout_id_fkey"
-            columns: ["checkout_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_checkouts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_issues_reported_by_fkey"
-            columns: ["reported_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_issues_resolved_by_fkey"
-            columns: ["resolved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_issues_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"

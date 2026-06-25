@@ -1,4 +1,4 @@
-import { Wrench, Upload, LogIn, History, AlertCircle, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
+import { Wrench, Upload, LogIn, History, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 import { MenuCard } from "@/components/MenuCard";
@@ -11,7 +11,7 @@ export default function FerramentasMenu() {
   const isAdmin = profile?.role === "admin";
   const isMobile = useIsMobile();
 
-  const { toolOverdue, toolIssuesOpen } = useUrgencyBadges();
+  const { toolOverdue } = useUrgencyBadges();
 
   if (true) {
     const items: MobileMenuItem[] = [
@@ -41,13 +41,6 @@ export default function FerramentasMenu() {
         to: "/ferramentas/historico",
       },
       {
-        title: "Reportar Problema",
-        description: "Informar defeito",
-        icon: <AlertCircle className="w-5 h-5" />,
-        to: "/report-issue",
-        badgeCount: toolIssuesOpen,
-      },
-      {
         title: "Transferências",
         description: "Transferir posse",
         icon: <ArrowRightLeft className="w-5 h-5" />,
@@ -64,16 +57,10 @@ export default function FerramentasMenu() {
             to: "/admin/construction-sites",
           },
           {
-            title: "Problemas",
-            description: "Gerenciar problemas",
-            icon: <AlertCircle className="w-5 h-5" />,
-            to: "/admin/issues",
-          },
-          {
             title: "Histórico Geral",
             description: "Todas movimentações",
             icon: <ClipboardList className="w-5 h-5" />,
-            to: "/admin/history",
+            to: "/admin/historico",
           },
         ]
       : [];
@@ -126,13 +113,6 @@ export default function FerramentasMenu() {
           to="/ferramentas/historico"
         />
         <MenuCard
-          title="Reportar Problema"
-          description="Informar defeito em ferramenta"
-          icon={<AlertCircle className="w-6 h-6 text-primary" />}
-          to="/report-issue"
-          badgeCount={toolIssuesOpen}
-        />
-        <MenuCard
           title="Transferências"
           description="Transferir posse de ferramentas"
           icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
@@ -147,16 +127,10 @@ export default function FerramentasMenu() {
               to="/admin/construction-sites"
             />
             <MenuCard
-              title="Problemas"
-              description="Gerenciar problemas reportados"
-              icon={<AlertCircle className="w-6 h-6 text-primary" />}
-              to="/admin/issues"
-            />
-            <MenuCard
               title="Histórico Geral"
               description="Todas as movimentações"
               icon={<ClipboardList className="w-6 h-6 text-primary" />}
-              to="/admin/history"
+              to="/admin/historico"
             />
           </>
         )}
