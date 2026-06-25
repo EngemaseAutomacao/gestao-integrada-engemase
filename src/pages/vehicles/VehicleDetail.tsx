@@ -38,18 +38,6 @@ interface CheckoutRecord {
   };
 }
 
-interface VehicleIssue {
-  id: string;
-  title: string;
-  description: string;
-  severity: string;
-  status: string;
-  created_at: string;
-  photo_url: string | null;
-  reporter: {
-    full_name: string;
-  } | null;
-}
 
 interface FuelRecord {
   id: string;
