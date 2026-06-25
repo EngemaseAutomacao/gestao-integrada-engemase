@@ -124,7 +124,11 @@ const App = () => (
               <AuthProvider>
                 <ChangelogModal />
                 <OnboardingTutorial />
-                <Suspense fallback={<PageSkeleton />}>
+                <Suspense fallback={
+                  <div className="flex items-center justify-center min-h-[40vh]">
+                    <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                  </div>
+                }>
                   <Routes>
                     {/* Public routes (no Layout) */}
                     <Route path="/auth" element={<Auth />} />
