@@ -59,7 +59,7 @@ export default function AdminDashboard() {
         { title: "Analytics", description: "Ferramentas e veículos", icon: <BarChart3 className="w-5 h-5" />, to: "/admin/analytics-hub" },
         { title: "Histórico Geral", description: "Movimentações consolidadas", icon: <ClipboardList className="w-5 h-5" />, to: "/admin/historico" },
         { title: "Relatórios", description: "Gerar e exportar relatórios", icon: <FileText className="w-5 h-5" />, to: "/admin/reports" },
-        { title: "Problemas", description: "Ferramentas e veículos", icon: <AlertCircle className="w-5 h-5" />, to: "/admin/problemas" },
+        
         { title: "Galeria de Imagens", description: "Fotos do sistema", icon: <Images className="w-5 h-5" />, to: "/admin/gallery" },
       ],
     },
