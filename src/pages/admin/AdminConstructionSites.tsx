@@ -545,62 +545,8 @@ export default function AdminConstructionSites() {
           </Card>
         </TabsContent>
 
-        {/* ─── ABA CLIENTES ─── */}
-        <TabsContent value="clientes" className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative w-full sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Buscar cliente..." value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="pl-10" />
-            </div>
-            <Button onClick={openNewClient} size="sm" className="gap-2 w-full sm:w-auto shrink-0">
-              <Plus className="w-4 h-4" />Novo Cliente
-            </Button>
-          </div>
 
-          {loadingClients ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            </div>
-          ) : filteredClients.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Nenhum cliente encontrado.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {filteredClients.map((c) => (
-                <Card key={c.id} className={!c.active ? "opacity-60" : ""}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-base">{c.name}</CardTitle>
-                        {c.address && <CardDescription>{c.address}</CardDescription>}
-                      </div>
-                      <Badge variant={c.active ? "default" : "secondary"}>
-                        {c.active ? "Ativo" : "Inativo"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-2 mt-2">
-                      <Button variant="outline" size="sm" onClick={() => openEditClient(c)}>
-                        <Pencil className="w-3 h-3 mr-1" />Editar
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => toggleClientActive(c)}>
-                        {c.active ? "Desativar" : "Ativar"}
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-destructive" onClick={() => handleDeleteClient(c)}>
-                        <Trash2 className="w-3 h-3 mr-1" />Excluir
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
+
 
         {/* ─── ABA FERRAMENTAS ─── */}
         <TabsContent value="ferramentas" className="space-y-4">
