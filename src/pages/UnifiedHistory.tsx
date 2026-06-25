@@ -291,10 +291,10 @@ export default function UnifiedHistory({
 
 
 
-      <div className="flex gap-2 items-center justify-between flex-wrap shrink-0" role="group" aria-label="Filtros do histórico">
-        <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-1.5 items-center justify-between flex-wrap shrink-0" role="group" aria-label="Filtros do histórico">
+        <div className="flex gap-1.5 flex-wrap items-center">
           <Select value={periodFilter} onValueChange={setPeriodFilter}>
-            <SelectTrigger className="w-[140px]" aria-label="Filtrar por período">
+            <SelectTrigger className="h-8 w-[120px] text-xs" aria-label="Filtrar por período">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -306,7 +306,7 @@ export default function UnifiedHistory({
           </Select>
 
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-[160px]" aria-label="Filtrar por módulo">
+            <SelectTrigger className="h-8 w-[140px] text-xs" aria-label="Filtrar por módulo">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -340,13 +340,14 @@ export default function UnifiedHistory({
             </Button>
           </div>
 
-          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1 h-7 px-2 text-xs">
+          <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filtered.length === 0} className="gap-1 h-8 px-2 text-xs">
             <FileText className="w-3.5 h-3.5" /> PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1 h-7 px-2 text-xs">
+          <Button variant="outline" size="sm" onClick={handleExportExcel} disabled={filtered.length === 0} className="gap-1 h-8 px-2 text-xs">
             <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
           </Button>
         </div>
+
 
 
       </div>
