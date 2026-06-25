@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.62.0",
+    date: "2026-06-26",
+    title: "Remoção de módulos descontinuados",
+    description: "Removemos por completo os módulos de Ponto Online, Problemas (ferramentas e veículos) e fotos de ferramentas, incluindo páginas, rotas, componentes, hooks e tabelas relacionadas no banco de dados.",
+    changes: [
+      { type: "improvement", text: "Páginas e rotas de Problemas de Ferramentas e Veículos removidas (redireciono para Home/admin)" },
+      { type: "improvement", text: "Páginas e rotas de Ponto Online removidas e tabela time_entries descontinuada" },
+      { type: "improvement", text: "Campo de imagem em Ferramentas removido (coluna image_url e galeria de ferramentas)" },
+      { type: "improvement", text: "Menus, sidebar, atalhos e badges de urgência limpos das entradas obsoletas" },
+    ],
+  },
+  {
     version: "1.61.1",
     date: "2026-06-25",
     title: "Atualizações de segurança",
