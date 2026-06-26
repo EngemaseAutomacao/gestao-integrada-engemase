@@ -471,19 +471,6 @@ export default function VehicleCheckout() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="estimatedReturnTime" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  {isPlatform ? "Hora Estimada de Uso *" : "Hora Estimada de Retorno *"}
-                </Label>
-                <Input
-                  id="estimatedReturnTime"
-                  type="time"
-                  value={estimatedReturnTime}
-                  onChange={(e) => setEstimatedReturnTime(e.target.value)}
-                  required
-                />
-              </div>
 
               {/* Outside City Toggle - irrelevant for platforms */}
               {!isPlatform && (
