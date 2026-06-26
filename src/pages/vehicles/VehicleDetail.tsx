@@ -70,11 +70,11 @@ export default function VehicleDetail() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["vehicle-detail", id],
     queryFn: async () => {
-      const [vehicleRes, checkoutsRes, fuelRes] = await Promise.all([
+      const [vehicleRes, checkoutsRes, fuelRes, usersRes] = await Promise.all([
         supabase.from("vehicles").select("*").eq("id", id!).maybeSingle(),
         supabase
           .from("vehicle_checkouts")
-          .select(`id, checkout_date, checkin_date, status, destination, km_checkout, km_checkin, notes, user_profile:profiles!vehicle_checkouts_user_id_fkey(full_name, email)`)
+          .select(`id, checkout_date, checkin_date, status, destination, km_checkout, km_checkin, notes, user_id`)
           .eq("vehicle_id", id!)
           .order("checkout_date", { ascending: false }),
         supabase
@@ -82,12 +82,19 @@ export default function VehicleDetail() {
           .select("id, refuel_date, liters, fuel_type, km_at_refuel, total_cost, gas_station")
           .eq("vehicle_id", id!)
           .order("refuel_date", { ascending: false }),
+        supabase.rpc("get_approved_users"),
       ]);
 
       if (vehicleRes.error) throw vehicleRes.error;
+      const userMap = new Map<string, string>();
+      ((usersRes.data as any[]) || []).forEach((u) => userMap.set(u.id, u.full_name));
+      const checkouts = ((checkoutsRes.data as any[]) || []).map((c) => ({
+        ...c,
+        user_profile: { full_name: userMap.get(c.user_id) || "Usuário", email: "" },
+      })) as CheckoutRecord[];
       return {
         vehicle: vehicleRes.data as Vehicle | null,
-        checkouts: ((checkoutsRes.data as any) || []) as CheckoutRecord[],
+        checkouts,
         fuelRecords: (fuelRes.data || []) as FuelRecord[],
       };
     },
