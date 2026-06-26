@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation, Clock } from "lucide-react";
+import { Car, Search } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,13 +17,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { reverseGeocode, geocodeAddress, calculateRoute } from "@/lib/geocoding";
-import type { RouteEstimate as RouteEstimateType } from "@/lib/geocoding";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture, { getRequiredPhotoKeys } from "@/components/VehiclePhotoCapture";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 
