@@ -47,7 +47,7 @@ export default function VehicleCheckout() {
   const isVehicleLocked = !!vehicleIdFromParam;
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
-  const [estimatedReturnTime, setEstimatedReturnTime] = useState("");
+  
   const [searchQuery, setSearchQuery] = useState("");
 
   // Outside city state
@@ -207,15 +207,8 @@ export default function VehicleCheckout() {
       if (!selectedVehicle) throw new Error("Selecione um veículo");
       const finalDestination = destination.trim();
       if (!finalDestination) throw new Error("Selecione a obra de destino");
-      if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
 
-      // Build estimated return date from time input
-      const now = new Date();
-      const [hours, minutes] = estimatedReturnTime.split(":").map(Number);
-      const estimatedReturn = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-      if (estimatedReturn <= now) {
-        estimatedReturn.setDate(estimatedReturn.getDate() + 1);
-      }
+
 
       const effectiveUserId = isAdmin && responsibleUserId && responsibleUserId !== user.id ? responsibleUserId : user.id;
       const isAdminActingForOther = effectiveUserId !== user.id;
@@ -232,7 +225,7 @@ export default function VehicleCheckout() {
         notes,
         status: "checked_out",
         is_outside_city: isOutsideCity,
-        estimated_return_time: estimatedReturnTime,
+
         ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
@@ -471,19 +464,6 @@ export default function VehicleCheckout() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="estimatedReturnTime" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  {isPlatform ? "Hora Estimada de Uso *" : "Hora Estimada de Retorno *"}
-                </Label>
-                <Input
-                  id="estimatedReturnTime"
-                  type="time"
-                  value={estimatedReturnTime}
-                  onChange={(e) => setEstimatedReturnTime(e.target.value)}
-                  required
-                />
-              </div>
 
               {/* Outside City Toggle - irrelevant for platforms */}
               {!isPlatform && (
@@ -663,7 +643,7 @@ export default function VehicleCheckout() {
           </Button>
           <Button
             type="submit"
-            disabled={!selectedVehicle || !destination || !estimatedReturnTime || (isOnline && !allPhotos && !(isAdmin && manualMode && skipPhotos)) || checkoutMutation.isPending}
+            disabled={!selectedVehicle || !destination || (isOnline && !allPhotos && !(isAdmin && manualMode && skipPhotos)) || checkoutMutation.isPending}
             className="flex-1"
           >
             {checkoutMutation.isPending ? "Registrando..." : "Registrar Saída"}
