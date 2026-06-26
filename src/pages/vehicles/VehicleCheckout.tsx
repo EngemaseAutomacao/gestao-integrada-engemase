@@ -46,14 +46,6 @@ export default function VehicleCheckout() {
   
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Outside city state
-  const [isOutsideCity, setIsOutsideCity] = useState(false);
-  const [originAddress, setOriginAddress] = useState("");
-  const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
-  const [destinationAddress, setDestinationAddress] = useState("");
-  const [routeEstimate, setRouteEstimate] = useState<RouteEstimateType | null>(null);
-  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
-
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [previews, setPreviews] = useState<Record<string, string | null>>({});
 
