@@ -38,10 +38,6 @@ const faqSections = [
         q: "Como registrar a chegada de um veículo?",
         a: "Acesse Veículos › Registrar Chegada, informe a quilometragem de retorno, se houve abastecimento e tire as fotos finais do veículo.",
       },
-      {
-        q: "O que é uma viagem fora da cidade?",
-        a: "Ao registrar a saída, marque 'Fora da cidade' e informe o endereço de destino. O sistema calcula a distância prevista automaticamente.",
-      },
     ],
   },
   {

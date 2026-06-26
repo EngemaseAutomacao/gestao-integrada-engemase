@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRightCircle, Car, Search, MapPin, Loader2, Navigation, Clock } from "lucide-react";
+import { Car, Search } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,13 +17,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
 import { useActiveConstructionSites } from "@/hooks/useConstructionSites";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { reverseGeocode, geocodeAddress, calculateRoute } from "@/lib/geocoding";
-import type { RouteEstimate as RouteEstimateType } from "@/lib/geocoding";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import VehiclePhotoCapture, { getRequiredPhotoKeys } from "@/components/VehiclePhotoCapture";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
 import { ConstructionSiteAutocomplete } from "@/components/ConstructionSiteAutocomplete";
 
 
@@ -49,14 +45,6 @@ export default function VehicleCheckout() {
   const [notes, setNotes] = useState("");
   
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Outside city state
-  const [isOutsideCity, setIsOutsideCity] = useState(false);
-  const [originAddress, setOriginAddress] = useState("");
-  const [originCoords, setOriginCoords] = useState<{ lat: number; lon: number } | null>(null);
-  const [destinationAddress, setDestinationAddress] = useState("");
-  const [routeEstimate, setRouteEstimate] = useState<RouteEstimateType | null>(null);
-  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [previews, setPreviews] = useState<Record<string, string | null>>({});
@@ -85,66 +73,6 @@ export default function VehicleCheckout() {
   // Platform-specific state
   const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
 
-  const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
-
-  const handleGetLocation = async () => {
-    try {
-      const coords = await getCurrentPosition();
-      setOriginCoords({ lat: coords.latitude, lon: coords.longitude });
-
-      const addr = await reverseGeocode(coords.latitude, coords.longitude);
-      setOriginAddress(addr || `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`);
-      toast.success("Localização obtida!");
-    } catch {
-      toast.error("Não foi possível obter a localização. Verifique as permissões.");
-    }
-  
-  };
-
-  const handleCalculateRoute = async () => {
-    if (!destinationAddress.trim()) {
-      toast.error("Informe o destino primeiro.");
-      return;
-    }
-    if (!originCoords && !originAddress.trim()) {
-      toast.error("Informe a origem ou use o GPS.");
-      return;
-    }
-
-    setIsCalculatingRoute(true);
-    try {
-      let startCoords = originCoords;
-
-      if (!startCoords) {
-        const geocoded = await geocodeAddress(originAddress);
-        if (!geocoded) {
-          toast.error("Origem não encontrada. Tente um endereço mais específico.");
-          return;
-        }
-        startCoords = geocoded;
-        setOriginCoords(startCoords);
-      }
-
-      const destCoords = await geocodeAddress(destinationAddress);
-      if (!destCoords) {
-        toast.error("Destino não encontrado. Tente um endereço mais específico.");
-        return;
-      }
-
-      const route = await calculateRoute(startCoords, destCoords);
-      if (!route) {
-        toast.error("Não foi possível calcular a rota.");
-        return;
-      }
-
-      setRouteEstimate(route);
-      toast.success("Rota calculada!");
-    } catch {
-      toast.error("Erro ao calcular a rota. Tente novamente.");
-    } finally {
-      setIsCalculatingRoute(false);
-    }
-  };
 
   const { data: availableVehicles, isLoading } = useQuery({
     queryKey: ["available-vehicles"],
@@ -224,20 +152,11 @@ export default function VehicleCheckout() {
         destination: finalDestination,
         notes,
         status: "checked_out",
-        is_outside_city: isOutsideCity,
 
         ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
 
-      if (isOutsideCity) {
-        insertData.origin_address = originAddress;
-        insertData.origin_latitude = originCoords?.lat;
-        insertData.origin_longitude = originCoords?.lon;
-        insertData.destination_address = destinationAddress;
-        insertData.estimated_distance_km = routeEstimate?.distance_km;
-        insertData.estimated_duration_minutes = routeEstimate?.duration_minutes;
-      }
 
       if (isPlatform) {
         if (chargesDuringUse.trim()) {
@@ -321,12 +240,8 @@ export default function VehicleCheckout() {
 
   // selectedVehicleData defined above
 
-  const formatDuration = (minutes: number) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    if (h === 0) return `${m} min`;
-    return `${h}h ${m}min`;
-  };
+
+
 
   return (
     <div className="space-y-6">
@@ -465,131 +380,6 @@ export default function VehicleCheckout() {
               </div>
 
 
-              {/* Outside City Toggle - irrelevant for platforms */}
-              {!isPlatform && (
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <Label className="text-base font-medium flex items-center gap-2">
-                    <Navigation className="w-4 h-4" />
-                    Trabalho fora da cidade
-                  </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Ative para calcular distância e tempo estimado
-                  </p>
-                </div>
-                <Switch
-                  checked={isOutsideCity}
-                  onCheckedChange={(checked) => {
-                    setIsOutsideCity(checked);
-                    if (!checked) {
-                      setOriginAddress("");
-                      setOriginCoords(null);
-                      setDestinationAddress("");
-                      setRouteEstimate(null);
-                    }
-                  }}
-                />
-              </div>
-              )}
-              {/* Outside City Details */}
-              {isOutsideCity && (
-                <Card className="border-dashed">
-                  <CardContent className="pt-4 space-y-4">
-                    {/* Origin */}
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        Localização de Origem
-                      </Label>
-                      <div className="flex gap-2">
-                        <div className="flex-1">
-                          <AddressAutocomplete
-                            value={originAddress}
-                            onChange={(val) => {
-                              setOriginAddress(val);
-                              setRouteEstimate(null);
-                            }}
-                            onSelect={(addr, lat, lon) => {
-                              setOriginAddress(addr);
-                              setOriginCoords({ lat, lon });
-                              setRouteEstimate(null);
-                            }}
-                            placeholder="Digite ou use o GPS para localização..."
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleGetLocation}
-                          disabled={isLoadingLocation}
-                          title="Usar GPS"
-                        >
-                          {isLoadingLocation ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Navigation className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Use o botão GPS ou digite o endereço para buscar
-                      </p>
-                    </div>
-
-                    {/* Destination Address */}
-                    <div className="space-y-2">
-                      <Label className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        Endereço de Destino
-                      </Label>
-                      <AddressAutocomplete
-                        value={destinationAddress}
-                        onChange={(val) => {
-                          setDestinationAddress(val);
-                          setRouteEstimate(null);
-                        }}
-                        onSelect={(addr) => {
-                          setDestinationAddress(addr);
-                          setRouteEstimate(null);
-                        }}
-                        placeholder="Ex: São Paulo, SP ou Rua X, Cidade..."
-                      />
-                    </div>
-
-                    {/* Calculate Button */}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={handleCalculateRoute}
-                      disabled={isCalculatingRoute || (!originCoords && !originAddress.trim()) || !destinationAddress.trim()}
-                      className="w-full"
-                    >
-                      {isCalculatingRoute ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                          Calculando...
-                        </>
-                      ) : (
-                        "Calcular Distância e Tempo"
-                      )}
-                    </Button>
-
-                    {/* Route Result */}
-                    {routeEstimate && (
-                      <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-primary">≈ {routeEstimate.distance_km} km</p>
-                          <p className="text-sm text-muted-foreground">Distância aproximada</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-2xl font-bold text-primary">≈ {formatDuration(routeEstimate.duration_minutes)}</p>
-                          <p className="text-sm text-muted-foreground">Tempo aproximado</p>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações</Label>
