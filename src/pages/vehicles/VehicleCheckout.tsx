@@ -73,66 +73,6 @@ export default function VehicleCheckout() {
   // Platform-specific state
   const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
 
-  const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
-
-  const handleGetLocation = async () => {
-    try {
-      const coords = await getCurrentPosition();
-      setOriginCoords({ lat: coords.latitude, lon: coords.longitude });
-
-      const addr = await reverseGeocode(coords.latitude, coords.longitude);
-      setOriginAddress(addr || `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`);
-      toast.success("Localização obtida!");
-    } catch {
-      toast.error("Não foi possível obter a localização. Verifique as permissões.");
-    }
-  
-  };
-
-  const handleCalculateRoute = async () => {
-    if (!destinationAddress.trim()) {
-      toast.error("Informe o destino primeiro.");
-      return;
-    }
-    if (!originCoords && !originAddress.trim()) {
-      toast.error("Informe a origem ou use o GPS.");
-      return;
-    }
-
-    setIsCalculatingRoute(true);
-    try {
-      let startCoords = originCoords;
-
-      if (!startCoords) {
-        const geocoded = await geocodeAddress(originAddress);
-        if (!geocoded) {
-          toast.error("Origem não encontrada. Tente um endereço mais específico.");
-          return;
-        }
-        startCoords = geocoded;
-        setOriginCoords(startCoords);
-      }
-
-      const destCoords = await geocodeAddress(destinationAddress);
-      if (!destCoords) {
-        toast.error("Destino não encontrado. Tente um endereço mais específico.");
-        return;
-      }
-
-      const route = await calculateRoute(startCoords, destCoords);
-      if (!route) {
-        toast.error("Não foi possível calcular a rota.");
-        return;
-      }
-
-      setRouteEstimate(route);
-      toast.success("Rota calculada!");
-    } catch {
-      toast.error("Erro ao calcular a rota. Tente novamente.");
-    } finally {
-      setIsCalculatingRoute(false);
-    }
-  };
 
   const { data: availableVehicles, isLoading } = useQuery({
     queryKey: ["available-vehicles"],
