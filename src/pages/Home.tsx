@@ -650,7 +650,15 @@ export default function Home() {
                 <CompactTile {...m} />
               </div>
             ))}
+            <CompactTile
+              id="ajuda"
+              title="Ajuda & Suporte"
+              description="Tutoriais e dúvidas"
+              icon={<HelpCircle className="w-5 h-5" />}
+              to="/ajuda"
+            />
           </div>
+
 
           {adminModule && (
             <div id={adminModule.id} className="mt-4">
