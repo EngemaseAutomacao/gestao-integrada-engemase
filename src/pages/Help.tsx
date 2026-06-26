@@ -1,6 +1,7 @@
-import { HelpCircle, Wrench, Car, Shield, Bell, History, Package } from "lucide-react";
+import { HelpCircle, Wrench, Car, Shield, History } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModuleHero } from "@/components/ModuleHero";
 
 const faqSections = [
   {
