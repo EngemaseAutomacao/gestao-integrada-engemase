@@ -127,7 +127,8 @@ export default function Help() {
             </Accordion>
           </CardContent>
         </Card>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
