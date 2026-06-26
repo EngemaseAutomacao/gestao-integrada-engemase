@@ -207,15 +207,8 @@ export default function VehicleCheckout() {
       if (!selectedVehicle) throw new Error("Selecione um veículo");
       const finalDestination = destination.trim();
       if (!finalDestination) throw new Error("Selecione a obra de destino");
-      if (!estimatedReturnTime) throw new Error("Informe a hora estimada de retorno");
 
-      // Build estimated return date from time input
-      const now = new Date();
-      const [hours, minutes] = estimatedReturnTime.split(":").map(Number);
-      const estimatedReturn = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-      if (estimatedReturn <= now) {
-        estimatedReturn.setDate(estimatedReturn.getDate() + 1);
-      }
+
 
       const effectiveUserId = isAdmin && responsibleUserId && responsibleUserId !== user.id ? responsibleUserId : user.id;
       const isAdminActingForOther = effectiveUserId !== user.id;
