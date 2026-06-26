@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.62.3",
+    date: "2026-06-26",
+    title: "Push notifications individuais",
+    description: "Cada notificação push agora aparece individualmente no celular, sem ser silenciosamente substituída pelas seguintes.",
+    changes: [
+      { type: "fix", text: "Tag única por notificação evita que pushes do mesmo tipo sumam do system tray" },
+      { type: "improvement", text: "renotify=true garante som/vibração em cada novo alerta" },
+      { type: "fix", text: "Trigger do banco passa o id da notificação como tag para o navegador" },
+    ],
+  },
+  {
     version: "1.62.2",
     date: "2026-06-26",
     title: "Notificações push mais confiáveis",
