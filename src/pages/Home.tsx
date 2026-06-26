@@ -743,8 +743,14 @@ export default function Home() {
               <ModuleCard {...m} />
             </div>
           ))}
-
-
+          <div>
+            <ModuleCard
+              title="Ajuda & Suporte"
+              description="Tutoriais, dúvidas frequentes e contato"
+              icon={<HelpCircle className="w-6 h-6" />}
+              to="/ajuda"
+            />
+          </div>
         </div>
 
         {adminModuleDesk && (
