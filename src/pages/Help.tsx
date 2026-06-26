@@ -1,6 +1,7 @@
-import { HelpCircle, Wrench, Car, Shield, Bell, History, Package } from "lucide-react";
+import { HelpCircle, Wrench, Car, Shield, History } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ModuleHero } from "@/components/ModuleHero";
 
 const faqSections = [
   {
@@ -93,18 +94,17 @@ const faqSections = [
 
 export default function Help() {
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-          <HelpCircle className="w-6 h-6 text-primary" />
-        </div>
-        <h1 className="text-2xl font-bold hidden sm:block">Central de Ajuda</h1>
-        <p className="text-sm text-muted-foreground">
-          Encontre respostas para as dúvidas mais frequentes sobre o sistema.
-        </p>
-      </div>
+    <div className="space-y-4 sm:space-y-6">
+      <ModuleHero
+        eyebrow="Suporte"
+        title="Central de Ajuda"
+        subtitle="Encontre respostas para as dúvidas mais frequentes sobre o sistema."
+        compact
+        narrow
+      />
 
-      {faqSections.map((section) => (
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+        {faqSections.map((section) => (
         <Card key={section.title}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -127,7 +127,8 @@ export default function Help() {
             </Accordion>
           </CardContent>
         </Card>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
