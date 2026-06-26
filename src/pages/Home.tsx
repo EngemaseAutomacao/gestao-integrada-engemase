@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, Car, Shield, Download, Package, Loader2, Building2, Share, History, ChevronRight, Clock } from "lucide-react";
+import { Wrench, Car, Shield, Download, Package, Loader2, Building2, Share, History, ChevronRight, Clock, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
