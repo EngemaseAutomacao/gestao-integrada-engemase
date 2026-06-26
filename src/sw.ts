@@ -258,60 +258,33 @@ self.addEventListener("push", (event) => {
   const body =
     (data.body && String(data.body).trim()) || "Você tem novas atualizações.";
 
-  // Agrupar por tipo (vindo em data.data.type) — fallback para grupo único
-  // por usuário, evitando a explosão de N notificações quando o dispositivo
-  // recebe muitos pushes acumulados.
+  // Tag única por notificação para que cada push apareça individualmente
+  // no system tray (sem ser silenciosamente substituído pelo anterior).
   const innerData = (data.data || {}) as Record<string, unknown>;
-  const groupKey =
-    data.group ||
-    (innerData.type as string) ||
+  const tag =
+    (innerData.notificationId as string) ||
     data.tag ||
-    "engemase-default";
-  const tag = `group:${groupKey}`;
+    `engemase-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   event.waitUntil(
-    (async () => {
-      let displayTitle = title;
-      let displayBody = body;
-
-      try {
-        const existing = await self.registration.getNotifications({ tag });
-        if (existing.length > 0) {
-          const prev = existing[0];
-          const prevCount = ((prev.data as any)?.groupCount as number) || 1;
-          const newCount = prevCount + 1;
-          displayTitle = data.groupTitle || title;
-          displayBody = `Você tem ${newCount} novas notificações`;
-          innerData.groupCount = newCount;
-          innerData.groupKey = groupKey;
-        } else {
-          innerData.groupCount = 1;
-          innerData.groupKey = groupKey;
-        }
-      } catch (e) {
-        console.warn("[SW] Falha ao agrupar notificação:", e);
-      }
-
-      await self.registration.showNotification(displayTitle, {
-        body: displayBody,
-        icon: data.icon || "/icon-192.png",
-        badge: "/mono-192.png",
-        tag,
-        data: innerData,
-        requireInteraction: false,
-        // renotify=false: substitui a notificação existente do mesmo grupo
-        // SEM tocar som/vibrar novamente. Evita "spam" ao abrir o app.
-        // @ts-expect-error - propriedades não-padrão suportadas em Chromium
-        renotify: false,
-        silent: false,
-        actions: [
-          { action: "open", title: "Abrir" },
-          { action: "close", title: "Fechar" },
-        ],
-      });
-    })()
+    self.registration.showNotification(title, {
+      body,
+      icon: data.icon || "/icon-192.png",
+      badge: "/mono-192.png",
+      tag,
+      data: innerData,
+      requireInteraction: false,
+      // @ts-expect-error - propriedades não-padrão suportadas em Chromium
+      renotify: true,
+      silent: false,
+      actions: [
+        { action: "open", title: "Abrir" },
+        { action: "close", title: "Fechar" },
+      ],
+    })
   );
 });
+
 
 
 // ---- Notification click ----
