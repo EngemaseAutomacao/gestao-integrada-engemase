@@ -240,12 +240,8 @@ export default function VehicleCheckout() {
 
   // selectedVehicleData defined above
 
-  const formatDuration = (minutes: number) => {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    if (h === 0) return `${m} min`;
-    return `${h}h ${m}min`;
-  };
+
+
 
   return (
     <div className="space-y-6">
