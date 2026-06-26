@@ -651,12 +651,12 @@ export default function Home() {
               </div>
             ))}
             <CompactTile
-              id="ajuda"
               title="Ajuda & Suporte"
               description="Tutoriais e dúvidas"
               icon={<HelpCircle className="w-5 h-5" />}
               to="/ajuda"
             />
+
           </div>
 
 
