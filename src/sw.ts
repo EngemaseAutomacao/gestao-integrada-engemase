@@ -236,72 +236,74 @@ self.addEventListener("periodicsync", (event: any) => {
 
 // ---- Push notifications (com agrupamento) ----
 self.addEventListener("push", (event) => {
-  if (!event.data) {
-    console.log("[SW] Push received with no data, skipping");
-    return;
-  }
+  // NÃO retornar sem showNotification: se o SW termina o handler sem
+  // mostrar notificação, o navegador exibe a notificação genérica padrão
+  // (ícone do Chrome + nome do app). Sempre mostramos algo.
+  let data: any = {};
 
-  let data: any = null;
-
-  try {
-    const payload = event.data.json();
-    if (!payload || typeof payload !== "object") {
-      console.log("[SW] Push payload is not a valid object, skipping");
-      return;
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      if (payload && typeof payload === "object") data = payload;
+    } catch {
+      const text = event.data.text();
+      if (text && text.trim() !== "") {
+        data = { title: "Notificação", body: text };
+      }
     }
-    data = payload;
-  } catch {
-    const text = event.data.text();
-    if (!text || text.trim() === "") {
-      console.log("[SW] Push text is empty, skipping");
-      return;
-    }
-    data = { title: "Notificação", body: text };
   }
 
-  if (!data.body || String(data.body).trim() === "") {
-    console.log("[SW] Push body is empty, skipping notification");
-    return;
-  }
-  if (!data.title || String(data.title).trim() === "") {
-    console.log("[SW] Push title is empty, skipping notification");
-    return;
-  }
+  const title =
+    (data.title && String(data.title).trim()) || "Engemase";
+  const body =
+    (data.body && String(data.body).trim()) || "Você tem novas atualizações.";
 
-  const groupKey = data.group || data.tag || "default";
+  // Agrupar por tipo (vindo em data.data.type) — fallback para grupo único
+  // por usuário, evitando a explosão de N notificações quando o dispositivo
+  // recebe muitos pushes acumulados.
+  const innerData = (data.data || {}) as Record<string, unknown>;
+  const groupKey =
+    data.group ||
+    (innerData.type as string) ||
+    data.tag ||
+    "engemase-default";
   const tag = `group:${groupKey}`;
 
   event.waitUntil(
     (async () => {
-      let title = data.title;
-      let body = data.body;
+      let displayTitle = title;
+      let displayBody = body;
 
       try {
         const existing = await self.registration.getNotifications({ tag });
         if (existing.length > 0) {
           const prev = existing[0];
-          const prevCount = (prev.data && prev.data.groupCount) || 1;
+          const prevCount = ((prev.data as any)?.groupCount as number) || 1;
           const newCount = prevCount + 1;
-          title = data.groupTitle || data.title;
-          body = `Você tem ${newCount} novas notificações`;
-          data.data = { ...(data.data || {}), groupCount: newCount, groupKey };
+          displayTitle = data.groupTitle || title;
+          displayBody = `Você tem ${newCount} novas notificações`;
+          innerData.groupCount = newCount;
+          innerData.groupKey = groupKey;
         } else {
-          data.data = { ...(data.data || {}), groupCount: 1, groupKey };
+          innerData.groupCount = 1;
+          innerData.groupKey = groupKey;
         }
       } catch (e) {
         console.warn("[SW] Falha ao agrupar notificação:", e);
       }
 
-      await self.registration.showNotification(title, {
-        body,
+      await self.registration.showNotification(displayTitle, {
+        body: displayBody,
         icon: data.icon || "/icon-192.png",
         badge: "/mono-192.png",
         tag,
-        data: data.data || {},
+        data: innerData,
         requireInteraction: false,
+        // renotify=false: substitui a notificação existente do mesmo grupo
+        // SEM tocar som/vibrar novamente. Evita "spam" ao abrir o app.
         // @ts-expect-error - propriedades não-padrão suportadas em Chromium
-        renotify: true,
-        vibrate: [200, 100, 200],
+        renotify: false,
+        silent: false,
         actions: [
           { action: "open", title: "Abrir" },
           { action: "close", title: "Fechar" },
@@ -310,6 +312,7 @@ self.addEventListener("push", (event) => {
     })()
   );
 });
+
 
 // ---- Notification click ----
 self.addEventListener("notificationclick", (event) => {

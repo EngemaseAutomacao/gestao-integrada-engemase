@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.62.2",
+    date: "2026-06-26",
+    title: "Notificações push mais confiáveis",
+    description: "Revisão completa do fluxo de notificações push: fim das notificações em branco com o ícone do Chrome, agrupamento real por tipo (em vez de dezenas iguais) e atualização silenciosa do contador.",
+    changes: [
+      { type: "fix", text: "Service worker agora sempre exibe uma notificação visível, eliminando os avisos genéricos do Chrome quando o payload vinha vazio" },
+      { type: "improvement", text: "Notificações do mesmo tipo (devoluções, retiradas, manutenção) colapsam em uma única bolha com contador" },
+      { type: "improvement", text: "Re-exibição da mesma bolha não vibra/sonoriza novamente, evitando a sensação de spam ao abrir o app" },
+      { type: "improvement", text: "Trigger do banco passou a enviar o grupo correto para o navegador" },
+    ],
+  },
+  {
     version: "1.62.1",
     date: "2026-06-26",
     title: "Central de Ajuda atualizada",
