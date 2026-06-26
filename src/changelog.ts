@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.62.1",
+    date: "2026-06-26",
+    title: "Central de Ajuda atualizada",
+    description: "Conteúdo e visual da Central de Ajuda foram revisados para refletir os fluxos atuais do sistema.",
+    changes: [
+      { type: "improvement", text: "FAQ atualizado com prazos predefinidos, Retirada/Devolução em Lote, prorrogação e Modo Manual para admins" },
+      { type: "improvement", text: "Removidas instruções obsoletas (fotos no checkout de ferramentas e Reportar Problema)" },
+      { type: "improvement", text: "Layout da página padronizado com ModuleHero, igual às demais telas" },
+    ],
+  },
+  {
     version: "1.62.0",
     date: "2026-06-26",
     title: "Remoção de módulos descontinuados",
