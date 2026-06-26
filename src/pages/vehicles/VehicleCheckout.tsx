@@ -47,7 +47,7 @@ export default function VehicleCheckout() {
   const isVehicleLocked = !!vehicleIdFromParam;
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
-  const [estimatedReturnTime, setEstimatedReturnTime] = useState("");
+  
   const [searchQuery, setSearchQuery] = useState("");
 
   // Outside city state
