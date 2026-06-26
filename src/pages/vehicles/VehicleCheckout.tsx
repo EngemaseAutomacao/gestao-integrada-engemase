@@ -152,20 +152,11 @@ export default function VehicleCheckout() {
         destination: finalDestination,
         notes,
         status: "checked_out",
-        is_outside_city: isOutsideCity,
 
         ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
 
-      if (isOutsideCity) {
-        insertData.origin_address = originAddress;
-        insertData.origin_latitude = originCoords?.lat;
-        insertData.origin_longitude = originCoords?.lon;
-        insertData.destination_address = destinationAddress;
-        insertData.estimated_distance_km = routeEstimate?.distance_km;
-        insertData.estimated_duration_minutes = routeEstimate?.duration_minutes;
-      }
 
       if (isPlatform) {
         if (chargesDuringUse.trim()) {
