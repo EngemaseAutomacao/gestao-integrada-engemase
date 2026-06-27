@@ -46,7 +46,7 @@ export function SyncQueuePanel() {
           <ChevronRight className="w-3 h-3" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[400px] sm:w-[540px]">
+      <SheetContent className="w-full sm:w-[400px] md:w-[540px]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <RefreshCw className="w-5 h-5 text-orange-500" />
