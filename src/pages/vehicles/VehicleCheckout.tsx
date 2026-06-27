@@ -407,6 +407,7 @@ export default function VehicleCheckout() {
                     <SelectItem value="30">30 Dias</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
 
 
 
