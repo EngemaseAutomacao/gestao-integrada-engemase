@@ -161,7 +161,7 @@ export default function VehicleDetail() {
               )}
               <div>
                 <p className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-semibold">Status</p>
-                <Badge className={`mt-1 ${isAvailable ? "bg-green-500" : "bg-yellow-500"}`}>
+                <Badge className={`mt-1 ${isAvailable ? "bg-success text-success-foreground" : "bg-warning text-warning-foreground"}`}>
                   {isAvailable ? "Disponível" : "Em uso"}
                 </Badge>
               </div>

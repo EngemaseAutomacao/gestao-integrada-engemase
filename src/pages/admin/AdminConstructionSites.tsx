@@ -407,13 +407,13 @@ export default function AdminConstructionSites() {
 
   const getConditionClass = (condition: string) => {
     const map: Record<string, string> = {
-      excellent: "bg-green-500 text-white",
-      good: "bg-blue-500 text-white",
-      fair: "bg-yellow-500 text-white",
-      poor: "bg-orange-500 text-white",
-      needs_maintenance: "bg-red-500 text-white",
+      excellent: "bg-success text-success-foreground",
+      good: "bg-primary text-primary-foreground",
+      fair: "bg-warning text-warning-foreground",
+      poor: "bg-warning text-warning-foreground",
+      needs_maintenance: "bg-destructive text-destructive-foreground",
     };
-    return map[condition] || "bg-red-500 text-white";
+    return map[condition] || "bg-destructive text-destructive-foreground";
   };
 
   return (

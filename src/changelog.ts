@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.62.4",
+    date: "2026-06-27",
+    title: "Padronização visual",
+    description: "Tela 404 ganhou suporte ao modo escuro e cores de status (condição de ferramentas/obras, disponibilidade de veículos) passaram a usar os tokens do tema, ficando consistentes em ambos os modos.",
+    changes: [
+      { type: "improvement", text: "Tela 'Página não encontrada' respeita o tema escuro" },
+      { type: "improvement", text: "Badges de condição de ferramentas e obras usam tokens semânticos (sucesso/aviso/erro)" },
+      { type: "improvement", text: "Badge de disponibilidade do veículo padronizada" },
+    ],
+  },
+  {
     version: "1.62.3",
     date: "2026-06-26",
     title: "Push notifications individuais",
