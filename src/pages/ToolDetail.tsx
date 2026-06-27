@@ -61,11 +61,11 @@ const conditionLabels: Record<string, string> = {
 };
 
 const conditionColors: Record<string, string> = {
-  excellent: "bg-green-500",
-  good: "bg-blue-500",
-  fair: "bg-yellow-500",
-  poor: "bg-orange-500",
-  needs_maintenance: "bg-red-500",
+  excellent: "bg-success",
+  good: "bg-primary",
+  fair: "bg-warning",
+  poor: "bg-warning",
+  needs_maintenance: "bg-destructive",
 };
 
 const maintenanceTypes: Record<string, string> = {

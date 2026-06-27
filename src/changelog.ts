@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.62.4",
+    date: "2026-06-27",
+    title: "Padronização visual e limpeza de código",
+    description: "Revisão geral: tela 404 com suporte a modo escuro, cores de status padronizadas via tokens do tema e remoção de páginas administrativas não utilizadas.",
+    changes: [
+      { type: "improvement", text: "Tela 'Página não encontrada' agora respeita o tema escuro" },
+      { type: "improvement", text: "Cores de condição de ferramentas/obras e status de veículo usam tokens semânticos (sucesso/aviso/erro)" },
+      { type: "fix", text: "Removidas páginas administrativas órfãs (histórico antigo, transferências) que não eram mais acessíveis" },
+    ],
+  },
+  {
     version: "1.62.3",
     date: "2026-06-26",
     title: "Push notifications individuais",
