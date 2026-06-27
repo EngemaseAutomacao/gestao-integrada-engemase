@@ -43,6 +43,19 @@ export default function VehicleCheckout() {
   const isVehicleLocked = !!vehicleIdFromParam;
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
+  const [returnDays, setReturnDays] = useState<string>("");
+  const [estimatedReturnDate, setEstimatedReturnDate] = useState<string>("");
+
+  const handleReturnDaysChange = (value: string) => {
+    setReturnDays(value);
+    const days = parseInt(value, 10);
+    if (!Number.isNaN(days)) {
+      setEstimatedReturnDate(new Date(Date.now() + days * 86400000).toISOString());
+    } else {
+      setEstimatedReturnDate("");
+    }
+  };
+  
   
   const [searchQuery, setSearchQuery] = useState("");
 
