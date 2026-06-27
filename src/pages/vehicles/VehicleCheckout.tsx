@@ -157,6 +157,8 @@ export default function VehicleCheckout() {
         throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao retirar veículo em nome de outro usuário.");
       }
 
+      if (!estimatedReturnDate) throw new Error("Selecione a previsão de devolução");
+
       const insertData: any = {
         vehicle_id: selectedVehicle,
         user_id: effectiveUserId,
@@ -165,7 +167,7 @@ export default function VehicleCheckout() {
         destination: finalDestination,
         notes,
         status: "checked_out",
-
+        estimated_return_date: estimatedReturnDate,
         ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
