@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.63.0",
+    date: "2026-06-27",
+    title: "Prazo de devolução de veículos em dias",
+    description: "Saída de veículos agora usa prazos pré-definidos (1, 7, 15 ou 30 dias) e os alertas de atraso passam a ser contados em dias, alinhando o fluxo ao das ferramentas.",
+    changes: [
+      { type: "feature", text: "Campo 'Previsão de Devolução' com prazos predefinidos na saída de veículos" },
+      { type: "improvement", text: "Notificações de veículo atrasado agora informam o atraso em dias" },
+    ],
+  },
+  {
     version: "1.62.4",
     date: "2026-06-27",
     title: "Padronização visual",
