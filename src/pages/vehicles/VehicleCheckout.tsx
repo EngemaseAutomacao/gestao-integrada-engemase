@@ -43,6 +43,19 @@ export default function VehicleCheckout() {
   const isVehicleLocked = !!vehicleIdFromParam;
   const [destination, setDestination] = useState("");
   const [notes, setNotes] = useState("");
+  const [returnDays, setReturnDays] = useState<string>("");
+  const [estimatedReturnDate, setEstimatedReturnDate] = useState<string>("");
+
+  const handleReturnDaysChange = (value: string) => {
+    setReturnDays(value);
+    const days = parseInt(value, 10);
+    if (!Number.isNaN(days)) {
+      setEstimatedReturnDate(new Date(Date.now() + days * 86400000).toISOString());
+    } else {
+      setEstimatedReturnDate("");
+    }
+  };
+  
   
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -144,6 +157,8 @@ export default function VehicleCheckout() {
         throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao retirar veículo em nome de outro usuário.");
       }
 
+      if (!estimatedReturnDate) throw new Error("Selecione a previsão de devolução");
+
       const insertData: any = {
         vehicle_id: selectedVehicle,
         user_id: effectiveUserId,
@@ -152,7 +167,7 @@ export default function VehicleCheckout() {
         destination: finalDestination,
         notes,
         status: "checked_out",
-
+        estimated_return_date: estimatedReturnDate,
         ...(isAdmin && manualMode && manualDate ? { checkout_date: new Date(manualDate).toISOString() } : {}),
       };
 
@@ -377,6 +392,21 @@ export default function VehicleCheckout() {
                   value={destination}
                   onChange={setDestination}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="estimated_return_vehicle">Previsão de Devolução *</Label>
+                <Select value={returnDays} onValueChange={handleReturnDaysChange}>
+                  <SelectTrigger id="estimated_return_vehicle">
+                    <SelectValue placeholder="Selecione o prazo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Dia</SelectItem>
+                    <SelectItem value="7">7 Dias</SelectItem>
+                    <SelectItem value="15">15 Dias</SelectItem>
+                    <SelectItem value="30">30 Dias</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
 
