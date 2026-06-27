@@ -394,6 +394,20 @@ export default function VehicleCheckout() {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="estimated_return_vehicle">Previsão de Devolução *</Label>
+                <Select value={returnDays} onValueChange={handleReturnDaysChange}>
+                  <SelectTrigger id="estimated_return_vehicle">
+                    <SelectValue placeholder="Selecione o prazo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Dia</SelectItem>
+                    <SelectItem value="7">7 Dias</SelectItem>
+                    <SelectItem value="15">15 Dias</SelectItem>
+                    <SelectItem value="30">30 Dias</SelectItem>
+                  </SelectContent>
+                </Select>
+
 
 
               <div className="space-y-2">
