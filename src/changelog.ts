@@ -13,12 +13,12 @@ export const changelog: ChangelogEntry[] = [
   {
     version: "1.62.4",
     date: "2026-06-27",
-    title: "Padronização visual e limpeza de código",
-    description: "Revisão geral: tela 404 com suporte a modo escuro, cores de status padronizadas via tokens do tema e remoção de páginas administrativas não utilizadas.",
+    title: "Padronização visual",
+    description: "Tela 404 ganhou suporte ao modo escuro e cores de status (condição de ferramentas/obras, disponibilidade de veículos) passaram a usar os tokens do tema, ficando consistentes em ambos os modos.",
     changes: [
-      { type: "improvement", text: "Tela 'Página não encontrada' agora respeita o tema escuro" },
-      { type: "improvement", text: "Cores de condição de ferramentas/obras e status de veículo usam tokens semânticos (sucesso/aviso/erro)" },
-      { type: "fix", text: "Removidas páginas administrativas órfãs (histórico antigo, transferências) que não eram mais acessíveis" },
+      { type: "improvement", text: "Tela 'Página não encontrada' respeita o tema escuro" },
+      { type: "improvement", text: "Badges de condição de ferramentas e obras usam tokens semânticos (sucesso/aviso/erro)" },
+      { type: "improvement", text: "Badge de disponibilidade do veículo padronizada" },
     ],
   },
   {
