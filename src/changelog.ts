@@ -19,7 +19,7 @@ export const changelog: ChangelogEntry[] = [
       { type: "improvement", text: "Notificação 'Veículo em Uso Prolongado' passa a contar em dias" },
     ],
   },
-
+  {
     version: "1.63.0",
     date: "2026-06-27",
     title: "Prazo de devolução de veículos em dias",
