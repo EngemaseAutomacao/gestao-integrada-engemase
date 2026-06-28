@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.63.1",
+    date: "2026-06-28",
+    title: "Notificações de veículos padronizadas em dias",
+    description: "O aviso de veículo em uso prolongado agora informa o tempo em dias, alinhando todas as notificações de veículos à mesma unidade do alerta de atraso.",
+    changes: [
+      { type: "improvement", text: "Notificação 'Veículo em Uso Prolongado' passa a contar em dias" },
+    ],
+  },
+  {
     version: "1.63.0",
     date: "2026-06-27",
     title: "Prazo de devolução de veículos em dias",
