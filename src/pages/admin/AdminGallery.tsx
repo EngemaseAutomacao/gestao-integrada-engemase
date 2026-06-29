@@ -872,11 +872,35 @@ export default function AdminGallery() {
         <DialogContent className="max-w-4xl p-2">
           {enlargedImage && (
             <div className="space-y-3">
-              <img
-                src={enlargedImage.url}
-                alt="Imagem ampliada"
-                className="w-full h-auto max-h-[70vh] object-contain rounded"
-              />
+              <div className="relative">
+                <img
+                  src={enlargedImage.url}
+                  alt="Imagem ampliada"
+                  className="w-full h-auto max-h-[70vh] object-contain rounded"
+                />
+                {filteredFiles.length > 1 && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => navigateEnlarged(-1)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full shadow-lg opacity-90 hover:opacity-100"
+                      aria-label="Anterior"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => navigateEnlarged(1)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full shadow-lg opacity-90 hover:opacity-100"
+                      aria-label="Próxima"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                  </>
+                )}
+              </div>
               <div className="px-2 pb-2 text-sm">
                 {enlargedMeta?.loading ? (
                   <div className="flex items-center gap-2 text-muted-foreground">
