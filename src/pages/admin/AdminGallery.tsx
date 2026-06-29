@@ -210,7 +210,7 @@ export default function AdminGallery() {
   ) => {
     const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
     for (const col of cols) {
-      const query: any = supabase
+      const query = (supabase as any)
         .from("vehicle_checkouts")
         .select(
           `id, checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)${extraSelect ? ", " + extraSelect : ""}, ${col}`,
