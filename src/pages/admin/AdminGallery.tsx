@@ -79,7 +79,16 @@ export default function AdminGallery() {
   const [files, setFiles] = useState<StorageItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
-  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [enlargedImage, setEnlargedImage] = useState<{ url: string; path: string; name: string } | null>(null);
+  const [enlargedMeta, setEnlargedMeta] = useState<{
+    vehicle?: string;
+    plate?: string;
+    user?: string;
+    date?: string;
+    destination?: string;
+    direction?: "saida" | "entrada";
+    loading: boolean;
+  } | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ label: string; path: string }[]>([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
