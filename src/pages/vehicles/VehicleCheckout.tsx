@@ -125,7 +125,7 @@ export default function VehicleCheckout() {
   const allPhotos = requiredPhotoKeys.every((k) => !!photos[k]);
 
   const uploadPhoto = async (file: File, prefix: string) => {
-    return uploadFileImage(file, prefix, "veiculos", "saidas");
+    return uploadFileImage(file, prefix, "veiculos", "saidas", selectedVehicleData?.name);
   };
 
   // Map photo key -> DB column for checkout

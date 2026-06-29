@@ -104,7 +104,7 @@ export default function VehicleCheckin() {
   });
 
   const uploadPhoto = async (file: File, prefix: string) => {
-    return uploadFileImage(file, prefix, "veiculos", "entradas");
+    return uploadFileImage(file, prefix, "veiculos", "entradas", selectedCheckoutData?.vehicles?.name);
   };
 
   const selectedCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);

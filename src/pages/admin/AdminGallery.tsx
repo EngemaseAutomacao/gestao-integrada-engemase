@@ -79,7 +79,16 @@ export default function AdminGallery() {
   const [files, setFiles] = useState<StorageItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
-  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [enlargedImage, setEnlargedImage] = useState<{ url: string; path: string; name: string } | null>(null);
+  const [enlargedMeta, setEnlargedMeta] = useState<{
+    vehicle?: string;
+    plate?: string;
+    user?: string;
+    date?: string;
+    destination?: string;
+    direction?: "saida" | "entrada";
+    loading: boolean;
+  } | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ label: string; path: string }[]>([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -187,6 +196,76 @@ export default function AdminGallery() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }
+  };
+
+  const openEnlarged = async (url: string, path: string, name: string) => {
+    setEnlargedImage({ url, path, name });
+    const direction: "saida" | "entrada" | null = path.includes("/saidas/")
+      ? "saida"
+      : path.includes("/entradas/")
+        ? "entrada"
+        : null;
+    if (!direction) {
+      setEnlargedMeta(null);
+      return;
+    }
+    setEnlargedMeta({ loading: true, direction });
+    try {
+      const cols =
+        direction === "saida"
+          ? [
+              "photo_front_checkout",
+              "photo_back_checkout",
+              "photo_left_checkout",
+              "photo_right_checkout",
+              "photo_dashboard_checkout",
+              "photo_control_checkout",
+              "photo_wheel_fl_checkout",
+              "photo_wheel_fr_checkout",
+              "photo_wheel_rl_checkout",
+              "photo_wheel_rr_checkout",
+            ]
+          : [
+              "photo_front_checkin",
+              "photo_back_checkin",
+              "photo_left_checkin",
+              "photo_right_checkin",
+              "photo_dashboard_checkin",
+              "photo_control_checkin",
+              "photo_wheel_fl_checkin",
+              "photo_wheel_fr_checkin",
+              "photo_wheel_rl_checkin",
+              "photo_wheel_rr_checkin",
+            ];
+      const orFilter = cols.map((c) => `${c}.eq.${path}`).join(",");
+      const { data } = await supabase
+        .from("vehicle_checkouts")
+        .select(
+          `checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)`,
+        )
+        .or(orFilter)
+        .limit(1)
+        .maybeSingle();
+
+      const dateStr =
+        direction === "entrada" && (data as any)?.checkin_date
+          ? formatDate((data as any).checkin_date)
+          : (data as any)?.checkout_date
+            ? formatDate((data as any).checkout_date)
+            : undefined;
+
+      setEnlargedMeta({
+        loading: false,
+        direction,
+        vehicle: (data as any)?.vehicles?.name,
+        plate: (data as any)?.vehicles?.plate,
+        user: (data as any)?.profiles?.full_name,
+        destination: (data as any)?.destination,
+        date: dateStr,
+      });
+    } catch {
+      setEnlargedMeta({ loading: false, direction });
     }
   };
 
@@ -504,7 +583,10 @@ export default function AdminGallery() {
                   <Card
                     key={file.id || file.name}
                     className="overflow-hidden group cursor-pointer border-border/60 hover:border-primary/50 hover:shadow-lg transition-all"
-                    onClick={() => signedUrls[file.name] && setEnlargedImage(signedUrls[file.name])}
+                    onClick={() =>
+                      signedUrls[file.name] &&
+                      openEnlarged(signedUrls[file.name], `${currentPath}/${file.name}`, file.name)
+                    }
                   >
                     <div className="relative aspect-square bg-muted">
                       {signedUrls[file.name] ? (
@@ -599,14 +681,48 @@ export default function AdminGallery() {
         </div>
       )}
 
-      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
+      <Dialog
+        open={!!enlargedImage}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEnlargedImage(null);
+            setEnlargedMeta(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl p-2">
           {enlargedImage && (
-            <img
-              src={enlargedImage}
-              alt="Imagem ampliada"
-              className="w-full h-auto max-h-[80vh] object-contain rounded"
-            />
+            <div className="space-y-3">
+              <img
+                src={enlargedImage.url}
+                alt="Imagem ampliada"
+                className="w-full h-auto max-h-[70vh] object-contain rounded"
+              />
+              <div className="px-2 pb-2 text-sm">
+                {enlargedMeta?.loading ? (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Carregando informações…
+                  </div>
+                ) : enlargedMeta && (enlargedMeta.vehicle || enlargedMeta.user) ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4">
+                    {enlargedMeta.vehicle && (
+                      <p><span className="text-muted-foreground">Veículo:</span> <span className="font-medium">{enlargedMeta.vehicle}{enlargedMeta.plate ? ` (${enlargedMeta.plate})` : ""}</span></p>
+                    )}
+                    {enlargedMeta.user && (
+                      <p><span className="text-muted-foreground">Responsável:</span> <span className="font-medium">{enlargedMeta.user}</span></p>
+                    )}
+                    {enlargedMeta.date && (
+                      <p><span className="text-muted-foreground">{enlargedMeta.direction === "entrada" ? "Devolução:" : "Retirada:"}</span> <span className="font-medium">{enlargedMeta.date}</span></p>
+                    )}
+                    {enlargedMeta.destination && (
+                      <p><span className="text-muted-foreground">Obra/Destino:</span> <span className="font-medium">{enlargedMeta.destination}</span></p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Sem registro vinculado a esta imagem.</p>
+                )}
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>

@@ -41,20 +41,37 @@ export const uploadDataUrlImage = async (
 };
 
 /**
+ * Slugify a name for safe filename usage (lowercase, no accents, no spaces).
+ */
+export const slugifyForFile = (input: string): string => {
+  return (input || "veiculo")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "veiculo";
+};
+
+/**
  * Upload a File object to Supabase Storage
  * Used for vehicle checkout/checkin photos
+ * Filename pattern: {assetSlug}_{yyyymmdd}_{prefix}_{seq}.{ext}
  */
 export const uploadFileImage = async (
   file: File,
   prefix: string,
   module: "ferramentas" | "veiculos",
-  direction: "saidas" | "entradas"
+  direction: "saidas" | "entradas",
+  assetName?: string
 ): Promise<string> => {
   const fileExt = file.name.split(".").pop();
-  const seq = String(Date.now()).slice(-6);
-  const dateFolder = new Date().toISOString().slice(0, 10);
-  const dirLabel = direction === "saidas" ? "saida" : "entrada";
-  const filePath = `${module}/${direction}/${dateFolder}/${dirLabel}_${prefix}_${seq}.${fileExt}`;
+  const now = new Date();
+  const seq = String(now.getTime()).slice(-6);
+  const dateFolder = now.toISOString().slice(0, 10);
+  const ymd = dateFolder.replace(/-/g, "");
+  const slug = slugifyForFile(assetName || (direction === "saidas" ? "saida" : "entrada"));
+  const filePath = `${module}/${direction}/${dateFolder}/${slug}_${ymd}_${prefix}_${seq}.${fileExt}`;
 
   const { error } = await supabase.storage.from("imagens").upload(filePath, file);
   if (error) throw error;
