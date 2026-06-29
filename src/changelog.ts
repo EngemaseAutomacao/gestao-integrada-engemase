@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.6",
+    date: "2026-06-29",
+    title: "Galeria administrativa repaginada",
+    description: "Novo layout da galeria de imagens com hero, breadcrumbs em pill, cards de pasta com ícones contextuais e grid de imagens com overlay refinado.",
+    changes: [
+      { type: "improvement", text: "Hero com gradiente e contador de pastas/imagens" },
+      { type: "improvement", text: "Cards de pastas com ícones específicos (Veículos, Entradas, Saídas)" },
+      { type: "improvement", text: "Overlay das imagens com nome, data e tamanho ao passar o mouse" },
+      { type: "improvement", text: "Botão 'Voltar' rápido na trilha de navegação" },
+    ],
+  },
+  {
     version: "1.64.5",
     date: "2026-06-29",
     title: "Remoção de código morto de fotos de ferramentas",
