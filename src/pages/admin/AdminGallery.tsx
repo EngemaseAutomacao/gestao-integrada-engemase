@@ -559,7 +559,42 @@ export default function AdminGallery() {
                   </Card>
                 ))}
               </div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–
+                    {Math.min(currentPage * PAGE_SIZE, filteredFiles.length)} de{" "}
+                    {filteredFiles.length}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1}
+                      className="h-8 gap-1"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      Anterior
+                    </Button>
+                    <span className="text-xs text-muted-foreground px-2">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages}
+                      className="h-8 gap-1"
+                    >
+                      Próxima
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </section>
+
           )}
         </div>
       )}
