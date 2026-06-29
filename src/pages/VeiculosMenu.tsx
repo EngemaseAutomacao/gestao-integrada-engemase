@@ -36,12 +36,6 @@ export default function VeiculosMenu() {
         icon: <History className="w-5 h-5" />,
         to: "/veiculos/historico",
       },
-      {
-        title: "Transferências",
-        description: "Transferir posse",
-        icon: <ArrowRightLeft className="w-5 h-5" />,
-        to: "/transferencias",
-      },
     ];
 
     const adminItems: MobileMenuItem[] = isAdmin
