@@ -62,23 +62,16 @@ export const uploadFileImage = async (
 };
 
 /**
- * Detecta o bucket de Storage correto a partir de um path/URL.
- * Caminhos novos (ferramentas/, veiculos/) → "imagens".
- * Legados → "tool-images" ou "checkout-images".
+ * Detecta o bucket de Storage a partir de um path/URL.
+ * Atualmente todo o conteúdo vive no bucket "imagens".
  */
-export function detectBucket(path: string): string {
-  if (path.startsWith("ferramentas/") || path.startsWith("veiculos/")) {
-    return "imagens";
-  }
-  if (path.includes("/imagens/")) return "imagens";
-  if (path.includes("/tool-images/")) return "tool-images";
-  return "checkout-images";
+export function detectBucket(_path: string): string {
+  return "imagens";
 }
 
 /**
  * Extrai o path interno do Storage a partir de uma URL completa ou retorna o
- * próprio valor se já for um path. Suporta todos os buckets conhecidos.
- * Opcionalmente recebe um bucket específico para casar primeiro.
+ * próprio valor se já for um path.
  */
 export function extractStoragePath(url: string, bucket?: string): string {
   const patterns: RegExp[] = [];
@@ -87,10 +80,6 @@ export function extractStoragePath(url: string, bucket?: string): string {
     patterns.push(new RegExp(`/object/public/${bucket}/(.+?)(?:\\?.*)?$`));
   }
   patterns.push(
-    /\/checkout-images\/(.+?)(\?.*)?$/,
-    /\/object\/public\/checkout-images\/(.+?)(\?.*)?$/,
-    /\/tool-images\/(.+?)(\?.*)?$/,
-    /\/object\/public\/tool-images\/(.+?)(\?.*)?$/,
     /\/imagens\/(.+?)(\?.*)?$/,
     /\/object\/public\/imagens\/(.+?)(\?.*)?$/,
   );
@@ -101,3 +90,4 @@ export function extractStoragePath(url: string, bucket?: string): string {
   }
   return url;
 }
+
