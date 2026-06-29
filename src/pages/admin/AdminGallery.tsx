@@ -203,6 +203,26 @@ export default function AdminGallery() {
     }
   };
 
+  const findCheckoutRowByPath = async (
+    path: string,
+    direction: "saida" | "entrada",
+    extraSelect = "",
+  ) => {
+    const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
+    for (const col of cols) {
+      const { data } = await supabase
+        .from("vehicle_checkouts")
+        .select(
+          `id, checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)${extraSelect ? ", " + extraSelect : ""}, ${col}`,
+        )
+        .eq(col as any, path)
+        .limit(1)
+        .maybeSingle();
+      if (data) return { row: data as any, matchedCol: col };
+    }
+    return { row: null as any, matchedCol: null as string | null };
+  };
+
   const openEnlarged = async (url: string, path: string, name: string) => {
     setEnlargedImage({ url, path, name });
     const direction: "saida" | "entrada" | null = path.includes("/saidas/")
@@ -216,61 +236,50 @@ export default function AdminGallery() {
     }
     setEnlargedMeta({ loading: true, direction });
     try {
-      const cols =
-        direction === "saida"
-          ? [
-              "photo_front_checkout",
-              "photo_back_checkout",
-              "photo_left_checkout",
-              "photo_right_checkout",
-              "photo_dashboard_checkout",
-              "photo_control_checkout",
-              "photo_wheel_fl_checkout",
-              "photo_wheel_fr_checkout",
-              "photo_wheel_rl_checkout",
-              "photo_wheel_rr_checkout",
-            ]
-          : [
-              "photo_front_checkin",
-              "photo_back_checkin",
-              "photo_left_checkin",
-              "photo_right_checkin",
-              "photo_dashboard_checkin",
-              "photo_control_checkin",
-              "photo_wheel_fl_checkin",
-              "photo_wheel_fr_checkin",
-              "photo_wheel_rl_checkin",
-              "photo_wheel_rr_checkin",
-            ];
-      const orFilter = cols.map((c) => `${c}.eq.${path}`).join(",");
-      const { data } = await supabase
-        .from("vehicle_checkouts")
-        .select(
-          `checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)`,
-        )
-        .or(orFilter)
-        .limit(1)
-        .maybeSingle();
-
+      const { row: data } = await findCheckoutRowByPath(path, direction);
       const dateStr =
-        direction === "entrada" && (data as any)?.checkin_date
-          ? formatDate((data as any).checkin_date)
-          : (data as any)?.checkout_date
-            ? formatDate((data as any).checkout_date)
+        direction === "entrada" && data?.checkin_date
+          ? formatDate(data.checkin_date)
+          : data?.checkout_date
+            ? formatDate(data.checkout_date)
             : undefined;
 
       setEnlargedMeta({
         loading: false,
         direction,
-        vehicle: (data as any)?.vehicles?.name,
-        plate: (data as any)?.vehicles?.plate,
-        user: (data as any)?.profiles?.full_name,
-        destination: (data as any)?.destination,
+        vehicle: data?.vehicles?.name,
+        plate: data?.vehicles?.plate,
+        user: data?.profiles?.full_name,
+        destination: data?.destination,
         date: dateStr,
       });
     } catch {
       setEnlargedMeta({ loading: false, direction });
     }
+  };
+
+  const navigateEnlarged = (delta: number) => {
+    if (!enlargedImage) return;
+    const list = filteredFiles;
+    const idx = list.findIndex((f) => f.name === enlargedImage.name);
+    if (idx < 0) return;
+    const nextIdx = (idx + delta + list.length) % list.length;
+    const nextFile = list[nextIdx];
+    if (!nextFile) return;
+    const targetPage = Math.floor(nextIdx / PAGE_SIZE) + 1;
+    if (targetPage !== currentPage) setPage(targetPage);
+    const ensureUrl = async () => {
+      let url = signedUrls[nextFile.name];
+      if (!url) {
+        const { data } = await supabase.storage
+          .from("imagens")
+          .createSignedUrl(`${currentPath}/${nextFile.name}`, 3600);
+        url = data?.signedUrl || "";
+        if (url) setSignedUrls((prev) => ({ ...prev, [nextFile.name]: url }));
+      }
+      if (url) openEnlarged(url, `${currentPath}/${nextFile.name}`, nextFile.name);
+    };
+    ensureUrl();
   };
 
   const openFolder = (folderName: string) => {
