@@ -199,6 +199,76 @@ export default function AdminGallery() {
     }
   };
 
+  const openEnlarged = async (url: string, path: string, name: string) => {
+    setEnlargedImage({ url, path, name });
+    const direction: "saida" | "entrada" | null = path.includes("/saidas/")
+      ? "saida"
+      : path.includes("/entradas/")
+        ? "entrada"
+        : null;
+    if (!direction) {
+      setEnlargedMeta(null);
+      return;
+    }
+    setEnlargedMeta({ loading: true, direction });
+    try {
+      const cols =
+        direction === "saida"
+          ? [
+              "photo_front_checkout",
+              "photo_back_checkout",
+              "photo_left_checkout",
+              "photo_right_checkout",
+              "photo_dashboard_checkout",
+              "photo_control_checkout",
+              "photo_wheel_fl_checkout",
+              "photo_wheel_fr_checkout",
+              "photo_wheel_rl_checkout",
+              "photo_wheel_rr_checkout",
+            ]
+          : [
+              "photo_front_checkin",
+              "photo_back_checkin",
+              "photo_left_checkin",
+              "photo_right_checkin",
+              "photo_dashboard_checkin",
+              "photo_control_checkin",
+              "photo_wheel_fl_checkin",
+              "photo_wheel_fr_checkin",
+              "photo_wheel_rl_checkin",
+              "photo_wheel_rr_checkin",
+            ];
+      const orFilter = cols.map((c) => `${c}.eq.${path}`).join(",");
+      const { data } = await supabase
+        .from("vehicle_checkouts")
+        .select(
+          `checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)`,
+        )
+        .or(orFilter)
+        .limit(1)
+        .maybeSingle();
+
+      const dateStr =
+        direction === "entrada" && (data as any)?.checkin_date
+          ? formatDate((data as any).checkin_date)
+          : (data as any)?.checkout_date
+            ? formatDate((data as any).checkout_date)
+            : undefined;
+
+      setEnlargedMeta({
+        loading: false,
+        direction,
+        vehicle: (data as any)?.vehicles?.name,
+        plate: (data as any)?.vehicles?.plate,
+        user: (data as any)?.profiles?.full_name,
+        destination: (data as any)?.destination,
+        date: dateStr,
+      });
+    } catch {
+      setEnlargedMeta({ loading: false, direction });
+    }
+  };
+
   const openFolder = (folderName: string) => {
     setCurrentPath(`${currentPath}/${folderName}`);
   };
