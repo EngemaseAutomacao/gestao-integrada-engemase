@@ -95,12 +95,6 @@ export default function VeiculosMenu() {
           icon={<History className="w-6 h-6 text-primary" />}
           to="/veiculos/historico"
         />
-        <MenuCard
-          title="Transferências"
-          description="Transferir posse de veículos"
-          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
-          to="/transferencias"
-        />
         {isAdmin && (
           <MenuCard
             title="Histórico Geral"
