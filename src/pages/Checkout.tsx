@@ -1,8 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadDataUrlImage } from "@/lib/storageUtils";
-import { compressDataUrl } from "@/lib/imageCompression";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
@@ -199,10 +197,6 @@ export default function Checkout() {
     }
   }, [searchParams]);
 
-  const uploadImage = async (dataUrl: string, type: "photo" | "signature"): Promise<string | null> => {
-    const compressed = await compressDataUrl(dataUrl);
-    return uploadDataUrlImage(compressed, type, "ferramentas", "saidas");
-  };
 
   // Bulk helpers
   const toggleBulkTool = (toolId: string) => {

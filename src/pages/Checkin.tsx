@@ -204,11 +204,6 @@ export default function Checkin() {
     }
   };
 
-  const handlePhotoCapture = (dataUrl: string) => {
-    setPhotoDataUrl(dataUrl);
-    setPhotoConfirmed(true);
-    toast.success("Foto confirmada!");
-  };
 
   return (
     <div className="space-y-4">
