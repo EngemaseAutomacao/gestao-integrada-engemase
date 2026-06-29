@@ -481,25 +481,25 @@ export default function AdminGallery() {
     };
   }, [searchLower, currentPath, folders]);
 
-  // Sign URLs only for visible page
   useEffect(() => {
     if (!currentPath || pagedFiles.length === 0) return;
-    const missing = pagedFiles.filter((f) => !signedUrls[f.name]);
+    const missing = pagedFiles.filter((f) => !signedUrls[(f as any)._rel || f.name]);
     if (missing.length === 0) return;
     let cancelled = false;
     (async () => {
       const entries = await Promise.all(
         missing.map(async (file) => {
+          const rel = (file as any)._rel || file.name;
           const { data } = await supabase.storage
             .from("imagens")
-            .createSignedUrl(`${currentPath}/${file.name}`, 3600);
-          return [file.name, data?.signedUrl] as const;
+            .createSignedUrl(`${currentPath}/${rel}`, 3600);
+          return [rel, data?.signedUrl] as const;
         }),
       );
       if (cancelled) return;
       setSignedUrls((prev) => {
         const next = { ...prev };
-        for (const [name, url] of entries) if (url) next[name] = url;
+        for (const [key, url] of entries) if (url) next[key] = url;
         return next;
       });
     })();
