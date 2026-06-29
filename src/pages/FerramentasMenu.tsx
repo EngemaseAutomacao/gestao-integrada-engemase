@@ -40,12 +40,6 @@ export default function FerramentasMenu() {
         icon: <History className="w-5 h-5" />,
         to: "/ferramentas/historico",
       },
-      {
-        title: "Transferências",
-        description: "Transferir posse",
-        icon: <ArrowRightLeft className="w-5 h-5" />,
-        to: "/transferencias",
-      },
     ];
 
     const adminItems: MobileMenuItem[] = isAdmin
