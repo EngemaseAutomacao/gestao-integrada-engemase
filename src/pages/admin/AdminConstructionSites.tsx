@@ -44,19 +44,13 @@ export default function AdminConstructionSites() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "obras";
 
-  // Client state
-  const [clientSearch, setClientSearch] = useState("");
-  const [clientDialogOpen, setClientDialogOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [savingClient, setSavingClient] = useState(false);
-  const [formName, setFormName] = useState("");
-  const [formAddress, setFormAddress] = useState("");
-  
   // Site state
   const [siteDialogOpen, setSiteDialogOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<ConstructionSite | null>(null);
-  const [selectedClientId, setSelectedClientId] = useState<string | "none">("none");
   const [savingSite, setSavingSite] = useState(false);
+  const [siteFormName, setSiteFormName] = useState("");
+  const [siteFormAddress, setSiteFormAddress] = useState("");
+
 
   // Tools state
   const [toolSearch, setToolSearch] = useState("");
