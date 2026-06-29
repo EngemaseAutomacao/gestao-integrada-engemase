@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.7",
+    date: "2026-06-29",
+    title: "Busca e paginação na galeria",
+    description: "Galeria administrativa agora permite buscar arquivos por nome e navegar entre páginas de imagens.",
+    changes: [
+      { type: "feature", text: "Campo de busca filtra pastas e imagens em tempo real" },
+      { type: "feature", text: "Paginação de 24 imagens por página com contador" },
+      { type: "improvement", text: "URLs assinadas geradas apenas para a página visível (mais rápido)" },
+      { type: "improvement", text: "Limite ampliado para 1000 itens por pasta" },
+    ],
+  },
+  {
     version: "1.64.6",
     date: "2026-06-29",
     title: "Galeria administrativa repaginada",
