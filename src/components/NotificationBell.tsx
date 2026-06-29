@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, Volume2, VolumeX, ArrowRightLeft } from "lucide-react";
+import { Bell, Volume2, VolumeX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
