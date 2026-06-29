@@ -367,36 +367,18 @@ export default function AdminGallery() {
           continue;
         }
 
-        const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
-        const orFilter = cols.map((c) => `${c}.eq.${oldPath}`).join(",");
-
-        const { data: row, error: qErr } = await supabase
-          .from("vehicle_checkouts")
-          .select(
-            `id, checkout_date, checkin_date, vehicles(name), ${cols.join(", ")}`,
-          )
-          .or(orFilter)
-          .limit(1)
-          .maybeSingle();
-
-        if (qErr || !row) {
-          skipped++;
-          continue;
-        }
-
-        // discover which column matches
-        const matchedCol = cols.find((c) => (row as any)[c] === oldPath);
-        if (!matchedCol) {
+        const { row, matchedCol } = await findCheckoutRowByPath(oldPath, direction);
+        if (!row || !matchedCol) {
           skipped++;
           continue;
         }
         const prefix = matchedCol.replace(/^photo_/, "").replace(/_(checkout|checkin)$/, "");
-        const vehicleName = (row as any)?.vehicles?.name || "veiculo";
+        const vehicleName = row?.vehicles?.name || "veiculo";
         const slug = slugifyForFile(vehicleName);
         const dateBase =
           direction === "entrada"
-            ? (row as any).checkin_date || (row as any).checkout_date
-            : (row as any).checkout_date;
+            ? row.checkin_date || row.checkout_date
+            : row.checkout_date;
         const ymd = dateBase
           ? new Date(dateBase).toISOString().slice(0, 10).replace(/-/g, "")
           : "00000000";
