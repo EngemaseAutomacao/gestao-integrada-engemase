@@ -407,16 +407,12 @@ export default function AdminConstructionSites() {
                             {site.active ? "Ativa" : "Inativa"}
                           </Badge>
                         </div>
-                        <div className="flex items-center justify-between gap-2">
-                          {site.clients?.name ? (
-                            <Badge variant="outline" className="font-normal text-[10px] truncate max-w-[70%]">{site.clients.name}</Badge>
-                          ) : (
-                            <span className="text-muted-foreground text-[10px] italic">Sem cliente</span>
-                          )}
+                        <div className="flex items-center justify-end gap-2">
                           <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => openEditSite(site)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
                         </div>
+
                       </div>
                     ))}
                   </div>
