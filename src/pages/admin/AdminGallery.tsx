@@ -409,7 +409,7 @@ export default function AdminGallery() {
 
         const { error: upErr } = await supabase
           .from("vehicle_checkouts")
-          .update({ [matchedCol]: newPath })
+          .update({ [matchedCol]: newPath } as any)
           .eq("id", (row as any).id);
         if (upErr) {
           // try to rollback move
