@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.2",
+    date: "2026-06-29",
+    title: "Remoção do módulo de Transferências",
+    description: "A funcionalidade de transferência de ativos entre usuários foi descontinuada e removida do sistema.",
+    changes: [
+      { type: "improvement", text: "Removidas as opções de Transferências dos menus de Ferramentas e Veículos" },
+      { type: "improvement", text: "Removidos os KPIs e notificações relacionadas a transferências" },
+      { type: "improvement", text: "Removida a tabela de transferências do banco de dados" },
+    ],
+  },
+  {
     version: "1.64.1",
     date: "2026-06-29",
     title: "Remoção do módulo de Clientes",
