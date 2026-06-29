@@ -24,7 +24,9 @@ import {
   FolderOpen,
   Search,
   X,
+  Wand2,
 } from "lucide-react";
+import { slugifyForFile } from "@/lib/storageUtils";
 
 const PAGE_SIZE = 24;
 
