@@ -683,68 +683,32 @@ export default function AdminConstructionSites() {
         </TabsContent>
       </Tabs>
 
-      {/* Dialog de Cliente */}
-      <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingClient ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nome *</Label>
-              <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Nome do cliente" />
-            </div>
-            <div className="space-y-2">
-              <Label>Endereço</Label>
-              <Input value={formAddress} onChange={(e) => setFormAddress(e.target.value)} placeholder="Endereço do cliente" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setClientDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSaveClient} disabled={savingClient}>
-              {savingClient && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {editingClient ? "Salvar" : "Criar"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       {/* Dialog de Obra */}
       <Dialog open={siteDialogOpen} onOpenChange={setSiteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Vincular Cliente à Obra</DialogTitle>
+            <DialogTitle>Editar Obra</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Obra</Label>
-              <Input value={editingSite?.name || ""} disabled />
+              <Label>Nome *</Label>
+              <Input value={siteFormName} onChange={(e) => setSiteFormName(e.target.value)} placeholder="Nome da obra" />
             </div>
             <div className="space-y-2">
-              <Label>Cliente Responsável</Label>
-              <Select value={selectedClientId} onValueChange={setSelectedClientId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum cliente</SelectItem>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Endereço</Label>
+              <Input value={siteFormAddress} onChange={(e) => setSiteFormAddress(e.target.value)} placeholder="Endereço da obra" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSiteDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSaveSite} disabled={savingSite}>
               {savingSite && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Salvar Vínculo
+              Salvar
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       {/* Dialog de Veículo */}
       <Dialog open={vehicleDialogOpen} onOpenChange={(open) => { setVehicleDialogOpen(open); if (!open) resetVehicleForm(); }}>
