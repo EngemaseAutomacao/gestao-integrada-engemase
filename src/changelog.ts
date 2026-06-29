@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.4",
+    date: "2026-06-29",
+    title: "Limpeza de buckets de armazenamento não utilizados",
+    description: "Removidas referências aos buckets antigos (tool-images, avatars, checkout-images). Todo o armazenamento de imagens passa exclusivamente pelo bucket 'imagens'.",
+    changes: [
+      { type: "improvement", text: "Código de detecção de bucket simplificado" },
+      { type: "improvement", text: "Removidos fallbacks para buckets legados" },
+    ],
+  },
+  {
     version: "1.64.3",
     date: "2026-06-29",
     title: "Retenção de Dados: limpeza automática diária",
