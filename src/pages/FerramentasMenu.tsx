@@ -1,4 +1,4 @@
-import { Wrench, Upload, LogIn, History, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
+import { Wrench, Upload, LogIn, History, ClipboardList, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 import { MenuCard } from "@/components/MenuCard";
@@ -39,12 +39,6 @@ export default function FerramentasMenu() {
         description: "Suas movimentações",
         icon: <History className="w-5 h-5" />,
         to: "/ferramentas/historico",
-      },
-      {
-        title: "Transferências",
-        description: "Transferir posse",
-        icon: <ArrowRightLeft className="w-5 h-5" />,
-        to: "/transferencias",
       },
     ];
 
@@ -111,12 +105,6 @@ export default function FerramentasMenu() {
           description="Suas movimentações de ferramentas"
           icon={<History className="w-6 h-6 text-primary" />}
           to="/ferramentas/historico"
-        />
-        <MenuCard
-          title="Transferências"
-          description="Transferir posse de ferramentas"
-          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
-          to="/transferencias"
         />
         {isAdmin && (
           <>

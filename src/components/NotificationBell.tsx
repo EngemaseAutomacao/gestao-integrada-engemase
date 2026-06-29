@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, Volume2, VolumeX, ArrowRightLeft } from "lucide-react";
+import { Bell, Volume2, VolumeX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -232,9 +232,6 @@ export function NotificationBell() {
     }
   };
 
-  const isTransferNotification = (type: string) =>
-    type.startsWith("transfer_");
-
   const getNotificationColor = (type: string) => {
     switch (type) {
       case "overdue":
@@ -243,11 +240,6 @@ export function NotificationBell() {
         return "text-orange-500";
       case "return_reminder":
         return "text-primary";
-      case "transfer_request":
-      case "transfer_accepted":
-      case "transfer_approved":
-      case "transfer_rejected":
-        return "text-primary";
       default:
         return "";
     }
@@ -255,10 +247,6 @@ export function NotificationBell() {
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) markAsRead(notification.id);
-    if (isTransferNotification(notification.type)) {
-      setOpen(false);
-      navigate("/transferencias");
-    }
   };
 
   return (
@@ -366,18 +354,6 @@ export function NotificationBell() {
                       <p className="text-sm text-muted-foreground">
                         {notification.message}
                       </p>
-                      {isTransferNotification(notification.type) && notification.type === "transfer_request" && (
-                        <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
-                          <ArrowRightLeft className="w-3 h-3" />
-                          Toque para aceitar ou recusar
-                        </div>
-                      )}
-                      {isTransferNotification(notification.type) && notification.type === "transfer_accepted" && isAdmin && (
-                        <div className="flex items-center gap-1 text-xs text-primary font-medium mt-1">
-                          <ArrowRightLeft className="w-3 h-3" />
-                          Toque para aprovar
-                        </div>
-                      )}
                       <p className="text-xs text-muted-foreground">
                         {format(
                           new Date(notification.created_at),

@@ -14,106 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      asset_transfers: {
-        Row: {
-          accepted_at: string | null
-          approved_at: string | null
-          approved_by: string | null
-          asset_type: string
-          created_at: string
-          from_user_id: string
-          id: string
-          notes: string | null
-          rejected_at: string | null
-          rejected_by: string | null
-          rejection_reason: string | null
-          status: Database["public"]["Enums"]["transfer_status"]
-          to_user_id: string
-          tool_checkout_id: string | null
-          updated_at: string
-          vehicle_checkout_id: string | null
-        }
-        Insert: {
-          accepted_at?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          asset_type: string
-          created_at?: string
-          from_user_id: string
-          id?: string
-          notes?: string | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["transfer_status"]
-          to_user_id: string
-          tool_checkout_id?: string | null
-          updated_at?: string
-          vehicle_checkout_id?: string | null
-        }
-        Update: {
-          accepted_at?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          asset_type?: string
-          created_at?: string
-          from_user_id?: string
-          id?: string
-          notes?: string | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["transfer_status"]
-          to_user_id?: string
-          tool_checkout_id?: string | null
-          updated_at?: string
-          vehicle_checkout_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "asset_transfers_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_transfers_from_user_id_fkey"
-            columns: ["from_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_transfers_rejected_by_fkey"
-            columns: ["rejected_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_transfers_to_user_id_fkey"
-            columns: ["to_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_transfers_tool_checkout_id_fkey"
-            columns: ["tool_checkout_id"]
-            isOneToOne: false
-            referencedRelation: "tool_checkouts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_transfers_vehicle_checkout_id_fkey"
-            columns: ["vehicle_checkout_id"]
-            isOneToOne: false
-            referencedRelation: "vehicle_checkouts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       construction_sites: {
         Row: {
           active: boolean
@@ -817,10 +717,6 @@ export type Database = {
       check_vehicle_overdue_return: { Args: never; Returns: undefined }
       cleanup_old_notifications: { Args: never; Returns: undefined }
       cleanup_rate_limits: { Args: never; Returns: undefined }
-      execute_asset_transfer: {
-        Args: { transfer_id: string }
-        Returns: undefined
-      }
       get_approved_users: {
         Args: never
         Returns: {

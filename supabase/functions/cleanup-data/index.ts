@@ -78,16 +78,6 @@ Deno.serve(async (req) => {
           deleted = data?.length || 0;
           break;
         }
-        case "transfer_history": {
-          const { data } = await supabase
-            .from("asset_transfers")
-            .delete()
-            .in("status", ["approved", "rejected", "cancelled"])
-            .lt("updated_at", cutoff)
-            .select("id");
-          deleted = data?.length || 0;
-          break;
-        }
         case "tool_checkout_photos": {
           // Clear photo URLs from old checked-in tool checkouts
           const { data: oldCheckouts } = await supabase
