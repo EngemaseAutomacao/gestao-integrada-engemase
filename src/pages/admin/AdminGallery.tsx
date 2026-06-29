@@ -484,7 +484,7 @@ export default function AdminGallery() {
             </section>
           )}
 
-          {files.length > 0 && (
+          {filteredFiles.length > 0 && (
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -494,11 +494,13 @@ export default function AdminGallery() {
                   </h2>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {files.length}
+                  {filteredFiles.length}
+                  {searchLower && files.length !== filteredFiles.length ? ` / ${files.length}` : ""}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {files.map((file) => (
+                {pagedFiles.map((file) => (
+
                   <Card
                     key={file.id || file.name}
                     className="overflow-hidden group cursor-pointer border-border/60 hover:border-primary/50 hover:shadow-lg transition-all"
