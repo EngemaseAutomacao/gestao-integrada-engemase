@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.0",
+    date: "2026-06-29",
+    title: "Limpeza de módulos descontinuados e otimização de custos",
+    description: "Removemos módulos não utilizados (Manutenção, Combustível e Materiais) do banco e do código, e ajustamos as rotinas automáticas para reduzir o consumo de servidor.",
+    changes: [
+      { type: "improvement", text: "Sincronização do Trello agora roda 1x ao dia (03h), igual à planilha" },
+      { type: "improvement", text: "Verificação de notificações reduzida para 2x ao dia (08h e 20h)" },
+      { type: "improvement", text: "Removidos relatórios de Manutenção e Abastecimento do painel admin" },
+      { type: "improvement", text: "Tabelas descontinuadas removidas do banco (manutenção, combustível, materiais)" },
+    ],
+  },
+  {
     version: "1.63.1",
     date: "2026-06-28",
     title: "Notificações de veículos padronizadas em dias",

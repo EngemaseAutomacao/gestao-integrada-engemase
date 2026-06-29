@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Car, History, Calendar, User, MapPin, Clock, AlertCircle, CheckCircle, Fuel } from "lucide-react";
+import { Car, History, Calendar, MapPin, Clock } from "lucide-react";
 import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -39,15 +39,6 @@ interface CheckoutRecord {
 }
 
 
-interface FuelRecord {
-  id: string;
-  refuel_date: string;
-  liters: number;
-  fuel_type: string;
-  km_at_refuel: number;
-  total_cost: number | null;
-  gas_station: string | null;
-}
 
 const severityLabels: Record<string, string> = {
   low: "Baixa",
@@ -70,18 +61,13 @@ export default function VehicleDetail() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["vehicle-detail", id],
     queryFn: async () => {
-      const [vehicleRes, checkoutsRes, fuelRes, usersRes] = await Promise.all([
+      const [vehicleRes, checkoutsRes, usersRes] = await Promise.all([
         supabase.from("vehicles").select("*").eq("id", id!).maybeSingle(),
         supabase
           .from("vehicle_checkouts")
           .select(`id, checkout_date, checkin_date, status, destination, km_checkout, km_checkin, notes, user_id`)
           .eq("vehicle_id", id!)
           .order("checkout_date", { ascending: false }),
-        supabase
-          .from("fuel_records")
-          .select("id, refuel_date, liters, fuel_type, km_at_refuel, total_cost, gas_station")
-          .eq("vehicle_id", id!)
-          .order("refuel_date", { ascending: false }),
         supabase.rpc("get_approved_users"),
       ]);
 
@@ -95,7 +81,6 @@ export default function VehicleDetail() {
       return {
         vehicle: vehicleRes.data as Vehicle | null,
         checkouts,
-        fuelRecords: (fuelRes.data || []) as FuelRecord[],
       };
     },
     enabled: !!id,
@@ -104,7 +89,6 @@ export default function VehicleDetail() {
 
   const vehicle = data?.vehicle ?? null;
   const checkouts = data?.checkouts ?? [];
-  const fuelRecords = data?.fuelRecords ?? [];
 
   const getDaysUsed = (checkout: CheckoutRecord) => {
     const start = new Date(checkout.checkout_date);

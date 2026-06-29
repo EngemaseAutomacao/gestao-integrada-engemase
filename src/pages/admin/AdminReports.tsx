@@ -20,7 +20,7 @@ interface ReportFilters {
   endDate: string;
   toolId: string;
   constructionSite: string;
-  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary" | "vehicle_checkouts" | "fuel_records";
+  reportType: "checkouts" | "inventory" | "usage_summary" | "vehicle_checkouts";
 }
 
 interface Tool {
@@ -30,11 +30,9 @@ interface Tool {
 
 const reportTypeFileLabel = (t: string) => ({
   checkouts: "Retiradas-Devolucoes-Ferramentas",
-  maintenance: "Manutencao-Ferramentas",
   inventory: "Inventario-Ferramentas",
   usage_summary: "Resumo-Uso-Ferramentas",
   vehicle_checkouts: "Movimentacao-Veiculos",
-  fuel_records: "Abastecimentos-Veiculos",
 }[t] || "Geral");
 
 export default function AdminReports() {
@@ -95,30 +93,6 @@ export default function AdminReports() {
     return data;
   };
 
-  const fetchMaintenanceData = async () => {
-    let query = supabase.from("maintenance_records").select(`
-      *,
-      tools (name, tag, brand),
-      profiles (full_name, email)
-    `);
-
-    if (filters.startDate) {
-      query = query.gte("created_at", filters.startDate);
-    }
-    if (filters.endDate) {
-      query = query.lte("created_at", filters.endDate);
-    }
-    if (filters.toolId && filters.toolId !== "all") {
-      query = query.eq("tool_id", filters.toolId);
-    }
-
-    query = query.order("created_at", { ascending: false }).limit(5000);
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-    return data;
-  };
 
   const fetchInventoryData = async () => {
     let query = supabase.from("tools").select("*");
@@ -154,21 +128,6 @@ export default function AdminReports() {
     return data;
   };
 
-  const fetchFuelData = async () => {
-    let query = supabase.from("fuel_records").select(`
-      *,
-      vehicles!inner(name, plate),
-      profiles!fuel_records_user_id_fkey(full_name)
-    `);
-
-    if (filters.startDate) query = query.gte("refuel_date", filters.startDate);
-    if (filters.endDate) query = query.lte("refuel_date", filters.endDate);
-
-    query = query.order("refuel_date", { ascending: false }).limit(5000);
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
-  };
 
   const setQuickPeriod = (period: string) => {
     const today = new Date();
@@ -222,19 +181,6 @@ export default function AdminReports() {
           ]);
           break;
 
-        case "maintenance":
-          data = await fetchMaintenanceData();
-          title = "Relatório de Manutenções";
-          columns = ["Ferramenta", "Tipo", "Descrição", "Realizado por", "Data", "Custo"];
-          rows = data.map((item: any) => [
-            item.tools?.name || "-",
-            item.maintenance_type,
-            item.description,
-            item.profiles?.full_name || "-",
-            format(new Date(item.created_at), "dd/MM/yyyy", { locale: ptBR }),
-            item.cost ? `R$ ${item.cost.toFixed(2)}` : "-",
-          ]);
-          break;
 
         case "inventory":
           data = await fetchInventoryData();
@@ -294,22 +240,8 @@ export default function AdminReports() {
           ]);
           break;
 
-        case "fuel_records":
-          data = await fetchFuelData();
-          title = "Relatório de Abastecimento";
-          columns = ["Veículo", "Placa", "Litros", "Custo/L", "Total", "KM", "Posto", "Data"];
-          rows = data.map((item: any) => [
-            item.vehicles?.name || "-",
-            item.vehicles?.plate || "-",
-            item.liters?.toString() || "-",
-            item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
-            item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
-            item.km_at_refuel?.toString() || "-",
-            item.gas_station || "-",
-            format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
-          ]);
-          break;
       }
+
 
       let subtitle = "";
       if (filters.startDate || filters.endDate) {
@@ -401,22 +333,6 @@ export default function AdminReports() {
           }));
           break;
 
-        case "maintenance":
-          data = await fetchMaintenanceData();
-          sheetName = "Manutenções";
-          data = data.map((item: any) => ({
-            Ferramenta: item.tools?.name || "-",
-            TAG: item.tools?.tag || "-",
-            Tipo: item.maintenance_type,
-            Descrição: item.description,
-            "Condição Antes": item.condition_before || "-",
-            "Condição Depois": item.condition_after || "-",
-            "Realizado por": item.profiles?.full_name || "-",
-            Data: format(new Date(item.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
-            Custo: item.cost ? `R$ ${item.cost.toFixed(2)}` : "-",
-            "Peças Substituídas": item.parts_replaced || "-",
-          }));
-          break;
 
         case "inventory":
           data = await fetchInventoryData();
@@ -479,23 +395,8 @@ export default function AdminReports() {
           }));
           break;
 
-        case "fuel_records":
-          data = await fetchFuelData();
-          sheetName = "Combustível";
-          data = data.map((item: any) => ({
-            Veículo: item.vehicles?.name || "-",
-            Placa: item.vehicles?.plate || "-",
-            Responsável: item.profiles?.full_name || "-",
-            Litros: item.liters,
-            "Custo/Litro": item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
-            "Custo Total": item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
-            "KM no Abastecimento": item.km_at_refuel,
-            Combustível: item.fuel_type === "gasoline" ? "Gasolina" : item.fuel_type === "ethanol" ? "Etanol" : item.fuel_type === "diesel" ? "Diesel" : item.fuel_type,
-            Posto: item.gas_station || "-",
-            Data: format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
-          }));
-          break;
       }
+
 
       const headers = data.length > 0 ? Object.keys(data[0]) : [];
       const rows = data.map((r: any) => headers.map((h) => r[h] ?? "-"));

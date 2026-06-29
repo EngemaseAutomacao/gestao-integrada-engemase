@@ -24,18 +24,6 @@ interface Tool {
   employee_only: boolean;
 }
 
-interface MaintenanceRecord {
-  id: string;
-  maintenance_type: string;
-  description: string;
-  condition_before: string | null;
-  condition_after: string | null;
-  cost: number | null;
-  created_at: string;
-  profiles: {
-    full_name: string;
-  };
-}
 
 interface CheckoutRecord {
   id: string;
@@ -68,20 +56,12 @@ const conditionColors: Record<string, string> = {
   needs_maintenance: "bg-destructive",
 };
 
-const maintenanceTypes: Record<string, string> = {
-  preventive: "Preventiva",
-  corrective: "Corretiva",
-  inspection: "Inspeção",
-  calibration: "Calibração",
-  cleaning: "Limpeza",
-  repair: "Reparo",
-};
 
 export default function ToolDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tool, setTool] = useState<Tool | null>(null);
-  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
+  
   const [checkouts, setCheckouts] = useState<CheckoutRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [tagFilter, setTagFilter] = useState<string>("all");
@@ -107,17 +87,6 @@ export default function ToolDetail() {
       if (toolError) throw toolError;
       setTool(toolData);
 
-      const { data: maintenanceData, error: maintenanceError } = await supabase
-        .from("maintenance_records")
-        .select(`
-          *,
-          profiles (full_name)
-        `)
-        .eq("tool_id", id)
-        .order("created_at", { ascending: false });
-
-      if (maintenanceError) throw maintenanceError;
-      setMaintenanceRecords(maintenanceData as any || []);
 
       const { data: checkoutData, error: checkoutError } = await supabase
         .from("tool_checkouts")
