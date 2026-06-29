@@ -1,4 +1,4 @@
-import { Wrench, Upload, LogIn, History, ClipboardList, Settings, ArrowRightLeft } from "lucide-react";
+import { Wrench, Upload, LogIn, History, ClipboardList, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUrgencyBadges } from "@/hooks/useUrgencyBadges";
 import { MenuCard } from "@/components/MenuCard";
