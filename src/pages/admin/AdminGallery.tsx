@@ -136,23 +136,6 @@ export default function AdminGallery() {
       setSignedUrls({});
 
 
-      setFolders(folderItems);
-      setFiles(imageFiles);
-
-      const urls: Record<string, string> = {};
-      await Promise.all(
-        imageFiles.map(async (file) => {
-          const fullPath = `${path}/${file.name}`;
-          const { data: urlData, error: urlError } = await supabase.storage
-            .from("imagens")
-            .createSignedUrl(fullPath, 3600);
-
-          if (!urlError && urlData) {
-            urls[file.name] = urlData.signedUrl;
-          }
-        }),
-      );
-      setSignedUrls(urls);
     } catch (error: any) {
       toast.error("Erro ao carregar imagens", { description: error.message });
     } finally {
