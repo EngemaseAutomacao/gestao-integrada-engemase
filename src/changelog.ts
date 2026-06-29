@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.9",
+    date: "2026-06-29",
+    title: "Renomear fotos antigas na galeria",
+    description: "Admins agora podem renomear em lote as fotos já existentes para o novo padrão (nome do veículo + data), direto da galeria — funciona também no celular.",
+    changes: [
+      { type: "feature", text: "Botão 'Renomear arquivos existentes' aplica o padrão nomeveiculo_AAAAMMDD_tipo_seq em toda a pasta atual e subpastas" },
+      { type: "improvement", text: "Registros vinculados (vehicle_checkouts) são atualizados automaticamente após renomear" },
+      { type: "improvement", text: "Layout responsivo do botão e barra de progresso visíveis no mobile" },
+    ],
+  },
+  {
     version: "1.64.8",
     date: "2026-06-29",
     title: "Fotos nomeadas e detalhes na galeria",
