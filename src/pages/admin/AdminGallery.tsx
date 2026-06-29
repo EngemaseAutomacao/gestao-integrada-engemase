@@ -513,7 +513,10 @@ export default function AdminGallery() {
                   <Card
                     key={file.id || file.name}
                     className="overflow-hidden group cursor-pointer border-border/60 hover:border-primary/50 hover:shadow-lg transition-all"
-                    onClick={() => signedUrls[file.name] && setEnlargedImage(signedUrls[file.name])}
+                    onClick={() =>
+                      signedUrls[file.name] &&
+                      openEnlarged(signedUrls[file.name], `${currentPath}/${file.name}`, file.name)
+                    }
                   >
                     <div className="relative aspect-square bg-muted">
                       {signedUrls[file.name] ? (
