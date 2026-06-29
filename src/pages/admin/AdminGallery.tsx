@@ -94,6 +94,8 @@ export default function AdminGallery() {
   const [breadcrumbs, setBreadcrumbs] = useState<{ label: string; path: string }[]>([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [renaming, setRenaming] = useState(false);
+  const [renameProgress, setRenameProgress] = useState<{ done: number; total: number } | null>(null);
 
   useEffect(() => {
     if (currentPath) {
