@@ -20,7 +20,7 @@ interface ReportFilters {
   endDate: string;
   toolId: string;
   constructionSite: string;
-  reportType: "checkouts" | "maintenance" | "inventory" | "usage_summary" | "vehicle_checkouts" | "fuel_records";
+  reportType: "checkouts" | "inventory" | "usage_summary" | "vehicle_checkouts";
 }
 
 interface Tool {
@@ -30,11 +30,9 @@ interface Tool {
 
 const reportTypeFileLabel = (t: string) => ({
   checkouts: "Retiradas-Devolucoes-Ferramentas",
-  maintenance: "Manutencao-Ferramentas",
   inventory: "Inventario-Ferramentas",
   usage_summary: "Resumo-Uso-Ferramentas",
   vehicle_checkouts: "Movimentacao-Veiculos",
-  fuel_records: "Abastecimentos-Veiculos",
 }[t] || "Geral");
 
 export default function AdminReports() {
@@ -95,30 +93,6 @@ export default function AdminReports() {
     return data;
   };
 
-  const fetchMaintenanceData = async () => {
-    let query = supabase.from("maintenance_records").select(`
-      *,
-      tools (name, tag, brand),
-      profiles (full_name, email)
-    `);
-
-    if (filters.startDate) {
-      query = query.gte("created_at", filters.startDate);
-    }
-    if (filters.endDate) {
-      query = query.lte("created_at", filters.endDate);
-    }
-    if (filters.toolId && filters.toolId !== "all") {
-      query = query.eq("tool_id", filters.toolId);
-    }
-
-    query = query.order("created_at", { ascending: false }).limit(5000);
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-    return data;
-  };
 
   const fetchInventoryData = async () => {
     let query = supabase.from("tools").select("*");
@@ -154,21 +128,6 @@ export default function AdminReports() {
     return data;
   };
 
-  const fetchFuelData = async () => {
-    let query = supabase.from("fuel_records").select(`
-      *,
-      vehicles!inner(name, plate),
-      profiles!fuel_records_user_id_fkey(full_name)
-    `);
-
-    if (filters.startDate) query = query.gte("refuel_date", filters.startDate);
-    if (filters.endDate) query = query.lte("refuel_date", filters.endDate);
-
-    query = query.order("refuel_date", { ascending: false }).limit(5000);
-    const { data, error } = await query;
-    if (error) throw error;
-    return data;
-  };
 
   const setQuickPeriod = (period: string) => {
     const today = new Date();

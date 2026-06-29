@@ -154,7 +154,7 @@ export default function AdminAnalytics() {
 
     const { data: tools } = await supabase.from("tools").select("id, quantity_available, quantity_total");
     const { data: users } = await supabase.from("profiles").select("id, category");
-    const { data: maintenances } = await supabase.from("maintenance_records").select("id");
+    const maintenances: { id: string }[] = [];
 
     let vQuery = supabase
       .from("vehicle_checkouts")
