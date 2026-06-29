@@ -276,70 +276,23 @@ export default function AdminConstructionSites() {
     }
   };
 
-  const openNewClient = () => {
-    setEditingClient(null);
-    setFormName(""); setFormAddress("");
-    setClientDialogOpen(true);
-  };
-
-  const openEditClient = (c: Client) => {
-    setEditingClient(c);
-    setFormName(c.name);
-    setFormAddress(c.address || "");
-    setClientDialogOpen(true);
-  };
-
-  const handleSaveClient = async () => {
-    if (!formName.trim()) { toast.error("Nome é obrigatório"); return; }
-    setSavingClient(true);
-    const payload = {
-      name: formName.trim(),
-      address: formAddress.trim() || null,
-    };
-
-    if (editingClient) {
-      const { error } = await supabase.from("clients").update(payload).eq("id", editingClient.id);
-      if (error) { toast.error("Erro ao atualizar"); setSavingClient(false); return; }
-      toast.success("Cliente atualizado!");
-    } else {
-      const { error } = await supabase.from("clients").insert({ ...payload, created_by: profile!.id });
-      if (error) { toast.error("Erro ao criar"); setSavingClient(false); return; }
-      toast.success("Cliente criado!");
-    }
-    setSavingClient(false);
-    setClientDialogOpen(false);
-    refetchClients();
-  };
-
-  const toggleClientActive = async (c: Client) => {
-    const { error } = await supabase.from("clients").update({ active: !c.active }).eq("id", c.id);
-    if (error) { toast.error("Erro"); return; }
-    toast.success(c.active ? "Cliente desativado" : "Cliente ativado");
-    refetchClients();
-  };
-
-  const handleDeleteClient = async (c: Client) => {
-    if (!confirm(`Excluir cliente "${c.name}"?`)) return;
-    const { error } = await supabase.from("clients").delete().eq("id", c.id);
-    if (error) { toast.error("Erro ao excluir"); return; }
-    toast.success("Cliente excluído");
-    refetchClients();
-  };
-
   const openEditSite = (site: ConstructionSite) => {
     setEditingSite(site);
-    setSelectedClientId(site.client_id || "none");
+    setSiteFormName(site.name);
+    setSiteFormAddress(site.address || "");
     setSiteDialogOpen(true);
   };
 
   const handleSaveSite = async () => {
     if (!editingSite) return;
+    if (!siteFormName.trim()) { toast.error("Nome é obrigatório"); return; }
     setSavingSite(true);
-    
+
     const { error } = await supabase
       .from("construction_sites")
-      .update({ 
-        client_id: selectedClientId === "none" ? null : selectedClientId 
+      .update({
+        name: siteFormName.trim(),
+        address: siteFormAddress.trim() || null,
       })
       .eq("id", editingSite.id);
 
@@ -353,10 +306,6 @@ export default function AdminConstructionSites() {
     setSavingSite(false);
   };
 
-  const filteredClients = clients.filter((c) =>
-    !clientSearch || c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
-    c.contact_name?.toLowerCase().includes(clientSearch.toLowerCase())
-  );
 
   const filteredTools = tools.filter((tool) =>
     !toolSearch || 
