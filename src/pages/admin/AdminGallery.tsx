@@ -790,20 +790,21 @@ export default function AdminGallery() {
                 </Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {pagedFiles.map((file) => (
-
+                {pagedFiles.map((file) => {
+                  const rel = (file as any)._rel || file.name;
+                  const url = signedUrls[rel];
+                  return (
                   <Card
-                    key={file.id || file.name}
+                    key={file.id || rel}
                     className="overflow-hidden group cursor-pointer border-border/60 hover:border-primary/50 hover:shadow-lg transition-all"
                     onClick={() =>
-                      signedUrls[file.name] &&
-                      openEnlarged(signedUrls[file.name], `${currentPath}/${file.name}`, file.name)
+                      url && openEnlarged(url, `${currentPath}/${rel}`, file.name)
                     }
                   >
                     <div className="relative aspect-square bg-muted">
-                      {signedUrls[file.name] ? (
+                      {url ? (
                         <img
-                          src={signedUrls[file.name]}
+                          src={url}
                           alt={file.name}
                           className="w-full h-full object-cover transition-transform group-hover:scale-105"
                           loading="lazy"
@@ -821,7 +822,7 @@ export default function AdminGallery() {
                           className="w-8 h-8 shadow-md"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDownload(file.name);
+                            handleDownload(rel);
                           }}
                           title="Baixar"
                         >
@@ -833,7 +834,7 @@ export default function AdminGallery() {
                           className="w-8 h-8 shadow-md"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(file.name);
+                            handleDelete(rel);
                           }}
                           title="Excluir"
                         >
@@ -841,8 +842,8 @@ export default function AdminGallery() {
                         </Button>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-xs text-white/95 truncate font-medium" title={file.name}>
-                          {file.name}
+                        <p className="text-xs text-white/95 truncate font-medium" title={rel}>
+                          {rel !== file.name ? rel : file.name}
                         </p>
                         <div className="flex justify-between text-[10px] text-white/75 mt-0.5">
                           <span>{formatFileSize(file.metadata?.size)}</span>
@@ -851,7 +852,8 @@ export default function AdminGallery() {
                       </div>
                     </div>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
