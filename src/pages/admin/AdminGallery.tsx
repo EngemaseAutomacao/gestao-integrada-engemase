@@ -108,6 +108,7 @@ export default function AdminGallery() {
       setSignedUrls({});
       setBreadcrumbs([]);
     }
+    setDeepFiles([]);
     setSearch("");
     setPage(1);
   }, [currentPath]);
