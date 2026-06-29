@@ -188,8 +188,9 @@ export default function AdminGallery() {
           : ext === "png"
             ? "image/png"
             : "application/octet-stream");
+      const baseName = fileName.split("/").pop() || fileName;
       await saveFileToDisk(blob, {
-        suggestedName: fileName,
+        suggestedName: baseName,
         mimeType: mime,
         extension: `.${ext}`,
         description: "Imagem",
@@ -197,7 +198,7 @@ export default function AdminGallery() {
     } catch {
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName;
+      a.download = fileName.split("/").pop() || fileName;
       a.target = "_blank";
       document.body.appendChild(a);
       a.click();
