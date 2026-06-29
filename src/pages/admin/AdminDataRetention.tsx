@@ -240,9 +240,7 @@ export default function AdminDataRetention() {
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Dados com mais de <strong>{setting.retention_days} dias</strong> serão removidos.
-                    {" "}Próxima limpeza automática em <strong>{daysUntilNextCleanup}</strong>{" "}
-                    {daysUntilNextCleanup === 1 ? "dia" : "dias"} ({nextCleanupLabel}).
+                    Dados com mais de <strong>{setting.retention_days} dias</strong> serão removidos automaticamente na próxima execução diária (todo dia às 03:00 — próxima: {nextCleanupLabel}).
                   </p>
 
                 </div>
