@@ -611,14 +611,48 @@ export default function AdminGallery() {
         </div>
       )}
 
-      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
+      <Dialog
+        open={!!enlargedImage}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEnlargedImage(null);
+            setEnlargedMeta(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl p-2">
           {enlargedImage && (
-            <img
-              src={enlargedImage}
-              alt="Imagem ampliada"
-              className="w-full h-auto max-h-[80vh] object-contain rounded"
-            />
+            <div className="space-y-3">
+              <img
+                src={enlargedImage.url}
+                alt="Imagem ampliada"
+                className="w-full h-auto max-h-[70vh] object-contain rounded"
+              />
+              <div className="px-2 pb-2 text-sm">
+                {enlargedMeta?.loading ? (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Carregando informações…
+                  </div>
+                ) : enlargedMeta && (enlargedMeta.vehicle || enlargedMeta.user) ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-4">
+                    {enlargedMeta.vehicle && (
+                      <p><span className="text-muted-foreground">Veículo:</span> <span className="font-medium">{enlargedMeta.vehicle}{enlargedMeta.plate ? ` (${enlargedMeta.plate})` : ""}</span></p>
+                    )}
+                    {enlargedMeta.user && (
+                      <p><span className="text-muted-foreground">Responsável:</span> <span className="font-medium">{enlargedMeta.user}</span></p>
+                    )}
+                    {enlargedMeta.date && (
+                      <p><span className="text-muted-foreground">{enlargedMeta.direction === "entrada" ? "Devolução:" : "Retirada:"}</span> <span className="font-medium">{enlargedMeta.date}</span></p>
+                    )}
+                    {enlargedMeta.destination && (
+                      <p><span className="text-muted-foreground">Obra/Destino:</span> <span className="font-medium">{enlargedMeta.destination}</span></p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">Sem registro vinculado a esta imagem.</p>
+                )}
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
