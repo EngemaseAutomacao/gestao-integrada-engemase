@@ -29,7 +29,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   vehicle_checkout_history: <Clock className="w-5 h-5 text-purple-500" />,
   notifications: <Bell className="w-5 h-5 text-yellow-500" />,
   system_logs: <FileText className="w-5 h-5 text-red-500" />,
-  transfer_history: <RefreshCw className="w-5 h-5 text-cyan-500" />,
+  
 };
 
 const PRESET_OPTIONS = [
