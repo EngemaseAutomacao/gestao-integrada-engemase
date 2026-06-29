@@ -429,7 +429,18 @@ export default function AdminGallery() {
         </Card>
       ) : (
         <div className="space-y-8">
-          {folders.length > 0 && (
+          {searchLower && filteredFolders.length === 0 && filteredFiles.length === 0 && (
+            <Card className="border-dashed">
+              <CardContent className="py-12 text-center">
+                <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                <p className="font-medium">Nenhum resultado para "{search}"</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tente outro termo ou limpe a busca.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          {filteredFolders.length > 0 && (
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -439,11 +450,15 @@ export default function AdminGallery() {
                   </h2>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {folders.length}
+                  {filteredFolders.length}
+                  {searchLower && folders.length !== filteredFolders.length
+                    ? ` / ${folders.length}`
+                    : ""}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {folders.map((folder) => {
+                {filteredFolders.map((folder) => {
+
                   const Icon = ICON_MAP[folder.name] || Folder;
                   const label = LABEL_MAP[folder.name] || folder.name;
                   return (
