@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
@@ -15,12 +16,18 @@ import {
   Download,
   Trash2,
   ChevronRight,
+  ChevronLeft,
   Home,
   LogIn,
   LogOut,
   Car,
   FolderOpen,
+  Search,
+  X,
 } from "lucide-react";
+
+const PAGE_SIZE = 24;
+
 
 interface StorageItem {
   name: string;
@@ -74,6 +81,8 @@ export default function AdminGallery() {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ label: string; path: string }[]>([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (currentPath) {
@@ -85,11 +94,18 @@ export default function AdminGallery() {
       setSignedUrls({});
       setBreadcrumbs([]);
     }
+    setSearch("");
+    setPage(1);
   }, [currentPath]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
+
 
   const updateBreadcrumbs = (path: string) => {
     const parts = path.split("/");
@@ -107,7 +123,7 @@ export default function AdminGallery() {
     try {
       const { data, error } = await supabase.storage
         .from("imagens")
-        .list(path, { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+        .list(path, { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
 
       if (error) throw error;
 
@@ -117,21 +133,9 @@ export default function AdminGallery() {
 
       setFolders(folderItems);
       setFiles(imageFiles);
+      setSignedUrls({});
 
-      const urls: Record<string, string> = {};
-      await Promise.all(
-        imageFiles.map(async (file) => {
-          const fullPath = `${path}/${file.name}`;
-          const { data: urlData, error: urlError } = await supabase.storage
-            .from("imagens")
-            .createSignedUrl(fullPath, 3600);
 
-          if (!urlError && urlData) {
-            urls[file.name] = urlData.signedUrl;
-          }
-        }),
-      );
-      setSignedUrls(urls);
     } catch (error: any) {
       toast.error("Erro ao carregar imagens", { description: error.message });
     } finally {
@@ -189,6 +193,56 @@ export default function AdminGallery() {
   const openFolder = (folderName: string) => {
     setCurrentPath(`${currentPath}/${folderName}`);
   };
+
+  const searchLower = search.trim().toLowerCase();
+  const filteredFolders = useMemo(
+    () =>
+      searchLower
+        ? folders.filter((f) =>
+            ((LABEL_MAP[f.name] || f.name) + " " + f.name).toLowerCase().includes(searchLower),
+          )
+        : folders,
+    [folders, searchLower],
+  );
+  const filteredFiles = useMemo(
+    () =>
+      searchLower ? files.filter((f) => f.name.toLowerCase().includes(searchLower)) : files,
+    [files, searchLower],
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredFiles.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedFiles = useMemo(
+    () => filteredFiles.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filteredFiles, currentPage],
+  );
+
+  // Sign URLs only for visible page
+  useEffect(() => {
+    if (!currentPath || pagedFiles.length === 0) return;
+    const missing = pagedFiles.filter((f) => !signedUrls[f.name]);
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        missing.map(async (file) => {
+          const { data } = await supabase.storage
+            .from("imagens")
+            .createSignedUrl(`${currentPath}/${file.name}`, 3600);
+          return [file.name, data?.signedUrl] as const;
+        }),
+      );
+      if (cancelled) return;
+      setSignedUrls((prev) => {
+        const next = { ...prev };
+        for (const [name, url] of entries) if (url) next[name] = url;
+        return next;
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pagedFiles, currentPath, signedUrls]);
+
 
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "—";
@@ -329,6 +383,31 @@ export default function AdminGallery() {
         </div>
       )}
 
+      {/* Search */}
+      {currentPath && !loading && (folders.length > 0 || files.length > 0) && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por nome do arquivo ou pasta…"
+            className="pl-9 pr-9"
+          />
+          {search && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSearch("")}
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+              aria-label="Limpar busca"
+            >
+              <X className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
+      )}
+
+
       {!currentPath ? (
         renderFolderNav()
       ) : loading ? (
@@ -350,7 +429,18 @@ export default function AdminGallery() {
         </Card>
       ) : (
         <div className="space-y-8">
-          {folders.length > 0 && (
+          {searchLower && filteredFolders.length === 0 && filteredFiles.length === 0 && (
+            <Card className="border-dashed">
+              <CardContent className="py-12 text-center">
+                <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                <p className="font-medium">Nenhum resultado para "{search}"</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Tente outro termo ou limpe a busca.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          {filteredFolders.length > 0 && (
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -360,11 +450,15 @@ export default function AdminGallery() {
                   </h2>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {folders.length}
+                  {filteredFolders.length}
+                  {searchLower && folders.length !== filteredFolders.length
+                    ? ` / ${folders.length}`
+                    : ""}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {folders.map((folder) => {
+                {filteredFolders.map((folder) => {
+
                   const Icon = ICON_MAP[folder.name] || Folder;
                   const label = LABEL_MAP[folder.name] || folder.name;
                   return (
@@ -390,7 +484,7 @@ export default function AdminGallery() {
             </section>
           )}
 
-          {files.length > 0 && (
+          {filteredFiles.length > 0 && (
             <section className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -400,11 +494,13 @@ export default function AdminGallery() {
                   </h2>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                  {files.length}
+                  {filteredFiles.length}
+                  {searchLower && files.length !== filteredFiles.length ? ` / ${files.length}` : ""}
                 </Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {files.map((file) => (
+                {pagedFiles.map((file) => (
+
                   <Card
                     key={file.id || file.name}
                     className="overflow-hidden group cursor-pointer border-border/60 hover:border-primary/50 hover:shadow-lg transition-all"
@@ -463,7 +559,42 @@ export default function AdminGallery() {
                   </Card>
                 ))}
               </div>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–
+                    {Math.min(currentPage * PAGE_SIZE, filteredFiles.length)} de{" "}
+                    {filteredFiles.length}
+                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1}
+                      className="h-8 gap-1"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      Anterior
+                    </Button>
+                    <span className="text-xs text-muted-foreground px-2">
+                      {currentPage} / {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages}
+                      className="h-8 gap-1"
+                    >
+                      Próxima
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </section>
+
           )}
         </div>
       )}
