@@ -181,19 +181,6 @@ export default function AdminReports() {
           ]);
           break;
 
-        case "maintenance":
-          data = await fetchMaintenanceData();
-          title = "Relatório de Manutenções";
-          columns = ["Ferramenta", "Tipo", "Descrição", "Realizado por", "Data", "Custo"];
-          rows = data.map((item: any) => [
-            item.tools?.name || "-",
-            item.maintenance_type,
-            item.description,
-            item.profiles?.full_name || "-",
-            format(new Date(item.created_at), "dd/MM/yyyy", { locale: ptBR }),
-            item.cost ? `R$ ${item.cost.toFixed(2)}` : "-",
-          ]);
-          break;
 
         case "inventory":
           data = await fetchInventoryData();
@@ -253,22 +240,8 @@ export default function AdminReports() {
           ]);
           break;
 
-        case "fuel_records":
-          data = await fetchFuelData();
-          title = "Relatório de Abastecimento";
-          columns = ["Veículo", "Placa", "Litros", "Custo/L", "Total", "KM", "Posto", "Data"];
-          rows = data.map((item: any) => [
-            item.vehicles?.name || "-",
-            item.vehicles?.plate || "-",
-            item.liters?.toString() || "-",
-            item.cost_per_liter ? `R$ ${Number(item.cost_per_liter).toFixed(2)}` : "-",
-            item.total_cost ? `R$ ${Number(item.total_cost).toFixed(2)}` : "-",
-            item.km_at_refuel?.toString() || "-",
-            item.gas_station || "-",
-            format(new Date(item.refuel_date), "dd/MM/yyyy", { locale: ptBR }),
-          ]);
-          break;
       }
+
 
       let subtitle = "";
       if (filters.startDate || filters.endDate) {
