@@ -623,7 +623,33 @@ export default function AdminGallery() {
         </div>
       )}
 
-      {/* Search */}
+      {/* Bulk actions */}
+      {currentPath && (currentPath.startsWith("veiculos")) && (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={renameExistingFiles}
+            disabled={renaming || loading}
+            className="gap-2 w-full sm:w-auto"
+          >
+            {renaming ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Wand2 className="w-3.5 h-3.5" />
+            )}
+            {renaming
+              ? renameProgress
+                ? `Renomeando ${renameProgress.done}/${renameProgress.total}…`
+                : "Renomeando…"
+              : "Renomear arquivos existentes"}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Aplica o padrão <code>nomeveiculo_AAAAMMDD_tipo_seq</code> nesta pasta e subpastas.
+          </p>
+        </div>
+      )}
+
       {currentPath && !loading && (folders.length > 0 || files.length > 0) && (
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
