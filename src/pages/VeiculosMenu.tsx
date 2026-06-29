@@ -1,4 +1,4 @@
-import { Car, Upload, LogIn, History, ClipboardList, ArrowRightLeft } from "lucide-react";
+import { Car, Upload, LogIn, History, ClipboardList } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { MenuCard } from "@/components/MenuCard";
 import { useIsMobile } from "@/hooks/use-mobile";
