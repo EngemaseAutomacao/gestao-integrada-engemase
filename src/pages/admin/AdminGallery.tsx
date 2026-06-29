@@ -79,6 +79,7 @@ export default function AdminGallery() {
   const [currentPath, setCurrentPath] = useState<string>("");
   const [folders, setFolders] = useState<StorageItem[]>([]);
   const [files, setFiles] = useState<StorageItem[]>([]);
+  const [deepFiles, setDeepFiles] = useState<(StorageItem & { _rel: string })[]>([]);
   const [loading, setLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [enlargedImage, setEnlargedImage] = useState<{ url: string; path: string; name: string } | null>(null);
