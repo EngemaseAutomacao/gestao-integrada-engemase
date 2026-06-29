@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { uploadDataUrlImage } from "@/lib/storageUtils";
-import { compressDataUrl } from "@/lib/imageCompression";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOffline } from "@/contexts/OfflineContext";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
@@ -59,12 +57,8 @@ export default function Checkin() {
   const toolIdParam = searchParams.get("toolId");
   const checkoutIdParam = searchParams.get("checkoutId");
 
-  // Photo state
-  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
-  const [photoConfirmed, setPhotoConfirmed] = useState(false);
-
   // Warn on unsaved form data
-  const hasUnsavedData = !!(notes || photoConfirmed);
+  const hasUnsavedData = !!notes;
   useUnsavedChanges(hasUnsavedData);
 
   useEffect(() => {
@@ -130,10 +124,6 @@ export default function Checkin() {
     }
   };
 
-  const uploadImage = async (dataUrl: string, type: "photo" | "signature"): Promise<string | null> => {
-    const compressed = await compressDataUrl(dataUrl);
-    return uploadDataUrlImage(compressed, type, "ferramentas", "entradas");
-  };
 
   const selectedCheckout = checkouts.find(c => c.id === selectedCheckoutId);
   const isAdminActingForOther = !!(isAdmin && selectedCheckout && selectedCheckout.user_id !== profile?.id);
@@ -167,12 +157,6 @@ export default function Checkin() {
     setLoading(true);
 
     try {
-      let photoUrl: string | null = null;
-
-      if (photoDataUrl) {
-        photoUrl = await uploadImage(photoDataUrl, "photo");
-      }
-
       const checkinData = {
         checkoutId: selectedCheckoutId,
         updates: {
@@ -180,7 +164,7 @@ export default function Checkin() {
           checkin_date: (isAdmin && manualMode && manualDate ? new Date(manualDate) : new Date()).toISOString(),
           checked_in_by: profile!.id,
           notes: notes.trim() ? notes : null,
-          checkin_photo_url: photoUrl,
+          checkin_photo_url: null,
         },
       };
 
@@ -220,11 +204,6 @@ export default function Checkin() {
     }
   };
 
-  const handlePhotoCapture = (dataUrl: string) => {
-    setPhotoDataUrl(dataUrl);
-    setPhotoConfirmed(true);
-    toast.success("Foto confirmada!");
-  };
 
   return (
     <div className="space-y-4">

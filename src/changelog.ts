@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.5",
+    date: "2026-06-29",
+    title: "Remoção de código morto de fotos de ferramentas",
+    description: "Limpeza de estados, handlers e uploads que não eram mais usados após a remoção da captura de fotos na retirada/devolução de ferramentas.",
+    changes: [
+      { type: "improvement", text: "Removidos imports e funções de upload de foto em Retirada e Devolução de ferramentas" },
+      { type: "improvement", text: "Pasta 'imagens/ferramentas/' liberada para exclusão manual" },
+    ],
+  },
+  {
     version: "1.64.4",
     date: "2026-06-29",
     title: "Limpeza de buckets de armazenamento não utilizados",
