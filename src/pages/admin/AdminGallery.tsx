@@ -277,6 +277,163 @@ export default function AdminGallery() {
     setCurrentPath(`${currentPath}/${folderName}`);
   };
 
+  const listAllFilesRecursive = async (path: string): Promise<string[]> => {
+    const { data, error } = await supabase.storage
+      .from("imagens")
+      .list(path, { limit: 1000 });
+    if (error) throw error;
+    const result: string[] = [];
+    for (const item of data || []) {
+      if (item.name === ".emptyFolderPlaceholder") continue;
+      const full = `${path}/${item.name}`;
+      if (item.id) result.push(full);
+      else {
+        const nested = await listAllFilesRecursive(full);
+        result.push(...nested);
+      }
+    }
+    return result;
+  };
+
+  const PHOTO_COLS_CHECKOUT = [
+    "photo_front_checkout",
+    "photo_back_checkout",
+    "photo_left_checkout",
+    "photo_right_checkout",
+    "photo_dashboard_checkout",
+    "photo_control_checkout",
+    "photo_wheel_fl_checkout",
+    "photo_wheel_fr_checkout",
+    "photo_wheel_rl_checkout",
+    "photo_wheel_rr_checkout",
+  ];
+  const PHOTO_COLS_CHECKIN = [
+    "photo_front_checkin",
+    "photo_back_checkin",
+    "photo_left_checkin",
+    "photo_right_checkin",
+    "photo_dashboard_checkin",
+    "photo_control_checkin",
+    "photo_wheel_fl_checkin",
+    "photo_wheel_fr_checkin",
+    "photo_wheel_rl_checkin",
+    "photo_wheel_rr_checkin",
+  ];
+
+  const renameExistingFiles = async () => {
+    if (!currentPath) return;
+    if (
+      !confirm(
+        "Renomear todos os arquivos desta pasta (e subpastas) para o novo padrão (nomeveiculo_AAAAMMDD_tipo_seq)? Esta ação atualiza tanto os arquivos quanto os registros vinculados.",
+      )
+    )
+      return;
+
+    setRenaming(true);
+    setRenameProgress({ done: 0, total: 0 });
+    try {
+      const allPaths = await listAllFilesRecursive(currentPath);
+      setRenameProgress({ done: 0, total: allPaths.length });
+      let renamed = 0;
+      let skipped = 0;
+      let failed = 0;
+
+      for (let i = 0; i < allPaths.length; i++) {
+        const oldPath = allPaths[i];
+        setRenameProgress({ done: i, total: allPaths.length });
+
+        const parts = oldPath.split("/");
+        const oldName = parts[parts.length - 1];
+        const parentDir = parts.slice(0, -1).join("/");
+        const ext = (oldName.split(".").pop() || "jpg").toLowerCase();
+
+        const direction: "saida" | "entrada" | null = oldPath.includes("/saidas/")
+          ? "saida"
+          : oldPath.includes("/entradas/")
+            ? "entrada"
+            : null;
+        if (!direction) {
+          skipped++;
+          continue;
+        }
+
+        const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
+        const orFilter = cols.map((c) => `${c}.eq.${oldPath}`).join(",");
+
+        const { data: row, error: qErr } = await supabase
+          .from("vehicle_checkouts")
+          .select(
+            `id, checkout_date, checkin_date, vehicles(name), ${cols.join(", ")}`,
+          )
+          .or(orFilter)
+          .limit(1)
+          .maybeSingle();
+
+        if (qErr || !row) {
+          skipped++;
+          continue;
+        }
+
+        // discover which column matches
+        const matchedCol = cols.find((c) => (row as any)[c] === oldPath);
+        if (!matchedCol) {
+          skipped++;
+          continue;
+        }
+        const prefix = matchedCol.replace(/^photo_/, "").replace(/_(checkout|checkin)$/, "");
+        const vehicleName = (row as any)?.vehicles?.name || "veiculo";
+        const slug = slugifyForFile(vehicleName);
+        const dateBase =
+          direction === "entrada"
+            ? (row as any).checkin_date || (row as any).checkout_date
+            : (row as any).checkout_date;
+        const ymd = dateBase
+          ? new Date(dateBase).toISOString().slice(0, 10).replace(/-/g, "")
+          : "00000000";
+        const seq = String(Date.now() + i).slice(-6);
+        const newName = `${slug}_${ymd}_${prefix}_${seq}.${ext}`;
+        const newPath = `${parentDir}/${newName}`;
+
+        if (newPath === oldPath) {
+          skipped++;
+          continue;
+        }
+
+        const { error: mvErr } = await supabase.storage
+          .from("imagens")
+          .move(oldPath, newPath);
+        if (mvErr) {
+          failed++;
+          continue;
+        }
+
+        const { error: upErr } = await supabase
+          .from("vehicle_checkouts")
+          .update({ [matchedCol]: newPath })
+          .eq("id", (row as any).id);
+        if (upErr) {
+          // try to rollback move
+          await supabase.storage.from("imagens").move(newPath, oldPath);
+          failed++;
+          continue;
+        }
+        renamed++;
+      }
+
+      setRenameProgress({ done: allPaths.length, total: allPaths.length });
+      toast.success(`Renomeação concluída`, {
+        description: `${renamed} renomeado(s) · ${skipped} ignorado(s) · ${failed} falha(s)`,
+      });
+      loadFiles(currentPath);
+    } catch (e: any) {
+      toast.error("Erro ao renomear", { description: e.message });
+    } finally {
+      setRenaming(false);
+      setTimeout(() => setRenameProgress(null), 2000);
+    }
+  };
+
+
   const searchLower = search.trim().toLowerCase();
   const filteredFolders = useMemo(
     () =>
