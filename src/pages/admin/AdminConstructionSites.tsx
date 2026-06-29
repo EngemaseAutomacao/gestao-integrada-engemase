@@ -21,22 +21,9 @@ interface ConstructionSite {
   name: string;
   address: string | null;
   active: boolean;
-  client_id: string | null;
   created_at: string;
-  clients?: {
-    name: string;
-  } | null;
 }
 
-interface Client {
-  id: string;
-  name: string;
-  contact_name: string | null;
-  contact_phone: string | null;
-  contact_email: string | null;
-  address: string | null;
-  active: boolean;
-}
 
 interface Tool {
   id: string;
