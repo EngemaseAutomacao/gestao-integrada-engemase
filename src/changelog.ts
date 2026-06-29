@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.11",
+    date: "2026-06-29",
+    title: "Busca da galeria inclui subpastas",
+    description: "Ao pesquisar pelo nome da foto em uma pasta de veículo, agora também aparecem resultados das subpastas (saídas/entradas).",
+    changes: [
+      { type: "improvement", text: "Busca recursiva nas subpastas mostra a foto mesmo quando ela está em saidas/ ou entradas/" },
+    ],
+  },
+  {
     version: "1.64.10",
     date: "2026-06-29",
     title: "Navegação entre fotos e renomeação mais confiável",
