@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
@@ -15,12 +16,18 @@ import {
   Download,
   Trash2,
   ChevronRight,
+  ChevronLeft,
   Home,
   LogIn,
   LogOut,
   Car,
   FolderOpen,
+  Search,
+  X,
 } from "lucide-react";
+
+const PAGE_SIZE = 24;
+
 
 interface StorageItem {
   name: string;
@@ -74,6 +81,8 @@ export default function AdminGallery() {
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [breadcrumbs, setBreadcrumbs] = useState<{ label: string; path: string }[]>([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (currentPath) {
@@ -85,11 +94,18 @@ export default function AdminGallery() {
       setSignedUrls({});
       setBreadcrumbs([]);
     }
+    setSearch("");
+    setPage(1);
   }, [currentPath]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   if (!profile || profile.role !== "admin") {
     return <Navigate to="/" />;
   }
+
 
   const updateBreadcrumbs = (path: string) => {
     const parts = path.split("/");
@@ -107,13 +123,18 @@ export default function AdminGallery() {
     try {
       const { data, error } = await supabase.storage
         .from("imagens")
-        .list(path, { limit: 200, sortBy: { column: "created_at", order: "desc" } });
+        .list(path, { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
 
       if (error) throw error;
 
       const visibleItems = (data || []).filter((item) => item.name !== ".emptyFolderPlaceholder");
       const folderItems = visibleItems.filter((item) => !item.id);
       const imageFiles = visibleItems.filter((item) => !!item.id);
+
+      setFolders(folderItems);
+      setFiles(imageFiles);
+      setSignedUrls({});
+
 
       setFolders(folderItems);
       setFiles(imageFiles);
