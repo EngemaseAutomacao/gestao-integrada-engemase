@@ -203,6 +203,27 @@ export default function AdminGallery() {
     }
   };
 
+  const findCheckoutRowByPath = async (
+    path: string,
+    direction: "saida" | "entrada",
+    extraSelect = "",
+  ) => {
+    const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
+    for (const col of cols) {
+      const query = (supabase as any)
+        .from("vehicle_checkouts")
+        .select(
+          `id, checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)${extraSelect ? ", " + extraSelect : ""}, ${col}`,
+        )
+        .eq(col, path)
+        .limit(1)
+        .maybeSingle();
+      const { data } = await query;
+      if (data) return { row: data as any, matchedCol: col };
+    }
+    return { row: null as any, matchedCol: null as string | null };
+  };
+
   const openEnlarged = async (url: string, path: string, name: string) => {
     setEnlargedImage({ url, path, name });
     const direction: "saida" | "entrada" | null = path.includes("/saidas/")
@@ -216,61 +237,50 @@ export default function AdminGallery() {
     }
     setEnlargedMeta({ loading: true, direction });
     try {
-      const cols =
-        direction === "saida"
-          ? [
-              "photo_front_checkout",
-              "photo_back_checkout",
-              "photo_left_checkout",
-              "photo_right_checkout",
-              "photo_dashboard_checkout",
-              "photo_control_checkout",
-              "photo_wheel_fl_checkout",
-              "photo_wheel_fr_checkout",
-              "photo_wheel_rl_checkout",
-              "photo_wheel_rr_checkout",
-            ]
-          : [
-              "photo_front_checkin",
-              "photo_back_checkin",
-              "photo_left_checkin",
-              "photo_right_checkin",
-              "photo_dashboard_checkin",
-              "photo_control_checkin",
-              "photo_wheel_fl_checkin",
-              "photo_wheel_fr_checkin",
-              "photo_wheel_rl_checkin",
-              "photo_wheel_rr_checkin",
-            ];
-      const orFilter = cols.map((c) => `${c}.eq.${path}`).join(",");
-      const { data } = await supabase
-        .from("vehicle_checkouts")
-        .select(
-          `checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)`,
-        )
-        .or(orFilter)
-        .limit(1)
-        .maybeSingle();
-
+      const { row: data } = await findCheckoutRowByPath(path, direction);
       const dateStr =
-        direction === "entrada" && (data as any)?.checkin_date
-          ? formatDate((data as any).checkin_date)
-          : (data as any)?.checkout_date
-            ? formatDate((data as any).checkout_date)
+        direction === "entrada" && data?.checkin_date
+          ? formatDate(data.checkin_date)
+          : data?.checkout_date
+            ? formatDate(data.checkout_date)
             : undefined;
 
       setEnlargedMeta({
         loading: false,
         direction,
-        vehicle: (data as any)?.vehicles?.name,
-        plate: (data as any)?.vehicles?.plate,
-        user: (data as any)?.profiles?.full_name,
-        destination: (data as any)?.destination,
+        vehicle: data?.vehicles?.name,
+        plate: data?.vehicles?.plate,
+        user: data?.profiles?.full_name,
+        destination: data?.destination,
         date: dateStr,
       });
     } catch {
       setEnlargedMeta({ loading: false, direction });
     }
+  };
+
+  const navigateEnlarged = (delta: number) => {
+    if (!enlargedImage) return;
+    const list = filteredFiles;
+    const idx = list.findIndex((f) => f.name === enlargedImage.name);
+    if (idx < 0) return;
+    const nextIdx = (idx + delta + list.length) % list.length;
+    const nextFile = list[nextIdx];
+    if (!nextFile) return;
+    const targetPage = Math.floor(nextIdx / PAGE_SIZE) + 1;
+    if (targetPage !== currentPage) setPage(targetPage);
+    const ensureUrl = async () => {
+      let url = signedUrls[nextFile.name];
+      if (!url) {
+        const { data } = await supabase.storage
+          .from("imagens")
+          .createSignedUrl(`${currentPath}/${nextFile.name}`, 3600);
+        url = data?.signedUrl || "";
+        if (url) setSignedUrls((prev) => ({ ...prev, [nextFile.name]: url }));
+      }
+      if (url) openEnlarged(url, `${currentPath}/${nextFile.name}`, nextFile.name);
+    };
+    ensureUrl();
   };
 
   const openFolder = (folderName: string) => {
@@ -357,36 +367,18 @@ export default function AdminGallery() {
           continue;
         }
 
-        const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
-        const orFilter = cols.map((c) => `${c}.eq.${oldPath}`).join(",");
-
-        const { data: row, error: qErr } = await supabase
-          .from("vehicle_checkouts")
-          .select(
-            `id, checkout_date, checkin_date, vehicles(name), ${cols.join(", ")}`,
-          )
-          .or(orFilter)
-          .limit(1)
-          .maybeSingle();
-
-        if (qErr || !row) {
-          skipped++;
-          continue;
-        }
-
-        // discover which column matches
-        const matchedCol = cols.find((c) => (row as any)[c] === oldPath);
-        if (!matchedCol) {
+        const { row, matchedCol } = await findCheckoutRowByPath(oldPath, direction);
+        if (!row || !matchedCol) {
           skipped++;
           continue;
         }
         const prefix = matchedCol.replace(/^photo_/, "").replace(/_(checkout|checkin)$/, "");
-        const vehicleName = (row as any)?.vehicles?.name || "veiculo";
+        const vehicleName = row?.vehicles?.name || "veiculo";
         const slug = slugifyForFile(vehicleName);
         const dateBase =
           direction === "entrada"
-            ? (row as any).checkin_date || (row as any).checkout_date
-            : (row as any).checkout_date;
+            ? row.checkin_date || row.checkout_date
+            : row.checkout_date;
         const ymd = dateBase
           ? new Date(dateBase).toISOString().slice(0, 10).replace(/-/g, "")
           : "00000000";
@@ -880,11 +872,35 @@ export default function AdminGallery() {
         <DialogContent className="max-w-4xl p-2">
           {enlargedImage && (
             <div className="space-y-3">
-              <img
-                src={enlargedImage.url}
-                alt="Imagem ampliada"
-                className="w-full h-auto max-h-[70vh] object-contain rounded"
-              />
+              <div className="relative">
+                <img
+                  src={enlargedImage.url}
+                  alt="Imagem ampliada"
+                  className="w-full h-auto max-h-[70vh] object-contain rounded"
+                />
+                {filteredFiles.length > 1 && (
+                  <>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => navigateEnlarged(-1)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full shadow-lg opacity-90 hover:opacity-100"
+                      aria-label="Anterior"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => navigateEnlarged(1)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full shadow-lg opacity-90 hover:opacity-100"
+                      aria-label="Próxima"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
+                  </>
+                )}
+              </div>
               <div className="px-2 pb-2 text-sm">
                 {enlargedMeta?.loading ? (
                   <div className="flex items-center gap-2 text-muted-foreground">

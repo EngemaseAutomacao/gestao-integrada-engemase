@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.10",
+    date: "2026-06-29",
+    title: "Navegação entre fotos e renomeação mais confiável",
+    description: "Setas na visualização ampliada para alternar entre as fotos da pasta e renomeação corrigida para alcançar arquivos que antes eram ignorados.",
+    changes: [
+      { type: "feature", text: "Setas de navegação (anterior/próxima) no modal da galeria para percorrer todas as fotos da pasta" },
+      { type: "fix", text: "Renomeação agora encontra arquivos que antes eram ignorados (consulta por coluna em vez de filtro 'or' que falhava com caracteres especiais)" },
+    ],
+  },
+  {
     version: "1.64.9",
     date: "2026-06-29",
     title: "Renomear fotos antigas na galeria",
