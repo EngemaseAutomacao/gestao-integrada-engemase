@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.3",
+    date: "2026-06-29",
+    title: "Retenção de Dados: limpeza automática diária",
+    description: "A limpeza de dados antigos agora roda automaticamente todos os dias às 03:00 e a tela mostra quando será a próxima execução.",
+    changes: [
+      { type: "feature", text: "Limpeza automática diária às 03:00 (não precisa mais rodar manualmente)" },
+      { type: "improvement", text: "Texto agora mostra em quantos dias ocorrerá a próxima limpeza" },
+      { type: "improvement", text: "Removida a categoria 'Fotos de Ferramentas' (não é mais utilizada)" },
+    ],
+  },
+  {
     version: "1.64.2",
     date: "2026-06-29",
     title: "Remoção do módulo de Transferências",

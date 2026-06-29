@@ -1,14 +1,19 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
-import { corsHeaders, jsonResponse, verifyAdmin, getAdminClient } from "../_shared/auth.ts";
+import { corsHeaders, jsonResponse, verifyAdmin, verifyCronSecret, getAdminClient } from "../_shared/auth.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  // Auth: admin-only (destructive)
-  const adminId = await verifyAdmin(req, getAdminClient());
-  if (!adminId) return jsonResponse({ error: "Unauthorized" }, 401);
+  // Auth: admin (manual run) or trusted cron secret (scheduled run)
+  const admin = getAdminClient();
+  const isCron = await verifyCronSecret(req, admin);
+  if (!isCron) {
+    const adminId = await verifyAdmin(req, admin);
+    if (!adminId) return jsonResponse({ error: "Unauthorized" }, 401);
+  }
+
 
 
 

@@ -48,6 +48,18 @@ export default function AdminDataRetention() {
   const [saving, setSaving] = useState<string | null>(null);
   const [runningCleanup, setRunningCleanup] = useState(false);
 
+  // Limpeza automática agendada todo dia às 03:00 (horário do servidor)
+  const { daysUntilNextCleanup, nextCleanupLabel } = (() => {
+    const now = new Date();
+    const next = new Date(now);
+    next.setHours(3, 0, 0, 0);
+    if (next <= now) next.setDate(next.getDate() + 1);
+    const diffMs = next.getTime() - now.getTime();
+    const days = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const label = `${next.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} às 03:00`;
+    return { daysUntilNextCleanup: days, nextCleanupLabel: label };
+  })();
+
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -228,8 +240,11 @@ export default function AdminDataRetention() {
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Dados com mais de <strong>{setting.retention_days} dias</strong> serão removidos na próxima limpeza.
+                    Dados com mais de <strong>{setting.retention_days} dias</strong> serão removidos.
+                    {" "}Próxima limpeza automática em <strong>{daysUntilNextCleanup}</strong>{" "}
+                    {daysUntilNextCleanup === 1 ? "dia" : "dias"} ({nextCleanupLabel}).
                   </p>
+
                 </div>
               </CardContent>
             )}
