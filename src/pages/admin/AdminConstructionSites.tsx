@@ -77,7 +77,7 @@ export default function AdminConstructionSites() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("construction_sites")
-        .select("*, clients(name)")
+        .select("*")
         .order("name");
       if (error) throw error;
       return data as ConstructionSite[];
