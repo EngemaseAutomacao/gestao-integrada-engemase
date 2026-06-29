@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.8",
+    date: "2026-06-29",
+    title: "Fotos nomeadas e detalhes na galeria",
+    description: "Fotos de veículos agora são salvas com o nome do veículo e a data, e ao abrir uma imagem na galeria são exibidas as informações do registro.",
+    changes: [
+      { type: "improvement", text: "Arquivo salvo como nomedoveiculo_AAAAMMDD_tipo_seq" },
+      { type: "feature", text: "Ao ampliar uma imagem, mostra veículo, responsável, data/hora e obra/destino" },
+    ],
+  },
+  {
     version: "1.64.7",
     date: "2026-06-29",
     title: "Busca e paginação na galeria",
