@@ -79,6 +79,7 @@ export default function AdminGallery() {
   const [currentPath, setCurrentPath] = useState<string>("");
   const [folders, setFolders] = useState<StorageItem[]>([]);
   const [files, setFiles] = useState<StorageItem[]>([]);
+  const [deepFiles, setDeepFiles] = useState<(StorageItem & { _rel: string })[]>([]);
   const [loading, setLoading] = useState(false);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const [enlargedImage, setEnlargedImage] = useState<{ url: string; path: string; name: string } | null>(null);
@@ -107,6 +108,7 @@ export default function AdminGallery() {
       setSignedUrls({});
       setBreadcrumbs([]);
     }
+    setDeepFiles([]);
     setSearch("");
     setPage(1);
   }, [currentPath]);
@@ -186,8 +188,9 @@ export default function AdminGallery() {
           : ext === "png"
             ? "image/png"
             : "application/octet-stream");
+      const baseName = fileName.split("/").pop() || fileName;
       await saveFileToDisk(blob, {
-        suggestedName: fileName,
+        suggestedName: baseName,
         mimeType: mime,
         extension: `.${ext}`,
         description: "Imagem",
@@ -195,7 +198,7 @@ export default function AdminGallery() {
     } catch {
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName;
+      a.download = fileName.split("/").pop() || fileName;
       a.target = "_blank";
       document.body.appendChild(a);
       a.click();
@@ -436,11 +439,12 @@ export default function AdminGallery() {
         : folders,
     [folders, searchLower],
   );
-  const filteredFiles = useMemo(
-    () =>
-      searchLower ? files.filter((f) => f.name.toLowerCase().includes(searchLower)) : files,
-    [files, searchLower],
-  );
+  const filteredFiles = useMemo(() => {
+    const base = files.map((f) => ({ ...f, _rel: f.name }) as StorageItem & { _rel: string });
+    if (!searchLower) return base;
+    const all = [...base, ...deepFiles];
+    return all.filter((f) => f.name.toLowerCase().includes(searchLower));
+  }, [files, deepFiles, searchLower]);
   const totalPages = Math.max(1, Math.ceil(filteredFiles.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedFiles = useMemo(
@@ -448,25 +452,55 @@ export default function AdminGallery() {
     [filteredFiles, currentPage],
   );
 
-  // Sign URLs only for visible page
+  // Recursive search into subfolders when user types in the search box
+  useEffect(() => {
+    if (!searchLower || !currentPath || folders.length === 0) {
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const collected: (StorageItem & { _rel: string })[] = [];
+      const visit = async (sub: string) => {
+        const { data } = await supabase.storage
+          .from("imagens")
+          .list(`${currentPath}/${sub}`, { limit: 1000 });
+        if (!data) return;
+        for (const item of data) {
+          if (item.name === ".emptyFolderPlaceholder") continue;
+          if (item.id) {
+            collected.push({ ...(item as StorageItem), _rel: `${sub}/${item.name}` });
+          } else {
+            await visit(`${sub}/${item.name}`);
+          }
+        }
+      };
+      for (const f of folders) await visit(f.name);
+      if (!cancelled) setDeepFiles(collected);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchLower, currentPath, folders]);
+
   useEffect(() => {
     if (!currentPath || pagedFiles.length === 0) return;
-    const missing = pagedFiles.filter((f) => !signedUrls[f.name]);
+    const missing = pagedFiles.filter((f) => !signedUrls[(f as any)._rel || f.name]);
     if (missing.length === 0) return;
     let cancelled = false;
     (async () => {
       const entries = await Promise.all(
         missing.map(async (file) => {
+          const rel = (file as any)._rel || file.name;
           const { data } = await supabase.storage
             .from("imagens")
-            .createSignedUrl(`${currentPath}/${file.name}`, 3600);
-          return [file.name, data?.signedUrl] as const;
+            .createSignedUrl(`${currentPath}/${rel}`, 3600);
+          return [rel, data?.signedUrl] as const;
         }),
       );
       if (cancelled) return;
       setSignedUrls((prev) => {
         const next = { ...prev };
-        for (const [name, url] of entries) if (url) next[name] = url;
+        for (const [key, url] of entries) if (url) next[key] = url;
         return next;
       });
     })();
@@ -757,20 +791,21 @@ export default function AdminGallery() {
                 </Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                {pagedFiles.map((file) => (
-
+                {pagedFiles.map((file) => {
+                  const rel = (file as any)._rel || file.name;
+                  const url = signedUrls[rel];
+                  return (
                   <Card
-                    key={file.id || file.name}
+                    key={file.id || rel}
                     className="overflow-hidden group cursor-pointer border-border/60 hover:border-primary/50 hover:shadow-lg transition-all"
                     onClick={() =>
-                      signedUrls[file.name] &&
-                      openEnlarged(signedUrls[file.name], `${currentPath}/${file.name}`, file.name)
+                      url && openEnlarged(url, `${currentPath}/${rel}`, file.name)
                     }
                   >
                     <div className="relative aspect-square bg-muted">
-                      {signedUrls[file.name] ? (
+                      {url ? (
                         <img
-                          src={signedUrls[file.name]}
+                          src={url}
                           alt={file.name}
                           className="w-full h-full object-cover transition-transform group-hover:scale-105"
                           loading="lazy"
@@ -788,7 +823,7 @@ export default function AdminGallery() {
                           className="w-8 h-8 shadow-md"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDownload(file.name);
+                            handleDownload(rel);
                           }}
                           title="Baixar"
                         >
@@ -800,7 +835,7 @@ export default function AdminGallery() {
                           className="w-8 h-8 shadow-md"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDelete(file.name);
+                            handleDelete(rel);
                           }}
                           title="Excluir"
                         >
@@ -808,8 +843,8 @@ export default function AdminGallery() {
                         </Button>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-xs text-white/95 truncate font-medium" title={file.name}>
-                          {file.name}
+                        <p className="text-xs text-white/95 truncate font-medium" title={rel}>
+                          {rel !== file.name ? rel : file.name}
                         </p>
                         <div className="flex justify-between text-[10px] text-white/75 mt-0.5">
                           <span>{formatFileSize(file.metadata?.size)}</span>
@@ -818,7 +853,8 @@ export default function AdminGallery() {
                       </div>
                     </div>
                   </Card>
-                ))}
+                  );
+                })}
               </div>
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
