@@ -106,12 +106,6 @@ export default function FerramentasMenu() {
           icon={<History className="w-6 h-6 text-primary" />}
           to="/ferramentas/historico"
         />
-        <MenuCard
-          title="Transferências"
-          description="Transferir posse de ferramentas"
-          icon={<ArrowRightLeft className="w-6 h-6 text-primary" />}
-          to="/transferencias"
-        />
         {isAdmin && (
           <>
             <MenuCard
