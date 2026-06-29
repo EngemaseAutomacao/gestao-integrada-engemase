@@ -422,7 +422,6 @@ export default function AdminConstructionSites() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Nome</TableHead>
-                          <TableHead>Cliente</TableHead>
                           <TableHead className="hidden md:table-cell">Endereço</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Ações</TableHead>
@@ -432,13 +431,6 @@ export default function AdminConstructionSites() {
                         {sites.map((site) => (
                           <TableRow key={site.id}>
                             <TableCell className="font-medium">{site.name}</TableCell>
-                            <TableCell>
-                              {site.clients?.name ? (
-                                <Badge variant="outline" className="font-normal">{site.clients.name}</Badge>
-                              ) : (
-                                <span className="text-muted-foreground text-xs italic">Não vinculado</span>
-                              )}
-                            </TableCell>
                             <TableCell className="hidden md:table-cell">{site.address || "-"}</TableCell>
                             <TableCell>
                               <Badge variant={site.active ? "default" : "secondary"}>
@@ -452,6 +444,7 @@ export default function AdminConstructionSites() {
                             </TableCell>
                           </TableRow>
                         ))}
+
                       </TableBody>
                     </Table>
                   </div>
