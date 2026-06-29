@@ -194,6 +194,56 @@ export default function AdminGallery() {
     setCurrentPath(`${currentPath}/${folderName}`);
   };
 
+  const searchLower = search.trim().toLowerCase();
+  const filteredFolders = useMemo(
+    () =>
+      searchLower
+        ? folders.filter((f) =>
+            ((LABEL_MAP[f.name] || f.name) + " " + f.name).toLowerCase().includes(searchLower),
+          )
+        : folders,
+    [folders, searchLower],
+  );
+  const filteredFiles = useMemo(
+    () =>
+      searchLower ? files.filter((f) => f.name.toLowerCase().includes(searchLower)) : files,
+    [files, searchLower],
+  );
+  const totalPages = Math.max(1, Math.ceil(filteredFiles.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedFiles = useMemo(
+    () => filteredFiles.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filteredFiles, currentPage],
+  );
+
+  // Sign URLs only for visible page
+  useEffect(() => {
+    if (!currentPath || pagedFiles.length === 0) return;
+    const missing = pagedFiles.filter((f) => !signedUrls[f.name]);
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        missing.map(async (file) => {
+          const { data } = await supabase.storage
+            .from("imagens")
+            .createSignedUrl(`${currentPath}/${file.name}`, 3600);
+          return [file.name, data?.signedUrl] as const;
+        }),
+      );
+      if (cancelled) return;
+      setSignedUrls((prev) => {
+        const next = { ...prev };
+        for (const [name, url] of entries) if (url) next[name] = url;
+        return next;
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pagedFiles, currentPath, signedUrls]);
+
+
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "—";
     if (bytes < 1024) return `${bytes} B`;
