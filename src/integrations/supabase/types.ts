@@ -114,58 +114,10 @@ export type Database = {
           },
         ]
       }
-      clients: {
-        Row: {
-          active: boolean
-          address: string | null
-          contact_email: string | null
-          contact_name: string | null
-          contact_phone: string | null
-          created_at: string
-          created_by: string | null
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          address?: string | null
-          contact_email?: string | null
-          contact_name?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          address?: string | null
-          contact_email?: string | null
-          contact_name?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clients_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       construction_sites: {
         Row: {
           active: boolean
           address: string | null
-          client_id: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -177,7 +129,6 @@ export type Database = {
         Insert: {
           active?: boolean
           address?: string | null
-          client_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -189,7 +140,6 @@ export type Database = {
         Update: {
           active?: boolean
           address?: string | null
-          client_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -199,13 +149,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "construction_sites_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "construction_sites_created_by_fkey"
             columns: ["created_by"]
@@ -877,13 +820,6 @@ export type Database = {
       execute_asset_transfer: {
         Args: { transfer_id: string }
         Returns: undefined
-      }
-      get_active_clients_basic: {
-        Args: never
-        Returns: {
-          id: string
-          name: string
-        }[]
       }
       get_approved_users: {
         Args: never

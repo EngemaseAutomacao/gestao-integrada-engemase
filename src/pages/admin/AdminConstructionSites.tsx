@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Users, Search, Building2, Wrench, ExternalLink, Car, Cog } from "lucide-react";
+import { MapPin, Loader2, RefreshCw, Plus, Pencil, Trash2, Search, Building2, Wrench, ExternalLink, Car, Cog } from "lucide-react";
 import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 interface ConstructionSite {
@@ -21,22 +21,9 @@ interface ConstructionSite {
   name: string;
   address: string | null;
   active: boolean;
-  client_id: string | null;
   created_at: string;
-  clients?: {
-    name: string;
-  } | null;
 }
 
-interface Client {
-  id: string;
-  name: string;
-  contact_name: string | null;
-  contact_phone: string | null;
-  contact_email: string | null;
-  address: string | null;
-  active: boolean;
-}
 
 interface Tool {
   id: string;
@@ -57,19 +44,13 @@ export default function AdminConstructionSites() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "obras";
 
-  // Client state
-  const [clientSearch, setClientSearch] = useState("");
-  const [clientDialogOpen, setClientDialogOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [savingClient, setSavingClient] = useState(false);
-  const [formName, setFormName] = useState("");
-  const [formAddress, setFormAddress] = useState("");
-  
   // Site state
   const [siteDialogOpen, setSiteDialogOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<ConstructionSite | null>(null);
-  const [selectedClientId, setSelectedClientId] = useState<string | "none">("none");
   const [savingSite, setSavingSite] = useState(false);
+  const [siteFormName, setSiteFormName] = useState("");
+  const [siteFormAddress, setSiteFormAddress] = useState("");
+
 
   // Tools state
   const [toolSearch, setToolSearch] = useState("");
@@ -96,7 +77,7 @@ export default function AdminConstructionSites() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("construction_sites")
-        .select("*, clients(name)")
+        .select("*")
         .order("name");
       if (error) throw error;
       return data as ConstructionSite[];
@@ -156,18 +137,8 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
 
-  // ─── Clientes ───
-  const { data: clients = [], isLoading: loadingClients, refetch: refetchClients } = useQuery({
-    queryKey: ["clients"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("name");
-      if (error) throw error;
-      return data as Client[];
-    },
-  });
+
+
 
   // ─── Ferramentas ───
   const { data: tools = [], isLoading: loadingTools, refetch: refetchTools } = useQuery({
@@ -305,70 +276,23 @@ export default function AdminConstructionSites() {
     }
   };
 
-  const openNewClient = () => {
-    setEditingClient(null);
-    setFormName(""); setFormAddress("");
-    setClientDialogOpen(true);
-  };
-
-  const openEditClient = (c: Client) => {
-    setEditingClient(c);
-    setFormName(c.name);
-    setFormAddress(c.address || "");
-    setClientDialogOpen(true);
-  };
-
-  const handleSaveClient = async () => {
-    if (!formName.trim()) { toast.error("Nome é obrigatório"); return; }
-    setSavingClient(true);
-    const payload = {
-      name: formName.trim(),
-      address: formAddress.trim() || null,
-    };
-
-    if (editingClient) {
-      const { error } = await supabase.from("clients").update(payload).eq("id", editingClient.id);
-      if (error) { toast.error("Erro ao atualizar"); setSavingClient(false); return; }
-      toast.success("Cliente atualizado!");
-    } else {
-      const { error } = await supabase.from("clients").insert({ ...payload, created_by: profile!.id });
-      if (error) { toast.error("Erro ao criar"); setSavingClient(false); return; }
-      toast.success("Cliente criado!");
-    }
-    setSavingClient(false);
-    setClientDialogOpen(false);
-    refetchClients();
-  };
-
-  const toggleClientActive = async (c: Client) => {
-    const { error } = await supabase.from("clients").update({ active: !c.active }).eq("id", c.id);
-    if (error) { toast.error("Erro"); return; }
-    toast.success(c.active ? "Cliente desativado" : "Cliente ativado");
-    refetchClients();
-  };
-
-  const handleDeleteClient = async (c: Client) => {
-    if (!confirm(`Excluir cliente "${c.name}"?`)) return;
-    const { error } = await supabase.from("clients").delete().eq("id", c.id);
-    if (error) { toast.error("Erro ao excluir"); return; }
-    toast.success("Cliente excluído");
-    refetchClients();
-  };
-
   const openEditSite = (site: ConstructionSite) => {
     setEditingSite(site);
-    setSelectedClientId(site.client_id || "none");
+    setSiteFormName(site.name);
+    setSiteFormAddress(site.address || "");
     setSiteDialogOpen(true);
   };
 
   const handleSaveSite = async () => {
     if (!editingSite) return;
+    if (!siteFormName.trim()) { toast.error("Nome é obrigatório"); return; }
     setSavingSite(true);
-    
+
     const { error } = await supabase
       .from("construction_sites")
-      .update({ 
-        client_id: selectedClientId === "none" ? null : selectedClientId 
+      .update({
+        name: siteFormName.trim(),
+        address: siteFormAddress.trim() || null,
       })
       .eq("id", editingSite.id);
 
@@ -382,10 +306,6 @@ export default function AdminConstructionSites() {
     setSavingSite(false);
   };
 
-  const filteredClients = clients.filter((c) =>
-    !clientSearch || c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
-    c.contact_name?.toLowerCase().includes(clientSearch.toLowerCase())
-  );
 
   const filteredTools = tools.filter((tool) =>
     !toolSearch || 
@@ -487,16 +407,12 @@ export default function AdminConstructionSites() {
                             {site.active ? "Ativa" : "Inativa"}
                           </Badge>
                         </div>
-                        <div className="flex items-center justify-between gap-2">
-                          {site.clients?.name ? (
-                            <Badge variant="outline" className="font-normal text-[10px] truncate max-w-[70%]">{site.clients.name}</Badge>
-                          ) : (
-                            <span className="text-muted-foreground text-[10px] italic">Sem cliente</span>
-                          )}
+                        <div className="flex items-center justify-end gap-2">
                           <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => openEditSite(site)}>
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
                         </div>
+
                       </div>
                     ))}
                   </div>
@@ -506,7 +422,6 @@ export default function AdminConstructionSites() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Nome</TableHead>
-                          <TableHead>Cliente</TableHead>
                           <TableHead className="hidden md:table-cell">Endereço</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Ações</TableHead>
@@ -516,13 +431,6 @@ export default function AdminConstructionSites() {
                         {sites.map((site) => (
                           <TableRow key={site.id}>
                             <TableCell className="font-medium">{site.name}</TableCell>
-                            <TableCell>
-                              {site.clients?.name ? (
-                                <Badge variant="outline" className="font-normal">{site.clients.name}</Badge>
-                              ) : (
-                                <span className="text-muted-foreground text-xs italic">Não vinculado</span>
-                              )}
-                            </TableCell>
                             <TableCell className="hidden md:table-cell">{site.address || "-"}</TableCell>
                             <TableCell>
                               <Badge variant={site.active ? "default" : "secondary"}>
@@ -536,6 +444,7 @@ export default function AdminConstructionSites() {
                             </TableCell>
                           </TableRow>
                         ))}
+
                       </TableBody>
                     </Table>
                   </div>
@@ -774,68 +683,32 @@ export default function AdminConstructionSites() {
         </TabsContent>
       </Tabs>
 
-      {/* Dialog de Cliente */}
-      <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingClient ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Nome *</Label>
-              <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Nome do cliente" />
-            </div>
-            <div className="space-y-2">
-              <Label>Endereço</Label>
-              <Input value={formAddress} onChange={(e) => setFormAddress(e.target.value)} placeholder="Endereço do cliente" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setClientDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSaveClient} disabled={savingClient}>
-              {savingClient && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {editingClient ? "Salvar" : "Criar"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       {/* Dialog de Obra */}
       <Dialog open={siteDialogOpen} onOpenChange={setSiteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Vincular Cliente à Obra</DialogTitle>
+            <DialogTitle>Editar Obra</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Obra</Label>
-              <Input value={editingSite?.name || ""} disabled />
+              <Label>Nome *</Label>
+              <Input value={siteFormName} onChange={(e) => setSiteFormName(e.target.value)} placeholder="Nome da obra" />
             </div>
             <div className="space-y-2">
-              <Label>Cliente Responsável</Label>
-              <Select value={selectedClientId} onValueChange={setSelectedClientId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum cliente</SelectItem>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Endereço</Label>
+              <Input value={siteFormAddress} onChange={(e) => setSiteFormAddress(e.target.value)} placeholder="Endereço da obra" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSiteDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSaveSite} disabled={savingSite}>
               {savingSite && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Salvar Vínculo
+              Salvar
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       {/* Dialog de Veículo */}
       <Dialog open={vehicleDialogOpen} onOpenChange={(open) => { setVehicleDialogOpen(open); if (!open) resetVehicleForm(); }}>

@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.1",
+    date: "2026-06-29",
+    title: "Remoção do módulo de Clientes",
+    description: "O cadastro de Clientes não estava sendo utilizado e foi removido do sistema. As Obras continuam funcionando normalmente.",
+    changes: [
+      { type: "improvement", text: "Removida a tabela de Clientes do banco de dados" },
+      { type: "improvement", text: "Edição de Obras agora permite alterar nome e endereço diretamente" },
+    ],
+  },
+  {
     version: "1.64.0",
     date: "2026-06-29",
     title: "Limpeza de módulos descontinuados e otimização de custos",
