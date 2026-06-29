@@ -137,18 +137,8 @@ export default function AdminConstructionSites() {
     onError: (error: Error) => toast.error(`Erro ao sincronizar: ${error.message}`),
   });
 
-  // ─── Clientes ───
-  const { data: clients = [], isLoading: loadingClients, refetch: refetchClients } = useQuery({
-    queryKey: ["clients"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .order("name");
-      if (error) throw error;
-      return data as Client[];
-    },
-  });
+
+
 
   // ─── Ferramentas ───
   const { data: tools = [], isLoading: loadingTools, refetch: refetchTools } = useQuery({
