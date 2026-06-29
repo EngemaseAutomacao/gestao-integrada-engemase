@@ -210,14 +210,15 @@ export default function AdminGallery() {
   ) => {
     const cols = direction === "saida" ? PHOTO_COLS_CHECKOUT : PHOTO_COLS_CHECKIN;
     for (const col of cols) {
-      const { data } = await supabase
+      const query: any = supabase
         .from("vehicle_checkouts")
         .select(
           `id, checkout_date, checkin_date, destination, vehicles(name, plate), profiles!vehicle_checkouts_user_id_fkey(full_name)${extraSelect ? ", " + extraSelect : ""}, ${col}`,
         )
-        .eq(col as any, path)
+        .eq(col, path)
         .limit(1)
         .maybeSingle();
+      const { data } = await query;
       if (data) return { row: data as any, matchedCol: col };
     }
     return { row: null as any, matchedCol: null as string | null };
