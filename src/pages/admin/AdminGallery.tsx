@@ -438,17 +438,48 @@ export default function AdminGallery() {
         : folders,
     [folders, searchLower],
   );
-  const filteredFiles = useMemo(
-    () =>
-      searchLower ? files.filter((f) => f.name.toLowerCase().includes(searchLower)) : files,
-    [files, searchLower],
-  );
+  const filteredFiles = useMemo(() => {
+    const base = files.map((f) => ({ ...f, _rel: f.name }) as StorageItem & { _rel: string });
+    if (!searchLower) return base;
+    const all = [...base, ...deepFiles];
+    return all.filter((f) => f.name.toLowerCase().includes(searchLower));
+  }, [files, deepFiles, searchLower]);
   const totalPages = Math.max(1, Math.ceil(filteredFiles.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedFiles = useMemo(
     () => filteredFiles.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
     [filteredFiles, currentPage],
   );
+
+  // Recursive search into subfolders when user types in the search box
+  useEffect(() => {
+    if (!searchLower || !currentPath || folders.length === 0) {
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const collected: (StorageItem & { _rel: string })[] = [];
+      const visit = async (sub: string) => {
+        const { data } = await supabase.storage
+          .from("imagens")
+          .list(`${currentPath}/${sub}`, { limit: 1000 });
+        if (!data) return;
+        for (const item of data) {
+          if (item.name === ".emptyFolderPlaceholder") continue;
+          if (item.id) {
+            collected.push({ ...(item as StorageItem), _rel: `${sub}/${item.name}` });
+          } else {
+            await visit(`${sub}/${item.name}`);
+          }
+        }
+      };
+      for (const f of folders) await visit(f.name);
+      if (!cancelled) setDeepFiles(collected);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchLower, currentPath, folders]);
 
   // Sign URLs only for visible page
   useEffect(() => {
