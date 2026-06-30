@@ -54,7 +54,6 @@ function getActionIcon(action: string, entityType: string) {
   if (action === "transfer") return <ArrowRightLeft className="w-4 h-4 text-cyan-500" />;
   if (entityType === "vehicle" || entityType === "vehicle_checkout") return <Car className="w-4 h-4 text-blue-500" />;
   if (entityType === "user") return <User className="w-4 h-4 text-purple-500" />;
-  if (entityType === "tool_issue") return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
   if (action === "checkout") return <LogOut className="w-4 h-4 text-orange-500" />;
   if (action === "checkin") return <LogIn className="w-4 h-4 text-green-500" />;
   if (action === "user_approved") return <UserCheck className="w-4 h-4 text-emerald-500" />;
