@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
-  Search, Eye, Shield, Wrench, Car, User, AlertTriangle, 
+  Search, Eye, Shield, Wrench, Car, User, 
   LogIn, LogOut, UserCheck, Trash2, ArrowRightLeft, X, CalendarIcon,
   FileText, FileSpreadsheet
 } from "lucide-react";
