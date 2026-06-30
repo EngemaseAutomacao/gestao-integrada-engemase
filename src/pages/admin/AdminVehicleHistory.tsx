@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";

@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";

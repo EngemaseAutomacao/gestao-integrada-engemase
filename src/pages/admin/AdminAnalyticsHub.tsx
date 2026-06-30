@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";

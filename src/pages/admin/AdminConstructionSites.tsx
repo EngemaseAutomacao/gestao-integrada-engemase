@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
