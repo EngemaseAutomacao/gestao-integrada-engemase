@@ -60,8 +60,6 @@ function getActionColor(action: string): string {
     case "manual_checkin_by_admin": return "border-l-amber-500";
     case "user_registered": return "border-l-blue-500";
     case "user_approved": return "border-l-emerald-500";
-    case "issue_reported": return "border-l-red-500";
-    case "issue_resolved": return "border-l-teal-500";
     default: return "border-l-primary";
   }
 }
