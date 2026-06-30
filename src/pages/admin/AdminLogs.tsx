@@ -68,7 +68,6 @@ function getActionBadgeVariant(action: string): "default" | "secondary" | "destr
   switch (action) {
     case "checkout": return "default";
     case "checkin": return "secondary";
-    case "issue_reported": return "destructive";
     default: return "outline";
   }
 }
