@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.13",
+    date: "2026-06-30",
+    title: "Limpeza de funções não utilizadas",
+    description: "Removidas funções de backend que não estavam mais em uso para reduzir custos e simplificar a manutenção.",
+    changes: [
+      { type: "improvement", text: "Removidas as funções internas sync-user e generate-vapid (sem uso no sistema)" },
+    ],
+  },
+  {
     version: "1.64.12",
     date: "2026-06-29",
     title: "Buscar fotos pelo nome do veículo",
