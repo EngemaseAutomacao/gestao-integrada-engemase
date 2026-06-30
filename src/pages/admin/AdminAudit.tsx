@@ -66,8 +66,6 @@ function getActionColor(action: string): string {
     case "checkin": return "border-l-green-500";
     case "user_registered": return "border-l-blue-500";
     case "user_approved": return "border-l-emerald-500";
-    case "issue_reported": return "border-l-red-500";
-    case "issue_resolved": return "border-l-teal-500";
     case "delete": case "delete_history": return "border-l-red-600";
     case "transfer": return "border-l-cyan-500";
     default: return "border-l-primary";
