@@ -140,6 +140,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // INITIAL load (controls loading state)
     const initializeAuth = async () => {
       try {
+        // Ephemeral session: if "keep connected" is off, sign out on new tab/window launch.
+        // sessionStorage survives refresh but not tab close, so it acts as our "same tab" marker.
+        const keepConnected = localStorage.getItem("engemase_keep_connected");
+        const tabMarker = sessionStorage.getItem("engemase_session_active");
+        if (keepConnected === "false" && !tabMarker) {
+          await supabase.auth.signOut();
+        }
+        sessionStorage.setItem("engemase_session_active", "1");
+
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         if (!isMounted) return;
 
