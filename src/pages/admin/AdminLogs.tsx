@@ -96,10 +96,6 @@ function buildDescription(log: SystemLog): string {
       return `Novo usuário registrado: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
     case "user_approved":
       return `Aprovou o usuário "${d.approved_user || ""}" (${d.email || ""})`;
-    case "issue_reported":
-      return `Reportou problema "${d.title || ""}" na ferramenta "${d.tool_name || ""}" - Severidade: ${d.severity || ""}`;
-    case "issue_resolved":
-      return `Resolveu o problema "${d.title || ""}" na ferramenta "${d.tool_name || ""}"`;
     default:
       return JSON.stringify(d);
   }
