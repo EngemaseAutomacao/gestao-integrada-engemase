@@ -89,10 +89,6 @@ function buildDescription(log: AuditLog): string {
       return `Novo usuário: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
     case "user_approved":
       return `Aprovou "${d.approved_user || ""}" (${d.email || ""})`;
-    case "issue_reported":
-      return `Reportou "${d.title || ""}" na ferramenta "${d.tool_name || ""}" - ${d.severity || ""}`;
-    case "issue_resolved":
-      return `Resolveu "${d.title || ""}" na ferramenta "${d.tool_name || ""}"`;
     case "delete":
       if (log.entity_type === "tool") return `Excluiu ferramenta "${d.tool_name || ""}"`;
       if (log.entity_type === "vehicle") return `Excluiu veículo "${d.vehicle_name || ""} (${d.plate || ""})"`;
