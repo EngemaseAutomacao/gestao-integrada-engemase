@@ -47,7 +47,6 @@ const ENTITY_LABELS: Record<string, string> = {
 function getActionIcon(action: string, entityType: string) {
   if (entityType === "vehicle") return <Car className="w-4 h-4" />;
   if (entityType === "user") return <User className="w-4 h-4" />;
-  if (entityType === "tool_issue") return <AlertTriangle className="w-4 h-4" />;
   if (action === "checkout") return <LogOut className="w-4 h-4" />;
   if (action === "checkin") return <LogIn className="w-4 h-4" />;
   return <Wrench className="w-4 h-4" />;
