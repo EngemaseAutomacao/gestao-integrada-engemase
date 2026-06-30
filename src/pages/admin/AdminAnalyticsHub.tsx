@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,10 +15,7 @@ export default function AdminAnalyticsHub() {
 
   return (
     <div className="space-y-6">
-      <div className="hidden sm:block">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Analytics</h2>
-        <p className="text-muted-foreground">Estatísticas de ferramentas</p>
-      </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Analytics" subtitle="Estatísticas de ferramentas" />
 
       <Suspense fallback={<DashboardSkeleton />}>
         <AdminAnalytics />

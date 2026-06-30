@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -96,10 +97,7 @@ export default function AdminNotifications() {
 
   return (
     <div className="space-y-6">
-      <div className="hidden sm:block">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Sistema de Notificações</h2>
-        <p className="text-muted-foreground">Gerencie e envie notificações do sistema</p>
-      </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Sistema de Notificações" subtitle="Gerencie e envie notificações do sistema" />
 
       <Alert>
         <AlertCircle className="h-4 w-4" />

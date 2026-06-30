@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.0",
+    date: "2026-06-30",
+    title: "Padronização visual do Painel Admin",
+    description: "Todas as páginas do painel administrativo agora seguem o mesmo cabeçalho visual usado no restante do app.",
+    changes: [
+      { type: "improvement", text: "Cabeçalho unificado (ModuleHero) nas 11 páginas do painel admin." },
+      { type: "improvement", text: "Layout mais consistente entre Usuários, Notificações, Gestão, Histórico, Retenção, Logs e Relatórios." },
+    ],
+  },
+  {
     version: "1.64.13",
     date: "2026-06-30",
     title: "Limpeza de funções não utilizadas",

@@ -1,3 +1,4 @@
+import { ModuleHero } from "@/components/ModuleHero";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -216,10 +217,7 @@ export default function AdminLogs() {
 
   return (
     <div className="flex flex-col h-full min-h-0 space-y-4">
-      <div className="shrink-0 hidden sm:block">
-        <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Logs do Sistema</h2>
-        <p className="text-xs sm:text-sm text-muted-foreground">Histórico completo de ações no sistema</p>
-      </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Logs do Sistema" subtitle="Histórico completo de ações no sistema" />
 
       <Card className="shrink-0">
         <CardContent className="p-3 sm:p-4 space-y-3">
