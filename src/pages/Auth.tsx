@@ -152,6 +152,15 @@ export default function Auth() {
                 </div>
               </div>
 
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+                <Checkbox
+                  checked={keepConnected}
+                  onCheckedChange={(v) => setKeepConnected(v === true)}
+                />
+                Mantenha-me conectado
+              </label>
+
+
               <Button
                 type="submit"
                 className="w-full h-11 rounded-xl font-semibold shadow-md shadow-primary/20"
