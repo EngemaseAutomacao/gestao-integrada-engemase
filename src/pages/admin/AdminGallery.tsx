@@ -442,8 +442,17 @@ export default function AdminGallery() {
   const filteredFiles = useMemo(() => {
     const base = files.map((f) => ({ ...f, _rel: f.name }) as StorageItem & { _rel: string });
     if (!searchLower) return base;
-    const all = [...base, ...deepFiles];
-    return all.filter((f) => f.name.toLowerCase().includes(searchLower));
+    const matchingBase = base.filter((f) => f.name.toLowerCase().includes(searchLower));
+    // deepFiles are already curated by the recursive/DB effect — include all of them
+    const seen = new Set(matchingBase.map((f) => f._rel));
+    const merged = [...matchingBase];
+    for (const d of deepFiles) {
+      if (!seen.has(d._rel)) {
+        seen.add(d._rel);
+        merged.push(d);
+      }
+    }
+    return merged;
   }, [files, deepFiles, searchLower]);
   const totalPages = Math.max(1, Math.ceil(filteredFiles.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
