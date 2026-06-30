@@ -212,12 +212,18 @@ export default function Layout({ children }: LayoutProps) {
     return location.pathname === url || location.pathname.startsWith(url + "/");
   };
 
-  // Hide splash screen when auth is done loading
+  // Hide splash screen when auth is done loading (respect min display time)
   if (!loading) {
     const splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.classList.add('splash-out');
-      setTimeout(() => splash.remove(), 450);
+    if (splash && !splash.dataset.hiding) {
+      splash.dataset.hiding = '1';
+      const MIN_MS = 1800;
+      const elapsed = Date.now() - ((window as any).__SPLASH_START__ || Date.now());
+      const wait = Math.max(0, MIN_MS - elapsed);
+      setTimeout(() => {
+        splash.classList.add('splash-out');
+        setTimeout(() => splash.remove(), 450);
+      }, wait);
     }
   }
 
