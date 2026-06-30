@@ -274,7 +274,6 @@ export default function AdminAudit() {
                 <SelectItem value="tool">Ferramentas</SelectItem>
                 <SelectItem value="vehicle">Veículos</SelectItem>
                 <SelectItem value="user">Usuários</SelectItem>
-                <SelectItem value="tool_issue">Problemas</SelectItem>
                 <SelectItem value="tool_checkout">Checkout Ferramenta</SelectItem>
                 <SelectItem value="vehicle_checkout">Checkout Veículo</SelectItem>
               </SelectContent>
