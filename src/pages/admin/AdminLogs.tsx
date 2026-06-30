@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Wrench, Car, User, AlertTriangle, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet } from "lucide-react";
+import { Search, Wrench, Car, User, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
