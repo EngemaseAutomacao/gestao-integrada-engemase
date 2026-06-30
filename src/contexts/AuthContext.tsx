@@ -22,7 +22,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (username: string, password: string) => Promise<{ error: any }>;
+  signIn: (username: string, password: string, keepConnected?: boolean) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, category: "engemase_employee" | "third_party" | "socios") => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -140,6 +140,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // INITIAL load (controls loading state)
     const initializeAuth = async () => {
       try {
+        // Ephemeral session: if "keep connected" is off, sign out on new tab/window launch.
+        // sessionStorage survives refresh but not tab close, so it acts as our "same tab" marker.
+        const keepConnected = localStorage.getItem("engemase_keep_connected");
+        const tabMarker = sessionStorage.getItem("engemase_session_active");
+        if (keepConnected === "false" && !tabMarker) {
+          await supabase.auth.signOut();
+        }
+        sessionStorage.setItem("engemase_session_active", "1");
+
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         if (!isMounted) return;
 
@@ -162,8 +171,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signIn = async (username: string, password: string) => {
+  const signIn = async (username: string, password: string, keepConnected: boolean = true) => {
     try {
+      localStorage.setItem("engemase_keep_connected", keepConnected ? "true" : "false");
       // Server-side username -> email lookup + sign-in via edge function.
       // Prevents user enumeration: backend always returns a generic error.
       const { data, error: fnError } = await supabase.functions.invoke(

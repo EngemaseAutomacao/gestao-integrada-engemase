@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, User, Lock } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { APP_VERSION } from "@/version";
 
@@ -13,6 +14,9 @@ export default function Auth() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [keepConnected, setKeepConnected] = useState(
+    () => localStorage.getItem("engemase_keep_connected") !== "false",
+  );
   const [loading, setLoading] = useState(false);
   const { signIn, user, profile } = useAuth();
   const navigate = useNavigate();
@@ -32,7 +36,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await signIn(username, password);
+      const { error } = await signIn(username, password, keepConnected);
       if (error) {
         toast.error("Erro ao fazer login", {
           description: error.message,
@@ -147,6 +151,15 @@ export default function Auth() {
                   </button>
                 </div>
               </div>
+
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+                <Checkbox
+                  checked={keepConnected}
+                  onCheckedChange={(v) => setKeepConnected(v === true)}
+                />
+                Mantenha-me conectado
+              </label>
+
 
               <Button
                 type="submit"

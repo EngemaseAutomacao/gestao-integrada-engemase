@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.1",
+    date: "2026-06-30",
+    title: "Mantenha-me conectado",
+    description: "Nova opção na tela de login para permanecer autenticado entre sessões ou exigir login a cada novo acesso.",
+    changes: [
+      { type: "feature", text: "Checkbox 'Mantenha-me conectado' na tela de login (ativo por padrão)." },
+      { type: "improvement", text: "Quando desmarcado, o usuário precisa entrar novamente ao abrir o app em uma nova sessão." },
+    ],
+  },
+  {
     version: "1.66.0",
     date: "2026-06-30",
     title: "Seleção de obra padronizada",
