@@ -30,18 +30,35 @@ Deno.serve(async (req) => {
       throw new Error("Missing Supabase configuration");
     }
 
-    // Fetch cards from the "Fazendo" list
-    const trelloUrl = `https://api.trello.com/1/lists/${TRELLO_LIST_ID}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_TOKEN}&fields=name`;
-    const trelloRes = await fetch(trelloUrl);
-    if (!trelloRes.ok) {
-      const body = await trelloRes.text();
-      throw new Error(`Trello API error [${trelloRes.status}]: ${body}`);
+    // Fetch cards from one or more Trello lists (comma-separated TRELLO_LIST_ID + optional TRELLO_LIST_ID_2)
+    const extraListId = Deno.env.get("TRELLO_LIST_ID_2");
+    const listIds = Array.from(
+      new Set(
+        [TRELLO_LIST_ID, extraListId, "68ee51cadc1f85da721361b7"]
+          .filter(Boolean)
+          .flatMap((v) => v!.split(","))
+          .map((v) => v.trim())
+          .filter(Boolean),
+      ),
+    );
+
+    const allCards: { name: string }[] = [];
+    for (const listId of listIds) {
+      const trelloUrl = `https://api.trello.com/1/lists/${listId}/cards?key=${TRELLO_API_KEY}&token=${TRELLO_TOKEN}&fields=name`;
+      const trelloRes = await fetch(trelloUrl);
+      if (!trelloRes.ok) {
+        const body = await trelloRes.text();
+        throw new Error(`Trello API error on list ${listId} [${trelloRes.status}]: ${body}`);
+      }
+      const cards = await trelloRes.json();
+      allCards.push(...cards);
     }
-    const cards = await trelloRes.json();
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const trelloNames: string[] = cards.map((c: { name: string }) => c.name.trim());
+    const trelloNames: string[] = Array.from(
+      new Set(allCards.map((c) => c.name.trim()).filter(Boolean)),
+    );
 
     // Get existing construction sites
     const { data: existing, error: fetchErr } = await supabase
