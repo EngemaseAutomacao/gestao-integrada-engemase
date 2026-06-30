@@ -34,8 +34,6 @@ const ACTION_LABELS: Record<string, string> = {
   manual_checkin_by_admin: "Devolução Manual (Admin)",
   user_registered: "Novo Cadastro",
   user_approved: "Usuário Aprovado",
-  issue_reported: "Problema Reportado",
-  issue_resolved: "Problema Resolvido",
 };
 
 const MANUAL_ACTIONS = new Set(["manual_checkout_by_admin", "manual_checkin_by_admin"]);
