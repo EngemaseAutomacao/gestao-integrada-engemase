@@ -156,7 +156,7 @@ export function ConstructionSiteAutocomplete({
       )}
       {isOpen && inputValue.trim() && filtered.length === 0 && (
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover p-3 text-sm text-muted-foreground shadow-md">
-          Nenhuma obra encontrada. Pressione Enter para usar "{inputValue.trim()}"
+          Nenhuma obra encontrada. Selecione uma obra existente da lista.
         </div>
       )}
     </div>
