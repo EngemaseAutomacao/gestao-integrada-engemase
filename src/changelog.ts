@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.64.12",
+    date: "2026-06-29",
+    title: "Buscar fotos pelo nome do veículo",
+    description: "Mesmo quando o arquivo ainda não foi renomeado, a busca encontra as fotos cruzando com os registros do veículo (nome/placa).",
+    changes: [
+      { type: "improvement", text: "Busca na galeria também consulta os registros de saída/entrada para localizar fotos pelo nome ou placa do veículo" },
+    ],
+  },
+  {
     version: "1.64.11",
     date: "2026-06-29",
     title: "Busca da galeria inclui subpastas",
