@@ -36,7 +36,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await signIn(username, password);
+      const { error } = await signIn(username, password, keepConnected);
       if (error) {
         toast.error("Erro ao fazer login", {
           description: error.message,
