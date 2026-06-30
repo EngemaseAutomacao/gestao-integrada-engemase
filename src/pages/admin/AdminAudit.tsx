@@ -259,8 +259,6 @@ export default function AdminAudit() {
                 <SelectItem value="checkin">Devoluções</SelectItem>
                 <SelectItem value="user_registered">Cadastros</SelectItem>
                 <SelectItem value="user_approved">Aprovações</SelectItem>
-                <SelectItem value="issue_reported">Problemas Reportados</SelectItem>
-                <SelectItem value="issue_resolved">Problemas Resolvidos</SelectItem>
                 <SelectItem value="delete">Exclusões</SelectItem>
                 <SelectItem value="delete_history">Exclusão de Histórico</SelectItem>
                 <SelectItem value="transfer">Transferências</SelectItem>
