@@ -94,9 +94,8 @@ createRoot(document.getElementById("root")!).render(
 const hideSplash = () => {
   const splash = document.getElementById("splash-screen");
   if (!splash) return;
-  splash.style.transition = "opacity 300ms ease";
-  splash.style.opacity = "0";
-  setTimeout(() => splash.remove(), 350);
+  splash.classList.add("splash-out");
+  setTimeout(() => splash.remove(), 450);
 };
-requestAnimationFrame(() => setTimeout(hideSplash, 100));
+requestAnimationFrame(() => setTimeout(hideSplash, 250));
 

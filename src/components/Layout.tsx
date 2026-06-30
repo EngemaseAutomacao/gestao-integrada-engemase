@@ -216,8 +216,8 @@ export default function Layout({ children }: LayoutProps) {
   if (!loading) {
     const splash = document.getElementById('splash-screen');
     if (splash) {
-      splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 300);
+      splash.classList.add('splash-out');
+      setTimeout(() => splash.remove(), 450);
     }
   }
 

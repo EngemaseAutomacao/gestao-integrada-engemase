@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.4",
+    date: "2026-06-30",
+    title: "Nova tela de abertura do app",
+    description: "Reformulamos a tela inicial de carregamento do aplicativo com visual mais bonito, animado e alinhado à identidade da Engemase.",
+    changes: [
+      { type: "improvement", text: "Splash com fundo gradiente azul, logo animada e barra de progresso." },
+      { type: "improvement", text: "Transição suave ao entrar no aplicativo, eliminando a tela branca." },
+    ],
+  },
+  {
     version: "1.65.3",
     date: "2026-06-30",
     title: "Refinamento do cabeçalho admin",
