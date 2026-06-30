@@ -93,9 +93,15 @@ createRoot(document.getElementById("root")!).render(
 // would otherwise leave the splash visible forever.)
 const hideSplash = () => {
   const splash = document.getElementById("splash-screen");
-  if (!splash) return;
-  splash.classList.add("splash-out");
-  setTimeout(() => splash.remove(), 450);
+  if (!splash || splash.dataset.hiding) return;
+  splash.dataset.hiding = "1";
+  const MIN_MS = 1800;
+  const elapsed = Date.now() - ((window as any).__SPLASH_START__ || Date.now());
+  const wait = Math.max(0, MIN_MS - elapsed);
+  setTimeout(() => {
+    splash.classList.add("splash-out");
+    setTimeout(() => splash.remove(), 450);
+  }, wait);
 };
 requestAnimationFrame(() => setTimeout(hideSplash, 250));
 

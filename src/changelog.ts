@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.6",
+    date: "2026-06-30",
+    title: "Splash com tempo mínimo de exibição",
+    description: "A tela de abertura agora permanece visível por um tempo mínimo, eliminando a transição brusca quando o app carrega muito rápido.",
+    changes: [
+      { type: "improvement", text: "Splash exibida por no mínimo 1,8s antes do fade-out suave." },
+    ],
+  },
+  {
     version: "1.65.5",
     date: "2026-06-30",
     title: "Fim do flash branco na abertura",
