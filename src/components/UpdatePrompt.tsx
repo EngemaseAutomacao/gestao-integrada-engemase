@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { RefreshCw, X } from "lucide-react";
 import { APP_VERSION } from "@/version";
+import { applyAppUpdate, fetchLatestVersion } from "@/lib/appUpdate";
 
 const CHECK_INTERVAL = 3 * 60 * 1000; // 3 minutes
 const NOTIFIED_VERSION_KEY = "engemase_notified_version";
@@ -44,18 +45,12 @@ export default function UpdatePrompt() {
   }, []);
 
   const checkForUpdate = useCallback(async () => {
-    try {
-      const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.version && data.version !== APP_VERSION) {
-        console.log(`[Update] Nova versão disponível: ${data.version} (atual: ${APP_VERSION})`);
-        setUpdateAvailable(true);
-        setDismissed(false); // Reset dismissal when a NEW version is found (though checked against APP_VERSION)
-        showUpdateNotification(data.version);
-      }
-    } catch {
-      // offline or error — ignore
+    const latest = await fetchLatestVersion();
+    if (latest && latest !== APP_VERSION) {
+      console.log(`[Update] Nova versão disponível: ${latest} (atual: ${APP_VERSION})`);
+      setUpdateAvailable(true);
+      setDismissed(false);
+      showUpdateNotification(latest);
     }
   }, [showUpdateNotification]);
 
@@ -80,35 +75,8 @@ export default function UpdatePrompt() {
   }, [checkForUpdate]);
 
   const handleUpdate = async () => {
-    localStorage.removeItem(NOTIFIED_VERSION_KEY);
-    localStorage.removeItem("engemase_app_version");
-
-    // 1. Desregistrar TODOS os service workers para garantir que o HTML
-    //    venha direto da rede no próximo carregamento.
-    if ("serviceWorker" in navigator) {
-      try {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(
-          regs.map(async (reg) => {
-            if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
-            await reg.unregister().catch(() => {});
-          })
-        );
-      } catch (e) {
-        console.error("[Update] SW unregister error", e);
-      }
-    }
-
-    // 2. Limpar TODOS os caches (precache do Workbox + runtime).
-    //    O novo SW será registrado no próximo load e refará o precache.
-    if ("caches" in window) {
-      try {
-        const names = await caches.keys();
-        await Promise.all(names.map((n) => caches.delete(n)));
-      } catch (e) {
-        console.error("[Update] cache cleanup error", e);
-      }
-    }
+    await applyAppUpdate();
+  };
 
     // 3. Hard reload com bypass de HTTP cache.
     window.location.replace(
