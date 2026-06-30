@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Authenticated users can view all vehicle checkouts" ON public.vehicle_checkouts;
