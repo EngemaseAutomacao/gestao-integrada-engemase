@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Wrench, Car, User, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet } from "lucide-react";
+import { Search, Wrench, Car, User, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet, ScrollText } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
@@ -206,7 +206,7 @@ export default function AdminLogs() {
 
   return (
     <div className="flex flex-col h-full min-h-0 space-y-4">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Logs do Sistema" subtitle="Histórico completo de ações no sistema" />
+      <AdminPageHero icon={ScrollText} title="Logs do Sistema" subtitle="Histórico completo de ações no sistema" />
 
       <Card className="shrink-0">
         <CardContent className="p-3 sm:p-4 space-y-3">

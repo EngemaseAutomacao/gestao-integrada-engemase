@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, Car } from "lucide-react";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
@@ -379,7 +379,7 @@ export default function AdminVehicleHistory() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Histórico Geral de Veículos" subtitle="Visualize todas as movimentações de veículos" />
+      <AdminPageHero icon={Car} title="Histórico Geral de Veículos" subtitle="Visualize todas as movimentações de veículos" />
       <div className="shrink-0 flex items-center justify-end flex-wrap gap-4">
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2">

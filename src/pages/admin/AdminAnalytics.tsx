@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -349,7 +349,7 @@ export default function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Dashboard Analítico" subtitle="Métricas e estatísticas de uso das ferramentas" />
+      <AdminPageHero icon={TrendingUp} title="Dashboard Analítico" subtitle="Métricas e estatísticas de uso das ferramentas" />
 
       {/* Period Filter */}
       <Card>

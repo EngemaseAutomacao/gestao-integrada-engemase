@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -457,7 +457,7 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Relatórios" subtitle="Gere e exporte relatórios personalizados" />
+      <AdminPageHero icon={FileText} title="Relatórios" subtitle="Gere e exporte relatórios personalizados" />
 
       <Card>
         <CardHeader>

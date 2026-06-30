@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,11 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  Search, Eye, Shield, Wrench, Car, User, 
-  LogIn, LogOut, UserCheck, Trash2, ArrowRightLeft, X, CalendarIcon,
-  FileText, FileSpreadsheet
-} from "lucide-react";
+import { Search, Eye, Shield, Wrench, Car, User, LogIn, LogOut, UserCheck, Trash2, ArrowRightLeft, X, CalendarIcon, FileText, FileSpreadsheet, ShieldCheck } from "lucide-react";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { format, subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -220,7 +216,7 @@ export default function AdminAudit() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Painel de Auditoria" subtitle="Registro detalhado de todas as ações realizadas no sistema" />
+      <AdminPageHero icon={ShieldCheck} title="Painel de Auditoria" subtitle="Registro detalhado de todas as ações realizadas no sistema" />
       <div className="shrink-0 flex items-center justify-end flex-wrap gap-4">
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2">
