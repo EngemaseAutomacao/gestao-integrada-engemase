@@ -36,8 +36,6 @@ const ACTION_LABELS: Record<string, string> = {
   checkin: "Devolução",
   user_registered: "Novo Cadastro",
   user_approved: "Usuário Aprovado",
-  issue_reported: "Problema Reportado",
-  issue_resolved: "Problema Resolvido",
   delete: "Exclusão",
   delete_history: "Exclusão de Histórico",
   transfer: "Transferência",
@@ -47,7 +45,6 @@ const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
   vehicle: "Veículo",
   user: "Usuário",
-  tool_issue: "Problema (Ferramenta)",
   tool_checkout: "Checkout (Ferramenta)",
   vehicle_checkout: "Checkout (Veículo)",
 };
