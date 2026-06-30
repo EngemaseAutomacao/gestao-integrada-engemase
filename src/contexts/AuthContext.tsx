@@ -171,8 +171,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signIn = async (username: string, password: string) => {
+  const signIn = async (username: string, password: string, keepConnected: boolean = true) => {
     try {
+      localStorage.setItem("engemase_keep_connected", keepConnected ? "true" : "false");
       // Server-side username -> email lookup + sign-in via edge function.
       // Prevents user enumeration: backend always returns a generic error.
       const { data, error: fnError } = await supabase.functions.invoke(
