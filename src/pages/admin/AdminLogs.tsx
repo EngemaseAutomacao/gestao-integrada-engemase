@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Wrench, Car, User, AlertTriangle, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet } from "lucide-react";
+import { Search, Wrench, Car, User, LogIn, LogOut, ShieldAlert, FileDown, FileSpreadsheet } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Navigate } from "react-router-dom";
@@ -34,8 +34,6 @@ const ACTION_LABELS: Record<string, string> = {
   manual_checkin_by_admin: "Devolução Manual (Admin)",
   user_registered: "Novo Cadastro",
   user_approved: "Usuário Aprovado",
-  issue_reported: "Problema Reportado",
-  issue_resolved: "Problema Resolvido",
 };
 
 const MANUAL_ACTIONS = new Set(["manual_checkout_by_admin", "manual_checkin_by_admin"]);
@@ -44,13 +42,11 @@ const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
   vehicle: "Veículo",
   user: "Usuário",
-  tool_issue: "Problema",
 };
 
 function getActionIcon(action: string, entityType: string) {
   if (entityType === "vehicle") return <Car className="w-4 h-4" />;
   if (entityType === "user") return <User className="w-4 h-4" />;
-  if (entityType === "tool_issue") return <AlertTriangle className="w-4 h-4" />;
   if (action === "checkout") return <LogOut className="w-4 h-4" />;
   if (action === "checkin") return <LogIn className="w-4 h-4" />;
   return <Wrench className="w-4 h-4" />;
@@ -64,8 +60,6 @@ function getActionColor(action: string): string {
     case "manual_checkin_by_admin": return "border-l-amber-500";
     case "user_registered": return "border-l-blue-500";
     case "user_approved": return "border-l-emerald-500";
-    case "issue_reported": return "border-l-red-500";
-    case "issue_resolved": return "border-l-teal-500";
     default: return "border-l-primary";
   }
 }
@@ -74,7 +68,6 @@ function getActionBadgeVariant(action: string): "default" | "secondary" | "destr
   switch (action) {
     case "checkout": return "default";
     case "checkin": return "secondary";
-    case "issue_reported": return "destructive";
     default: return "outline";
   }
 }
@@ -103,10 +96,6 @@ function buildDescription(log: SystemLog): string {
       return `Novo usuário registrado: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
     case "user_approved":
       return `Aprovou o usuário "${d.approved_user || ""}" (${d.email || ""})`;
-    case "issue_reported":
-      return `Reportou problema "${d.title || ""}" na ferramenta "${d.tool_name || ""}" - Severidade: ${d.severity || ""}`;
-    case "issue_resolved":
-      return `Resolveu o problema "${d.title || ""}" na ferramenta "${d.tool_name || ""}"`;
     default:
       return JSON.stringify(d);
   }
@@ -244,8 +233,6 @@ export default function AdminLogs() {
                 <SelectItem value="manual_checkin_by_admin">Devolução Manual (Admin)</SelectItem>
                 <SelectItem value="user_registered">Cadastros</SelectItem>
                 <SelectItem value="user_approved">Aprovações</SelectItem>
-                <SelectItem value="issue_reported">Problemas</SelectItem>
-                <SelectItem value="issue_resolved">Resoluções</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterEntity} onValueChange={setFilterEntity}>
@@ -257,7 +244,6 @@ export default function AdminLogs() {
                 <SelectItem value="tool">Ferramentas</SelectItem>
                 <SelectItem value="vehicle">Veículos</SelectItem>
                 <SelectItem value="user">Usuários</SelectItem>
-                <SelectItem value="tool_issue">Problemas</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filteredLogs.length === 0} className="gap-1.5">

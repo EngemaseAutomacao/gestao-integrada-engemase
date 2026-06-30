@@ -262,24 +262,6 @@ export default function AdminNotifications() {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-500/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-purple-500" />
-              Novo Usuário
-            </CardTitle>
-            <CardDescription>
-              Admins notificados quando usuário se registra
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Notificação imediata ao admin</li>
-              <li>• Usuário aguardando aprovação</li>
-              <li>• Inclui nome do usuário</li>
-            </ul>
-          </CardContent>
-        </Card>
 
         <Card className="border-yellow-500/30">
           <CardHeader>
@@ -300,41 +282,6 @@ export default function AdminNotifications() {
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-500/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-emerald-500" />
-              Conta Aprovada
-            </CardTitle>
-            <CardDescription>
-              Usuário notificado quando sua conta é aprovada
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Notificação imediata (trigger)</li>
-              <li>• Informa que já pode usar o sistema</li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card className="border-cyan-500/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-cyan-500" />
-              Problema Resolvido
-            </CardTitle>
-            <CardDescription>
-              Usuário notificado quando seu problema é resolvido
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Notificação imediata (trigger)</li>
-              <li>• Inclui notas de resolução</li>
-            </ul>
-          </CardContent>
-        </Card>
 
         <Card className="border-rose-500/30">
           <CardHeader>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
-  Search, Eye, Shield, Wrench, Car, User, AlertTriangle, 
+  Search, Eye, Shield, Wrench, Car, User, 
   LogIn, LogOut, UserCheck, Trash2, ArrowRightLeft, X, CalendarIcon,
   FileText, FileSpreadsheet
 } from "lucide-react";
@@ -36,8 +36,6 @@ const ACTION_LABELS: Record<string, string> = {
   checkin: "Devolução",
   user_registered: "Novo Cadastro",
   user_approved: "Usuário Aprovado",
-  issue_reported: "Problema Reportado",
-  issue_resolved: "Problema Resolvido",
   delete: "Exclusão",
   delete_history: "Exclusão de Histórico",
   transfer: "Transferência",
@@ -47,7 +45,6 @@ const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
   vehicle: "Veículo",
   user: "Usuário",
-  tool_issue: "Problema (Ferramenta)",
   tool_checkout: "Checkout (Ferramenta)",
   vehicle_checkout: "Checkout (Veículo)",
 };
@@ -57,7 +54,6 @@ function getActionIcon(action: string, entityType: string) {
   if (action === "transfer") return <ArrowRightLeft className="w-4 h-4 text-cyan-500" />;
   if (entityType === "vehicle" || entityType === "vehicle_checkout") return <Car className="w-4 h-4 text-blue-500" />;
   if (entityType === "user") return <User className="w-4 h-4 text-purple-500" />;
-  if (entityType === "tool_issue") return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
   if (action === "checkout") return <LogOut className="w-4 h-4 text-orange-500" />;
   if (action === "checkin") return <LogIn className="w-4 h-4 text-green-500" />;
   if (action === "user_approved") return <UserCheck className="w-4 h-4 text-emerald-500" />;
@@ -70,8 +66,6 @@ function getActionColor(action: string): string {
     case "checkin": return "border-l-green-500";
     case "user_registered": return "border-l-blue-500";
     case "user_approved": return "border-l-emerald-500";
-    case "issue_reported": return "border-l-red-500";
-    case "issue_resolved": return "border-l-teal-500";
     case "delete": case "delete_history": return "border-l-red-600";
     case "transfer": return "border-l-cyan-500";
     default: return "border-l-primary";
@@ -95,10 +89,6 @@ function buildDescription(log: AuditLog): string {
       return `Novo usuário: ${d.email || ""} (${d.category === "engemase_employee" ? "Funcionário" : d.category === "third_party" ? "Terceirizado" : "Sócio"})`;
     case "user_approved":
       return `Aprovou "${d.approved_user || ""}" (${d.email || ""})`;
-    case "issue_reported":
-      return `Reportou "${d.title || ""}" na ferramenta "${d.tool_name || ""}" - ${d.severity || ""}`;
-    case "issue_resolved":
-      return `Resolveu "${d.title || ""}" na ferramenta "${d.tool_name || ""}"`;
     case "delete":
       if (log.entity_type === "tool") return `Excluiu ferramenta "${d.tool_name || ""}"`;
       if (log.entity_type === "vehicle") return `Excluiu veículo "${d.vehicle_name || ""} (${d.plate || ""})"`;
@@ -269,8 +259,6 @@ export default function AdminAudit() {
                 <SelectItem value="checkin">Devoluções</SelectItem>
                 <SelectItem value="user_registered">Cadastros</SelectItem>
                 <SelectItem value="user_approved">Aprovações</SelectItem>
-                <SelectItem value="issue_reported">Problemas Reportados</SelectItem>
-                <SelectItem value="issue_resolved">Problemas Resolvidos</SelectItem>
                 <SelectItem value="delete">Exclusões</SelectItem>
                 <SelectItem value="delete_history">Exclusão de Histórico</SelectItem>
                 <SelectItem value="transfer">Transferências</SelectItem>
@@ -286,7 +274,6 @@ export default function AdminAudit() {
                 <SelectItem value="tool">Ferramentas</SelectItem>
                 <SelectItem value="vehicle">Veículos</SelectItem>
                 <SelectItem value="user">Usuários</SelectItem>
-                <SelectItem value="tool_issue">Problemas</SelectItem>
                 <SelectItem value="tool_checkout">Checkout Ferramenta</SelectItem>
                 <SelectItem value="vehicle_checkout">Checkout Veículo</SelectItem>
               </SelectContent>

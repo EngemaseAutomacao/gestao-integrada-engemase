@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.1",
+    date: "2026-06-30",
+    title: "Limpeza de notificações descontinuadas",
+    description: "Removidas notificações de Problemas Reportados/Resolvidos, Conta Aprovada e Novo Usuário, que não fazem mais sentido no fluxo atual.",
+    changes: [
+      { type: "improvement", text: "Removidos gatilhos de notificação 'Conta Aprovada' e 'Novo Usuário'." },
+      { type: "improvement", text: "Removidas notificações antigas de 'Problema Reportado' e 'Problema Resolvido'." },
+      { type: "improvement", text: "Filtros e cards do painel admin atualizados para refletir essas remoções." },
+    ],
+  },
+  {
     version: "1.65.0",
     date: "2026-06-30",
     title: "Padronização visual do Painel Admin",
