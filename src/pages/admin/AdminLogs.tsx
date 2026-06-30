@@ -42,7 +42,6 @@ const ENTITY_LABELS: Record<string, string> = {
   tool: "Ferramenta",
   vehicle: "Veículo",
   user: "Usuário",
-  tool_issue: "Problema",
 };
 
 function getActionIcon(action: string, entityType: string) {
