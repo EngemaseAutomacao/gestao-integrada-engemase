@@ -22,7 +22,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (username: string, password: string) => Promise<{ error: any }>;
+  signIn: (username: string, password: string, keepConnected?: boolean) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, category: "engemase_employee" | "third_party" | "socios") => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
