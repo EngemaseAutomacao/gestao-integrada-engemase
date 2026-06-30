@@ -53,10 +53,8 @@ export function ConstructionSiteAutocomplete({
     setInputValue(val);
     setIsOpen(true);
     setHighlightedIndex(-1);
-    // If the user clears, reset value
-    if (!val.trim()) {
-      onChange("");
-    }
+    // Texto livre não é aceito: só validamos o valor ao selecionar uma obra existente
+    if (value) onChange("");
   };
 
   const selectSite = (siteName: string) => {
@@ -85,30 +83,34 @@ export function ConstructionSiteAutocomplete({
       e.preventDefault();
       if (highlightedIndex >= 0 && filtered[highlightedIndex]) {
         selectSite(filtered[highlightedIndex].name);
-      } else if (inputValue.trim()) {
-        // Allow custom value
-        onChange(inputValue.trim());
-        setIsOpen(false);
+      } else if (filtered.length === 1) {
+        // Auto-seleciona se houver apenas uma correspondência
+        selectSite(filtered[0].name);
       }
     } else if (e.key === "Escape") {
       setIsOpen(false);
     }
   };
 
-  // Close on outside click
+  // Close on outside click — se o texto digitado não bate com uma obra, limpa
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
-        // If user typed something not matching any site, keep it as custom
-        if (inputValue.trim() && inputValue !== value) {
-          onChange(inputValue.trim());
+        const match = sites.find(
+          (s) => s.name.toLowerCase() === inputValue.trim().toLowerCase()
+        );
+        if (match) {
+          if (match.name !== value) onChange(match.name);
+        } else {
+          // Reverte para o último valor válido (ou limpa)
+          setInputValue(value);
         }
       }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [inputValue, value, onChange]);
+  }, [inputValue, value, onChange, sites]);
 
   // Scroll highlighted item into view
   useEffect(() => {
