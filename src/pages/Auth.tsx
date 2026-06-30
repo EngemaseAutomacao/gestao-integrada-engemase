@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, User, Lock } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import engemaseLogo from "@/assets/engemase-logo.png";
 import { APP_VERSION } from "@/version";
 
@@ -13,6 +14,9 @@ export default function Auth() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [keepConnected, setKeepConnected] = useState(
+    () => localStorage.getItem("engemase_keep_connected") !== "false",
+  );
   const [loading, setLoading] = useState(false);
   const { signIn, user, profile } = useAuth();
   const navigate = useNavigate();
