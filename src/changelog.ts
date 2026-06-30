@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.0",
+    date: "2026-06-30",
+    title: "Seleção de obra padronizada",
+    description: "O campo de obra agora exige que o usuário escolha uma obra existente da lista, evitando variações de nome digitadas manualmente.",
+    changes: [
+      { type: "improvement", text: "Autocomplete de obras passa a aceitar apenas obras cadastradas (sincronizadas do Trello)." },
+      { type: "improvement", text: "Sincronização com o Trello agora remove obras que saíram do quadro em vez de marcá-las como inativas." },
+      { type: "fix", text: "Textos digitados que não correspondem a nenhuma obra são revertidos automaticamente." },
+    ],
+  },
+  {
     version: "1.65.7",
     date: "2026-06-30",
     title: "Correção do botão de atualização",
