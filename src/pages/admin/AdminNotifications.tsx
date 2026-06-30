@@ -262,24 +262,6 @@ export default function AdminNotifications() {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-500/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-purple-500" />
-              Novo Usuário
-            </CardTitle>
-            <CardDescription>
-              Admins notificados quando usuário se registra
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Notificação imediata ao admin</li>
-              <li>• Usuário aguardando aprovação</li>
-              <li>• Inclui nome do usuário</li>
-            </ul>
-          </CardContent>
-        </Card>
 
         <Card className="border-yellow-500/30">
           <CardHeader>
