@@ -233,8 +233,6 @@ export default function AdminLogs() {
                 <SelectItem value="manual_checkin_by_admin">Devolução Manual (Admin)</SelectItem>
                 <SelectItem value="user_registered">Cadastros</SelectItem>
                 <SelectItem value="user_approved">Aprovações</SelectItem>
-                <SelectItem value="issue_reported">Problemas</SelectItem>
-                <SelectItem value="issue_resolved">Resoluções</SelectItem>
               </SelectContent>
             </Select>
             <Select value={filterEntity} onValueChange={setFilterEntity}>
@@ -246,7 +244,6 @@ export default function AdminLogs() {
                 <SelectItem value="tool">Ferramentas</SelectItem>
                 <SelectItem value="vehicle">Veículos</SelectItem>
                 <SelectItem value="user">Usuários</SelectItem>
-                <SelectItem value="tool_issue">Problemas</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={handleExportPDF} disabled={filteredLogs.length === 0} className="gap-1.5">
