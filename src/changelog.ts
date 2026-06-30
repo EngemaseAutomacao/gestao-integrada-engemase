@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.3",
+    date: "2026-06-30",
+    title: "Refinamento do cabeçalho admin",
+    description: "Pequenos ajustes no cabeçalho das páginas do painel admin para combinar exatamente com o estilo da Galeria, com melhor comportamento em telas pequenas.",
+    changes: [
+      { type: "improvement", text: "Tipografia, espaçamento e tile do ícone alinhados ao padrão da Galeria." },
+      { type: "improvement", text: "Títulos longos passam a truncar e subtítulos ficam limitados a 2 linhas." },
+    ],
+  },
+  {
     version: "1.65.2",
     date: "2026-06-30",
     title: "Cabeçalho do Painel Admin no estilo da Galeria",
