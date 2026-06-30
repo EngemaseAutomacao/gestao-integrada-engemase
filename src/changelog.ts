@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.5",
+    date: "2026-06-30",
+    title: "Fim do flash branco na abertura",
+    description: "Ajustamos o fundo de inicialização do PWA para o mesmo azul da splash, eliminando aquela tela branca rápida que aparecia antes do app abrir.",
+    changes: [
+      { type: "fix", text: "Cor de fundo do manifesto alinhada ao gradiente da splash (sem mais flash branco no Android)." },
+    ],
+  },
+  {
     version: "1.65.4",
     date: "2026-06-30",
     title: "Nova tela de abertura do app",
