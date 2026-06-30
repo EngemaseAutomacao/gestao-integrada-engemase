@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.7",
+    date: "2026-06-30",
+    title: "Correção do botão de atualização",
+    description: "Ajustes no fluxo de verificação e aplicação de novas versões para garantir que o app realmente recarregue com a versão mais recente.",
+    changes: [
+      { type: "fix", text: "Botão 'Atualizar' agora limpa caches, desregistra service workers e recarrega de forma confiável." },
+      { type: "fix", text: "Botão 'Verificar atualizações' nas Notas agora detecta a nova versão corretamente." },
+    ],
+  },
+  {
     version: "1.65.6",
     date: "2026-06-30",
     title: "Splash com tempo mínimo de exibição",

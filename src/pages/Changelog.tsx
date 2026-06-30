@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Zap, Bug, Shield, RefreshCw, CheckCircle2 } from "lucide-react";
 import { APP_VERSION } from "@/version";
 import { toast } from "sonner";
+import { applyAppUpdate, fetchLatestVersion } from "@/lib/appUpdate";
 
 const typeConfig = {
   feature: { label: "Novo", icon: Sparkles, className: "bg-primary/10 text-primary border-primary/20" },
@@ -20,30 +21,16 @@ export default function Changelog() {
   const handleCheckForUpdates = async () => {
     setChecking(true);
     try {
-      const res = await fetch("/version.json?t=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error("Falha ao consultar versão");
-      const data = await res.json();
-      const latest: string | undefined = data?.version;
+      const latest = await fetchLatestVersion();
+      if (!latest) throw new Error("Falha ao consultar versão");
 
-      if (latest && latest !== APP_VERSION) {
+      if (latest !== APP_VERSION) {
         toast.success(`Nova versão disponível: ${latest}`, {
           description: "Clique em Atualizar para recarregar o app com a versão mais recente.",
           action: {
             label: "Atualizar",
-            onClick: async () => {
-              localStorage.removeItem("engemase_notified_version");
-              localStorage.removeItem("engemase_app_version");
-              if ("serviceWorker" in navigator) {
-                const regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map((r) => r.unregister().catch(() => {})));
-              }
-              if ("caches" in window) {
-                const names = await caches.keys();
-                await Promise.all(names.map((n) => caches.delete(n)));
-              }
-              window.location.replace(
-                window.location.origin + window.location.pathname + "?v=" + Date.now()
-              );
+            onClick: () => {
+              void applyAppUpdate();
             },
           },
           duration: 10000,
