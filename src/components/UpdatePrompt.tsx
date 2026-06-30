@@ -78,11 +78,7 @@ export default function UpdatePrompt() {
     await applyAppUpdate();
   };
 
-    // 3. Hard reload com bypass de HTTP cache.
-    window.location.replace(
-      window.location.origin + window.location.pathname + "?v=" + Date.now()
-    );
-  };
+
 
   // If we are in local development, we don't want to show the prompt constantly 
   // since the version in version.json and APP_VERSION are usually the same
