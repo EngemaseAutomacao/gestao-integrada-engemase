@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock } from "lucide-react";
+import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock, History } from "lucide-react";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
@@ -264,7 +264,7 @@ export default function AdminHistory() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Histórico Completo" subtitle="Visualize todas as movimentações de ferramentas" />
+      <AdminPageHero icon={History} title="Histórico Completo" subtitle="Visualize todas as movimentações de ferramentas" />
       <div className="shrink-0 flex items-center justify-end flex-wrap gap-4">
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportHistoryPDF} className="gap-2">

@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -137,7 +137,7 @@ export default function AdminDataRetention() {
 
   return (
     <div className="space-y-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Retenção de Dados" subtitle="Configure por quanto tempo os dados são mantidos no sistema" />
+      <AdminPageHero icon={Database} title="Retenção de Dados" subtitle="Configure por quanto tempo os dados são mantidos no sistema" />
       <div className="flex justify-end gap-4 flex-wrap">
         <AlertDialog>
           <AlertDialogTrigger asChild>

@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.65.2",
+    date: "2026-06-30",
+    title: "Cabeçalho do Painel Admin no estilo da Galeria",
+    description: "As páginas do painel administrativo passaram a usar o mesmo cabeçalho visual da Galeria de Imagens, com ícone, título e subtítulo em um card suave.",
+    changes: [
+      { type: "improvement", text: "Novo cabeçalho unificado (AdminPageHero) em 11 páginas do painel admin." },
+      { type: "improvement", text: "Cada página recebeu um ícone próprio para facilitar a identificação visual." },
+    ],
+  },
+  {
     version: "1.65.1",
     date: "2026-06-30",
     title: "Limpeza de notificações descontinuadas",

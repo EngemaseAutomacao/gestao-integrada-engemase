@@ -1,4 +1,5 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
+import { BarChart3 } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,7 +16,7 @@ export default function AdminAnalyticsHub() {
 
   return (
     <div className="space-y-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Analytics" subtitle="Estatísticas de ferramentas" />
+      <AdminPageHero icon={BarChart3} title="Analytics" subtitle="Estatísticas de ferramentas" />
 
       <Suspense fallback={<DashboardSkeleton />}>
         <AdminAnalytics />

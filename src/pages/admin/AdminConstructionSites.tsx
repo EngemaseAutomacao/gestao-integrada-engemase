@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
@@ -339,7 +339,7 @@ export default function AdminConstructionSites() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Gestão Administrativa" subtitle="Gerencie obras e inventário de ferramentas" />
+      <AdminPageHero icon={Building2} title="Gestão Administrativa" subtitle="Gerencie obras e inventário de ferramentas" />
 
       <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-auto">

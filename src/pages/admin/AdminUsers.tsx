@@ -1,4 +1,4 @@
-import { ModuleHero } from "@/components/ModuleHero";
+import { AdminPageHero } from "@/components/admin/AdminPageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock, RefreshCw } from "lucide-react";
+import { UserPlus, Loader2, Pencil, Trash2, Key, CheckCircle, Clock, RefreshCw, Users } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
@@ -337,7 +337,7 @@ export default function AdminUsers() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <ModuleHero inline compact eyebrow="Painel Admin" title="Gerenciar Usuários" subtitle="Administre usuários e permissões" />
+      <AdminPageHero icon={Users} title="Gerenciar Usuários" subtitle="Administre usuários e permissões" />
       <div className="shrink-0 flex justify-end gap-3 flex-wrap">
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
