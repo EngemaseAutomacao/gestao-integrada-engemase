@@ -348,12 +348,7 @@ export default function AdminAnalytics() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="hidden sm:block">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard Analítico</h2>
-          <p className="text-muted-foreground">Métricas e estatísticas de uso das ferramentas</p>
-        </div>
-      </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Dashboard Analítico" subtitle="Métricas e estatísticas de uso das ferramentas" />
 
       {/* Period Filter */}
       <Card>

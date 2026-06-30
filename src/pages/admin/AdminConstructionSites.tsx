@@ -338,10 +338,7 @@ export default function AdminConstructionSites() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="hidden sm:block">
-        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Gestão Administrativa</h2>
-        <p className="text-sm text-muted-foreground">Gerencie obras e inventário de ferramentas</p>
-      </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Gestão Administrativa" subtitle="Gerencie obras e inventário de ferramentas" />
 
       <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-auto">

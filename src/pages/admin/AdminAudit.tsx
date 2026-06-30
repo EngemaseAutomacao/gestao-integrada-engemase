@@ -229,16 +229,8 @@ export default function AdminAudit() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <div className="shrink-0 flex items-center justify-between flex-wrap gap-4">
-        <div className="hidden sm:block">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Shield className="w-7 h-7 text-orange-500" />
-            Painel de Auditoria
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Registro detalhado de todas as ações realizadas no sistema
-          </p>
-        </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Painel de Auditoria" subtitle="Registro detalhado de todas as ações realizadas no sistema" />
+      <div className="shrink-0 flex items-center justify-end flex-wrap gap-4">
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2">
             <FileText className="w-4 h-4" /> PDF

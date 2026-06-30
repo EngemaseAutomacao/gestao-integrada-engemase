@@ -136,16 +136,8 @@ export default function AdminDataRetention() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-            <Database className="w-7 h-7 text-orange-500" />
-            Retenção de Dados
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Configure por quanto tempo os dados são mantidos no sistema
-          </p>
-        </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Retenção de Dados" subtitle="Configure por quanto tempo os dados são mantidos no sistema" />
+      <div className="flex justify-end gap-4 flex-wrap">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" disabled={runningCleanup} className="gap-2">

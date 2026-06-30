@@ -336,11 +336,8 @@ export default function AdminUsers() {
 
   return (
     <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="hidden sm:block">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Gerenciar Usuários</h2>
-          <p className="text-sm text-muted-foreground">Administre usuários e permissões</p>
-        </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Gerenciar Usuários" subtitle="Administre usuários e permissões" />
+      <div className="shrink-0 flex justify-end gap-3 flex-wrap">
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>

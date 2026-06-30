@@ -456,10 +456,7 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-6">
-      <div className="hidden sm:block">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Relatórios</h2>
-        <p className="text-muted-foreground">Gere e exporte relatórios personalizados</p>
-      </div>
+      <ModuleHero inline compact eyebrow="Painel Admin" title="Relatórios" subtitle="Gere e exporte relatórios personalizados" />
 
       <Card>
         <CardHeader>
