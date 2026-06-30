@@ -492,8 +492,9 @@ export default function AdminGallery() {
           if (item.name === ".emptyFolderPlaceholder") continue;
           const rel = `${sub}/${item.name}`;
           if (item.id) {
-            // file: include only if filename matches OR we'll filter later
-            pushItem(rel, item as any);
+            if (item.name.toLowerCase().includes(searchLower)) {
+              pushItem(rel, item as any);
+            }
           } else {
             await visit(rel);
           }
