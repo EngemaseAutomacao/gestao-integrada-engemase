@@ -442,8 +442,17 @@ export default function AdminGallery() {
   const filteredFiles = useMemo(() => {
     const base = files.map((f) => ({ ...f, _rel: f.name }) as StorageItem & { _rel: string });
     if (!searchLower) return base;
-    const all = [...base, ...deepFiles];
-    return all.filter((f) => f.name.toLowerCase().includes(searchLower));
+    const matchingBase = base.filter((f) => f.name.toLowerCase().includes(searchLower));
+    // deepFiles are already curated by the recursive/DB effect — include all of them
+    const seen = new Set(matchingBase.map((f) => f._rel));
+    const merged = [...matchingBase];
+    for (const d of deepFiles) {
+      if (!seen.has(d._rel)) {
+        seen.add(d._rel);
+        merged.push(d);
+      }
+    }
+    return merged;
   }, [files, deepFiles, searchLower]);
   const totalPages = Math.max(1, Math.ceil(filteredFiles.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -460,6 +469,20 @@ export default function AdminGallery() {
     let cancelled = false;
     (async () => {
       const collected: (StorageItem & { _rel: string })[] = [];
+      const seen = new Set<string>();
+      const pushItem = (rel: string, item?: any) => {
+        if (seen.has(rel)) return;
+        seen.add(rel);
+        const baseName = rel.split("/").pop() || rel;
+        collected.push({
+          name: baseName,
+          id: item?.id || rel,
+          created_at: item?.created_at,
+          updated_at: item?.updated_at,
+          metadata: item?.metadata,
+          _rel: rel,
+        } as StorageItem & { _rel: string });
+      };
       const visit = async (sub: string) => {
         const { data } = await supabase.storage
           .from("imagens")
@@ -467,14 +490,54 @@ export default function AdminGallery() {
         if (!data) return;
         for (const item of data) {
           if (item.name === ".emptyFolderPlaceholder") continue;
+          const rel = `${sub}/${item.name}`;
           if (item.id) {
-            collected.push({ ...(item as StorageItem), _rel: `${sub}/${item.name}` });
+            if (item.name.toLowerCase().includes(searchLower)) {
+              pushItem(rel, item as any);
+            }
           } else {
-            await visit(`${sub}/${item.name}`);
+            await visit(rel);
           }
         }
       };
       for (const f of folders) await visit(f.name);
+
+      // Additionally search by vehicle name/plate via DB lookup (so user can
+      // find photos even when the filename doesn't contain the vehicle name).
+      if (currentPath.startsWith("veiculos")) {
+        try {
+          const direction: "saida" | "entrada" | null = currentPath.includes("saidas")
+            ? "saida"
+            : currentPath.includes("entradas")
+              ? "entrada"
+              : null;
+          const cols = direction === "entrada" ? PHOTO_COLS_CHECKIN : PHOTO_COLS_CHECKOUT;
+          const selectCols = ["id", "checkout_date", "checkin_date", ...cols].join(", ");
+          const { data: vehicleMatches } = await (supabase as any)
+            .from("vehicles")
+            .select("id, name, plate")
+            .or(`name.ilike.%${searchLower}%,plate.ilike.%${searchLower}%`);
+          const ids = (vehicleMatches || []).map((v: any) => v.id);
+          if (ids.length > 0) {
+            const { data: checkouts } = await (supabase as any)
+              .from("vehicle_checkouts")
+              .select(selectCols)
+              .in("vehicle_id", ids)
+              .limit(500);
+            for (const row of checkouts || []) {
+              for (const col of cols) {
+                const path: string | null = row[col];
+                if (!path || !path.startsWith(`${currentPath}/`)) continue;
+                const rel = path.slice(currentPath.length + 1);
+                pushItem(rel);
+              }
+            }
+          }
+        } catch {
+          /* best-effort */
+        }
+      }
+
       if (!cancelled) setDeepFiles(collected);
     })();
     return () => {
