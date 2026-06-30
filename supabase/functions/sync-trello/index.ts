@@ -70,36 +70,34 @@ Deno.serve(async (req) => {
 
     let added = 0;
     let reactivated = 0;
-    let deactivated = 0;
+    let deleted = 0;
 
     // Add or reactivate sites from Trello
     for (const name of trelloNames) {
       const key = name.toLowerCase();
       const existingSite = existingMap.get(key);
       if (!existingSite) {
-        // Insert new site
         const { error } = await supabase.from("construction_sites").insert({ name, active: true });
         if (!error) added++;
       } else if (!existingSite.active) {
-        // Reactivate
         const { error } = await supabase.from("construction_sites").update({ active: true }).eq("id", existingSite.id);
         if (!error) reactivated++;
       }
     }
 
-    // Deactivate sites no longer in Trello "Fazendo"
+    // Delete sites no longer in Trello "Fazendo"
     const trelloNamesLower = new Set(trelloNames.map(n => n.toLowerCase()));
     for (const site of (existing || [])) {
-      if (site.active && !trelloNamesLower.has(site.name.toLowerCase())) {
-        const { error } = await supabase.from("construction_sites").update({ active: false }).eq("id", site.id);
-        if (!error) deactivated++;
+      if (!trelloNamesLower.has(site.name.toLowerCase())) {
+        const { error } = await supabase.from("construction_sites").delete().eq("id", site.id);
+        if (!error) deleted++;
       }
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        summary: { total_trello_cards: trelloNames.length, added, reactivated, deactivated },
+        summary: { total_trello_cards: trelloNames.length, added, reactivated, deleted },
         sites: trelloNames,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
