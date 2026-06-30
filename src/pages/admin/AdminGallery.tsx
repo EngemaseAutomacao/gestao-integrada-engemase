@@ -461,13 +461,13 @@ export default function AdminGallery() {
     (async () => {
       const collected: (StorageItem & { _rel: string })[] = [];
       const seen = new Set<string>();
-      const pushItem = (rel: string, item?: Partial<StorageItem>) => {
+      const pushItem = (rel: string, item?: any) => {
         if (seen.has(rel)) return;
         seen.add(rel);
         const baseName = rel.split("/").pop() || rel;
         collected.push({
           name: baseName,
-          id: (item?.id as string) || rel,
+          id: item?.id || rel,
           created_at: item?.created_at,
           updated_at: item?.updated_at,
           metadata: item?.metadata,
