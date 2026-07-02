@@ -81,35 +81,7 @@ export async function shareContent(payload: SharePayload): Promise<boolean> {
   }
 }
 
-// ===== Geolocation (one-shot, promise) =====
-export interface GeoResult {
-  lat: number;
-  lng: number;
-  accuracy: number;
-  timestamp: number;
-}
-
-export function getCurrentPosition(
-  options: PositionOptions = { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
-): Promise<GeoResult | null> {
-  return new Promise((resolve) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      resolve(null);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-          timestamp: pos.timestamp,
-        }),
-      () => resolve(null),
-      options
-    );
-  });
-}
+// Geolocation removido do app — apenas Câmera e Notificações são solicitadas.
 
 // ===== Periodic Background Sync =====
 export async function registerPeriodicSync(

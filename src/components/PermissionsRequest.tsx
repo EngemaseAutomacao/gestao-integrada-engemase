@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, MapPin, Bell, Check, X, Shield } from "lucide-react";
+import { Camera, Bell, Check, X, Shield } from "lucide-react";
 
 interface PermissionItem {
   key: string;
@@ -19,13 +19,6 @@ export function PermissionsRequest() {
       label: "Câmera",
       description: "Para capturar fotos de ferramentas e veículos",
       icon: <Camera className="w-5 h-5" />,
-      status: "pending",
-    },
-    {
-      key: "geolocation",
-      label: "Localização",
-      description: "Para registrar local de ponto e atividades",
-      icon: <MapPin className="w-5 h-5" />,
       status: "pending",
     },
     {
@@ -65,13 +58,6 @@ export function PermissionsRequest() {
       else if (camPerm.state === "denied") updated[camIdx].status = "denied";
     } catch {}
 
-    // Check geolocation permission
-    try {
-      const geoPerm = await navigator.permissions.query({ name: "geolocation" });
-      const geoIdx = updated.findIndex((p) => p.key === "geolocation");
-      if (geoPerm.state === "granted") updated[geoIdx].status = "granted";
-      else if (geoPerm.state === "denied") updated[geoIdx].status = "denied";
-    } catch {}
 
     setPermissions(updated);
 
@@ -97,18 +83,6 @@ export function PermissionsRequest() {
       }
     }
 
-    // Request geolocation
-    const geoIdx = updated.findIndex((p) => p.key === "geolocation");
-    if (updated[geoIdx].status === "pending") {
-      try {
-        await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-        });
-        updated[geoIdx].status = "granted";
-      } catch {
-        updated[geoIdx].status = "denied";
-      }
-    }
 
     // Request notifications
     const notifIdx = updated.findIndex((p) => p.key === "notifications");
