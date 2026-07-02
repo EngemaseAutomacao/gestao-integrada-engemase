@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, MapPin, Bell, Check, X, Shield } from "lucide-react";
+import { Camera, Bell, Check, X, Shield } from "lucide-react";
 
 interface PermissionItem {
   key: string;
