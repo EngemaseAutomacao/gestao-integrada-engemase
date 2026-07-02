@@ -83,18 +83,6 @@ export function PermissionsRequest() {
       }
     }
 
-    // Request geolocation
-    const geoIdx = updated.findIndex((p) => p.key === "geolocation");
-    if (updated[geoIdx].status === "pending") {
-      try {
-        await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-        });
-        updated[geoIdx].status = "granted";
-      } catch {
-        updated[geoIdx].status = "denied";
-      }
-    }
 
     // Request notifications
     const notifIdx = updated.findIndex((p) => p.key === "notifications");
