@@ -1,13 +1,10 @@
 import { useState, useMemo } from "react";
-import { HelpCircle, Wrench, Car, Shield, History, Search, Rocket, Bell, Download, Smartphone, LogIn, KeyRound, WifiOff, Users, Sparkles, FileText } from "lucide-react";
+import { HelpCircle, Wrench, Car, Shield, History, Search, Rocket, Bell, Smartphone, LogIn, KeyRound, WifiOff, Users, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ModuleHero } from "@/components/ModuleHero";
-import manualPdf from "@/assets/manual-usuario.pdf.asset.json";
-import { APP_VERSION } from "@/version";
 
 type FAQ = { q: string; a: string };
 type Section = { title: string; icon: React.ComponentType<{ className?: string }>; questions: FAQ[] };
