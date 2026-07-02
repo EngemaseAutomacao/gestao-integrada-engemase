@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.3",
+    date: "2026-07-02",
+    title: "Permissão de localização removida",
+    description: "O app agora solicita apenas as permissões realmente necessárias: Câmera e Notificações.",
+    changes: [
+      { type: "improvement", text: "Removida a solicitação de permissão de localização — não é mais necessária." },
+      { type: "improvement", text: "Módulos legados (Combustível, Ponto Online, Transferências) já não aparecem no menu; rotas antigas continuam redirecionando para a Home." },
+    ],
+  },
+  {
     version: "1.66.2",
     date: "2026-07-02",
     title: "Manual do Usuário em PDF",
