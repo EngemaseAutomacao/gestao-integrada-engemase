@@ -22,13 +22,6 @@ export function PermissionsRequest() {
       status: "pending",
     },
     {
-      key: "geolocation",
-      label: "Localização",
-      description: "Para registrar local de ponto e atividades",
-      icon: <MapPin className="w-5 h-5" />,
-      status: "pending",
-    },
-    {
       key: "notifications",
       label: "Notificações",
       description: "Para receber alertas e atualizações do sistema",
