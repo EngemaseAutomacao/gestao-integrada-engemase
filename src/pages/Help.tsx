@@ -133,6 +133,31 @@ export default function Help() {
           </CardContent>
         </Card>
 
+        {/* Manual PDF completo */}
+        <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+          <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="shrink-0 w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold flex items-center gap-2 flex-wrap">
+                Manual do Usuário completo (PDF)
+                <Badge variant="secondary" className="text-[10px]">v{APP_VERSION}</Badge>
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                28 páginas com todas as telas, passo a passo e figuras. Ideal para imprimir ou compartilhar.
+              </p>
+            </div>
+            <Button asChild size="sm" className="shrink-0">
+              <a href={manualPdf.url} target="_blank" rel="noopener noreferrer" download>
+                <Download className="w-4 h-4 mr-2" />
+                Baixar PDF
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+
+
         {/* Busca */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
