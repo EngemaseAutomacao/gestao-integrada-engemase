@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.2",
+    date: "2026-07-02",
+    title: "Manual do Usuário em PDF",
+    description: "Agora é possível baixar o manual completo do sistema direto da Central de Ajuda.",
+    changes: [
+      { type: "feature", text: "Botão 'Baixar PDF' na Central de Ajuda com o manual completo (28 páginas)." },
+    ],
+  },
+  {
     version: "1.66.1",
     date: "2026-06-30",
     title: "Mantenha-me conectado",
