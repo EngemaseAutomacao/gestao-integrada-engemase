@@ -58,13 +58,6 @@ export function PermissionsRequest() {
       else if (camPerm.state === "denied") updated[camIdx].status = "denied";
     } catch {}
 
-    // Check geolocation permission
-    try {
-      const geoPerm = await navigator.permissions.query({ name: "geolocation" });
-      const geoIdx = updated.findIndex((p) => p.key === "geolocation");
-      if (geoPerm.state === "granted") updated[geoIdx].status = "granted";
-      else if (geoPerm.state === "denied") updated[geoIdx].status = "denied";
-    } catch {}
 
     setPermissions(updated);
 
