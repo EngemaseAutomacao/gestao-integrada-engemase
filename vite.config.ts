@@ -47,6 +47,7 @@ export default defineConfig(({ mode }) => ({
       devOptions: { enabled: false }, // sem SW em dev/preview
       injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest,json}"],
+        globIgnores: ["**/version.json"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       manifest: false, // mantém manifest.json existente em /public
