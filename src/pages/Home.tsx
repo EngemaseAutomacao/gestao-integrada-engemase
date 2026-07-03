@@ -600,10 +600,12 @@ export default function Home() {
           <div className="absolute bottom-0 right-6 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
           <div className="relative flex items-center gap-3">
             <img
-              src={engemaseIcon.url}
-              alt="Engemase"
-              className="w-11 h-11 rounded-full shrink-0 object-cover"
+              src={engemaseLogo}
+              alt="Engemase Engenharia"
+              className="h-10 w-auto shrink-0 brightness-0 invert"
             />
+
+
 
 
             <div className="flex-1 min-w-0">
@@ -696,10 +698,11 @@ export default function Home() {
         <div className="absolute top-12 right-48 w-24 h-24 rounded-full bg-white/5 pointer-events-none" />
         <div className="relative max-w-6xl mx-auto flex items-center gap-5">
           <img
-            src={engemaseIcon.url}
+            src={engemaseLogo}
             alt="Engemase Engenharia"
-            className="w-16 h-16 lg:w-20 lg:h-20 rounded-full shrink-0 object-cover shadow-md"
+            className="h-14 lg:h-16 w-auto shrink-0 brightness-0 invert"
           />
+
 
 
           <div className="flex-1 min-w-0">
