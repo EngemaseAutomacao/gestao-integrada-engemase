@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.4",
+    date: "2026-07-02",
+    title: "Manual do Usuário v2.0",
+    description: "Novo manual em PDF, atualizado e com a lista dos usuários cadastrados para facilitar o primeiro acesso.",
+    changes: [
+      { type: "feature", text: "Manual do Usuário v2.0 disponível na Central de Ajuda com todos os fluxos atualizados." },
+      { type: "improvement", text: "Manual traz a lista completa dos usuários aprovados (sem senhas — as senhas continuam sendo entregues pelo administrador)." },
+      { type: "improvement", text: "Conteúdo revisado: sem menções a Combustível, Ponto Online, Transferências ou Localização." },
+    ],
+  },
+  {
     version: "1.66.3",
     date: "2026-07-02",
     title: "Permissão de localização removida",
