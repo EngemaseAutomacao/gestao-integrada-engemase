@@ -413,7 +413,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold">
-                      {pendingCheckouts.length} devolução{pendingCheckouts.length > 1 ? "ões" : ""} pendente{pendingCheckouts.length > 1 ? "s" : ""}
+                      {pendingCheckouts.length} {pendingCheckouts.length > 1 ? "devoluções pendentes" : "devolução pendente"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Acesse a página de pendências para devolver.
