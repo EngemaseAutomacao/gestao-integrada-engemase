@@ -70,26 +70,42 @@ export default function ChangePassword() {
 
       if (updateError) {
         const code = (updateError as any)?.code as string | undefined;
+        const status = (updateError as any)?.status as number | undefined;
         const msg = updateError.message?.toLowerCase() || "";
-        console.error("[ChangePassword] updateUser error:", { code, message: updateError.message, error: updateError });
+        console.error("[ChangePassword] updateUser error:", { code, status, message: updateError.message });
+
+        // Session was invalidated (e.g. admin reset). Force fresh login.
+        if (
+          code === "session_not_found" ||
+          code === "no_authorization" ||
+          status === 401 ||
+          status === 403 ||
+          msg.includes("session") ||
+          msg.includes("jwt") ||
+          msg.includes("token")
+        ) {
+          toast.error("Sessão expirada", {
+            description: "Faça login novamente com sua senha atual para trocar a senha.",
+          });
+          await supabase.auth.signOut();
+          navigate("/auth", { replace: true });
+          return;
+        }
 
         if (code === "same_password" || msg.includes("should be different") || msg.includes("different from")) {
           toast.error("Escolha uma senha diferente da atual", {
-            description: "A nova senha não pode ser igual à senha que você está usando agora (Engemase@2026).",
+            description: "A nova senha não pode ser igual à senha que você está usando agora.",
           });
         } else if (code === "weak_password" || msg.includes("pwned") || msg.includes("weak") || msg.includes("compromised")) {
           toast.error("Senha muito comum ou vazada", {
-            description: "Esta senha aparece em vazamentos públicos. Combine palavras, números e símbolos únicos.",
-          });
-        } else if (msg.includes("session") || msg.includes("jwt") || msg.includes("token")) {
-          toast.error("Sessão expirada", {
-            description: "Faça login novamente e repita a troca de senha.",
+            description: "Combine palavras, números e símbolos únicos.",
           });
         } else {
           toast.error("Erro ao alterar senha", { description: updateError.message || code || "Tente novamente." });
         }
         return;
       }
+
 
 
       if (user) {
