@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.6",
+    date: "2026-07-03",
+    title: "Manual: senha padrão Engemase@2026",
+    description: "O manual agora informa a senha padrão inicial de todos os usuários e o aviso de troca obrigatória no primeiro acesso.",
+    changes: [
+      { type: "improvement", text: "Destaque na seção de usuários: senha inicial Engemase@2026 para todos." },
+      { type: "improvement", text: "Aviso de que o sistema exige criação de nova senha pessoal no primeiro login." },
+    ],
+  },
+  {
     version: "1.66.5",
     date: "2026-07-03",
     title: "Manual do Usuário v2.0 com prints das telas",
