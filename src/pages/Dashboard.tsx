@@ -70,6 +70,7 @@ export default function Dashboard() {
   const [extendCheckoutId, setExtendCheckoutId] = useState<string | null>(null);
   const [extendToolName, setExtendToolName] = useState("");
   const [extendDate, setExtendDate] = useState<Date | undefined>(undefined);
+  const [extendDays, setExtendDays] = useState("");
   const [extendLoading, setExtendLoading] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
