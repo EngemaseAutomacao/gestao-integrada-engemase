@@ -683,6 +683,26 @@ export default function Dashboard() {
             <p className="text-sm text-muted-foreground">
               Selecione a nova data de devolução para <strong>{extendToolName}</strong>:
             </p>
+            <div className="flex flex-wrap gap-2">
+              {[1, 7, 15, 30].map((days) => {
+                const preset = new Date();
+                preset.setDate(preset.getDate() + days);
+                preset.setHours(23, 59, 59, 999);
+                const isSelected = extendDate && extendDate.toDateString() === preset.toDateString();
+                return (
+                  <Button
+                    key={days}
+                    type="button"
+                    size="sm"
+                    variant={isSelected ? "default" : "outline"}
+                    className="text-xs h-8"
+                    onClick={() => setExtendDate(preset)}
+                  >
+                    {days === 1 ? "1 dia" : `${days} dias`}
+                  </Button>
+                );
+              })}
+            </div>
             <Calendar
               mode="single"
               selected={extendDate}
@@ -692,6 +712,7 @@ export default function Dashboard() {
               locale={ptBR}
             />
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setExtendDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleExtendDate} disabled={!extendDate || extendLoading}>
