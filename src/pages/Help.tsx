@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { HelpCircle, Wrench, Car, Shield, History, Search, Rocket, Bell, Smartphone, LogIn, KeyRound, WifiOff, Users, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,7 +131,26 @@ export default function Help() {
             ))}
           </CardContent>
         </Card>
-
+        {/* Manual PDF */}
+        <Card className="border-primary/20">
+          <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="shrink-0 w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <Download className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Manual do Usuário — v2.0</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Guia completo em PDF, com passo a passo e lista de usuários cadastrados.
+              </p>
+            </div>
+            <Button asChild size="sm" className="w-full sm:w-auto">
+              <a href="/manual-usuario.pdf" target="_blank" rel="noopener noreferrer" download>
+                <Download className="w-4 h-4 mr-2" />
+                Baixar PDF
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
 
 
 
