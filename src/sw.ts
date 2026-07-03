@@ -15,6 +15,18 @@ declare const self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<{ url: string; revision: string | null }>;
 };
 
+// ---- Bypass version.json ANTES do precache do Workbox (senão ele serve cache antigo) ----
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  if (url.pathname === "/version.json") {
+    event.respondWith(
+      fetch(event.request.url + (url.search ? "&" : "?") + "_swbypass=" + Date.now(), {
+        cache: "no-store",
+      })
+    );
+  }
+});
+
 // ---- Precache automático (substituído no build) ----
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
