@@ -279,8 +279,15 @@ export default function Dashboard() {
   const openExtendDialog = (checkoutId: string, toolName: string) => {
     setExtendCheckoutId(checkoutId);
     setExtendToolName(toolName);
-    setExtendDate(addDays(new Date(), 3));
+    setExtendDays("");
+    setExtendDate(undefined);
     setExtendDialogOpen(true);
+  };
+
+  const handleExtendDaysChange = (value: string) => {
+    setExtendDays(value);
+    const days = parseInt(value, 10);
+    setExtendDate(Number.isNaN(days) ? undefined : addDays(new Date(), days));
   };
 
   const toggleSelectCheckout = (id: string) => {
