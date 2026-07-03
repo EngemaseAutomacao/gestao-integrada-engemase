@@ -138,7 +138,7 @@ export default function Help() {
               <Download className="w-5 h-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">Manual do Usuário — v2.0</p>
+              <p className="text-sm font-semibold">Manual do Usuário — v2.1</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Guia completo em PDF, com passo a passo e lista de usuários cadastrados.
               </p>
