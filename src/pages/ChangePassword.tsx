@@ -69,17 +69,28 @@ export default function ChangePassword() {
       });
 
       if (updateError) {
+        const code = (updateError as any)?.code as string | undefined;
         const msg = updateError.message?.toLowerCase() || "";
-        if (msg.includes("pwned") || msg.includes("weak")) {
-          toast.error("Senha muito comum", {
-            description:
-              "Esta senha aparece em vazamentos públicos. Escolha uma combinação mais única.",
+        console.error("[ChangePassword] updateUser error:", { code, message: updateError.message, error: updateError });
+
+        if (code === "same_password" || msg.includes("should be different") || msg.includes("different from")) {
+          toast.error("Escolha uma senha diferente da atual", {
+            description: "A nova senha não pode ser igual à senha que você está usando agora (Engemase@2026).",
+          });
+        } else if (code === "weak_password" || msg.includes("pwned") || msg.includes("weak") || msg.includes("compromised")) {
+          toast.error("Senha muito comum ou vazada", {
+            description: "Esta senha aparece em vazamentos públicos. Combine palavras, números e símbolos únicos.",
+          });
+        } else if (msg.includes("session") || msg.includes("jwt") || msg.includes("token")) {
+          toast.error("Sessão expirada", {
+            description: "Faça login novamente e repita a troca de senha.",
           });
         } else {
-          toast.error("Erro ao alterar senha", { description: updateError.message });
+          toast.error("Erro ao alterar senha", { description: updateError.message || code || "Tente novamente." });
         }
         return;
       }
+
 
       if (user) {
         await supabase
