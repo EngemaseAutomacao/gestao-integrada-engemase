@@ -689,36 +689,24 @@ export default function Dashboard() {
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Selecione a nova data de devolução para <strong>{extendToolName}</strong>:
+              Selecione o novo prazo de devolução para <strong>{extendToolName}</strong>:
             </p>
-            <div className="flex flex-wrap gap-2">
-              {[1, 7, 15, 30].map((days) => {
-                const preset = new Date();
-                preset.setDate(preset.getDate() + days);
-                preset.setHours(23, 59, 59, 999);
-                const isSelected = extendDate && extendDate.toDateString() === preset.toDateString();
-                return (
-                  <Button
-                    key={days}
-                    type="button"
-                    size="sm"
-                    variant={isSelected ? "default" : "outline"}
-                    className="text-xs h-8"
-                    onClick={() => setExtendDate(preset)}
-                  >
-                    {days === 1 ? "1 dia" : `${days} dias`}
-                  </Button>
-                );
-              })}
-            </div>
-            <Calendar
-              mode="single"
-              selected={extendDate}
-              onSelect={setExtendDate}
-              disabled={(date) => date <= new Date()}
-              className={cn("p-3 pointer-events-auto mx-auto")}
-              locale={ptBR}
-            />
+            <Select value={extendDays} onValueChange={handleExtendDaysChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o prazo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 Dia</SelectItem>
+                <SelectItem value="7">7 Dias</SelectItem>
+                <SelectItem value="15">15 Dias</SelectItem>
+                <SelectItem value="30">30 Dias</SelectItem>
+              </SelectContent>
+            </Select>
+            {extendDate && (
+              <p className="text-sm text-center text-muted-foreground">
+                Nova devolução: <strong>{format(extendDate, "dd/MM/yyyy", { locale: ptBR })}</strong>
+              </p>
+            )}
           </div>
 
           <DialogFooter>
