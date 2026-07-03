@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.66.5",
+    date: "2026-07-03",
+    title: "Manual do Usuário v2.0 com prints das telas",
+    description: "Manual em PDF renovado, mantendo o conceito original: capa, sumário e uma seção por tela com screenshot, passo a passo e dica.",
+    changes: [
+      { type: "improvement", text: "Screenshots reais de todas as telas do fluxo do colaborador (Painel, Ferramentas, Veículos, Pendências, Histórico, Ajuda e Changelog)." },
+      { type: "improvement", text: "Passos numerados 'Como usar' e dicas em destaque em cada seção." },
+      { type: "improvement", text: "Tabela final com os 37 usernames aprovados em duas colunas." },
+    ],
+  },
+  {
     version: "1.66.4",
     date: "2026-07-02",
     title: "Manual do Usuário v2.0",
