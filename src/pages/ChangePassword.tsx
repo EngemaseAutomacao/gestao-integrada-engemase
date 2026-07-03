@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,22 @@ export default function ChangePassword() {
   const navigate = useNavigate();
   const isFirstLogin = profile?.first_login === true;
 
+  // Valida a sessão contra o servidor ao abrir a tela.
+  // Após um reset de senha por admin, o JWT em localStorage fica "orfão"
+  // (existe no cliente mas foi invalidado no servidor) — mandamos re-login.
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
+        await supabase.auth.signOut();
+        toast.error("Sessão expirada", {
+          description: "Faça login novamente com sua senha atual para trocar a senha.",
+        });
+        navigate("/auth", { replace: true });
+      }
+    })();
+  }, [navigate]);
+
   const strength = useMemo(() => getStrength(newPassword), [newPassword]);
   const requiredRequirementsMet = useMemo(
     () => REQUIREMENTS.filter((r) => r.required).every((r) => r.test(newPassword)),
@@ -70,26 +86,42 @@ export default function ChangePassword() {
 
       if (updateError) {
         const code = (updateError as any)?.code as string | undefined;
+        const status = (updateError as any)?.status as number | undefined;
         const msg = updateError.message?.toLowerCase() || "";
-        console.error("[ChangePassword] updateUser error:", { code, message: updateError.message, error: updateError });
+        console.error("[ChangePassword] updateUser error:", { code, status, message: updateError.message });
+
+        // Session was invalidated (e.g. admin reset). Force fresh login.
+        if (
+          code === "session_not_found" ||
+          code === "no_authorization" ||
+          status === 401 ||
+          status === 403 ||
+          msg.includes("session") ||
+          msg.includes("jwt") ||
+          msg.includes("token")
+        ) {
+          toast.error("Sessão expirada", {
+            description: "Faça login novamente com sua senha atual para trocar a senha.",
+          });
+          await supabase.auth.signOut();
+          navigate("/auth", { replace: true });
+          return;
+        }
 
         if (code === "same_password" || msg.includes("should be different") || msg.includes("different from")) {
           toast.error("Escolha uma senha diferente da atual", {
-            description: "A nova senha não pode ser igual à senha que você está usando agora (Engemase@2026).",
+            description: "A nova senha não pode ser igual à senha que você está usando agora.",
           });
         } else if (code === "weak_password" || msg.includes("pwned") || msg.includes("weak") || msg.includes("compromised")) {
           toast.error("Senha muito comum ou vazada", {
-            description: "Esta senha aparece em vazamentos públicos. Combine palavras, números e símbolos únicos.",
-          });
-        } else if (msg.includes("session") || msg.includes("jwt") || msg.includes("token")) {
-          toast.error("Sessão expirada", {
-            description: "Faça login novamente e repita a troca de senha.",
+            description: "Combine palavras, números e símbolos únicos.",
           });
         } else {
           toast.error("Erro ao alterar senha", { description: updateError.message || code || "Tente novamente." });
         }
         return;
       }
+
 
 
       if (user) {
