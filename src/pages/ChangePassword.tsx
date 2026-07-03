@@ -41,6 +41,22 @@ export default function ChangePassword() {
   const navigate = useNavigate();
   const isFirstLogin = profile?.first_login === true;
 
+  // Valida a sessão contra o servidor ao abrir a tela.
+  // Após um reset de senha por admin, o JWT em localStorage fica "orfão"
+  // (existe no cliente mas foi invalidado no servidor) — mandamos re-login.
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
+        await supabase.auth.signOut();
+        toast.error("Sessão expirada", {
+          description: "Faça login novamente com sua senha atual para trocar a senha.",
+        });
+        navigate("/auth", { replace: true });
+      }
+    })();
+  }, [navigate]);
+
   const strength = useMemo(() => getStrength(newPassword), [newPassword]);
   const requiredRequirementsMet = useMemo(
     () => REQUIREMENTS.filter((r) => r.required).every((r) => r.test(newPassword)),
