@@ -16,7 +16,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Calendar } from "@/components/ui/calendar";
+
 import { cn } from "@/lib/utils";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
