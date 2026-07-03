@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.1.1",
+    date: "2026-07-03",
+    title: "Correção: detecção de novas versões",
+    description: "O verificador de atualizações voltou a detectar novas versões corretamente — antes o Service Worker estava servindo uma versão em cache.",
+    changes: [
+      { type: "fix", text: "Service Worker deixa de cachear /version.json, garantindo que o app sempre veja a versão publicada mais recente." },
+      { type: "fix", text: "Banner \"Atualizar\" volta a aparecer automaticamente ao entrar no app quando há nova versão." },
+    ],
+  },
+  {
     version: "2.1.0",
     date: "2026-07-03",
     title: "Prorrogação com prazos predefinidos e alinhamento de versão",
