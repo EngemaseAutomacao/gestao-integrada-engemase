@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.1.0",
+    date: "2026-07-03",
+    title: "Prorrogação com prazos predefinidos e alinhamento de versão",
+    description: "Diálogo de prorrogação agora usa seletor com prazos fixos (1, 7, 15, 30 dias) e a versão do sistema foi alinhada ao Manual do Usuário v2.1.",
+    changes: [
+      { type: "improvement", text: "Prorrogar Devolução: seleção rápida por prazo (1, 7, 15 ou 30 dias) sem uso de calendário." },
+      { type: "fix", text: "Corrigido plural no banner de pendências (\"devoluções pendentes\")." },
+      { type: "improvement", text: "Versão do sistema alinhada com a versão do Manual do Usuário (v2.1)." },
+    ],
+  },
+  {
     version: "1.66.6",
     date: "2026-07-03",
     title: "Manual: senha padrão Engemase@2026",
