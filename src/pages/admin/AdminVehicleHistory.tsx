@@ -24,6 +24,24 @@ import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 type VehicleHistoryCategory = "engemase_employee" | "third_party" | "socios" | null;
 
+// Formata duração entre saída e devolução como "Xh Ymin" (relatório de horas de uso — útil p/ plataformas sem hodômetro)
+function formatUsageHours(checkout: string, checkin: string | null): string {
+  if (!checkin) return "-";
+  const ms = new Date(checkin).getTime() - new Date(checkout).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return "-";
+  const totalMinutes = Math.round(ms / 60000);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
+}
+function usageHoursDecimal(checkout: string, checkin: string | null): number | null {
+  if (!checkin) return null;
+  const ms = new Date(checkin).getTime() - new Date(checkout).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+  return Number((ms / 3600000).toFixed(2));
+}
+
 interface VehicleHistoryEntry {
   id: string;
   checkout_date: string;
