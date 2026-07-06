@@ -467,20 +467,8 @@ export default function VehicleCheckin() {
                   <strong>Devolução manual:</strong> você está devolvendo em nome de <strong>{selectedCheckoutDataForUI?.profiles?.full_name}</strong>. Justificativa obrigatória nas observações (mín. 5 caracteres).
                 </div>
               )}
-              <div className="space-y-3">
 
-                <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
-                <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="refueled-yes" />
-                    <Label htmlFor="refueled-yes" className="cursor-pointer">Sim</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="refueled-no" />
-                    <Label htmlFor="refueled-no" className="cursor-pointer">Não</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações</Label>
