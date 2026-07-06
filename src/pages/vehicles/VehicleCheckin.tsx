@@ -149,11 +149,7 @@ export default function VehicleCheckin() {
 
 
 
-      if (isPlatform) {
-        if (chargesDuringUse.trim()) {
-          updateData.charges_during_use = parseInt(chargesDuringUse) || 0;
-        }
-      } else {
+      if (!isPlatform) {
         const km_checkout = currentCheckoutData?.km_checkout || 0;
         let checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
         
@@ -169,7 +165,6 @@ export default function VehicleCheckin() {
         }
 
         updateData.km_checkin = checkin_km;
-        updateData.refueled = refueled === "yes";
         updateData.km_checkin_automatic = !!(odometerResult && !showManualKm);
       }
 
