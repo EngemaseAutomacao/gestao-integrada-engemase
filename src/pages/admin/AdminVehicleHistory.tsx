@@ -318,7 +318,7 @@ export default function AdminVehicleHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Status"];
+    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Tempo de Uso", "Status"];
     const rows = filteredHistory.map((e) => [
       e.vehicles?.name,
       e.vehicles?.plate,
@@ -329,6 +329,7 @@ export default function AdminVehicleHistory() {
       e.km_checkout.toLocaleString(),
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
       e.km_checkin !== null ? e.km_checkin.toLocaleString() : "-",
+      formatUsageHours(e.checkout_date, e.checkin_date),
       e.status === "checked_out" ? "Em Uso" : "Devolvido",
     ]);
     await exportToPDF({
