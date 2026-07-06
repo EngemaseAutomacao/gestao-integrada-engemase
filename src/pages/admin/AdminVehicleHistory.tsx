@@ -116,6 +116,46 @@ export default function AdminVehicleHistory() {
     },
     staleTime: 30_000,
   });
+
+  // Sessões de carregamento (só plataformas têm)
+  const { data: chargingSessions = [] } = useQuery({
+    queryKey: ["admin-vehicle-charging-sessions"],
+    queryFn: async () => {
+      const [sessRes, vehRes, usersRes] = await Promise.all([
+        supabase
+          .from("vehicle_charging_sessions")
+          .select("id, vehicle_id, started_at, started_by, ended_at, ended_by")
+          .order("started_at", { ascending: false })
+          .limit(2000),
+        supabase.from("vehicles").select("id, name, plate, vehicle_type"),
+        supabase.rpc("get_approved_users"),
+      ]);
+      if (sessRes.error) throw sessRes.error;
+      const vMap = new Map<string, { name: string; plate: string; type: string | null }>();
+      ((vehRes.data as any[]) || []).forEach((v) =>
+        vMap.set(v.id, { name: v.name, plate: v.plate, type: v.vehicle_type })
+      );
+      const uMap = new Map<string, string>();
+      ((usersRes.data as any[]) || []).forEach((u) => uMap.set(u.id, u.full_name));
+      return ((sessRes.data as any[]) || []).map((s) => {
+        const v = vMap.get(s.vehicle_id);
+        const durationMs = s.ended_at
+          ? new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()
+          : Date.now() - new Date(s.started_at).getTime();
+        return {
+          id: s.id as string,
+          vehicle_id: s.vehicle_id as string,
+          vehicle_name: v?.name || "—",
+          vehicle_plate: v?.plate || "—",
+          started_at: s.started_at as string,
+          ended_at: s.ended_at as string | null,
+          started_by_name: uMap.get(s.started_by) || "—",
+          ended_by_name: s.ended_by ? uMap.get(s.ended_by) || "—" : null,
+          duration_hours: Number((Math.max(0, durationMs) / 3600000).toFixed(2)),
+        };
+      });
+    },
+    staleTime: 30_000,
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
