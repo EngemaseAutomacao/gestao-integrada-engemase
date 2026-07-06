@@ -536,6 +536,7 @@ export default function AdminVehicleHistory() {
                       <TableHead>Saída</TableHead>
                       <TableHead>Chegada</TableHead>
                       <TableHead>KM</TableHead>
+                      <TableHead>Tempo de Uso</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Detalhes</TableHead>
                     </TableRow>
