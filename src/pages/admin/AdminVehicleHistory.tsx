@@ -24,6 +24,24 @@ import { DeleteWithReasonDialog } from "@/components/DeleteWithReasonDialog";
 
 type VehicleHistoryCategory = "engemase_employee" | "third_party" | "socios" | null;
 
+// Formata duração entre saída e devolução como "Xh Ymin" (relatório de horas de uso — útil p/ plataformas sem hodômetro)
+function formatUsageHours(checkout: string, checkin: string | null): string {
+  if (!checkin) return "-";
+  const ms = new Date(checkin).getTime() - new Date(checkout).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return "-";
+  const totalMinutes = Math.round(ms / 60000);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
+}
+function usageHoursDecimal(checkout: string, checkin: string | null): number | null {
+  if (!checkin) return null;
+  const ms = new Date(checkin).getTime() - new Date(checkout).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+  return Number((ms / 3600000).toFixed(2));
+}
+
 interface VehicleHistoryEntry {
   id: string;
   checkout_date: string;
@@ -300,7 +318,7 @@ export default function AdminVehicleHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Status"];
+    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "Tempo de Uso", "Status"];
     const rows = filteredHistory.map((e) => [
       e.vehicles?.name,
       e.vehicles?.plate,
@@ -311,6 +329,7 @@ export default function AdminVehicleHistory() {
       e.km_checkout.toLocaleString(),
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
       e.km_checkin !== null ? e.km_checkin.toLocaleString() : "-",
+      formatUsageHours(e.checkout_date, e.checkin_date),
       e.status === "checked_out" ? "Em Uso" : "Devolvido",
     ]);
     await exportToPDF({
@@ -328,7 +347,7 @@ export default function AdminVehicleHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "KM Percorridos", "Abastecido", "Status", "Retirado por", "Devolvido por", "Observações"];
+    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "KM Percorridos", "Tempo de Uso", "Horas (decimal)", "Abastecido", "Status", "Retirado por", "Devolvido por", "Observações"];
     const rows = filteredHistory.map((e) => [
       e.vehicles?.name,
       e.vehicles?.plate,
@@ -340,6 +359,8 @@ export default function AdminVehicleHistory() {
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
       e.km_checkin !== null ? e.km_checkin : "-",
       e.km_checkin !== null ? e.km_checkin - e.km_checkout : "-",
+      formatUsageHours(e.checkout_date, e.checkin_date),
+      usageHoursDecimal(e.checkout_date, e.checkin_date) ?? "-",
       e.refueled === null ? "-" : e.refueled ? "Sim" : "Não",
       e.status === "checked_out" ? "Em Uso" : "Devolvido",
       e.checked_out_by_profile?.full_name || "-",
@@ -515,6 +536,7 @@ export default function AdminVehicleHistory() {
                       <TableHead>Saída</TableHead>
                       <TableHead>Chegada</TableHead>
                       <TableHead>KM</TableHead>
+                      <TableHead>Tempo de Uso</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Detalhes</TableHead>
                     </TableRow>
@@ -546,6 +568,9 @@ export default function AdminVehicleHistory() {
                               <Badge variant="outline" className="text-[10px] h-4 px-1 w-fit mt-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
                             )}
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{formatUsageHours(entry.checkout_date, entry.checkin_date)}</span>
                         </TableCell>
                         <TableCell>
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>

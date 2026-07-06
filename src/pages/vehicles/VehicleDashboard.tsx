@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Cog } from "lucide-react";
+import { Car, ArrowRight, ChevronDown, Search, FileText, FileSpreadsheet, Filter, X, Cog, Plug, PlugZap } from "lucide-react";
 import { ModuleHero } from "@/components/ModuleHero";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMemo, useState } from "react";
-import { format } from "date-fns";
+import { format, formatDistanceToNowStrict } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
@@ -18,6 +18,23 @@ import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 export default function VehicleDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const toggleCharging = async (vehicleId: string, next: boolean) => {
+    setTogglingId(vehicleId);
+    const { error } = await supabase.rpc("set_vehicle_charging", {
+      _vehicle_id: vehicleId,
+      _is_charging: next,
+    });
+    setTogglingId(null);
+    if (error) {
+      toast.error(error.message || "Não foi possível atualizar o status de carga");
+      return;
+    }
+    toast.success(next ? "Veículo marcado como carregando" : "Carregamento finalizado");
+    queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
+  };
 
   const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -304,6 +321,17 @@ export default function VehicleDashboard() {
                             <span className={`text-xs font-medium ${isAvailable ? "text-success" : "text-warning"}`}>
                               {isAvailable ? "Disponível" : "Em uso"}
                             </span>
+                            {vehicle.is_charging && (
+                              <Badge className="text-xs gap-1 bg-info/15 text-info border border-info/30 hover:bg-info/20">
+                                <PlugZap className="w-3 h-3" />
+                                Carregando
+                                {vehicle.charging_started_at && (
+                                  <span className="opacity-80">
+                                    · há {formatDistanceToNowStrict(new Date(vehicle.charging_started_at), { locale: ptBR })}
+                                  </span>
+                                )}
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground">
                             {vehicle.brand && <span>{vehicle.brand}</span>}
@@ -313,9 +341,24 @@ export default function VehicleDashboard() {
                           </div>
                         </div>
                         <div className="flex gap-2 shrink-0 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                          {isAvailable && (
+                          {isAvailable && !vehicle.is_charging && (
                             <Button size="sm" className="text-xs gap-1" onClick={() => navigate(`/veiculos/saida?vehicleId=${vehicle.id}`)}>
                               Registrar Saída
+                            </Button>
+                          )}
+                          {isAvailable && (
+                            <Button
+                              size="sm"
+                              variant={vehicle.is_charging ? "default" : "outline"}
+                              className="text-xs gap-1"
+                              disabled={togglingId === vehicle.id}
+                              onClick={() => toggleCharging(vehicle.id, !vehicle.is_charging)}
+                            >
+                              {vehicle.is_charging ? (
+                                <><Plug className="w-3.5 h-3.5" /> Finalizar carga</>
+                              ) : (
+                                <><PlugZap className="w-3.5 h-3.5" /> Carregando</>
+                              )}
                             </Button>
                           )}
                           {userHasVehicle && (
