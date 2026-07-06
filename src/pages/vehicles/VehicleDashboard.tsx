@@ -346,7 +346,7 @@ export default function VehicleDashboard() {
                               Registrar Saída
                             </Button>
                           )}
-                          {isAvailable && (
+                          {isAvailable && vehicle.vehicle_type === "platform" && (
                             <Button
                               size="sm"
                               variant={vehicle.is_charging ? "default" : "outline"}

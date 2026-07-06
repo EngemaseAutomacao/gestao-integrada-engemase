@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Car, History, Calendar, MapPin, Clock } from "lucide-react";
+import { Car, History, Calendar, MapPin, Clock, PlugZap } from "lucide-react";
 import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -21,6 +21,27 @@ interface Vehicle {
   year: number | null;
   status: string | null;
   image_url: string | null;
+  vehicle_type?: string | null;
+  is_charging?: boolean | null;
+}
+
+interface ChargingSession {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  started_by_name: string;
+  ended_by_name: string | null;
+}
+
+function formatDuration(startISO: string, endISO: string | null): string {
+  const end = endISO ? new Date(endISO).getTime() : Date.now();
+  const ms = end - new Date(startISO).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return "-";
+  const totalMin = Math.round(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
 }
 
 interface CheckoutRecord {
@@ -61,7 +82,7 @@ export default function VehicleDetail() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["vehicle-detail", id],
     queryFn: async () => {
-      const [vehicleRes, checkoutsRes, usersRes] = await Promise.all([
+      const [vehicleRes, checkoutsRes, usersRes, chargingRes] = await Promise.all([
         supabase.from("vehicles").select("*").eq("id", id!).maybeSingle(),
         supabase
           .from("vehicle_checkouts")
@@ -69,6 +90,12 @@ export default function VehicleDetail() {
           .eq("vehicle_id", id!)
           .order("checkout_date", { ascending: false }),
         supabase.rpc("get_approved_users"),
+        supabase
+          .from("vehicle_charging_sessions")
+          .select("id, started_at, ended_at, started_by, ended_by")
+          .eq("vehicle_id", id!)
+          .order("started_at", { ascending: false })
+          .limit(50),
       ]);
 
       if (vehicleRes.error) throw vehicleRes.error;
@@ -78,9 +105,17 @@ export default function VehicleDetail() {
         ...c,
         user_profile: { full_name: userMap.get(c.user_id) || "Usuário", email: "" },
       })) as CheckoutRecord[];
+      const chargingSessions: ChargingSession[] = ((chargingRes.data as any[]) || []).map((s) => ({
+        id: s.id,
+        started_at: s.started_at,
+        ended_at: s.ended_at,
+        started_by_name: userMap.get(s.started_by) || "—",
+        ended_by_name: s.ended_by ? userMap.get(s.ended_by) || "—" : null,
+      }));
       return {
         vehicle: vehicleRes.data as Vehicle | null,
         checkouts,
+        chargingSessions,
       };
     },
     enabled: !!id,
@@ -89,6 +124,7 @@ export default function VehicleDetail() {
 
   const vehicle = data?.vehicle ?? null;
   const checkouts = data?.checkouts ?? [];
+  const chargingSessions = data?.chargingSessions ?? [];
 
   const getDaysUsed = (checkout: CheckoutRecord) => {
     const start = new Date(checkout.checkout_date);
@@ -155,7 +191,84 @@ export default function VehicleDetail() {
       />
 
 
-
+      {/* Charging History — só para plataformas */}
+      {vehicle.vehicle_type === "platform" && (
+        <Card>
+          <CardHeader className="p-4 md:p-6 pb-2">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <PlugZap className="w-4 h-4 md:w-5 md:h-5 text-info" />
+              Histórico de Carregamento
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
+              {chargingSessions.length} sessão(ões) registrada(s)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6 pt-2">
+            {chargingSessions.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4 text-sm">
+                Nenhuma sessão de carregamento registrada
+              </p>
+            ) : (
+              <div className="space-y-2 max-h-[280px] overflow-y-auto">
+                {chargingSessions.map((s) => {
+                  const ongoing = !s.ended_at;
+                  return (
+                    <div
+                      key={s.id}
+                      className={`rounded-lg border p-3 text-xs md:text-sm ${
+                        ongoing ? "border-info/40 bg-info/5" : "bg-card"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={ongoing ? "default" : "secondary"}
+                            className={ongoing ? "bg-info text-info-foreground" : ""}
+                          >
+                            {ongoing ? "Em andamento" : "Finalizada"}
+                          </Badge>
+                          <span className="font-mono text-muted-foreground">
+                            {formatDuration(s.started_at, s.ended_at)}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">
+                          {format(new Date(s.started_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Colocou para carregar
+                          </p>
+                          <p className="font-medium">{s.started_by_name}</p>
+                          <p className="text-muted-foreground">
+                            {format(new Date(s.started_at), "dd/MM HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Retirou da carga
+                          </p>
+                          {s.ended_at ? (
+                            <>
+                              <p className="font-medium">{s.ended_by_name}</p>
+                              <p className="text-muted-foreground">
+                                {format(new Date(s.ended_at), "dd/MM HH:mm", { locale: ptBR })}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-muted-foreground italic">—</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Checkout History */}
       <Card className="flex-1 min-h-0 flex flex-col">
