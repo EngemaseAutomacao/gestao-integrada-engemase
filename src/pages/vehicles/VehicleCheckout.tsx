@@ -173,11 +173,8 @@ export default function VehicleCheckout() {
 
 
 
-      if (isPlatform) {
-        if (chargesDuringUse.trim()) {
-          insertData.charges_during_use = parseInt(chargesDuringUse) || 0;
-        }
-      }
+
+
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
