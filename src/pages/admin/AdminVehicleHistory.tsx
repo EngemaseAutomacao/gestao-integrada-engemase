@@ -156,6 +156,8 @@ export default function AdminVehicleHistory() {
       });
     },
     staleTime: 30_000,
+  });
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
