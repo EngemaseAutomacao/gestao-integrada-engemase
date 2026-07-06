@@ -56,7 +56,7 @@ export default function VehicleCheckin() {
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [previews, setPreviews] = useState<Record<string, string | null>>({});
-  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
+  
 
   const hasUnsavedData = !!(selectedCheckout || notes || Object.values(photos).some(Boolean));
   useUnsavedChanges(hasUnsavedData);
