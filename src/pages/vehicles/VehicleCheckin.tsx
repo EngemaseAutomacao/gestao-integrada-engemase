@@ -131,7 +131,7 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (!isPlatform && refueled === null && !(isAdmin && manualMode)) throw new Error("Informe se o veículo foi abastecido");
+      
 
       const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
       const isAdminActingForOther = !!(isAdmin && currentCheckoutData?.user_id && currentCheckoutData.user_id !== user.id);
