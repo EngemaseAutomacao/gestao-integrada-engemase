@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { ArrowLeftCircle, Car, Search, Loader2, AlertTriangle, CheckCircle2, Gauge } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,7 @@ export default function VehicleCheckin() {
   const [selectedCheckout, setSelectedCheckout] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [refueled, setRefueled] = useState<string | null>(null);
+  
   const [manualMode, setManualMode] = useState(false);
   const [manualDate, setManualDate] = useState<string>("");
   const [skipPhotos, setSkipPhotos] = useState(false);
@@ -56,7 +56,7 @@ export default function VehicleCheckin() {
 
   const [photos, setPhotos] = useState<Record<string, File | null>>({});
   const [previews, setPreviews] = useState<Record<string, string | null>>({});
-  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
+  
 
   const hasUnsavedData = !!(selectedCheckout || notes || Object.values(photos).some(Boolean));
   useUnsavedChanges(hasUnsavedData);
@@ -131,7 +131,7 @@ export default function VehicleCheckin() {
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
       if (!selectedCheckout) throw new Error("Selecione um veículo");
-      if (!isPlatform && refueled === null && !(isAdmin && manualMode)) throw new Error("Informe se o veículo foi abastecido");
+      
 
       const currentCheckoutData = activeCheckouts?.find((c: any) => c.id === selectedCheckout);
       const isAdminActingForOther = !!(isAdmin && currentCheckoutData?.user_id && currentCheckoutData.user_id !== user.id);
@@ -149,11 +149,7 @@ export default function VehicleCheckin() {
 
 
 
-      if (isPlatform) {
-        if (chargesDuringUse.trim()) {
-          updateData.charges_during_use = parseInt(chargesDuringUse) || 0;
-        }
-      } else {
+      if (!isPlatform) {
         const km_checkout = currentCheckoutData?.km_checkout || 0;
         let checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
         
@@ -169,7 +165,6 @@ export default function VehicleCheckin() {
         }
 
         updateData.km_checkin = checkin_km;
-        updateData.refueled = refueled === "yes";
         updateData.km_checkin_automatic = !!(odometerResult && !showManualKm);
       }
 
@@ -467,20 +462,8 @@ export default function VehicleCheckin() {
                   <strong>Devolução manual:</strong> você está devolvendo em nome de <strong>{selectedCheckoutDataForUI?.profiles?.full_name}</strong>. Justificativa obrigatória nas observações (mín. 5 caracteres).
                 </div>
               )}
-              <div className="space-y-3">
 
-                <Label className="text-base font-semibold">O veículo foi abastecido? *</Label>
-                <RadioGroup value={refueled || ""} onValueChange={setRefueled} className="flex gap-6">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="refueled-yes" />
-                    <Label htmlFor="refueled-yes" className="cursor-pointer">Sim</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="refueled-no" />
-                    <Label htmlFor="refueled-no" className="cursor-pointer">Não</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Observações</Label>
@@ -598,7 +581,7 @@ export default function VehicleCheckin() {
             disabled={
               !selectedCheckout || 
               (isOnline && !allPhotos && !(isAdmin && manualMode && skipPhotos)) || 
-              (refueled === null && !(isAdmin && manualMode)) || 
+               
               checkinMutation.isPending ||
               isEstimatingKm
             }

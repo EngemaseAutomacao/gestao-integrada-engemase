@@ -332,7 +332,13 @@ export default function VehicleDetail() {
                           <Clock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                           <span>{getDaysUsed(checkout)} dias</span>
                         </div>
-                        <span className="text-muted-foreground">KM: {checkout.km_checkout}{checkout.km_checkin ? ` → ${checkout.km_checkin}` : ""}</span>
+                        {vehicle.vehicle_type === "platform" ? (
+                          <span className="text-muted-foreground">
+                            Horímetro: {checkout.checkin_date ? formatDuration(checkout.checkout_date, checkout.checkin_date) : "—"}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">KM: {checkout.km_checkout}{checkout.km_checkin ? ` → ${checkout.km_checkin}` : ""}</span>
+                        )}
                       </div>
                     </div>
                   </CardContent>

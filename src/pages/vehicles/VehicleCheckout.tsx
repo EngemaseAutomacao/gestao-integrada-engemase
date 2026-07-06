@@ -84,7 +84,7 @@ export default function VehicleCheckout() {
 
 
   // Platform-specific state
-  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
+  
 
 
   const { data: availableVehicles, isLoading } = useQuery({
@@ -173,11 +173,8 @@ export default function VehicleCheckout() {
 
 
 
-      if (isPlatform) {
-        if (chargesDuringUse.trim()) {
-          insertData.charges_during_use = parseInt(chargesDuringUse) || 0;
-        }
-      }
+
+
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
@@ -422,22 +419,8 @@ export default function VehicleCheckout() {
                 />
               </div>
 
-              {isPlatform && (
-                <div className="space-y-2">
-                  <Label htmlFor="charges-during-use">Carregamentos durante o uso</Label>
-                  <Input
-                    id="charges-during-use"
-                    type="number"
-                    min={0}
-                    placeholder="Ex: 2"
-                    value={chargesDuringUse}
-                    onChange={(e) => setChargesDuringUse(e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Quantas vezes você carregou a plataforma <strong>enquanto estava em uso</strong>. Não conte recargas feitas após o término do uso.
-                  </p>
-                </div>
-              )}
+
+
 
               <VehiclePhotoCapture
                 photos={photos}
