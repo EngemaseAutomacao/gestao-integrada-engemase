@@ -570,6 +570,8 @@ export default function AdminVehicleHistory() {
                           </div>
                         </TableCell>
                         <TableCell>
+                          <span className="text-sm">{formatUsageHours(entry.checkout_date, entry.checkin_date)}</span>
+                        </TableCell>
                           <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
                             {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
                           </Badge>
