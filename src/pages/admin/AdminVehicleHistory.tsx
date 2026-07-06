@@ -347,7 +347,7 @@ export default function AdminVehicleHistory() {
       toast.error("Nenhum registro para exportar");
       return;
     }
-    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "KM Percorridos", "Abastecido", "Status", "Retirado por", "Devolvido por", "Observações"];
+    const headers = ["Veículo", "Placa", "Usuário", "Categoria", "Destino", "Saída", "KM Saída", "Chegada", "KM Chegada", "KM Percorridos", "Tempo de Uso", "Horas (decimal)", "Abastecido", "Status", "Retirado por", "Devolvido por", "Observações"];
     const rows = filteredHistory.map((e) => [
       e.vehicles?.name,
       e.vehicles?.plate,
@@ -359,6 +359,8 @@ export default function AdminVehicleHistory() {
       e.checkin_date ? format(new Date(e.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
       e.km_checkin !== null ? e.km_checkin : "-",
       e.km_checkin !== null ? e.km_checkin - e.km_checkout : "-",
+      formatUsageHours(e.checkout_date, e.checkin_date),
+      usageHoursDecimal(e.checkout_date, e.checkin_date) ?? "-",
       e.refueled === null ? "-" : e.refueled ? "Sim" : "Não",
       e.status === "checked_out" ? "Em Uso" : "Devolvido",
       e.checked_out_by_profile?.full_name || "-",
