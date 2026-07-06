@@ -248,27 +248,31 @@ self.addEventListener("periodicsync", (event: any) => {
 
 // ---- Push notifications (com agrupamento) ----
 self.addEventListener("push", (event) => {
-  // NÃO retornar sem showNotification: se o SW termina o handler sem
-  // mostrar notificação, o navegador exibe a notificação genérica padrão
-  // (ícone do Chrome + nome do app). Sempre mostramos algo.
-  let data: any = {};
+  // Push silencioso (sem payload) = ping do navegador pra manter o SW vivo,
+  // ou push que falhou na descriptografia. Não mostrar notificação fantasma.
+  if (!event.data) {
+    return;
+  }
 
-  if (event.data) {
-    try {
-      const payload = event.data.json();
-      if (payload && typeof payload === "object") data = payload;
-    } catch {
-      const text = event.data.text();
-      if (text && text.trim() !== "") {
-        data = { title: "Notificação", body: text };
-      }
+  let data: any = {};
+  try {
+    const payload = event.data.json();
+    if (payload && typeof payload === "object") data = payload;
+  } catch {
+    const text = event.data.text();
+    if (text && text.trim() !== "") {
+      data = { title: "Engemase", body: text };
     }
   }
 
-  const title =
-    (data.title && String(data.title).trim()) || "Engemase";
-  const body =
-    (data.body && String(data.body).trim()) || "Você tem novas atualizações.";
+  const title = data.title && String(data.title).trim();
+  const body = data.body && String(data.body).trim();
+
+  // Se não veio nem título nem corpo válidos, não notificar
+  // (evita "notificação vazia" com texto genérico).
+  if (!title && !body) {
+    return;
+  }
 
   // Tag única por notificação para que cada push apareça individualmente
   // no system tray (sem ser silenciosamente substituído pelo anterior).
@@ -279,8 +283,8 @@ self.addEventListener("push", (event) => {
     `engemase-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
+    self.registration.showNotification(title || "Engemase", {
+      body: body || "",
       icon: data.icon || "/icon-192.png",
       badge: "/mono-192.png",
       tag,

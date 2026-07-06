@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.2.2",
+    date: "2026-07-06",
+    title: "Notificações e botão Atualizar mais confiáveis",
+    description: "Correções para notificações vazias e para o botão \"Atualizar\" que às vezes não recarregava.",
+    changes: [
+      { type: "fix", text: "Notificações \"vazias\" (sem título e sem mensagem) não são mais exibidas." },
+      { type: "fix", text: "Botão \"Atualizar\" agora recarrega com maior consistência: aguarda o Service Worker soltar o controle e tem uma segunda tentativa automática após 3 segundos caso o primeiro reload não conclua." },
+    ],
+  },
+  {
     version: "2.2.1",
     date: "2026-07-06",
     title: "Detecção de novas versões mais rápida",
