@@ -191,7 +191,84 @@ export default function VehicleDetail() {
       />
 
 
-
+      {/* Charging History — só para plataformas */}
+      {vehicle.vehicle_type === "platform" && (
+        <Card>
+          <CardHeader className="p-4 md:p-6 pb-2">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <PlugZap className="w-4 h-4 md:w-5 md:h-5 text-info" />
+              Histórico de Carregamento
+            </CardTitle>
+            <CardDescription className="text-xs md:text-sm">
+              {chargingSessions.length} sessão(ões) registrada(s)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4 md:p-6 pt-2">
+            {chargingSessions.length === 0 ? (
+              <p className="text-center text-muted-foreground py-4 text-sm">
+                Nenhuma sessão de carregamento registrada
+              </p>
+            ) : (
+              <div className="space-y-2 max-h-[280px] overflow-y-auto">
+                {chargingSessions.map((s) => {
+                  const ongoing = !s.ended_at;
+                  return (
+                    <div
+                      key={s.id}
+                      className={`rounded-lg border p-3 text-xs md:text-sm ${
+                        ongoing ? "border-info/40 bg-info/5" : "bg-card"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={ongoing ? "default" : "secondary"}
+                            className={ongoing ? "bg-info text-info-foreground" : ""}
+                          >
+                            {ongoing ? "Em andamento" : "Finalizada"}
+                          </Badge>
+                          <span className="font-mono text-muted-foreground">
+                            {formatDuration(s.started_at, s.ended_at)}
+                          </span>
+                        </div>
+                        <span className="text-muted-foreground">
+                          {format(new Date(s.started_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Colocou para carregar
+                          </p>
+                          <p className="font-medium">{s.started_by_name}</p>
+                          <p className="text-muted-foreground">
+                            {format(new Date(s.started_at), "dd/MM HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                            Retirou da carga
+                          </p>
+                          {s.ended_at ? (
+                            <>
+                              <p className="font-medium">{s.ended_by_name}</p>
+                              <p className="text-muted-foreground">
+                                {format(new Date(s.ended_at), "dd/MM HH:mm", { locale: ptBR })}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-muted-foreground italic">—</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Checkout History */}
       <Card className="flex-1 min-h-0 flex flex-col">
