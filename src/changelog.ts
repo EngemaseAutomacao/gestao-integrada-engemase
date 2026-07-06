@@ -11,6 +11,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.2.0",
+    date: "2026-07-06",
+    title: "Plataformas: carregamento e horímetro",
+    description: "Plataformas elétricas agora têm controle de carregamento pelo card do veículo, histórico dedicado e cálculo automático de horímetro nos relatórios.",
+    changes: [
+      { type: "feature", text: "Botão \"Carregando\" no card das plataformas registra quem colocou e quem retirou da carga, com histórico completo nos detalhes." },
+      { type: "feature", text: "Relatório de Movimentações de Veículos ganhou seção \"Carregamentos de Plataforma\" com horímetro acumulado por equipamento e exportação em PDF/Excel." },
+      { type: "feature", text: "Histórico de Uso das plataformas passa a exibir Horímetro (tempo entre saída e devolução) no lugar de KM." },
+      { type: "improvement", text: "Relatório de veículos passa a mostrar a coluna \"Tempo de Uso\" e horas decimais na exportação Excel." },
+      { type: "improvement", text: "Removida a pergunta \"O veículo foi abastecido?\" da tela de chegada." },
+      { type: "improvement", text: "Removido o campo \"Carregamentos durante o uso\" da saída — a contagem passa a vir automaticamente do botão do card." },
+    ],
+  },
+  {
     version: "2.1.1",
     date: "2026-07-03",
     title: "Correção: detecção de novas versões",
