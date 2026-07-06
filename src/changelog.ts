@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.2.1",
+    date: "2026-07-06",
+    title: "Detecção de novas versões mais rápida",
+    description: "O aviso de nova versão passa a aparecer quase imediatamente ao voltar para o app, sem precisar recarregar a página.",
+    changes: [
+      { type: "improvement", text: "Checa por atualização ao voltar para a aba, ganhar foco na janela ou reconectar à internet." },
+      { type: "improvement", text: "Primeira verificação ao abrir o app reduzida de 5s para 1,5s." },
+    ],
+  },
+  {
     version: "2.2.0",
     date: "2026-07-06",
     title: "Plataformas: carregamento e horímetro",
