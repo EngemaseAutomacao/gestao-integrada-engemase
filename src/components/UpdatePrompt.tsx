@@ -56,8 +56,29 @@ export default function UpdatePrompt() {
 
   useEffect(() => {
     // Check immediately after mount
-    const timeout = setTimeout(checkForUpdate, 5000);
+    const timeout = setTimeout(checkForUpdate, 1500);
     const interval = setInterval(checkForUpdate, CHECK_INTERVAL);
+
+    // Check when tab becomes visible or window regains focus
+    // (user coming back to the app is the moment they most expect fresh info)
+    let lastCheck = Date.now();
+    const throttledCheck = () => {
+      const now = Date.now();
+      if (now - lastCheck < 10_000) return; // avoid double-firing
+      lastCheck = now;
+      checkForUpdate();
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") throttledCheck();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", throttledCheck);
+    window.addEventListener("online", throttledCheck);
+
+    // Ask SW to also check now
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: "CHECK_VERSION" });
+    }
 
     // Listen for SW version messages
     const handleSWMessage = (event: MessageEvent) => {
@@ -70,6 +91,9 @@ export default function UpdatePrompt() {
     return () => {
       clearTimeout(timeout);
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", throttledCheck);
+      window.removeEventListener("online", throttledCheck);
       navigator.serviceWorker?.removeEventListener("message", handleSWMessage);
     };
   }, [checkForUpdate]);
