@@ -470,6 +470,44 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_charging_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          ended_by: string | null
+          id: string
+          started_at: string
+          started_by: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          ended_by?: string | null
+          id?: string
+          started_at?: string
+          started_by?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          ended_by?: string | null
+          id?: string
+          started_at?: string
+          started_by?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_charging_sessions_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_checkouts: {
         Row: {
           charges_during_use: number | null
