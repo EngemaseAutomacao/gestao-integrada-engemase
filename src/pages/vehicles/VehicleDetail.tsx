@@ -82,7 +82,7 @@ export default function VehicleDetail() {
   const { data, isLoading: loading } = useQuery({
     queryKey: ["vehicle-detail", id],
     queryFn: async () => {
-      const [vehicleRes, checkoutsRes, usersRes] = await Promise.all([
+      const [vehicleRes, checkoutsRes, usersRes, chargingRes] = await Promise.all([
         supabase.from("vehicles").select("*").eq("id", id!).maybeSingle(),
         supabase
           .from("vehicle_checkouts")
@@ -90,6 +90,12 @@ export default function VehicleDetail() {
           .eq("vehicle_id", id!)
           .order("checkout_date", { ascending: false }),
         supabase.rpc("get_approved_users"),
+        supabase
+          .from("vehicle_charging_sessions")
+          .select("id, started_at, ended_at, started_by, ended_by")
+          .eq("vehicle_id", id!)
+          .order("started_at", { ascending: false })
+          .limit(50),
       ]);
 
       if (vehicleRes.error) throw vehicleRes.error;
@@ -99,9 +105,17 @@ export default function VehicleDetail() {
         ...c,
         user_profile: { full_name: userMap.get(c.user_id) || "Usuário", email: "" },
       })) as CheckoutRecord[];
+      const chargingSessions: ChargingSession[] = ((chargingRes.data as any[]) || []).map((s) => ({
+        id: s.id,
+        started_at: s.started_at,
+        ended_at: s.ended_at,
+        started_by_name: userMap.get(s.started_by) || "—",
+        ended_by_name: s.ended_by ? userMap.get(s.ended_by) || "—" : null,
+      }));
       return {
         vehicle: vehicleRes.data as Vehicle | null,
         checkouts,
+        chargingSessions,
       };
     },
     enabled: !!id,
@@ -110,6 +124,7 @@ export default function VehicleDetail() {
 
   const vehicle = data?.vehicle ?? null;
   const checkouts = data?.checkouts ?? [];
+  const chargingSessions = data?.chargingSessions ?? [];
 
   const getDaysUsed = (checkout: CheckoutRecord) => {
     const start = new Date(checkout.checkout_date);
