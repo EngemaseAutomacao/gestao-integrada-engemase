@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Car, History, Calendar, MapPin, Clock } from "lucide-react";
+import { Car, History, Calendar, MapPin, Clock, PlugZap } from "lucide-react";
 import { ModuleHero } from "@/components/ModuleHero";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -21,6 +21,27 @@ interface Vehicle {
   year: number | null;
   status: string | null;
   image_url: string | null;
+  vehicle_type?: string | null;
+  is_charging?: boolean | null;
+}
+
+interface ChargingSession {
+  id: string;
+  started_at: string;
+  ended_at: string | null;
+  started_by_name: string;
+  ended_by_name: string | null;
+}
+
+function formatDuration(startISO: string, endISO: string | null): string {
+  const end = endISO ? new Date(endISO).getTime() : Date.now();
+  const ms = end - new Date(startISO).getTime();
+  if (!Number.isFinite(ms) || ms <= 0) return "-";
+  const totalMin = Math.round(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h ${m}min`;
 }
 
 interface CheckoutRecord {
