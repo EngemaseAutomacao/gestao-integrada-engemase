@@ -18,6 +18,23 @@ import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
 export default function VehicleDashboard() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const toggleCharging = async (vehicleId: string, next: boolean) => {
+    setTogglingId(vehicleId);
+    const { error } = await supabase.rpc("set_vehicle_charging", {
+      _vehicle_id: vehicleId,
+      _is_charging: next,
+    });
+    setTogglingId(null);
+    if (error) {
+      toast.error(error.message || "Não foi possível atualizar o status de carga");
+      return;
+    }
+    toast.success(next ? "Veículo marcado como carregando" : "Carregamento finalizado");
+    queryClient.invalidateQueries({ queryKey: ["vehicles-list-dashboard"] });
+  };
 
   const [myVehiclesExpanded, setMyVehiclesExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
