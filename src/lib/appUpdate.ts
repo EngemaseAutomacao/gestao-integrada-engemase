@@ -32,10 +32,23 @@ export async function applyAppUpdate() {
     }
   }
 
-  // Hard reload with cache-busting query param.
-  window.location.replace(
-    window.location.origin + window.location.pathname + "?v=" + Date.now()
-  );
+  // Safety net: se o reload não acontecer em 3s (edge cache, SW travado, etc.),
+  // forçar um segundo reload direto na origem.
+  const url =
+    window.location.origin + window.location.pathname + "?v=" + Date.now();
+
+  setTimeout(() => {
+    try {
+      window.location.href = url;
+    } catch {}
+  }, 3000);
+
+  // Pequeno delay antes do primeiro reload dá tempo do unregister do SW
+  // efetivamente soltar o controle da página.
+  await new Promise((r) => setTimeout(r, 300));
+
+  // Hard reload com cache-busting.
+  window.location.replace(url);
 }
 
 export async function fetchLatestVersion(): Promise<string | null> {
