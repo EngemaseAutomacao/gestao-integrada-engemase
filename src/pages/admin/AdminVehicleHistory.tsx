@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, Car } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, Car, PlugZap } from "lucide-react";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
@@ -116,6 +116,48 @@ export default function AdminVehicleHistory() {
     },
     staleTime: 30_000,
   });
+
+  // Sessões de carregamento (só plataformas têm)
+  const { data: chargingSessions = [] } = useQuery({
+    queryKey: ["admin-vehicle-charging-sessions"],
+    queryFn: async () => {
+      const [sessRes, vehRes, usersRes] = await Promise.all([
+        supabase
+          .from("vehicle_charging_sessions")
+          .select("id, vehicle_id, started_at, started_by, ended_at, ended_by")
+          .order("started_at", { ascending: false })
+          .limit(2000),
+        supabase.from("vehicles").select("id, name, plate, vehicle_type"),
+        supabase.rpc("get_approved_users"),
+      ]);
+      if (sessRes.error) throw sessRes.error;
+      const vMap = new Map<string, { name: string; plate: string; type: string | null }>();
+      ((vehRes.data as any[]) || []).forEach((v) =>
+        vMap.set(v.id, { name: v.name, plate: v.plate, type: v.vehicle_type })
+      );
+      const uMap = new Map<string, string>();
+      ((usersRes.data as any[]) || []).forEach((u) => uMap.set(u.id, u.full_name));
+      return ((sessRes.data as any[]) || []).map((s) => {
+        const v = vMap.get(s.vehicle_id);
+        const durationMs = s.ended_at
+          ? new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()
+          : Date.now() - new Date(s.started_at).getTime();
+        return {
+          id: s.id as string,
+          vehicle_id: s.vehicle_id as string,
+          vehicle_name: v?.name || "—",
+          vehicle_plate: v?.plate || "—",
+          started_at: s.started_at as string,
+          ended_at: s.ended_at as string | null,
+          started_by_name: uMap.get(s.started_by) || "—",
+          ended_by_name: s.ended_by ? uMap.get(s.ended_by) || "—" : null,
+          duration_hours: Number((Math.max(0, durationMs) / 3600000).toFixed(2)),
+        };
+      });
+    },
+    staleTime: 30_000,
+  });
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -204,6 +246,88 @@ export default function AdminVehicleHistory() {
 
     return matchesSearch && matchesStatus && matchesCategory && matchesPeriod;
   });
+
+  // Filtragem das sessões de carregamento (usa mesma busca + período)
+  const filteredCharging = chargingSessions.filter((s) => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      !q ||
+      s.vehicle_name.toLowerCase().includes(q) ||
+      s.vehicle_plate.toLowerCase().includes(q) ||
+      s.started_by_name.toLowerCase().includes(q) ||
+      (s.ended_by_name?.toLowerCase().includes(q) ?? false);
+    const dateRange = getDateRange();
+    const matchesPeriod =
+      !dateRange ||
+      (isAfter(new Date(s.started_at), startOfDay(dateRange.start)) &&
+        isBefore(new Date(s.started_at), endOfDay(dateRange.end)));
+    return matchesSearch && matchesPeriod;
+  });
+
+  // Horímetro consolidado por plataforma
+  const platformHourMeter = Object.values(
+    filteredCharging.reduce<Record<string, { vehicle: string; plate: string; sessions: number; hours: number }>>(
+      (acc, s) => {
+        const key = s.vehicle_id;
+        if (!acc[key]) acc[key] = { vehicle: s.vehicle_name, plate: s.vehicle_plate, sessions: 0, hours: 0 };
+        acc[key].sessions += 1;
+        acc[key].hours += s.duration_hours;
+        return acc;
+      },
+      {}
+    )
+  ).sort((a, b) => b.hours - a.hours);
+
+  const exportChargingPDF = async () => {
+    if (filteredCharging.length === 0) {
+      toast.error("Nenhuma sessão de carregamento para exportar");
+      return;
+    }
+    const headers = ["Plataforma", "Placa", "Colocou p/ carregar", "Início", "Retirou da carga", "Fim", "Duração", "Horas"];
+    const rows = filteredCharging.map((s) => [
+      s.vehicle_name,
+      s.vehicle_plate,
+      s.started_by_name,
+      format(new Date(s.started_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      s.ended_by_name || "—",
+      s.ended_at ? format(new Date(s.ended_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "Em andamento",
+      s.duration_hours >= 1 ? `${Math.floor(s.duration_hours)}h ${Math.round((s.duration_hours % 1) * 60)}min` : `${Math.round(s.duration_hours * 60)}min`,
+      s.duration_hours.toFixed(2),
+    ]);
+    await exportToPDF({
+      title: "Carregamentos de Plataforma",
+      subtitle: `Total: ${filteredCharging.length} sessão(ões) · Horímetro acumulado: ${platformHourMeter.reduce((a, b) => a + b.hours, 0).toFixed(2)}h`,
+      headers, rows,
+      filename: `carregamentos-plataforma-${format(new Date(), "yyyy-MM-dd")}`,
+      orientation: "landscape",
+    });
+    toast.success("PDF exportado!");
+  };
+
+  const exportChargingExcel = () => {
+    if (filteredCharging.length === 0) {
+      toast.error("Nenhuma sessão de carregamento para exportar");
+      return;
+    }
+    const headers = ["Plataforma", "Placa", "Colocou p/ carregar", "Início", "Retirou da carga", "Fim", "Horas (decimal)", "Status"];
+    const rows = filteredCharging.map((s) => [
+      s.vehicle_name,
+      s.vehicle_plate,
+      s.started_by_name,
+      format(new Date(s.started_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      s.ended_by_name || "—",
+      s.ended_at ? format(new Date(s.ended_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      s.duration_hours,
+      s.ended_at ? "Finalizada" : "Em andamento",
+    ]);
+    exportToExcel({
+      title: "Carregamentos de Plataforma",
+      subtitle: `Total: ${filteredCharging.length} sessões`,
+      headers, rows,
+      filename: `carregamentos-plataforma-${format(new Date(), "yyyy-MM-dd")}`,
+    });
+    toast.success("Excel exportado!");
+  };
 
   const hasActiveFilters = searchQuery || statusFilter !== "all" || categoryFilter !== "all" || periodFilter !== "all";
 
@@ -848,6 +972,106 @@ export default function AdminVehicleHistory() {
           )}
         </CardContent>
       </Card>
+
+      {/* Carregamentos de Plataforma */}
+      <Card>
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <PlugZap className="w-4 h-4 md:w-5 md:h-5 text-info" />
+                Carregamentos de Plataforma
+              </CardTitle>
+              <CardDescription className="text-xs md:text-sm">
+                {filteredCharging.length} sessão(ões) · Horímetro acumulado:{" "}
+                <span className="font-semibold text-foreground">
+                  {platformHourMeter.reduce((a, b) => a + b.hours, 0).toFixed(2)}h
+                </span>
+              </CardDescription>
+            </div>
+            <div className="flex gap-1 flex-wrap">
+              <Button size="sm" variant="outline" className="text-xs gap-1" onClick={exportChargingPDF}>
+                <FileText className="w-3.5 h-3.5" /> PDF
+              </Button>
+              <Button size="sm" variant="outline" className="text-xs gap-1" onClick={exportChargingExcel}>
+                <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 md:p-6 pt-0 space-y-4">
+          {platformHourMeter.length > 0 && (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {platformHourMeter.map((p) => (
+                <div key={p.plate} className="rounded-lg border bg-muted/30 p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Horímetro</p>
+                  <p className="font-semibold text-sm truncate">{p.vehicle}</p>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-xs font-mono text-muted-foreground">{p.plate}</span>
+                    <span className="text-lg font-bold text-info">{p.hours.toFixed(2)}h</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{p.sessions} sessão(ões)</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {filteredCharging.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4 text-sm">
+              Nenhuma sessão de carregamento no período/filtro atual
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Plataforma</TableHead>
+                    <TableHead>Placa</TableHead>
+                    <TableHead>Colocou p/ carregar</TableHead>
+                    <TableHead>Início</TableHead>
+                    <TableHead>Retirou da carga</TableHead>
+                    <TableHead>Fim</TableHead>
+                    <TableHead>Duração</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCharging.slice(0, 200).map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-medium">{s.vehicle_name}</TableCell>
+                      <TableCell className="font-mono text-xs">{s.vehicle_plate}</TableCell>
+                      <TableCell>{s.started_by_name}</TableCell>
+                      <TableCell>{format(new Date(s.started_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                      <TableCell>{s.ended_by_name || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>
+                        {s.ended_at
+                          ? format(new Date(s.ended_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : <span className="text-muted-foreground italic">Em andamento</span>}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {s.duration_hours >= 1
+                          ? `${Math.floor(s.duration_hours)}h ${Math.round((s.duration_hours % 1) * 60)}min`
+                          : `${Math.round(s.duration_hours * 60)}min`}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={s.ended_at ? "secondary" : "default"} className={s.ended_at ? "" : "bg-info text-info-foreground"}>
+                          {s.ended_at ? "Finalizada" : "Em andamento"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {filteredCharging.length > 200 && (
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Mostrando 200 de {filteredCharging.length} sessões — exporte para ver todas
+                </p>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
 
       <DeleteWithReasonDialog
         open={deleteDialog.open}
