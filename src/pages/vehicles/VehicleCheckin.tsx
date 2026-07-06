@@ -42,7 +42,7 @@ export default function VehicleCheckin() {
   const [selectedCheckout, setSelectedCheckout] = useState("");
   const [notes, setNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [refueled, setRefueled] = useState<string | null>(null);
+  
   const [manualMode, setManualMode] = useState(false);
   const [manualDate, setManualDate] = useState<string>("");
   const [skipPhotos, setSkipPhotos] = useState(false);
