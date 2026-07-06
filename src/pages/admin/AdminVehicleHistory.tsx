@@ -247,6 +247,88 @@ export default function AdminVehicleHistory() {
     return matchesSearch && matchesStatus && matchesCategory && matchesPeriod;
   });
 
+  // Filtragem das sessões de carregamento (usa mesma busca + período)
+  const filteredCharging = chargingSessions.filter((s) => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      !q ||
+      s.vehicle_name.toLowerCase().includes(q) ||
+      s.vehicle_plate.toLowerCase().includes(q) ||
+      s.started_by_name.toLowerCase().includes(q) ||
+      (s.ended_by_name?.toLowerCase().includes(q) ?? false);
+    const dateRange = getDateRange();
+    const matchesPeriod =
+      !dateRange ||
+      (isAfter(new Date(s.started_at), startOfDay(dateRange.start)) &&
+        isBefore(new Date(s.started_at), endOfDay(dateRange.end)));
+    return matchesSearch && matchesPeriod;
+  });
+
+  // Horímetro consolidado por plataforma
+  const platformHourMeter = Object.values(
+    filteredCharging.reduce<Record<string, { vehicle: string; plate: string; sessions: number; hours: number }>>(
+      (acc, s) => {
+        const key = s.vehicle_id;
+        if (!acc[key]) acc[key] = { vehicle: s.vehicle_name, plate: s.vehicle_plate, sessions: 0, hours: 0 };
+        acc[key].sessions += 1;
+        acc[key].hours += s.duration_hours;
+        return acc;
+      },
+      {}
+    )
+  ).sort((a, b) => b.hours - a.hours);
+
+  const exportChargingPDF = async () => {
+    if (filteredCharging.length === 0) {
+      toast.error("Nenhuma sessão de carregamento para exportar");
+      return;
+    }
+    const headers = ["Plataforma", "Placa", "Colocou p/ carregar", "Início", "Retirou da carga", "Fim", "Duração", "Horas"];
+    const rows = filteredCharging.map((s) => [
+      s.vehicle_name,
+      s.vehicle_plate,
+      s.started_by_name,
+      format(new Date(s.started_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      s.ended_by_name || "—",
+      s.ended_at ? format(new Date(s.ended_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "Em andamento",
+      s.duration_hours >= 1 ? `${Math.floor(s.duration_hours)}h ${Math.round((s.duration_hours % 1) * 60)}min` : `${Math.round(s.duration_hours * 60)}min`,
+      s.duration_hours.toFixed(2),
+    ]);
+    await exportToPDF({
+      title: "Carregamentos de Plataforma",
+      subtitle: `Total: ${filteredCharging.length} sessão(ões) · Horímetro acumulado: ${platformHourMeter.reduce((a, b) => a + b.hours, 0).toFixed(2)}h`,
+      headers, rows,
+      filename: `carregamentos-plataforma-${format(new Date(), "yyyy-MM-dd")}`,
+      orientation: "landscape",
+    });
+    toast.success("PDF exportado!");
+  };
+
+  const exportChargingExcel = () => {
+    if (filteredCharging.length === 0) {
+      toast.error("Nenhuma sessão de carregamento para exportar");
+      return;
+    }
+    const headers = ["Plataforma", "Placa", "Colocou p/ carregar", "Início", "Retirou da carga", "Fim", "Horas (decimal)", "Status"];
+    const rows = filteredCharging.map((s) => [
+      s.vehicle_name,
+      s.vehicle_plate,
+      s.started_by_name,
+      format(new Date(s.started_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+      s.ended_by_name || "—",
+      s.ended_at ? format(new Date(s.ended_at), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "-",
+      s.duration_hours,
+      s.ended_at ? "Finalizada" : "Em andamento",
+    ]);
+    exportToExcel({
+      title: "Carregamentos de Plataforma",
+      subtitle: `Total: ${filteredCharging.length} sessões`,
+      headers, rows,
+      filename: `carregamentos-plataforma-${format(new Date(), "yyyy-MM-dd")}`,
+    });
+    toast.success("Excel exportado!");
+  };
+
   const hasActiveFilters = searchQuery || statusFilter !== "all" || categoryFilter !== "all" || periodFilter !== "all";
 
   const clearFilters = () => {
