@@ -973,6 +973,106 @@ export default function AdminVehicleHistory() {
         </CardContent>
       </Card>
 
+      {/* Carregamentos de Plataforma */}
+      <Card>
+        <CardHeader className="p-4 md:p-6">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <PlugZap className="w-4 h-4 md:w-5 md:h-5 text-info" />
+                Carregamentos de Plataforma
+              </CardTitle>
+              <CardDescription className="text-xs md:text-sm">
+                {filteredCharging.length} sessão(ões) · Horímetro acumulado:{" "}
+                <span className="font-semibold text-foreground">
+                  {platformHourMeter.reduce((a, b) => a + b.hours, 0).toFixed(2)}h
+                </span>
+              </CardDescription>
+            </div>
+            <div className="flex gap-1 flex-wrap">
+              <Button size="sm" variant="outline" className="text-xs gap-1" onClick={exportChargingPDF}>
+                <FileText className="w-3.5 h-3.5" /> PDF
+              </Button>
+              <Button size="sm" variant="outline" className="text-xs gap-1" onClick={exportChargingExcel}>
+                <FileSpreadsheet className="w-3.5 h-3.5" /> Excel
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 md:p-6 pt-0 space-y-4">
+          {platformHourMeter.length > 0 && (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {platformHourMeter.map((p) => (
+                <div key={p.plate} className="rounded-lg border bg-muted/30 p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Horímetro</p>
+                  <p className="font-semibold text-sm truncate">{p.vehicle}</p>
+                  <div className="flex items-baseline justify-between mt-1">
+                    <span className="text-xs font-mono text-muted-foreground">{p.plate}</span>
+                    <span className="text-lg font-bold text-info">{p.hours.toFixed(2)}h</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{p.sessions} sessão(ões)</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {filteredCharging.length === 0 ? (
+            <p className="text-center text-muted-foreground py-4 text-sm">
+              Nenhuma sessão de carregamento no período/filtro atual
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Plataforma</TableHead>
+                    <TableHead>Placa</TableHead>
+                    <TableHead>Colocou p/ carregar</TableHead>
+                    <TableHead>Início</TableHead>
+                    <TableHead>Retirou da carga</TableHead>
+                    <TableHead>Fim</TableHead>
+                    <TableHead>Duração</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCharging.slice(0, 200).map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell className="font-medium">{s.vehicle_name}</TableCell>
+                      <TableCell className="font-mono text-xs">{s.vehicle_plate}</TableCell>
+                      <TableCell>{s.started_by_name}</TableCell>
+                      <TableCell>{format(new Date(s.started_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                      <TableCell>{s.ended_by_name || <span className="text-muted-foreground">—</span>}</TableCell>
+                      <TableCell>
+                        {s.ended_at
+                          ? format(new Date(s.ended_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : <span className="text-muted-foreground italic">Em andamento</span>}
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {s.duration_hours >= 1
+                          ? `${Math.floor(s.duration_hours)}h ${Math.round((s.duration_hours % 1) * 60)}min`
+                          : `${Math.round(s.duration_hours * 60)}min`}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={s.ended_at ? "secondary" : "default"} className={s.ended_at ? "" : "bg-info text-info-foreground"}>
+                          {s.ended_at ? "Finalizada" : "Em andamento"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {filteredCharging.length > 200 && (
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Mostrando 200 de {filteredCharging.length} sessões — exporte para ver todas
+                </p>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+
       <DeleteWithReasonDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ open, entry: open ? deleteDialog.entry : null })}
