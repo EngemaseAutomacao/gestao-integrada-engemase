@@ -652,11 +652,14 @@ export type Database = {
       vehicles: {
         Row: {
           brand: string | null
+          charging_started_at: string | null
+          charging_started_by: string | null
           color: string | null
           created_at: string
           created_by: string | null
           id: string
           image_url: string | null
+          is_charging: boolean
           model: string | null
           name: string
           plate: string
@@ -667,11 +670,14 @@ export type Database = {
         }
         Insert: {
           brand?: string | null
+          charging_started_at?: string | null
+          charging_started_by?: string | null
           color?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
           image_url?: string | null
+          is_charging?: boolean
           model?: string | null
           name: string
           plate: string
@@ -682,11 +688,14 @@ export type Database = {
         }
         Update: {
           brand?: string | null
+          charging_started_at?: string | null
+          charging_started_by?: string | null
           color?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
           image_url?: string | null
+          is_charging?: boolean
           model?: string | null
           name?: string
           plate?: string
@@ -800,6 +809,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      set_vehicle_charging: {
+        Args: { _is_charging: boolean; _vehicle_id: string }
+        Returns: undefined
       }
       verify_cron_secret: { Args: { _secret: string }; Returns: boolean }
     }
