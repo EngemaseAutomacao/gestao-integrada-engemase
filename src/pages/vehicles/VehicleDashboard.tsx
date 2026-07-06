@@ -321,6 +321,17 @@ export default function VehicleDashboard() {
                             <span className={`text-xs font-medium ${isAvailable ? "text-success" : "text-warning"}`}>
                               {isAvailable ? "Disponível" : "Em uso"}
                             </span>
+                            {vehicle.is_charging && (
+                              <Badge className="text-xs gap-1 bg-info/15 text-info border border-info/30 hover:bg-info/20">
+                                <PlugZap className="w-3 h-3" />
+                                Carregando
+                                {vehicle.charging_started_at && (
+                                  <span className="opacity-80">
+                                    · há {formatDistanceToNowStrict(new Date(vehicle.charging_started_at), { locale: ptBR })}
+                                  </span>
+                                )}
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground">
                             {vehicle.brand && <span>{vehicle.brand}</span>}
@@ -330,9 +341,24 @@ export default function VehicleDashboard() {
                           </div>
                         </div>
                         <div className="flex gap-2 shrink-0 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                          {isAvailable && (
+                          {isAvailable && !vehicle.is_charging && (
                             <Button size="sm" className="text-xs gap-1" onClick={() => navigate(`/veiculos/saida?vehicleId=${vehicle.id}`)}>
                               Registrar Saída
+                            </Button>
+                          )}
+                          {isAvailable && (
+                            <Button
+                              size="sm"
+                              variant={vehicle.is_charging ? "default" : "outline"}
+                              className="text-xs gap-1"
+                              disabled={togglingId === vehicle.id}
+                              onClick={() => toggleCharging(vehicle.id, !vehicle.is_charging)}
+                            >
+                              {vehicle.is_charging ? (
+                                <><Plug className="w-3.5 h-3.5" /> Finalizar carga</>
+                              ) : (
+                                <><PlugZap className="w-3.5 h-3.5" /> Carregando</>
+                              )}
                             </Button>
                           )}
                           {userHasVehicle && (
