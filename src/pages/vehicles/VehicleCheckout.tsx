@@ -84,7 +84,7 @@ export default function VehicleCheckout() {
 
 
   // Platform-specific state
-  const [chargesDuringUse, setChargesDuringUse] = useState<string>("");
+  
 
 
   const { data: availableVehicles, isLoading } = useQuery({
