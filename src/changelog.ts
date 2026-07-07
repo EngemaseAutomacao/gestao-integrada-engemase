@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.4",
+    date: "2026-07-07",
+    title: "Editar e excluir registros direto no histórico",
+    description: "Novos botões dentro do detalhe expandido e visual do status ainda mais limpo.",
+    changes: [
+      { type: "feature", text: "Ao expandir um registro no Histórico Geral de ferramentas, admin agora tem os botões \"Editar\" e \"Excluir\" — permite ajustar obra, datas de retirada/devolução e observações." },
+      { type: "improvement", text: "Removidos os ícones de câmera e assinatura da coluna Status para deixar a coluna mais limpa (os itens continuam disponíveis no detalhe)." },
+    ],
+  },
+  {
     version: "2.3.3",
     date: "2026-07-07",
     title: "Histórico de ferramentas: status simplificado e detalhes mais limpos",

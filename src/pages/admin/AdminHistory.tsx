@@ -13,7 +13,10 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock, ChevronDown, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock, ChevronDown, ChevronRight, SlidersHorizontal, Pencil } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
@@ -93,6 +96,61 @@ export default function AdminHistory() {
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [editEntry, setEditEntry] = useState<HistoryEntry | null>(null);
+  const [editForm, setEditForm] = useState({ construction_site: "", notes: "", checkout_date: "", checkin_date: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEdit = (entry: HistoryEntry) => {
+    const toLocal = (iso: string | null) => {
+      if (!iso) return "";
+      const d = new Date(iso);
+      const off = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - off * 60000);
+      return local.toISOString().slice(0, 16);
+    };
+    setEditForm({
+      construction_site: entry.construction_site || "",
+      notes: entry.notes || "",
+      checkout_date: toLocal(entry.checkout_date),
+      checkin_date: toLocal(entry.checkin_date),
+    });
+    setEditEntry(entry);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editEntry) return;
+    setSavingEdit(true);
+    try {
+      const payload = {
+        construction_site: editForm.construction_site.trim() || null,
+        notes: editForm.notes.trim() || null,
+        checkout_date: new Date(editForm.checkout_date).toISOString(),
+        checkin_date: editForm.checkin_date ? new Date(editForm.checkin_date).toISOString() : null,
+      };
+      const { error } = await supabase.from("tool_checkouts").update(payload).eq("id", editEntry.id);
+      if (error) throw error;
+      await supabase.from("system_logs").insert({
+        action: "edit_history",
+        entity_type: "tool_checkout",
+        entity_id: editEntry.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          tool_name: editEntry.tools?.name,
+          user_name: editEntry.profiles?.full_name,
+          changes: payload as unknown as Record<string, string | null>,
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-history"] });
+      toast.success("Registro atualizado com sucesso");
+      setEditEntry(null);
+    } catch (err) {
+      console.error("Erro ao editar registro:", err);
+      toast.error("Erro ao atualizar registro");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
@@ -459,23 +517,15 @@ export default function AdminHistory() {
                                 : "-"}
                             </TableCell>
                             <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {entry.status === "checked_out" ? (
-                                  isOverdue(entry.estimated_return_date, entry.status) ? (
-                                    <Badge variant="destructive" className="text-[10px] py-0 h-5">Atrasado</Badge>
-                                  ) : (
-                                    <Badge variant="default" className="text-[10px] py-0 h-5">Em Uso</Badge>
-                                  )
+                              {entry.status === "checked_out" ? (
+                                isOverdue(entry.estimated_return_date, entry.status) ? (
+                                  <Badge variant="destructive" className="text-[10px] py-0 h-5">Atrasado</Badge>
                                 ) : (
-                                  <Badge variant="secondary" className="text-[10px] py-0 h-5">Devolvida</Badge>
-                                )}
-                                {hasMedia(entry) && (
-                                  <span className="flex items-center gap-0.5 text-muted-foreground">
-                                    {(entry.checkout_photo_url || entry.checkin_photo_url) && <Camera className="w-3 h-3" />}
-                                    {(entry.checkout_signature_url || entry.checkin_signature_url) && <FileSignature className="w-3 h-3" />}
-                                  </span>
-                                )}
-                              </div>
+                                  <Badge variant="default" className="text-[10px] py-0 h-5">Em Uso</Badge>
+                                )
+                              ) : (
+                                <Badge variant="secondary" className="text-[10px] py-0 h-5">Devolvida</Badge>
+                              )}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
@@ -553,6 +603,16 @@ export default function AdminHistory() {
                                     <div className="pt-3 border-t">
                                       <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Observações</p>
                                       <p className="text-sm mt-1 whitespace-pre-wrap">{entry.notes}</p>
+                                    </div>
+                                  )}
+                                  {isAdmin && (
+                                    <div className="pt-3 border-t flex flex-wrap gap-2 justify-end">
+                                      <Button size="sm" variant="outline" onClick={() => openEdit(entry)} className="gap-2">
+                                        <Pencil className="w-3.5 h-3.5" /> Editar
+                                      </Button>
+                                      <Button size="sm" variant="outline" onClick={() => setDeleteDialog({ open: true, entry })} className="gap-2 text-destructive hover:text-destructive">
+                                        <Trash2 className="w-3.5 h-3.5" /> Excluir
+                                      </Button>
                                     </div>
                                   )}
                                 </div>
@@ -697,6 +757,65 @@ export default function AdminHistory() {
         description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
         itemName={deleteDialog.entry ? `${deleteDialog.entry.tools?.name} - ${deleteDialog.entry.profiles?.full_name}` : ""}
       />
+
+      <Dialog open={!!editEntry} onOpenChange={(open) => !open && setEditEntry(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Registro</DialogTitle>
+            <DialogDescription>
+              {editEntry?.tools?.name} — {editEntry?.profiles?.full_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-site">Obra</Label>
+              <Input
+                id="edit-site"
+                value={editForm.construction_site}
+                onChange={(e) => setEditForm({ ...editForm, construction_site: e.target.value })}
+                placeholder="Nome da obra"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="edit-checkout">Data de Retirada</Label>
+                <Input
+                  id="edit-checkout"
+                  type="datetime-local"
+                  value={editForm.checkout_date}
+                  onChange={(e) => setEditForm({ ...editForm, checkout_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-checkin">Data de Devolução</Label>
+                <Input
+                  id="edit-checkin"
+                  type="datetime-local"
+                  value={editForm.checkin_date}
+                  onChange={(e) => setEditForm({ ...editForm, checkin_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-notes">Observações</Label>
+              <Textarea
+                id="edit-notes"
+                value={editForm.notes}
+                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditEntry(null)} disabled={savingEdit}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit || !editForm.checkout_date}>
+              {savingEdit ? "Salvando..." : "Salvar alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
