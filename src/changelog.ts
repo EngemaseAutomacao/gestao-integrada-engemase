@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.0",
+    date: "2026-07-07",
+    title: "Correção manual de KM inconsistente",
+    description: "Nova seção no Histórico de Veículos para listar e corrigir registros com KM inválida.",
+    changes: [
+      { type: "feature", text: "Seção destacada no topo do Histórico de Veículos lista registros com KM de devolução menor ou igual à de saída." },
+      { type: "feature", text: "Admins podem corrigir manualmente as quilometragens de saída e devolução direto pelo histórico (com validação e registro em log de auditoria)." },
+    ],
+  },
+  {
     version: "2.3.10",
     date: "2026-07-07",
     title: "KM Rodado sem valores negativos",
