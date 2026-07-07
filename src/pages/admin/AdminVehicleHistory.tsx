@@ -943,7 +943,7 @@ export default function AdminVehicleHistory() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
-                {filteredHistory.map((entry) => (
+                {paginatedHistory.map((entry) => (
                   <Card key={entry.id} className="p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
