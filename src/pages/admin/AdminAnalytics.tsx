@@ -558,18 +558,6 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-3 h-full flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Manutenções</p>
-              <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold leading-none">{metrics.maintenanceCount}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Registradas</p>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card>
           <CardContent className="p-3 h-full flex flex-col justify-between">
