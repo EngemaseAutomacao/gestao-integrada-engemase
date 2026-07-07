@@ -213,9 +213,6 @@ export function usePushNotifications() {
         console.error("Error showing notification:", error);
         return null;
       }
-        console.error("Error showing notification:", error);
-        return null;
-      }
     },
     [isSupported, permission]
   );
