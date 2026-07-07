@@ -630,7 +630,6 @@ export default function AdminAnalytics() {
                   borderRadius: '6px'
                 }}
               />
-              <Legend />
               <Area type="monotone" dataKey="checkouts" name="Retiradas" stackId="1" stroke={toolsTrendLegend.getColor("checkouts")} fill={toolsTrendLegend.getColor("checkouts")} fillOpacity={0.6} hide={toolsTrendLegend.isHidden("checkouts")} />
               <Area type="monotone" dataKey="checkins" name="Devoluções" stackId="2" stroke={toolsTrendLegend.getColor("checkins")} fill={toolsTrendLegend.getColor("checkins")} fillOpacity={0.6} hide={toolsTrendLegend.isHidden("checkins")} />
               <Area type="monotone" dataKey="delays" name="Atrasos" stackId="3" stroke={toolsTrendLegend.getColor("delays")} fill={toolsTrendLegend.getColor("delays")} fillOpacity={0.6} hide={toolsTrendLegend.isHidden("delays")} />
