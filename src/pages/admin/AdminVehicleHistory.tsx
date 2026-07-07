@@ -174,6 +174,8 @@ export default function AdminVehicleHistory() {
   const [estimating, setEstimating] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: VehicleHistoryEntry | null }>({ open: false, entry: null });
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
