@@ -187,8 +187,12 @@ export default function AdminAnalytics() {
     const maintenanceCount = maintenances?.length || 0;
     const totalVehicleCheckouts = vehicleCheckouts?.length || 0;
     const activeVehicles = vehicleCheckouts?.filter(v => v.status === "checked_out").length || 0;
+    // Só considera diferença válida quando km_checkin > km_checkout.
+    // Registros inconsistentes (checkin <= checkout) são ignorados para evitar KM negativo.
     const totalKmDriven = vehicleCheckouts?.reduce((sum, v) => {
-      if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+      if (v.km_checkin != null && v.km_checkout != null && v.km_checkin > v.km_checkout) {
+        return sum + (v.km_checkin - v.km_checkout);
+      }
       return sum;
     }, 0) || 0;
 
@@ -219,7 +223,9 @@ export default function AdminAnalytics() {
         return d >= monthStart && d <= monthEnd;
       }) || [];
       const monthKm = monthVCheckouts.reduce((sum, v) => {
-        if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+        if (v.km_checkin != null && v.km_checkout != null && v.km_checkin > v.km_checkout) {
+          return sum + (v.km_checkin - v.km_checkout);
+        }
         return sum;
       }, 0);
       vMonthlyStats.push({
