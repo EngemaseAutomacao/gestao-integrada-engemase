@@ -841,6 +841,20 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_users_last_access: {
+        Args: never
+        Returns: {
+          approved: boolean
+          category: string
+          days_since_last_access: number
+          email: string
+          full_name: string
+          id: string
+          last_sign_in_at: string
+          role: string
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
