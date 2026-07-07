@@ -98,6 +98,20 @@ export default function AdminAnalytics() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
+  const toolsTrendLegend = useInteractiveLegend([
+    { key: "checkouts", name: "Retiradas", defaultColor: "hsl(var(--primary))", fallbackHex: "#2563eb" },
+    { key: "checkins", name: "Devoluções", defaultColor: "hsl(var(--chart-2))", fallbackHex: "#10b981" },
+    { key: "delays", name: "Atrasos", defaultColor: "hsl(var(--destructive))", fallbackHex: "#ef4444" },
+  ]);
+  const vehiclesTrendLegend = useInteractiveLegend([
+    { key: "checkouts", name: "Saídas", defaultColor: "hsl(var(--chart-2))", fallbackHex: "#10b981" },
+    { key: "km", name: "KM Rodado", defaultColor: "hsl(var(--primary))", fallbackHex: "#2563eb" },
+  ]);
+  const categoryLegend = useInteractiveLegend([
+    { key: "Funcionários", name: "Funcionários", defaultColor: "hsl(var(--chart-1))", fallbackHex: "#2563eb" },
+    { key: "Terceirizados", name: "Terceirizados", defaultColor: "hsl(var(--chart-2))", fallbackHex: "#10b981" },
+  ]);
+
   const getDateRange = (): { from: Date | null; to: Date | null } => {
     const now = new Date();
     switch (periodFilter) {
