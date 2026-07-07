@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.6",
+    date: "2026-07-07",
+    title: "Dashboard Analítico redesenhado (Bento Grid)",
+    description: "Página de Analytics com layout mais denso, hierarquia clara e mini-gráficos.",
+    changes: [
+      { type: "improvement", text: "Unificado os dois cabeçalhos gigantes em um único header compacto com o seletor de período ao lado — ganho grande de espaço vertical." },
+      { type: "improvement", text: "KPIs reorganizados em Bento Grid: cards de \"Em Uso Agora\" e \"Total de Atrasos\" ganharam destaque em tamanho maior com mini-gráfico de tendência; demais métricas ficaram compactas na mesma tela." },
+      { type: "improvement", text: "Taxa de Atraso passa a se destacar em amarelo quando ultrapassa 20%, facilitando identificação visual de problemas." },
+    ],
+  },
+  {
     version: "2.3.5",
     date: "2026-07-07",
     title: "Histórico paginado para tabelas mais leves",
