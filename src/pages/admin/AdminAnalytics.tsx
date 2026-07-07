@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon, Car } from "lucide-react";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { Navigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Line, AreaChart, Area } from "recharts";
 import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { InteractiveLegend, useInteractiveLegend } from "@/components/analytics/InteractiveLegend";
 
 interface ToolUsageData {
   name: string;
@@ -96,6 +97,20 @@ export default function AdminAnalytics() {
   const [periodFilter, setPeriodFilter] = useState("all");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
+  const toolsTrendLegend = useInteractiveLegend([
+    { key: "checkouts", name: "Retiradas", defaultColor: "hsl(var(--primary))", fallbackHex: "#2563eb" },
+    { key: "checkins", name: "Devoluções", defaultColor: "hsl(var(--chart-2))", fallbackHex: "#10b981" },
+    { key: "delays", name: "Atrasos", defaultColor: "hsl(var(--destructive))", fallbackHex: "#ef4444" },
+  ]);
+  const vehiclesTrendLegend = useInteractiveLegend([
+    { key: "checkouts", name: "Saídas", defaultColor: "hsl(var(--chart-2))", fallbackHex: "#10b981" },
+    { key: "km", name: "KM Rodado", defaultColor: "hsl(var(--primary))", fallbackHex: "#2563eb" },
+  ]);
+  const categoryLegend = useInteractiveLegend([
+    { key: "Funcionários", name: "Funcionários", defaultColor: "hsl(var(--chart-1))", fallbackHex: "#2563eb" },
+    { key: "Terceirizados", name: "Terceirizados", defaultColor: "hsl(var(--chart-2))", fallbackHex: "#10b981" },
+  ]);
 
   const getDateRange = (): { from: Date | null; to: Date | null } => {
     const now = new Date();
@@ -615,12 +630,12 @@ export default function AdminAnalytics() {
                   borderRadius: '6px'
                 }}
               />
-              <Legend />
-              <Area type="monotone" dataKey="checkouts" name="Retiradas" stackId="1" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.6} />
-              <Area type="monotone" dataKey="checkins" name="Devoluções" stackId="2" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.6} />
-              <Area type="monotone" dataKey="delays" name="Atrasos" stackId="3" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} />
+              <Area type="monotone" dataKey="checkouts" name="Retiradas" stackId="1" stroke={toolsTrendLegend.getColor("checkouts")} fill={toolsTrendLegend.getColor("checkouts")} fillOpacity={0.6} hide={toolsTrendLegend.isHidden("checkouts")} />
+              <Area type="monotone" dataKey="checkins" name="Devoluções" stackId="2" stroke={toolsTrendLegend.getColor("checkins")} fill={toolsTrendLegend.getColor("checkins")} fillOpacity={0.6} hide={toolsTrendLegend.isHidden("checkins")} />
+              <Area type="monotone" dataKey="delays" name="Atrasos" stackId="3" stroke={toolsTrendLegend.getColor("delays")} fill={toolsTrendLegend.getColor("delays")} fillOpacity={0.6} hide={toolsTrendLegend.isHidden("delays")} />
             </AreaChart>
           </ResponsiveContainer>
+          <InteractiveLegend controller={toolsTrendLegend} />
         </CardContent>
       </Card>
 
@@ -644,11 +659,11 @@ export default function AdminAnalytics() {
                   borderRadius: '6px'
                 }}
               />
-              <Legend />
-              <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill="hsl(var(--chart-2))" />
-              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke="hsl(var(--primary))" strokeWidth={2} />
+              <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill={vehiclesTrendLegend.getColor("checkouts")} hide={vehiclesTrendLegend.isHidden("checkouts")} />
+              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke={vehiclesTrendLegend.getColor("km")} strokeWidth={2} hide={vehiclesTrendLegend.isHidden("km")} />
             </BarChart>
           </ResponsiveContainer>
+          <InteractiveLegend controller={vehiclesTrendLegend} />
         </CardContent>
       </Card>
 
@@ -688,7 +703,7 @@ export default function AdminAnalytics() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={categoryData.filter((d) => !categoryLegend.isHidden(d.name))}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -697,9 +712,11 @@ export default function AdminAnalytics() {
                   fill="hsl(var(--primary))"
                   dataKey="value"
                 >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                  {categoryData
+                    .filter((d) => !categoryLegend.isHidden(d.name))
+                    .map((entry) => (
+                      <Cell key={`cell-${entry.name}`} fill={categoryLegend.getColor(entry.name)} />
+                    ))}
                 </Pie>
                 <Tooltip 
                   contentStyle={{ 
@@ -710,6 +727,7 @@ export default function AdminAnalytics() {
                 />
               </PieChart>
             </ResponsiveContainer>
+            <InteractiveLegend controller={categoryLegend} />
           </CardContent>
         </Card>
       </div>
