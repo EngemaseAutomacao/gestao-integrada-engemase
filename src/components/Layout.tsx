@@ -281,17 +281,27 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           )}
 
-          {/* Desktop: Back button */}
+          {/* Desktop: Back button (goes to previous page) */}
           {!isHomePage && !isMobile && (
             <>
               <div className="h-5 w-px bg-border hidden sm:block" />
-              
-              <NavLink to="/">
-                <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2" aria-label="Voltar ao menu principal">
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="hidden sm:inline text-xs">Menu</span>
-                </Button>
-              </NavLink>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (window.history.length > 1) {
+                    navigate(-1);
+                  } else {
+                    navigate("/");
+                  }
+                }}
+                className="gap-1 text-muted-foreground hover:text-foreground h-8 px-2"
+                aria-label="Voltar para a página anterior"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline text-xs">Voltar</span>
+              </Button>
             </>
           )}
         </div>
