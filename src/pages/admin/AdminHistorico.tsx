@@ -25,6 +25,7 @@ export default function AdminHistorico() {
         eyebrow="Módulo · Histórico"
         title="Histórico Geral"
         subtitle="Movimentações de ferramentas e veículos"
+        compact
       />
 
 
