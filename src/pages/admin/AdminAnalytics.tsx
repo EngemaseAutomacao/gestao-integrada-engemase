@@ -223,7 +223,9 @@ export default function AdminAnalytics() {
         return d >= monthStart && d <= monthEnd;
       }) || [];
       const monthKm = monthVCheckouts.reduce((sum, v) => {
-        if (v.km_checkin && v.km_checkout) return sum + (v.km_checkin - v.km_checkout);
+        if (v.km_checkin != null && v.km_checkout != null && v.km_checkin > v.km_checkout) {
+          return sum + (v.km_checkin - v.km_checkout);
+        }
         return sum;
       }, 0);
       vMonthlyStats.push({
