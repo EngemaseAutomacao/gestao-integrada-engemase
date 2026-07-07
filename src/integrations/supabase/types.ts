@@ -159,6 +159,7 @@ export type Database = {
           first_login: boolean
           full_name: string
           id: string
+          last_access_at: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
           username: string | null
@@ -173,6 +174,7 @@ export type Database = {
           first_login?: boolean
           full_name: string
           id: string
+          last_access_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           username?: string | null
@@ -187,6 +189,7 @@ export type Database = {
           first_login?: boolean
           full_name?: string
           id?: string
+          last_access_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           username?: string | null
@@ -866,6 +869,7 @@ export type Database = {
         Args: { _is_charging: boolean; _vehicle_id: string }
         Returns: undefined
       }
+      touch_last_access: { Args: never; Returns: undefined }
       verify_cron_secret: { Args: { _secret: string }; Returns: boolean }
     }
     Enums: {

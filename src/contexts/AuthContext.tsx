@@ -157,6 +157,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (currentSession?.user) {
           await fetchProfileMounted(currentSession.user.id);
+          // Register access even on auto-login (persisted session), since
+          // auth.users.last_sign_in_at only updates on explicit sign-in.
+          try {
+            await (supabase.rpc as any)("touch_last_access");
+          } catch {}
         }
       } finally {
         if (isMounted) setLoading(false);
