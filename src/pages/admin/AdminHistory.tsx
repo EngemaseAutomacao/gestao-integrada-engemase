@@ -605,6 +605,16 @@ export default function AdminHistory() {
                                       <p className="text-sm mt-1 whitespace-pre-wrap">{entry.notes}</p>
                                     </div>
                                   )}
+                                  {isAdmin && (
+                                    <div className="pt-3 border-t flex flex-wrap gap-2 justify-end">
+                                      <Button size="sm" variant="outline" onClick={() => openEdit(entry)} className="gap-2">
+                                        <Pencil className="w-3.5 h-3.5" /> Editar
+                                      </Button>
+                                      <Button size="sm" variant="outline" onClick={() => setDeleteDialog({ open: true, entry })} className="gap-2 text-destructive hover:text-destructive">
+                                        <Trash2 className="w-3.5 h-3.5" /> Excluir
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                               </TableCell>
                             </TableRow>
