@@ -549,41 +549,6 @@ export default function AdminHistory() {
                                       )}
                                     </div>
                                   </div>
-                                  {hasMedia(entry) && (
-                                    <div className="pt-3 border-t space-y-3">
-                                      <h4 className="font-semibold text-sm">Fotos e Assinaturas</h4>
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                          <p className="text-xs font-medium">Retirada</p>
-                                          {entry.checkout_photo_url && (
-                                            <SignedImage storagePath={entry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
-                                          )}
-                                          {entry.checkout_signature_url && (
-                                            <div className="border rounded-lg p-2 bg-white">
-                                              <SignedImage storagePath={entry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
-                                            </div>
-                                          )}
-                                          {!entry.checkout_photo_url && !entry.checkout_signature_url && (
-                                            <p className="text-xs text-muted-foreground">Sem registros</p>
-                                          )}
-                                        </div>
-                                        <div className="space-y-2">
-                                          <p className="text-xs font-medium">Devolução</p>
-                                          {entry.checkin_photo_url && (
-                                            <SignedImage storagePath={entry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
-                                          )}
-                                          {entry.checkin_signature_url && (
-                                            <div className="border rounded-lg p-2 bg-white">
-                                              <SignedImage storagePath={entry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
-                                            </div>
-                                          )}
-                                          {!entry.checkin_photo_url && !entry.checkin_signature_url && (
-                                            <p className="text-xs text-muted-foreground">Sem registros</p>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
                                   {entry.notes && (
                                     <div className="pt-3 border-t">
                                       <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Observações</p>
