@@ -606,7 +606,7 @@ export default function AdminHistory() {
                                     </div>
                                   )}
                                   {isAdmin && (
-                                    <div className="pt-3 border-t flex flex-wrap gap-2 justify-end">
+                                    <div className="pt-3 border-t flex flex-wrap gap-2 justify-start">
                                       <Button size="sm" variant="outline" onClick={() => openEdit(entry)} className="gap-2">
                                         <Pencil className="w-3.5 h-3.5" /> Editar
                                       </Button>
