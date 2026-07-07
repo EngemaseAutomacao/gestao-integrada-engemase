@@ -303,7 +303,7 @@ export default function AdminHistory() {
           </div>
         </div>
 
-        <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
           <Card className="shrink-0 mt-2">
             <CardContent className="p-3 sm:p-4">
               <div className="grid gap-3 md:grid-cols-4">
