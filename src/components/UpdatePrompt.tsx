@@ -18,7 +18,8 @@ export default function UpdatePrompt() {
     notifiedRef.current = newVersion;
     localStorage.setItem(NOTIFIED_VERSION_KEY, newVersion);
 
-    // Try Service Worker notification (works in background too)
+    // Somente via Service Worker — evita a notificação "genérica do Chrome"
+    // (sino + logo do navegador) que aparece quando usamos `new Notification()`.
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.ready.then((registration) => {
         (registration as any).showNotification("Nova Atualização Disponível! 🚀", {
@@ -34,13 +35,6 @@ export default function UpdatePrompt() {
           ]
         });
       }).catch(() => {});
-    } else if ("Notification" in window && Notification.permission === "granted") {
-      // Fallback to regular notification
-      new Notification("Nova Atualização Disponível! 🚀", {
-        body: `Versão ${newVersion} está disponível. Atualize para obter as últimas melhorias.`,
-        icon: "/icon-192.png",
-        tag: "system-update",
-      });
     }
   }, []);
 
