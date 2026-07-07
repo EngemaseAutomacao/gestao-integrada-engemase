@@ -42,7 +42,7 @@ export default function AdminUserAccess() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-user-access"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_users_last_access");
+      const { data, error } = await (supabase.rpc as any)("get_users_last_access");
       if (error) throw error;
       return (data || []) as UserAccessRow[];
     },
