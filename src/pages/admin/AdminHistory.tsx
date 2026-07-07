@@ -138,7 +138,7 @@ export default function AdminHistory() {
         details: {
           tool_name: editEntry.tools?.name,
           user_name: editEntry.profiles?.full_name,
-          changes: payload,
+          changes: payload as unknown as Record<string, string | null>,
         },
       });
       queryClient.invalidateQueries({ queryKey: ["admin-history"] });
