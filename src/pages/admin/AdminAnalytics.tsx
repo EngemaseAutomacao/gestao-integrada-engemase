@@ -659,11 +659,11 @@ export default function AdminAnalytics() {
                   borderRadius: '6px'
                 }}
               />
-              <Legend />
-              <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill="hsl(var(--chart-2))" />
-              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke="hsl(var(--primary))" strokeWidth={2} />
+              <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill={vehiclesTrendLegend.getColor("checkouts")} hide={vehiclesTrendLegend.isHidden("checkouts")} />
+              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke={vehiclesTrendLegend.getColor("km")} strokeWidth={2} hide={vehiclesTrendLegend.isHidden("km")} />
             </BarChart>
           </ResponsiveContainer>
+          <InteractiveLegend controller={vehiclesTrendLegend} />
         </CardContent>
       </Card>
 
