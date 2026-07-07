@@ -52,6 +52,8 @@ const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
 const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
 const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
+const AdminToolsInUse = lazy(() => import("./pages/admin/AdminToolsInUse"));
+const AdminUserAccess = lazy(() => import("./pages/admin/AdminUserAccess"));
 // AdminSiteTools removed
 
 const DevolucoesPendentes = lazy(() => import("./pages/DevolucoesPendentes"));
