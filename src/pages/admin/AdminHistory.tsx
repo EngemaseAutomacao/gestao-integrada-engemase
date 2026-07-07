@@ -645,7 +645,7 @@ export default function AdminHistory() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
-                {filteredHistory.map((entry) => (
+                {paginatedHistory.map((entry) => (
                   <Card key={entry.id}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-2">
