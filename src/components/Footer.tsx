@@ -1,8 +1,9 @@
 import { Wrench } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { APP_VERSION, BUILD_DATE } from "@/version";
 
 export function Footer() {
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const buildDate = new Date(BUILD_DATE).toLocaleDateString("pt-BR");
 
@@ -16,7 +17,14 @@ export function Footer() {
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
           <span>© {currentYear} Engemase Engenharia</span>
           <span>•</span>
-          <Link to="/changelog" className="hover:text-primary transition-colors">v{APP_VERSION}</Link>
+          <button
+            type="button"
+            onClick={() => navigate("/changelog")}
+            className="hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+            aria-label="Abrir notas de atualização"
+          >
+            v{APP_VERSION}
+          </button>
           <span className="hidden sm:inline">•</span>
           <span className="hidden sm:inline">Build: {buildDate}</span>
         </div>
