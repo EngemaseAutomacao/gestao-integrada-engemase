@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.7",
+    date: "2026-07-07",
+    title: "Legendas interativas nos gráficos do Dashboard",
+    description: "Agora é possível ocultar séries e personalizar cores diretamente nas legendas dos gráficos.",
+    changes: [
+      { type: "feature", text: "Nos gráficos \"Tendência Mensal\", \"Tendência Mensal - Veículos\" e \"Uso por Categoria\": clique no nome da série para ocultá-la/exibi-la, e clique no quadradinho colorido ao lado para escolher outra cor." },
+    ],
+  },
+  {
     version: "2.3.6",
     date: "2026-07-07",
     title: "Dashboard Analítico redesenhado (Bento Grid)",
