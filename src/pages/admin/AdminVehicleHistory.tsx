@@ -697,7 +697,7 @@ export default function AdminVehicleHistory() {
                     </TableRow>
                   </TableHeader>
                   <TableBody className="[&_tr[data-row='main']:nth-child(4n+1)]:bg-muted/30 [&_tr[data-row='main']:hover]:bg-accent/40 [&_tr[data-row='main']]:transition-colors [&_td]:py-2">
-                    {filteredHistory.map((entry) => {
+                    {paginatedHistory.map((entry) => {
                       const isExpanded = expandedId === entry.id;
                       return (
                         <Fragment key={entry.id}>
