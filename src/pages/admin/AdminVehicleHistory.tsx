@@ -177,6 +177,69 @@ export default function AdminVehicleHistory() {
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [inconsistentOpen, setInconsistentOpen] = useState(false);
+  const [kmFixDialog, setKmFixDialog] = useState<{ open: boolean; entry: VehicleHistoryEntry | null }>({ open: false, entry: null });
+  const [kmFixCheckout, setKmFixCheckout] = useState<string>("");
+  const [kmFixCheckin, setKmFixCheckin] = useState<string>("");
+  const [kmFixSaving, setKmFixSaving] = useState(false);
+
+  const inconsistentEntries = useMemo(
+    () => history.filter((e) => e.km_checkin !== null && e.km_checkin <= e.km_checkout),
+    [history]
+  );
+
+  const openKmFix = (entry: VehicleHistoryEntry) => {
+    setKmFixCheckout(String(entry.km_checkout ?? ""));
+    setKmFixCheckin(entry.km_checkin !== null ? String(entry.km_checkin) : "");
+    setKmFixDialog({ open: true, entry });
+  };
+
+  const handleKmFix = async () => {
+    if (!kmFixDialog.entry) return;
+    const outNum = Number(kmFixCheckout);
+    const inNum = Number(kmFixCheckin);
+    if (!Number.isFinite(outNum) || !Number.isFinite(inNum) || outNum < 0 || inNum < 0) {
+      toast.error("Informe quilometragens válidas (números não negativos).");
+      return;
+    }
+    if (inNum <= outNum) {
+      toast.error("KM de devolução deve ser maior que a KM de saída.");
+      return;
+    }
+    setKmFixSaving(true);
+    try {
+      const entry = kmFixDialog.entry;
+      const { error } = await supabase
+        .from("vehicle_checkouts")
+        .update({ km_checkout: outNum, km_checkin: inNum, km_checkin_automatic: false })
+        .eq("id", entry.id);
+      if (error) throw error;
+
+      await supabase.from("system_logs").insert({
+        action: "km_correction",
+        entity_type: "vehicle_checkout",
+        entity_id: entry.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          vehicle_name: entry.vehicles?.name,
+          plate: entry.vehicles?.plate,
+          user_name: entry.profiles?.full_name,
+          previous: { km_checkout: entry.km_checkout, km_checkin: entry.km_checkin },
+          corrected: { km_checkout: outNum, km_checkin: inNum },
+        },
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["admin-vehicle-history"] });
+      toast.success("Quilometragem corrigida com sucesso.");
+      setKmFixDialog({ open: false, entry: null });
+    } catch (err) {
+      console.error("Erro ao corrigir KM:", err);
+      toast.error("Erro ao corrigir quilometragem");
+    } finally {
+      setKmFixSaving(false);
+    }
+  };
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
