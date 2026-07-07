@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Users, BarChart3, FileText, Bell, ClipboardList, AlertCircle, Images, Building2, Database, Shield, ChevronRight } from "lucide-react";
+import { Users, BarChart3, FileText, Bell, ClipboardList, Images, Building2, Database, Shield, ChevronRight, Wrench, Clock } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ModuleHero } from "@/components/ModuleHero";
@@ -49,6 +49,8 @@ export default function AdminDashboard() {
       label: "Operação",
       items: [
         { title: "Usuários", description: "Gerenciar contas e permissões", icon: <Users className="w-5 h-5" />, to: "/admin/users" },
+        { title: "Ferramentas em Uso", description: "Ver quem está com cada ferramenta e devolver", icon: <Wrench className="w-5 h-5" />, to: "/admin/ferramentas-em-uso" },
+        { title: "Últimos Acessos", description: "Há quantos dias cada usuário não entra", icon: <Clock className="w-5 h-5" />, to: "/admin/ultimos-acessos" },
         { title: "Gestão Administrativa", description: "Obras, clientes e ferramentas", icon: <Building2 className="w-5 h-5" />, to: "/admin/construction-sites" },
         { title: "Notificações", description: "Configurar alertas do sistema", icon: <Bell className="w-5 h-5" />, to: "/admin/notifications" },
       ],

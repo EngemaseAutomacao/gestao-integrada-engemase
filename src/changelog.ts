@@ -11,6 +11,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.0",
+    date: "2026-07-07",
+    title: "Painel admin: ferramentas em uso, últimos acessos e botão Voltar",
+    description: "Dois novos submenus no painel administrativo e melhoria na navegação do topo.",
+    changes: [
+      { type: "feature", text: "Novo submenu \"Ferramentas em Uso\": lista todas as ferramentas atualmente retiradas com usuário, data/hora, observação e obra. Admin pode devolver a ferramenta em nome do usuário, com justificativa obrigatória, e a ação fica registrada em seu nome." },
+      { type: "feature", text: "Novo submenu \"Últimos Acessos\": mostra há quantos dias cada usuário não entra no sistema, com filtros (7+, 15+, 30+ dias, nunca acessou)." },
+      { type: "improvement", text: "Botão \"Menu\" no cabeçalho virou \"Voltar\" e agora volta para a página anterior em vez de sempre ir para a tela inicial." },
+    ],
+  },
+  {
     version: "2.2.2",
     date: "2026-07-06",
     title: "Notificações e botão Atualizar mais confiáveis",

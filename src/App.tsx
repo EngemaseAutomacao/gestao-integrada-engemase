@@ -52,6 +52,8 @@ const AdminAudit = lazy(() => import("./pages/admin/AdminAudit"));
 const AdminAuditoria = lazy(() => import("./pages/admin/AdminAuditoria"));
 const AdminHistorico = lazy(() => import("./pages/admin/AdminHistorico"));
 const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
+const AdminToolsInUse = lazy(() => import("./pages/admin/AdminToolsInUse"));
+const AdminUserAccess = lazy(() => import("./pages/admin/AdminUserAccess"));
 // AdminSiteTools removed
 
 const DevolucoesPendentes = lazy(() => import("./pages/DevolucoesPendentes"));
@@ -184,6 +186,8 @@ const App = () => (
                       <Route path="/admin/data-retention" element={<AdminDataRetention />} />
                       <Route path="/admin/audit" element={<Navigate to="/admin/auditoria?tab=auditoria" replace />} />
                       <Route path="/admin/auditoria" element={<AdminAuditoria />} />
+                      <Route path="/admin/ferramentas-em-uso" element={<AdminToolsInUse />} />
+                      <Route path="/admin/ultimos-acessos" element={<AdminUserAccess />} />
 
                       {/* Ponto Online & Transferências removidos — redirect para Home */}
                       <Route path="/ponto" element={<Navigate to="/" replace />} />
