@@ -91,6 +91,8 @@ export default function AdminHistory() {
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: HistoryEntry | null }>({ open: false, entry: null });
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
