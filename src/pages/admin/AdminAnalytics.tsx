@@ -703,7 +703,7 @@ export default function AdminAnalytics() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={categoryData.filter((d) => !categoryLegend.isHidden(d.name))}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -712,9 +712,11 @@ export default function AdminAnalytics() {
                   fill="hsl(var(--primary))"
                   dataKey="value"
                 >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                  {categoryData
+                    .filter((d) => !categoryLegend.isHidden(d.name))
+                    .map((entry) => (
+                      <Cell key={`cell-${entry.name}`} fill={categoryLegend.getColor(entry.name)} />
+                    ))}
                 </Pie>
                 <Tooltip 
                   contentStyle={{ 
@@ -725,6 +727,7 @@ export default function AdminAnalytics() {
                 />
               </PieChart>
             </ResponsiveContainer>
+            <InteractiveLegend controller={categoryLegend} />
           </CardContent>
         </Card>
       </div>
