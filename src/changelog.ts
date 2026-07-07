@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.1",
+    date: "2026-07-07",
+    title: "Notificações sempre com a identidade da Engemase",
+    description: "Correção para que todas as notificações apareçam com o ícone da Engemase, sem o sino/logo genérico do navegador.",
+    changes: [
+      { type: "fix", text: "Removidos os avisos de notificação \"genéricos\" (com ícone de sino e logo do Chrome). Agora toda notificação — inclusive aviso de nova versão — usa o ícone da Engemase via Service Worker." },
+    ],
+  },
+  {
     version: "2.3.0",
     date: "2026-07-07",
     title: "Painel admin: ferramentas em uso, últimos acessos e botão Voltar",
