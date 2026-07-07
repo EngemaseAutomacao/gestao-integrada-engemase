@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.10",
+    date: "2026-07-07",
+    title: "KM Rodado sem valores negativos",
+    description: "Cálculo do KM Rodado passa a ignorar registros inconsistentes.",
+    changes: [
+      { type: "fix", text: "Registros com quilometragem de devolução menor ou igual à de saída são ignorados no total e no gráfico mensal de KM Rodado, evitando valores negativos." },
+    ],
+  },
+  {
     version: "2.3.9",
     date: "2026-07-07",
     title: "Acesso às notas de atualização",
