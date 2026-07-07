@@ -226,6 +226,21 @@ export default function AdminHistory() {
 
   const hasActiveFilters = searchQuery || statusFilter !== "all" || categoryFilter !== "all" || periodFilter !== "all";
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, statusFilter, categoryFilter, periodFilter, pageSize]);
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedHistory = useMemo(
+    () => filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [filteredHistory, currentPage, pageSize]
+  );
+  const firstIdx = filteredHistory.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const lastIdx = Math.min(currentPage * pageSize, filteredHistory.length);
+
   const clearFilters = () => {
     setSearchQuery("");
     setStatusFilter("all");
