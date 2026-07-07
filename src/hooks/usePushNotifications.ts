@@ -196,35 +196,19 @@ export function usePushNotifications() {
       }
 
       try {
-        // Try to use Service Worker notification (works in background)
+        // Somente via Service Worker — evita a notificação genérica do Chrome
+        // (ícone de sino + logo do navegador) quando usamos `new Notification()`.
         if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
           navigator.serviceWorker.ready.then((registration) => {
             registration.showNotification(title, {
               icon: "/icon-192.png",
-              badge: "/icon-192.png",
+              badge: "/mono-192.png",
               requireInteraction: false,
               ...options,
             });
           });
-          return null;
         }
-
-        // Fallback to regular notification
-        const notification = new Notification(title, {
-          icon: "/icon-192.png",
-          badge: "/icon-192.png",
-          requireInteraction: false,
-          ...options,
-        });
-
-        setTimeout(() => notification.close(), 5000);
-
-        notification.onclick = () => {
-          window.focus();
-          notification.close();
-        };
-
-        return notification;
+        return null;
       } catch (error) {
         console.error("Error showing notification:", error);
         return null;
