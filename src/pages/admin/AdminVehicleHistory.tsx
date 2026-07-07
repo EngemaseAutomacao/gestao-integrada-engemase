@@ -525,83 +525,93 @@ export default function AdminVehicleHistory() {
     );
   };
 
+  const activeFilterCount =
+    (searchQuery ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (categoryFilter !== "all" ? 1 : 0) +
+    (periodFilter !== "all" ? 1 : 0);
+
   return (
-    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <AdminPageHero icon={Car} title="Histórico Geral de Veículos" subtitle="Visualize todas as movimentações de veículos" />
-      <div className="shrink-0 flex items-center justify-end flex-wrap gap-4">
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2">
-            <FileText className="w-4 h-4" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2">
-            <FileSpreadsheet className="w-4 h-4" /> Excel
-          </Button>
-        </div>
-      </div>
-
-      <Card className="shrink-0">
-        <CardHeader>
-          <CardTitle>Filtros</CardTitle>
-          <CardDescription>Filtre o histórico por diferentes critérios</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar veículo, placa ou usuário..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Status</SelectItem>
-                <SelectItem value="checked_out">Em Uso</SelectItem>
-                <SelectItem value="checked_in">Devolvido</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as Categorias</SelectItem>
-                <SelectItem value="engemase_employee">Funcionários</SelectItem>
-                <SelectItem value="third_party">Terceirizados</SelectItem>
-                <SelectItem value="socios">Sócios</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={periodFilter} onValueChange={setPeriodFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Período" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todo o período</SelectItem>
-                <SelectItem value="7d">Últimos 7 dias</SelectItem>
-                <SelectItem value="30d">Últimos 30 dias</SelectItem>
-                <SelectItem value="90d">Últimos 90 dias</SelectItem>
-                <SelectItem value="6m">Últimos 6 meses</SelectItem>
-                <SelectItem value="1y">Último ano</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
-              <X className="w-3 h-3" />
-              Limpar filtros
+    <div className="flex flex-col h-full min-h-0 gap-3 sm:gap-4">
+      <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <div className="shrink-0 flex items-center justify-between flex-wrap gap-2">
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <SlidersHorizontal className="w-4 h-4" />
+              Filtros
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+                  {activeFilterCount}
+                </Badge>
+              )}
+              <ChevronDown className={cn("w-4 h-4 transition-transform", filtersOpen && "rotate-180")} />
             </Button>
-          )}
-        </CardContent>
-      </Card>
+          </CollapsibleTrigger>
+          <div className="flex gap-2">
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+                <X className="w-3 h-3" />
+                Limpar
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2">
+              <FileText className="w-4 h-4" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportExcel} className="gap-2">
+              <FileSpreadsheet className="w-4 h-4" /> Excel
+            </Button>
+          </div>
+        </div>
+
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+          <Card className="shrink-0 mt-2">
+            <CardContent className="p-3 sm:p-4">
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar veículo, placa ou usuário..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-9"
+                  />
+                </div>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Status</SelectItem>
+                    <SelectItem value="checked_out">Em Uso</SelectItem>
+                    <SelectItem value="checked_in">Devolvido</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Categoria" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Categorias</SelectItem>
+                    <SelectItem value="engemase_employee">Funcionários</SelectItem>
+                    <SelectItem value="third_party">Terceirizados</SelectItem>
+                    <SelectItem value="socios">Sócios</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={periodFilter} onValueChange={setPeriodFilter}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Período" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todo o período</SelectItem>
+                    <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                    <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                    <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                    <SelectItem value="6m">Últimos 6 meses</SelectItem>
+                    <SelectItem value="1y">Último ano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
 
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0 flex flex-row items-center justify-between">
