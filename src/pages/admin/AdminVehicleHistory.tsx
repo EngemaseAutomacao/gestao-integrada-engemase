@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, PlugZap, ChevronDown, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, PlugZap, ChevronDown, ChevronRight, SlidersHorizontal, ChevronLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
