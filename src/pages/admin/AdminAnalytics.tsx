@@ -635,7 +635,7 @@ export default function AdminAnalytics() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={vehicleMonthlyData}>
+            <ComposedChart data={vehicleMonthlyData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="month" className="text-xs" />
               <YAxis yAxisId="left" className="text-xs" />
@@ -648,8 +648,8 @@ export default function AdminAnalytics() {
                 }}
               />
               <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill={vehiclesTrendLegend.getColor("checkouts")} hide={vehiclesTrendLegend.isHidden("checkouts")} />
-              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke={vehiclesTrendLegend.getColor("km")} strokeWidth={2} hide={vehiclesTrendLegend.isHidden("km")} />
-            </BarChart>
+              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke={vehiclesTrendLegend.getColor("km")} strokeWidth={2} dot={{ r: 4 }} hide={vehiclesTrendLegend.isHidden("km")} />
+            </ComposedChart>
           </ResponsiveContainer>
           <InteractiveLegend controller={vehiclesTrendLegend} />
         </CardContent>
