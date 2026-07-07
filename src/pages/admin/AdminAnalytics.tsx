@@ -347,208 +347,255 @@ export default function AdminAnalytics() {
     );
   }
 
+  const delayRate = metrics.totalCheckouts > 0
+    ? Math.round((metrics.totalDelays / metrics.totalCheckouts) * 100)
+    : 0;
+  const avgKmPerTrip = metrics.totalVehicleCheckouts > 0
+    ? Math.round(metrics.totalKmDriven / metrics.totalVehicleCheckouts)
+    : 0;
+
   return (
-    <div className="space-y-6">
-      <AdminPageHero icon={TrendingUp} title="Dashboard Analítico" subtitle="Métricas e estatísticas de uso das ferramentas" />
-
-      {/* Period Filter */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">Período</p>
-              <Select value={periodFilter} onValueChange={setPeriodFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todo o período</SelectItem>
-                  <SelectItem value="7d">Últimos 7 dias</SelectItem>
-                  <SelectItem value="30d">Últimos 30 dias</SelectItem>
-                  <SelectItem value="90d">Últimos 90 dias</SelectItem>
-                  <SelectItem value="6m">Últimos 6 meses</SelectItem>
-                  <SelectItem value="1y">Este ano</SelectItem>
-                  <SelectItem value="custom">Personalizado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {periodFilter === "custom" && (
-              <>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">De</p>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? format(startDate, "dd/MM/yyyy") : "Início"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className={cn("p-3 pointer-events-auto")} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Até</p>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-[160px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? format(endDate, "dd/MM/yyyy") : "Fim"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className={cn("p-3 pointer-events-auto")} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </>
-            )}
+    <div className="space-y-4">
+      {/* Compact Header + Period Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b pb-3">
+        <div className="flex items-center gap-3">
+          <div className="rounded-lg bg-primary/10 p-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Retiradas</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalCheckouts}</div>
-            <p className="text-xs text-muted-foreground">Todas as movimentações</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tempo Médio de Uso</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.averageUsageDays} dias</div>
-            <p className="text-xs text-muted-foreground">Média de todas as devoluções</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Atrasos</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalDelays}</div>
-            <p className="text-xs text-muted-foreground">
-              {metrics.totalCheckouts > 0 
-                ? `${Math.round((metrics.totalDelays / metrics.totalCheckouts) * 100)}% das retiradas`
-                : "0% das retiradas"}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Em Uso Atualmente</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.activeCheckouts}</div>
-            <p className="text-xs text-muted-foreground">Ferramentas não devolvidas</p>
-          </CardContent>
-        </Card>
+          <div>
+            <h1 className="text-xl font-bold leading-tight">Dashboard Analítico</h1>
+            <p className="text-xs text-muted-foreground">Métricas de ferramentas e veículos</p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={periodFilter} onValueChange={setPeriodFilter}>
+            <SelectTrigger className="h-9 w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todo o período</SelectItem>
+              <SelectItem value="7d">Últimos 7 dias</SelectItem>
+              <SelectItem value="30d">Últimos 30 dias</SelectItem>
+              <SelectItem value="90d">Últimos 90 dias</SelectItem>
+              <SelectItem value="6m">Últimos 6 meses</SelectItem>
+              <SelectItem value="1y">Este ano</SelectItem>
+              <SelectItem value="custom">Personalizado</SelectItem>
+            </SelectContent>
+          </Select>
+          {periodFilter === "custom" && (
+            <>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className={cn("h-9 justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "dd/MM/yyyy") : "Início"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className={cn("h-9 justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "dd/MM/yyyy") : "Fim"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                </PopoverContent>
+              </Popover>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Secondary Metrics */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ferramentas</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalTools}</div>
-            <p className="text-xs text-muted-foreground">{metrics.toolsInUse} em uso</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Usuários</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">Cadastrados</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Manutenções</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.maintenanceCount}</div>
-            <p className="text-xs text-muted-foreground">Registradas</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Atraso</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-warning" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {metrics.totalCheckouts > 0 
-                ? `${Math.round((metrics.totalDelays / metrics.totalCheckouts) * 100)}%`
-                : "0%"}
+      {/* Bento Grid KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 auto-rows-[110px] gap-3">
+        {/* Em Uso (destaque - primary) */}
+        <Card className="col-span-2 row-span-2 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent relative overflow-hidden">
+          <CardContent className="p-4 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Em Uso Agora</p>
+                <p className="text-4xl font-bold text-primary mt-1">{metrics.activeCheckouts}</p>
+                <p className="text-xs text-muted-foreground mt-1">Ferramentas não devolvidas</p>
+              </div>
+              <div className="rounded-lg bg-primary/10 p-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">Geral</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Vehicle Metrics */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Saídas de Veículos</CardTitle>
-            <Car className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalVehicleCheckouts}</div>
-            <p className="text-xs text-muted-foreground">{metrics.activeVehicles} em uso agora</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">KM Total Rodado</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalKmDriven.toLocaleString("pt-BR")} km</div>
-            <p className="text-xs text-muted-foreground">Todas as viagens</p>
+            {monthlyData.length > 0 && (
+              <div className="h-14 -mx-1 -mb-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={monthlyData}>
+                    <defs>
+                      <linearGradient id="gradPrimary" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="checkouts" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#gradPrimary)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">KM Médio por Viagem</CardTitle>
-            <Car className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {metrics.totalVehicleCheckouts > 0 
-                ? Math.round(metrics.totalKmDriven / metrics.totalVehicleCheckouts).toLocaleString("pt-BR")
-                : 0} km
+        {/* Atrasos (destaque - destructive) */}
+        <Card className="col-span-2 row-span-2 border-destructive/30 bg-gradient-to-br from-destructive/5 to-transparent relative overflow-hidden">
+          <CardContent className="p-4 h-full flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total de Atrasos</p>
+                <p className="text-4xl font-bold text-destructive mt-1">{metrics.totalDelays}</p>
+                <p className="text-xs text-muted-foreground mt-1">{delayRate}% das retiradas</p>
+              </div>
+              <div className="rounded-lg bg-destructive/10 p-2">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">Média geral</p>
+            {monthlyData.length > 0 && (
+              <div className="h-14 -mx-1 -mb-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={monthlyData}>
+                    <defs>
+                      <linearGradient id="gradDestructive" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Area type="monotone" dataKey="delays" stroke="hsl(var(--destructive))" strokeWidth={2} fill="url(#gradDestructive)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Total Retiradas */}
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Retiradas</p>
+              <Package className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none">{metrics.totalCheckouts}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">Total geral</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tempo Médio */}
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Tempo Médio</p>
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none">{metrics.averageUsageDays}<span className="text-sm font-normal text-muted-foreground ml-1">dias</span></p>
+              <p className="text-[10px] text-muted-foreground mt-1">De uso</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Taxa de Atraso — colspan 2 */}
+        <Card className={cn("col-span-2", delayRate > 20 ? "border-warning/40 bg-warning/5" : "")}>
+          <CardContent className="p-3 h-full flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Taxa de Atraso</p>
+              <p className={cn("text-2xl font-bold leading-none mt-1", delayRate > 20 ? "text-warning" : delayRate > 0 ? "text-foreground" : "text-muted-foreground")}>{delayRate}%</p>
+            </div>
+            <div className={cn("rounded-lg p-2", delayRate > 20 ? "bg-warning/10" : "bg-muted")}>
+              <AlertTriangle className={cn("h-4 w-4", delayRate > 20 ? "text-warning" : "text-muted-foreground")} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Row 3: Ferramentas, Usuários, Manutenções, Saídas, KM Total, KM Médio */}
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Ferramentas</p>
+              <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none">{metrics.totalTools}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{metrics.toolsInUse} em uso</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Usuários</p>
+              <Users className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none">{metrics.totalUsers}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">Cadastrados</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Manutenções</p>
+              <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none">{metrics.maintenanceCount}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">Registradas</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Saídas Veíc.</p>
+              <Car className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold leading-none">{metrics.totalVehicleCheckouts}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{metrics.activeVehicles} em uso</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">KM Total</p>
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-xl font-bold leading-none tabular-nums">{metrics.totalKmDriven.toLocaleString("pt-BR")}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">km rodados</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-3 h-full flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">KM Médio</p>
+              <Car className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-xl font-bold leading-none tabular-nums">{avgKmPerTrip.toLocaleString("pt-BR")}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">km / viagem</p>
+            </div>
           </CardContent>
         </Card>
       </div>
+
       {/* Monthly Trend Chart */}
       <Card>
         <CardHeader>
