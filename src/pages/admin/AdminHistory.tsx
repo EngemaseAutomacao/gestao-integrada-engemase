@@ -96,6 +96,61 @@ export default function AdminHistory() {
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [editEntry, setEditEntry] = useState<HistoryEntry | null>(null);
+  const [editForm, setEditForm] = useState({ construction_site: "", notes: "", checkout_date: "", checkin_date: "" });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEdit = (entry: HistoryEntry) => {
+    const toLocal = (iso: string | null) => {
+      if (!iso) return "";
+      const d = new Date(iso);
+      const off = d.getTimezoneOffset();
+      const local = new Date(d.getTime() - off * 60000);
+      return local.toISOString().slice(0, 16);
+    };
+    setEditForm({
+      construction_site: entry.construction_site || "",
+      notes: entry.notes || "",
+      checkout_date: toLocal(entry.checkout_date),
+      checkin_date: toLocal(entry.checkin_date),
+    });
+    setEditEntry(entry);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editEntry) return;
+    setSavingEdit(true);
+    try {
+      const payload: Record<string, unknown> = {
+        construction_site: editForm.construction_site.trim() || null,
+        notes: editForm.notes.trim() || null,
+        checkout_date: new Date(editForm.checkout_date).toISOString(),
+        checkin_date: editForm.checkin_date ? new Date(editForm.checkin_date).toISOString() : null,
+      };
+      const { error } = await supabase.from("tool_checkouts").update(payload).eq("id", editEntry.id);
+      if (error) throw error;
+      await supabase.from("system_logs").insert({
+        action: "edit_history",
+        entity_type: "tool_checkout",
+        entity_id: editEntry.id,
+        user_id: profile!.id,
+        user_name: profile!.full_name,
+        details: {
+          tool_name: editEntry.tools?.name,
+          user_name: editEntry.profiles?.full_name,
+          changes: payload,
+        },
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin-history"] });
+      toast.success("Registro atualizado com sucesso");
+      setEditEntry(null);
+    } catch (err) {
+      console.error("Erro ao editar registro:", err);
+      toast.error("Erro ao atualizar registro");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
