@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.1",
+    date: "2026-07-07",
+    title: "Últimos Acessos considera login automático",
+    description: "O relatório de últimos acessos passa a registrar também quando o usuário entra automaticamente pela sessão salva.",
+    changes: [
+      { type: "fix", text: "Últimos Acessos agora atualiza a data de acesso mesmo quando o usuário entra automaticamente (sem preencher usuário e senha)." },
+    ],
+  },
+  {
     version: "2.4.0",
     date: "2026-07-07",
     title: "Correção manual de KM inconsistente",
