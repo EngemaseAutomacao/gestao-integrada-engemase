@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.3",
+    date: "2026-07-07",
+    title: "Histórico de ferramentas: status simplificado e detalhes mais limpos",
+    description: "Ajustes visuais no Histórico Geral de ferramentas conforme feedback.",
+    changes: [
+      { type: "improvement", text: "Status agora mostra apenas um selo: \"Atrasado\" quando a devolução está em atraso, ou \"Em Uso\" quando ainda está dentro do prazo (sem mais os dois juntos)." },
+      { type: "improvement", text: "Seção \"Fotos e Assinaturas\" removida do detalhe expandido para deixar a visualização mais objetiva." },
+    ],
+  },
+  {
     version: "2.3.2",
     date: "2026-07-07",
     title: "Histórico com mais espaço, tabela densa e detalhes inline",
