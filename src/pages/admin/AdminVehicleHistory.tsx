@@ -660,254 +660,266 @@ export default function AdminVehicleHistory() {
             />
           ) : (
             <>
-              {/* Desktop Table */}
+              {/* Desktop Table — densa, com zebra, header sticky e expansão inline */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Veículo</TableHead>
-                      <TableHead>Placa</TableHead>
-                      <TableHead>Usuário</TableHead>
-                      <TableHead>Categoria</TableHead>
-                      <TableHead>Destino</TableHead>
-                      <TableHead>Saída</TableHead>
-                      <TableHead>Chegada</TableHead>
-                      <TableHead>KM</TableHead>
-                      <TableHead>Tempo de Uso</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Detalhes</TableHead>
+                <Table className="text-sm">
+                  <TableHeader className="sticky top-0 z-10 bg-card">
+                    <TableRow className="[&_th]:h-9 [&_th]:py-2">
+                      <TableHead className="w-8" />
+                      <TableHead className="min-w-[160px]">Veículo</TableHead>
+                      <TableHead className="w-[100px]">Placa</TableHead>
+                      <TableHead className="min-w-[160px]">Usuário</TableHead>
+                      <TableHead className="w-[110px]">Categoria</TableHead>
+                      <TableHead className="min-w-[140px]">Destino</TableHead>
+                      <TableHead className="w-[120px]">Saída</TableHead>
+                      <TableHead className="w-[120px]">Chegada</TableHead>
+                      <TableHead className="w-[90px]">KM</TableHead>
+                      <TableHead className="w-[90px]">Tempo</TableHead>
+                      <TableHead className="w-[110px]">Status</TableHead>
+                      <TableHead className="w-[80px] text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {filteredHistory.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.vehicles?.name}</TableCell>
-                        <TableCell>{entry.vehicles?.plate}</TableCell>
-                        <TableCell>{entry.profiles?.full_name}</TableCell>
-                        <TableCell>{getCategoryBadge(entry.profiles?.category)}</TableCell>
-                        <TableCell>{entry.destination || "-"}</TableCell>
-                        <TableCell>
-                          {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                        </TableCell>
-                        <TableCell>
-                          {entry.checkin_date
-                            ? format(new Date(entry.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                            : "-"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span>
-                              {entry.km_checkin !== null
-                                ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
+                  <TableBody className="[&_tr[data-row='main']:nth-child(4n+1)]:bg-muted/30 [&_tr[data-row='main']:hover]:bg-accent/40 [&_tr[data-row='main']]:transition-colors [&_td]:py-2">
+                    {filteredHistory.map((entry) => {
+                      const isExpanded = expandedId === entry.id;
+                      return (
+                        <Fragment key={entry.id}>
+                          <TableRow
+                            data-row="main"
+                            className="cursor-pointer"
+                            onClick={() => { setExpandedId(isExpanded ? null : entry.id); if (!isExpanded) setAiEstimation(null); }}
+                          >
+                            <TableCell className="w-8 pr-0">
+                              {isExpanded ? (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </TableCell>
+                            <TableCell className="font-medium truncate max-w-[220px]" title={entry.vehicles?.name}>{entry.vehicles?.name}</TableCell>
+                            <TableCell className="font-mono text-xs">{entry.vehicles?.plate}</TableCell>
+                            <TableCell className="truncate max-w-[200px]" title={entry.profiles?.full_name}>{entry.profiles?.full_name}</TableCell>
+                            <TableCell>{getCategoryBadge(entry.profiles?.category)}</TableCell>
+                            <TableCell className="truncate max-w-[200px]" title={entry.destination || ""}>{entry.destination || "-"}</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                              {format(new Date(entry.checkout_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                              {entry.checkin_date
+                                ? format(new Date(entry.checkin_date), "dd/MM/yy HH:mm", { locale: ptBR })
                                 : "-"}
-                            </span>
-                            {entry.checkin_date && entry.km_checkin_automatic === false && (
-                              <Badge variant="outline" className="text-[10px] h-4 px-1 w-fit mt-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">{formatUsageHours(entry.checkout_date, entry.checkin_date)}</span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
-                            {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={() => { setSelectedEntry(entry); setAiEstimation(null); }}>
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  Ver
-                                  {hasPhotos(entry) && <Camera className="w-3 h-3 ml-1" />}
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>Detalhes da Movimentação</DialogTitle>
-                                </DialogHeader>
-                                {selectedEntry && (
-                                  <div className="space-y-6">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Veículo</p>
-                                        <p className="font-semibold">{selectedEntry.vehicles?.name} - {selectedEntry.vehicles?.plate}</p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                        <p className="font-semibold">{selectedEntry.profiles?.full_name}</p>
-                                        {getCategoryBadge(selectedEntry.profiles?.category)}
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Destino</p>
-                                        <p>{selectedEntry.destination || "Não informado"}</p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                        <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
-                                          {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvido"}
-                                        </Badge>
-                                      </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Saída</p>
-                                        <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                          KM: {selectedEntry.km_checkout.toLocaleString()} | Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Chegada</p>
-                                        <p>
-                                          {selectedEntry.checkin_date
-                                            ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                                            : "Não devolvido"}
-                                        </p>
-                                        {selectedEntry.km_checkin !== null && (
-                                          <p className="text-xs text-muted-foreground flex items-center gap-2">
-                                            KM: {selectedEntry.km_checkin.toLocaleString()} | Por: {selectedEntry.checked_in_by_profile?.full_name || "-"}
-                                            {selectedEntry.km_checkin_automatic === false && (
-                                              <Badge variant="outline" className="text-[10px] h-4 px-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
-                                            )}
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
-
-                                    {selectedEntry.km_checkin !== null && (
-                                      <div className="pt-4 border-t">
-                                        <p className="text-sm font-medium text-muted-foreground">Distância Percorrida</p>
-                                        <p className="text-lg font-bold text-primary">
-                                          {(selectedEntry.km_checkin - selectedEntry.km_checkout).toLocaleString()} km
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                          Abastecido: {selectedEntry.refueled === null ? "Não informado" : selectedEntry.refueled ? "Sim" : "Não"}
-                                        </p>
-                                      </div>
-                                    )}
-
-                                    {canEstimateKm(selectedEntry) && (
-                                      <div className="pt-4 border-t">
-                                        <div className="flex items-center justify-between">
-                                          <p className="text-sm font-medium text-muted-foreground">Estimativa por IA</p>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="gap-2"
-                                            onClick={() => estimateKm(selectedEntry)}
-                                            disabled={estimating}
-                                          >
-                                            {estimating ? (
-                                              <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                              <Brain className="w-4 h-4" />
-                                            )}
-                                            {estimating ? "Analisando..." : "Estimar KM via IA"}
-                                          </Button>
-                                        </div>
-                                        {aiEstimation && (
-                                          <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
-                                            <div className="flex items-center gap-2">
-                                              <Badge variant={
-                                                aiEstimation.confidence === "high" ? "default" :
-                                                aiEstimation.confidence === "medium" ? "secondary" : "destructive"
-                                              }>
-                                                {aiEstimation.confidence === "high" ? "Alta confiança" :
-                                                 aiEstimation.confidence === "medium" ? "Média confiança" : "Baixa confiança"}
-                                              </Badge>
-                                            </div>
-                                            <div className="grid grid-cols-3 gap-2 text-sm">
-                                              <div>
-                                                <p className="text-muted-foreground text-xs">KM Saída</p>
-                                                <p className="font-medium">{aiEstimation.checkout_km?.toLocaleString() || "N/A"}</p>
-                                              </div>
-                                              <div>
-                                                <p className="text-muted-foreground text-xs">KM Chegada</p>
-                                                <p className="font-medium">{aiEstimation.checkin_km?.toLocaleString() || "N/A"}</p>
-                                              </div>
-                                              <div>
-                                                <p className="text-muted-foreground text-xs">Distância</p>
-                                                <p className="font-bold text-primary">{aiEstimation.distance_km?.toLocaleString() || "N/A"} km</p>
-                                              </div>
-                                            </div>
-                                            {aiEstimation.notes && (
-                                              <p className="text-xs text-muted-foreground">{aiEstimation.notes}</p>
-                                            )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-
-                                    {selectedEntry.notes && (
-                                      <div className="pt-4 border-t">
-                                        <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                                        <p className="text-sm">{selectedEntry.notes}</p>
-                                      </div>
-                                    )}
-
-                                    {hasPhotos(selectedEntry) && (
-                                      <div className="pt-4 border-t space-y-4">
-                                        <h4 className="font-semibold">Fotos — Comparativo Saída vs Devolução</h4>
-                                        {[
-                                          { label: "Frente", checkout: selectedEntry.photo_front_checkout, checkin: selectedEntry.photo_front_checkin },
-                                          { label: "Traseira", checkout: selectedEntry.photo_back_checkout, checkin: selectedEntry.photo_back_checkin },
-                                          { label: "Esquerda", checkout: selectedEntry.photo_left_checkout, checkin: selectedEntry.photo_left_checkin },
-                                          { label: "Direita", checkout: selectedEntry.photo_right_checkout, checkin: selectedEntry.photo_right_checkin },
-                                          { label: "Painel", checkout: selectedEntry.photo_dashboard_checkout, checkin: selectedEntry.photo_dashboard_checkin },
-                                        ]
-                                          .filter((pair) => pair.checkout || pair.checkin)
-                                          .map((pair) => (
-                                            <div key={pair.label} className="space-y-1">
-                                              <p className="text-sm font-medium text-muted-foreground">{pair.label}</p>
-                                              <div className="grid grid-cols-2 gap-2">
-                                                <div>
-                                                  <p className="text-xs text-muted-foreground mb-1">Saída</p>
-                                                  {pair.checkout ? (
-                                                    <SignedImage storagePath={pair.checkout} alt={`${pair.label} - Saída`} className="w-full h-32 object-cover rounded-lg border" />
-                                                  ) : (
-                                                    <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
-                                                      Sem foto
-                                                    </div>
-                                                  )}
-                                                </div>
-                                                <div>
-                                                  <p className="text-xs text-muted-foreground mb-1">Devolução</p>
-                                                  {pair.checkin ? (
-                                                    <SignedImage storagePath={pair.checkin} alt={`${pair.label} - Devolução`} className="w-full h-32 object-cover rounded-lg border" />
-                                                  ) : (
-                                                    <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
-                                                      Sem foto
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          ))}
-                                      </div>
-                                    )}
-                                  </div>
+                            </TableCell>
+                            <TableCell className="tabular-nums">
+                              <div className="flex flex-col leading-tight">
+                                <span>
+                                  {entry.km_checkin !== null
+                                    ? `${(entry.km_checkin - entry.km_checkout).toLocaleString()} km`
+                                    : "-"}
+                                </span>
+                                {entry.checkin_date && entry.km_checkin_automatic === false && (
+                                  <Badge variant="outline" className="text-[9px] h-4 px-1 w-fit mt-0.5 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
                                 )}
-                              </DialogContent>
-                            </Dialog>
-                            {isAdmin && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive hover:text-destructive"
-                                onClick={() => setDeleteDialog({ open: true, entry })}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-xs">{formatUsageHours(entry.checkout_date, entry.checkin_date)}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                <Badge variant={entry.status === "checked_out" ? "default" : "secondary"} className="text-[10px] py-0 h-5">
+                                  {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
+                                </Badge>
+                                {hasPhotos(entry) && <Camera className="w-3 h-3 text-muted-foreground" />}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => { setExpandedId(isExpanded ? null : entry.id); if (!isExpanded) setAiEstimation(null); }}
+                                  title={isExpanded ? "Ocultar detalhes" : "Ver detalhes"}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                {isAdmin && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-destructive hover:text-destructive"
+                                    onClick={() => setDeleteDialog({ open: true, entry })}
+                                    title="Excluir"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {isExpanded && (
+                            <TableRow data-row="details" className="bg-muted/50 hover:bg-muted/50">
+                              <TableCell colSpan={12} className="p-4">
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Veículo</p>
+                                      <p className="font-semibold text-sm">{entry.vehicles?.name} — {entry.vehicles?.plate}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Usuário</p>
+                                      <p className="text-sm">{entry.profiles?.full_name}</p>
+                                      <div className="mt-0.5">{getCategoryBadge(entry.profiles?.category)}</div>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Destino</p>
+                                      <p className="text-sm">{entry.destination || "Não informado"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Status</p>
+                                      <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+                                        {entry.status === "checked_out" ? "Em Uso" : "Devolvido"}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t">
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Saída</p>
+                                      <p className="text-sm">{format(new Date(entry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        KM: {entry.km_checkout.toLocaleString()} · Por: {entry.checked_out_by_profile?.full_name || "-"}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Chegada</p>
+                                      <p className="text-sm">
+                                        {entry.checkin_date
+                                          ? format(new Date(entry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                          : "Não devolvido"}
+                                      </p>
+                                      {entry.km_checkin !== null && (
+                                        <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                          KM: {entry.km_checkin.toLocaleString()} · Por: {entry.checked_in_by_profile?.full_name || "-"}
+                                          {entry.km_checkin_automatic === false && (
+                                            <Badge variant="outline" className="text-[10px] h-4 px-1 border-orange-200 bg-orange-50 text-orange-700">Manual</Badge>
+                                          )}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
 
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                                  {entry.km_checkin !== null && (
+                                    <div className="pt-3 border-t">
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Distância Percorrida</p>
+                                      <p className="text-lg font-bold text-primary">
+                                        {(entry.km_checkin - entry.km_checkout).toLocaleString()} km
+                                      </p>
+                                      <p className="text-xs text-muted-foreground">
+                                        Abastecido: {entry.refueled === null ? "Não informado" : entry.refueled ? "Sim" : "Não"}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {canEstimateKm(entry) && (
+                                    <div className="pt-3 border-t">
+                                      <div className="flex items-center justify-between flex-wrap gap-2">
+                                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Estimativa por IA</p>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="gap-2"
+                                          onClick={() => { setSelectedEntry(entry); estimateKm(entry); }}
+                                          disabled={estimating}
+                                        >
+                                          {estimating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+                                          {estimating ? "Analisando..." : "Estimar KM via IA"}
+                                        </Button>
+                                      </div>
+                                      {aiEstimation && selectedEntry?.id === entry.id && (
+                                        <div className="mt-3 p-3 rounded-lg bg-muted/50 space-y-2">
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant={
+                                              aiEstimation.confidence === "high" ? "default" :
+                                              aiEstimation.confidence === "medium" ? "secondary" : "destructive"
+                                            }>
+                                              {aiEstimation.confidence === "high" ? "Alta confiança" :
+                                               aiEstimation.confidence === "medium" ? "Média confiança" : "Baixa confiança"}
+                                            </Badge>
+                                          </div>
+                                          <div className="grid grid-cols-3 gap-2 text-sm">
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">KM Saída</p>
+                                              <p className="font-medium">{aiEstimation.checkout_km?.toLocaleString() || "N/A"}</p>
+                                            </div>
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">KM Chegada</p>
+                                              <p className="font-medium">{aiEstimation.checkin_km?.toLocaleString() || "N/A"}</p>
+                                            </div>
+                                            <div>
+                                              <p className="text-muted-foreground text-xs">Distância</p>
+                                              <p className="font-bold text-primary">{aiEstimation.distance_km?.toLocaleString() || "N/A"} km</p>
+                                            </div>
+                                          </div>
+                                          {aiEstimation.notes && (
+                                            <p className="text-xs text-muted-foreground">{aiEstimation.notes}</p>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {entry.notes && (
+                                    <div className="pt-3 border-t">
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Observações</p>
+                                      <p className="text-sm mt-1 whitespace-pre-wrap">{entry.notes}</p>
+                                    </div>
+                                  )}
+
+                                  {hasPhotos(entry) && (
+                                    <div className="pt-3 border-t space-y-3">
+                                      <h4 className="font-semibold text-sm">Fotos — Comparativo Saída vs Devolução</h4>
+                                      {[
+                                        { label: "Frente", checkout: entry.photo_front_checkout, checkin: entry.photo_front_checkin },
+                                        { label: "Traseira", checkout: entry.photo_back_checkout, checkin: entry.photo_back_checkin },
+                                        { label: "Esquerda", checkout: entry.photo_left_checkout, checkin: entry.photo_left_checkin },
+                                        { label: "Direita", checkout: entry.photo_right_checkout, checkin: entry.photo_right_checkin },
+                                        { label: "Painel", checkout: entry.photo_dashboard_checkout, checkin: entry.photo_dashboard_checkin },
+                                      ]
+                                        .filter((pair) => pair.checkout || pair.checkin)
+                                        .map((pair) => (
+                                          <div key={pair.label} className="space-y-1">
+                                            <p className="text-xs font-medium text-muted-foreground">{pair.label}</p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                              <div>
+                                                <p className="text-[10px] text-muted-foreground mb-1">Saída</p>
+                                                {pair.checkout ? (
+                                                  <SignedImage storagePath={pair.checkout} alt={`${pair.label} - Saída`} className="w-full h-32 object-cover rounded-lg border" />
+                                                ) : (
+                                                  <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                                    Sem foto
+                                                  </div>
+                                                )}
+                                              </div>
+                                              <div>
+                                                <p className="text-[10px] text-muted-foreground mb-1">Devolução</p>
+                                                {pair.checkin ? (
+                                                  <SignedImage storagePath={pair.checkin} alt={`${pair.label} - Devolução`} className="w-full h-32 object-cover rounded-lg border" />
+                                                ) : (
+                                                  <div className="w-full h-32 rounded-lg border border-dashed flex items-center justify-center text-xs text-muted-foreground bg-muted/30">
+                                                    Sem foto
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </Fragment>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
