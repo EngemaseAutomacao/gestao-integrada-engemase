@@ -1,5 +1,4 @@
-import { AdminPageHero } from "@/components/admin/AdminPageHero";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,11 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock, History } from "lucide-react";
+import { Search, Eye, Camera, FileSignature, FileText, FileSpreadsheet, Trash2, X, List, Clock, ChevronDown, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
 import { exportToPDF, exportToExcel } from "@/lib/exportUtils";
@@ -91,6 +91,8 @@ export default function AdminHistory() {
   const [selectedEntry, setSelectedEntry] = useState<HistoryEntry | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; entry: HistoryEntry | null }>({ open: false, entry: null });
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const handleDeleteEntry = async (reason: string) => {
     if (!deleteDialog.entry) return;
@@ -262,83 +264,94 @@ export default function AdminHistory() {
     return <HistorySkeleton />;
   }
 
+  const activeFilterCount =
+    (searchQuery ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (categoryFilter !== "all" ? 1 : 0) +
+    (periodFilter !== "all" ? 1 : 0);
+
   return (
-    <div className="flex flex-col h-full min-h-0 gap-4 sm:gap-6">
-      <AdminPageHero icon={History} title="Histórico Completo" subtitle="Visualize todas as movimentações de ferramentas" />
-      <div className="shrink-0 flex items-center justify-end flex-wrap gap-4">
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={exportHistoryPDF} className="gap-2">
-            <FileText className="w-4 h-4" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportHistoryExcel} className="gap-2">
-            <FileSpreadsheet className="w-4 h-4" /> Excel
-          </Button>
-        </div>
-      </div>
-
-      <Card className="shrink-0">
-        <CardHeader>
-          <CardTitle>Filtros</CardTitle>
-          <CardDescription>Filtre o histórico por diferentes critérios</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar ferramenta, usuário ou obra..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os Status</SelectItem>
-                <SelectItem value="checked_out">Em Uso</SelectItem>
-                <SelectItem value="checked_in">Devolvida</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as Categorias</SelectItem>
-                <SelectItem value="engemase_employee">Funcionários</SelectItem>
-                <SelectItem value="third_party">Terceirizados</SelectItem>
-                <SelectItem value="socios">Sócios</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={periodFilter} onValueChange={setPeriodFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Período" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todo o período</SelectItem>
-                <SelectItem value="7d">Últimos 7 dias</SelectItem>
-                <SelectItem value="30d">Últimos 30 dias</SelectItem>
-                <SelectItem value="90d">Últimos 90 dias</SelectItem>
-                <SelectItem value="6m">Últimos 6 meses</SelectItem>
-                <SelectItem value="1y">Último ano</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
-              <X className="w-3 h-3" />
-              Limpar filtros
+    <div className="flex flex-col h-full min-h-0 gap-3 sm:gap-4">
+      {/* Barra de ações + filtros recolhíveis */}
+      <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <div className="shrink-0 flex items-center justify-between flex-wrap gap-2">
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <SlidersHorizontal className="w-4 h-4" />
+              Filtros
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+                  {activeFilterCount}
+                </Badge>
+              )}
+              <ChevronDown className={cn("w-4 h-4 transition-transform", filtersOpen && "rotate-180")} />
             </Button>
-          )}
-        </CardContent>
-      </Card>
+          </CollapsibleTrigger>
+          <div className="flex gap-2">
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+                <X className="w-3 h-3" />
+                Limpar
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={exportHistoryPDF} className="gap-2">
+              <FileText className="w-4 h-4" /> PDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportHistoryExcel} className="gap-2">
+              <FileSpreadsheet className="w-4 h-4" /> Excel
+            </Button>
+          </div>
+        </div>
+
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+          <Card className="shrink-0 mt-2">
+            <CardContent className="p-3 sm:p-4">
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar ferramenta, usuário ou obra..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-9"
+                  />
+                </div>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Status</SelectItem>
+                    <SelectItem value="checked_out">Em Uso</SelectItem>
+                    <SelectItem value="checked_in">Devolvida</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Categoria" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Categorias</SelectItem>
+                    <SelectItem value="engemase_employee">Funcionários</SelectItem>
+                    <SelectItem value="third_party">Terceirizados</SelectItem>
+                    <SelectItem value="socios">Sócios</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={periodFilter} onValueChange={setPeriodFilter}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Período" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todo o período</SelectItem>
+                    <SelectItem value="7d">Últimos 7 dias</SelectItem>
+                    <SelectItem value="30d">Últimos 30 dias</SelectItem>
+                    <SelectItem value="90d">Últimos 90 dias</SelectItem>
+                    <SelectItem value="6m">Últimos 6 meses</SelectItem>
+                    <SelectItem value="1y">Último ano</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
 
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0 flex flex-row items-center justify-between">
@@ -387,199 +400,200 @@ export default function AdminHistory() {
             />
           ) : (
             <>
-              {/* Desktop Table */}
+              {/* Desktop Table — densa, com zebra, header sticky e expansão inline */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ferramenta</TableHead>
-                      <TableHead>Obra</TableHead>
-                      <TableHead>Usuário</TableHead>
-                      <TableHead>Categoria</TableHead>
-                      <TableHead>Retirada</TableHead>
-                      <TableHead>Devolução</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Detalhes</TableHead>
+                <Table className="text-sm">
+                  <TableHeader className="sticky top-0 z-10 bg-card">
+                    <TableRow className="[&_th]:h-9 [&_th]:py-2">
+                      <TableHead className="w-8" />
+                      <TableHead className="min-w-[180px]">Ferramenta</TableHead>
+                      <TableHead className="min-w-[140px]">Obra</TableHead>
+                      <TableHead className="min-w-[160px]">Usuário</TableHead>
+                      <TableHead className="w-[120px]">Categoria</TableHead>
+                      <TableHead className="w-[140px]">Retirada</TableHead>
+                      <TableHead className="w-[140px]">Devolução</TableHead>
+                      <TableHead className="w-[130px]">Status</TableHead>
+                      <TableHead className="w-[100px] text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {filteredHistory.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex flex-col">
-                            <span>{entry.tools?.name}</span>
-                            {(entry.selected_tag || entry.tools?.tag) && (
-                              <span className="text-[10px] font-mono text-muted-foreground uppercase">
-                                TAG: {entry.selected_tag || entry.tools?.tag}
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{entry.construction_site || "-"}</TableCell>
-                        <TableCell>{entry.profiles?.full_name}</TableCell>
-                        <TableCell>{getCategoryBadge(entry.profiles?.category)}</TableCell>
-                        <TableCell>
-                          {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                        </TableCell>
-                        <TableCell>
-                          {entry.checkin_date
-                            ? format(new Date(entry.checkin_date), "dd/MM/yyyy HH:mm", { locale: ptBR })
-                            : "-"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
-                              {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                            </Badge>
-                            {isOverdue(entry.estimated_return_date, entry.status) && (
-                              <Badge variant="destructive">Atrasado</Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={() => setSelectedEntry(entry)}>
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  Ver
-                                  {hasMedia(entry) && (
-                                    <span className="ml-1 flex gap-1">
-                                      {(entry.checkout_photo_url || entry.checkin_photo_url) && 
-                                        <Camera className="w-3 h-3" />}
-                                      {(entry.checkout_signature_url || entry.checkin_signature_url) && 
-                                        <FileSignature className="w-3 h-3" />}
-                                    </span>
-                                  )}
+                  <TableBody className="[&_tr[data-row='main']:nth-child(4n+1)]:bg-muted/30 [&_tr[data-row='main']:hover]:bg-accent/40 [&_tr[data-row='main']]:transition-colors [&_td]:py-2">
+                    {filteredHistory.map((entry) => {
+                      const isExpanded = expandedId === entry.id;
+                      return (
+                        <Fragment key={entry.id}>
+                          <TableRow
+                            data-row="main"
+                            className="cursor-pointer"
+                            onClick={() => setExpandedId(isExpanded ? null : entry.id)}
+                          >
+                            <TableCell className="w-8 pr-0">
+                              {isExpanded ? (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <div className="flex flex-col leading-tight">
+                                <span className="truncate max-w-[240px]" title={entry.tools?.name}>{entry.tools?.name}</span>
+                                {(entry.selected_tag || entry.tools?.tag) && (
+                                  <span className="text-[10px] font-mono text-muted-foreground uppercase">
+                                    TAG: {entry.selected_tag || entry.tools?.tag}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="truncate max-w-[180px]" title={entry.construction_site || ""}>
+                              {entry.construction_site || "-"}
+                            </TableCell>
+                            <TableCell className="truncate max-w-[200px]" title={entry.profiles?.full_name}>
+                              {entry.profiles?.full_name}
+                            </TableCell>
+                            <TableCell>{getCategoryBadge(entry.profiles?.category)}</TableCell>
+                            <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                              {format(new Date(entry.checkout_date), "dd/MM/yy HH:mm", { locale: ptBR })}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                              {entry.checkin_date
+                                ? format(new Date(entry.checkin_date), "dd/MM/yy HH:mm", { locale: ptBR })
+                                : "-"}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                <Badge variant={entry.status === "checked_out" ? "default" : "secondary"} className="text-[10px] py-0 h-5">
+                                  {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                                </Badge>
+                                {isOverdue(entry.estimated_return_date, entry.status) && (
+                                  <Badge variant="destructive" className="text-[10px] py-0 h-5">Atrasado</Badge>
+                                )}
+                                {hasMedia(entry) && (
+                                  <span className="flex items-center gap-0.5 text-muted-foreground">
+                                    {(entry.checkout_photo_url || entry.checkin_photo_url) && <Camera className="w-3 h-3" />}
+                                    {(entry.checkout_signature_url || entry.checkin_signature_url) && <FileSignature className="w-3 h-3" />}
+                                  </span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => setExpandedId(isExpanded ? null : entry.id)}
+                                  title={isExpanded ? "Ocultar detalhes" : "Ver detalhes"}
+                                >
+                                  <Eye className="w-4 h-4" />
                                 </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>Detalhes da Movimentação</DialogTitle>
-                                </DialogHeader>
-                                {selectedEntry && (
-                                  <div className="space-y-6">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Ferramenta</p>
-                                        <p className="font-semibold">
-                                          {selectedEntry.tools?.name}
-                                          {(selectedEntry.selected_tag || selectedEntry.tools?.tag) && (
-                                            <span className="ml-2 text-xs font-mono text-muted-foreground bg-muted px-1 rounded uppercase">
-                                              TAG: {selectedEntry.selected_tag || selectedEntry.tools?.tag}
-                                            </span>
+                                {isAdmin && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-destructive hover:text-destructive"
+                                    onClick={() => setDeleteDialog({ open: true, entry })}
+                                    title="Excluir"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {isExpanded && (
+                            <TableRow data-row="details" className="bg-muted/50 hover:bg-muted/50">
+                              <TableCell colSpan={9} className="p-4">
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Ferramenta</p>
+                                      <p className="font-semibold text-sm">{entry.tools?.name}</p>
+                                      {(entry.selected_tag || entry.tools?.tag) && (
+                                        <p className="text-[10px] font-mono text-muted-foreground uppercase mt-0.5">
+                                          TAG: {entry.selected_tag || entry.tools?.tag}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Usuário</p>
+                                      <p className="text-sm">{entry.profiles?.full_name}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Obra</p>
+                                      <p className="text-sm">{entry.construction_site || "Não informado"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Status</p>
+                                      <Badge variant={entry.status === "checked_out" ? "default" : "secondary"}>
+                                        {entry.status === "checked_out" ? "Em Uso" : "Devolvida"}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t">
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Data de Retirada</p>
+                                      <p className="text-sm">{format(new Date(entry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
+                                      <p className="text-xs text-muted-foreground">Por: {entry.checked_out_by_profile?.full_name || "-"}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Data de Devolução</p>
+                                      <p className="text-sm">
+                                        {entry.checkin_date
+                                          ? format(new Date(entry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
+                                          : "Não devolvida"}
+                                      </p>
+                                      {entry.checked_in_by_profile && (
+                                        <p className="text-xs text-muted-foreground">Por: {entry.checked_in_by_profile.full_name}</p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {hasMedia(entry) && (
+                                    <div className="pt-3 border-t space-y-3">
+                                      <h4 className="font-semibold text-sm">Fotos e Assinaturas</h4>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                          <p className="text-xs font-medium">Retirada</p>
+                                          {entry.checkout_photo_url && (
+                                            <SignedImage storagePath={entry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
                                           )}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Usuário</p>
-                                        <p className="font-semibold">{selectedEntry.profiles?.full_name}</p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Obra</p>
-                                        <p>{selectedEntry.construction_site || "Não informado"}</p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                        <Badge variant={selectedEntry.status === "checked_out" ? "default" : "secondary"}>
-                                          {selectedEntry.status === "checked_out" ? "Em Uso" : "Devolvida"}
-                                        </Badge>
-                                      </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Data de Retirada</p>
-                                        <p>{format(new Date(selectedEntry.checkout_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                          Por: {selectedEntry.checked_out_by_profile?.full_name || "-"}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Data de Devolução</p>
-                                        <p>
-                                          {selectedEntry.checkin_date 
-                                            ? format(new Date(selectedEntry.checkin_date), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })
-                                            : "Não devolvida"}
-                                        </p>
-                                        {selectedEntry.checked_in_by_profile && (
-                                          <p className="text-xs text-muted-foreground">
-                                            Por: {selectedEntry.checked_in_by_profile.full_name}
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
-                                    {hasMedia(selectedEntry) && (
-                                      <div className="pt-4 border-t space-y-4">
-                                        <h4 className="font-semibold">Fotos e Assinaturas</h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                          <div className="space-y-2">
-                                            <p className="text-sm font-medium">Retirada</p>
-                                            {selectedEntry.checkout_photo_url && (
-                                              <div>
-                                                <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                                <SignedImage storagePath={selectedEntry.checkout_photo_url} alt="Foto na retirada" className="w-full h-40 object-cover rounded-lg" />
-                                              </div>
-                                            )}
-                                            {selectedEntry.checkout_signature_url && (
-                                              <div>
-                                                <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
-                                                <div className="border rounded-lg p-2 bg-white">
-                                                  <SignedImage storagePath={selectedEntry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
-                                                </div>
-                                              </div>
-                                            )}
-                                            {!selectedEntry.checkout_photo_url && !selectedEntry.checkout_signature_url && (
-                                              <p className="text-sm text-muted-foreground">Sem registros</p>
-                                            )}
-                                          </div>
-                                          <div className="space-y-2">
-                                            <p className="text-sm font-medium">Devolução</p>
-                                            {selectedEntry.checkin_photo_url && (
-                                              <div>
-                                                <p className="text-xs text-muted-foreground mb-1">Foto:</p>
-                                                <SignedImage storagePath={selectedEntry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
-                                              </div>
-                                            )}
-                                            {selectedEntry.checkin_signature_url && (
-                                              <div>
-                                                <p className="text-xs text-muted-foreground mb-1">Assinatura:</p>
-                                                <div className="border rounded-lg p-2 bg-white">
-                                                  <SignedImage storagePath={selectedEntry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
-                                                </div>
-                                              </div>
-                                            )}
-                                            {!selectedEntry.checkin_photo_url && !selectedEntry.checkin_signature_url && (
-                                              <p className="text-sm text-muted-foreground">Sem registros</p>
-                                            )}
-                                          </div>
+                                          {entry.checkout_signature_url && (
+                                            <div className="border rounded-lg p-2 bg-white">
+                                              <SignedImage storagePath={entry.checkout_signature_url} alt="Assinatura na retirada" className="w-full h-20 object-contain" />
+                                            </div>
+                                          )}
+                                          {!entry.checkout_photo_url && !entry.checkout_signature_url && (
+                                            <p className="text-xs text-muted-foreground">Sem registros</p>
+                                          )}
+                                        </div>
+                                        <div className="space-y-2">
+                                          <p className="text-xs font-medium">Devolução</p>
+                                          {entry.checkin_photo_url && (
+                                            <SignedImage storagePath={entry.checkin_photo_url} alt="Foto na devolução" className="w-full h-40 object-cover rounded-lg" />
+                                          )}
+                                          {entry.checkin_signature_url && (
+                                            <div className="border rounded-lg p-2 bg-white">
+                                              <SignedImage storagePath={entry.checkin_signature_url} alt="Assinatura na devolução" className="w-full h-20 object-contain" />
+                                            </div>
+                                          )}
+                                          {!entry.checkin_photo_url && !entry.checkin_signature_url && (
+                                            <p className="text-xs text-muted-foreground">Sem registros</p>
+                                          )}
                                         </div>
                                       </div>
-                                    )}
-                                    {selectedEntry.notes && (
-                                      <div className="pt-4 border-t">
-                                        <p className="text-sm font-medium text-muted-foreground">Observações</p>
-                                        <p className="mt-1">{selectedEntry.notes}</p>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </DialogContent>
-                            </Dialog>
-                            {isAdmin && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive hover:text-destructive"
-                                onClick={() => setDeleteDialog({ open: true, entry })}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                                    </div>
+                                  )}
+                                  {entry.notes && (
+                                    <div className="pt-3 border-t">
+                                      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Observações</p>
+                                      <p className="text-sm mt-1 whitespace-pre-wrap">{entry.notes}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </Fragment>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>

@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.2",
+    date: "2026-07-07",
+    title: "Histórico com mais espaço, tabela densa e detalhes inline",
+    description: "Melhor aproveitamento da tela e navegação mais rápida no Histórico Geral (ferramentas e veículos).",
+    changes: [
+      { type: "improvement", text: "Banner do módulo ficou mais fino e o card decorativo \"Histórico Completo\" foi removido — ganho de espaço vertical." },
+      { type: "improvement", text: "Filtros agora ficam recolhidos por padrão em um botão \"Filtros\" com contador de filtros ativos. Botões PDF/Excel movidos para a barra superior." },
+      { type: "improvement", text: "Tabela mais compacta: linhas em densidade alta, colunas com larguras ajustadas, cabeçalho fixo ao rolar e linhas em zebra com destaque no hover." },
+      { type: "improvement", text: "Botão \"Ver\" agora expande os detalhes da movimentação dentro da própria tabela (fotos, assinaturas, KM, estimativa por IA em veículos) em vez de abrir um modal." },
+    ],
+  },
+  {
     version: "2.3.1",
     date: "2026-07-07",
     title: "Notificações sempre com a identidade da Engemase",
