@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.8",
+    date: "2026-07-07",
+    title: "Ajustes no Dashboard Analítico",
+    description: "Card de Manutenções removido e correção do gráfico de KM Rodado.",
+    changes: [
+      { type: "improvement", text: "Removido o card \"Manutenções\" do painel de KPIs (não estava em uso)." },
+      { type: "fix", text: "Linha de \"KM Rodado\" agora aparece corretamente no gráfico \"Tendência Mensal - Veículos\" (uso de ComposedChart para combinar barra + linha)." },
+    ],
+  },
+  {
     version: "2.3.7",
     date: "2026-07-07",
     title: "Legendas interativas nos gráficos do Dashboard",

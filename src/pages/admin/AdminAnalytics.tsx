@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon, Car } from "lucide-react";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { Navigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Line, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Line, AreaChart, Area, ComposedChart } from "recharts";
 import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -558,18 +558,6 @@ export default function AdminAnalytics() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-3 h-full flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Manutenções</p>
-              <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold leading-none">{metrics.maintenanceCount}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Registradas</p>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card>
           <CardContent className="p-3 h-full flex flex-col justify-between">
@@ -647,7 +635,7 @@ export default function AdminAnalytics() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={vehicleMonthlyData}>
+            <ComposedChart data={vehicleMonthlyData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="month" className="text-xs" />
               <YAxis yAxisId="left" className="text-xs" />
@@ -660,8 +648,8 @@ export default function AdminAnalytics() {
                 }}
               />
               <Bar yAxisId="left" dataKey="checkouts" name="Saídas" fill={vehiclesTrendLegend.getColor("checkouts")} hide={vehiclesTrendLegend.isHidden("checkouts")} />
-              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke={vehiclesTrendLegend.getColor("km")} strokeWidth={2} hide={vehiclesTrendLegend.isHidden("km")} />
-            </BarChart>
+              <Line yAxisId="right" type="monotone" dataKey="km" name="KM Rodado" stroke={vehiclesTrendLegend.getColor("km")} strokeWidth={2} dot={{ r: 4 }} hide={vehiclesTrendLegend.isHidden("km")} />
+            </ComposedChart>
           </ResponsiveContainer>
           <InteractiveLegend controller={vehiclesTrendLegend} />
         </CardContent>
