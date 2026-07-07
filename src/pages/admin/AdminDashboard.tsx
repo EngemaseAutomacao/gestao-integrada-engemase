@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Users, BarChart3, FileText, Bell, ClipboardList, AlertCircle, Images, Building2, Database, Shield, ChevronRight } from "lucide-react";
+import { Users, BarChart3, FileText, Bell, ClipboardList, Images, Building2, Database, Shield, ChevronRight, Wrench, Clock } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { ModuleHero } from "@/components/ModuleHero";
