@@ -692,6 +692,104 @@ export default function AdminVehicleHistory() {
         </CollapsibleContent>
       </Collapsible>
 
+      {isAdmin && inconsistentEntries.length > 0 && (
+        <Collapsible open={inconsistentOpen} onOpenChange={setInconsistentOpen}>
+          <Card className="shrink-0 border-amber-500/40 bg-amber-500/5">
+            <CollapsibleTrigger asChild>
+              <button type="button" className="w-full text-left">
+                <CardHeader className="p-3 sm:p-4 flex flex-row items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <div>
+                      <CardTitle className="text-sm md:text-base">Registros com quilometragem inconsistente</CardTitle>
+                      <CardDescription className="text-xs">
+                        {inconsistentEntries.length} registro(s) com KM de devolução menor ou igual à KM de saída. Corrija manualmente para reaparecerem nos totais.
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{inconsistentEntries.length}</Badge>
+                    <ChevronDown className={cn("w-4 h-4 transition-transform", inconsistentOpen && "rotate-180")} />
+                  </div>
+                </CardHeader>
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CardContent className="p-3 sm:p-4 pt-0 space-y-2">
+                {inconsistentEntries.map((entry) => (
+                  <div key={entry.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border/60 bg-background p-2 sm:p-3">
+                    <div className="text-xs sm:text-sm">
+                      <div className="font-medium">
+                        {entry.vehicles?.name || "Veículo"} ({entry.vehicles?.plate || "-"})
+                      </div>
+                      <div className="text-muted-foreground">
+                        {entry.profiles?.full_name || "Usuário"} · {format(new Date(entry.checkout_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      </div>
+                      <div className="text-muted-foreground">
+                        KM saída: <span className="font-medium text-foreground">{entry.km_checkout.toLocaleString()}</span>
+                        {" · "}
+                        KM devolução: <span className="font-medium text-foreground">{entry.km_checkin?.toLocaleString()}</span>
+                        {" · "}
+                        Diferença: <span className="font-medium text-destructive">{((entry.km_checkin ?? 0) - entry.km_checkout).toLocaleString()} km</span>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="gap-1 shrink-0" onClick={() => openKmFix(entry)}>
+                      <Wrench className="w-3.5 h-3.5" />
+                      Corrigir
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+      )}
+
+      <Dialog open={kmFixDialog.open} onOpenChange={(open) => !open && setKmFixDialog({ open: false, entry: null })}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Corrigir Quilometragem</DialogTitle>
+          </DialogHeader>
+          {kmFixDialog.entry && (
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground">
+                {kmFixDialog.entry.vehicles?.name} ({kmFixDialog.entry.vehicles?.plate}) — {kmFixDialog.entry.profiles?.full_name}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="km-fix-out">KM de saída</Label>
+                <Input
+                  id="km-fix-out"
+                  type="number"
+                  min={0}
+                  value={kmFixCheckout}
+                  onChange={(e) => setKmFixCheckout(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="km-fix-in">KM de devolução</Label>
+                <Input
+                  id="km-fix-in"
+                  type="number"
+                  min={0}
+                  value={kmFixCheckin}
+                  onChange={(e) => setKmFixCheckin(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Deve ser maior que a KM de saída.</p>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={() => setKmFixDialog({ open: false, entry: null })} disabled={kmFixSaving}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleKmFix} disabled={kmFixSaving}>
+                  {kmFixSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Salvar correção
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Card className="flex-1 min-h-0 flex flex-col">
         <CardHeader className="shrink-0 flex flex-row items-center justify-between">
           <div>
