@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { TrendingUp, Clock, AlertTriangle, Package, Users, Wrench, Trophy, CalendarIcon, Car } from "lucide-react";
 import { DashboardSkeleton } from "@/components/PageSkeleton";
 import { Navigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Line, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Line, AreaChart, Area, ComposedChart } from "recharts";
 import { format, subMonths, subDays, startOfMonth, endOfMonth, startOfYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
