@@ -121,7 +121,7 @@ export default function AdminHistory() {
     if (!editEntry) return;
     setSavingEdit(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload = {
         construction_site: editForm.construction_site.trim() || null,
         notes: editForm.notes.trim() || null,
         checkout_date: new Date(editForm.checkout_date).toISOString(),
