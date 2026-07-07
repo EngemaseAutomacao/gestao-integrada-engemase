@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.9",
+    date: "2026-07-07",
+    title: "Acesso às notas de atualização",
+    description: "Correção no clique da versão no rodapé para abrir as notas de atualização.",
+    changes: [
+      { type: "fix", text: "O número da versão no rodapé agora abre as Notas de Atualização de forma direta ao clicar." },
+    ],
+  },
+  {
     version: "2.3.8",
     date: "2026-07-07",
     title: "Ajustes no Dashboard Analítico",
