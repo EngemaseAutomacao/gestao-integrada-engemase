@@ -459,23 +459,15 @@ export default function AdminHistory() {
                                 : "-"}
                             </TableCell>
                             <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {entry.status === "checked_out" ? (
-                                  isOverdue(entry.estimated_return_date, entry.status) ? (
-                                    <Badge variant="destructive" className="text-[10px] py-0 h-5">Atrasado</Badge>
-                                  ) : (
-                                    <Badge variant="default" className="text-[10px] py-0 h-5">Em Uso</Badge>
-                                  )
+                              {entry.status === "checked_out" ? (
+                                isOverdue(entry.estimated_return_date, entry.status) ? (
+                                  <Badge variant="destructive" className="text-[10px] py-0 h-5">Atrasado</Badge>
                                 ) : (
-                                  <Badge variant="secondary" className="text-[10px] py-0 h-5">Devolvida</Badge>
-                                )}
-                                {hasMedia(entry) && (
-                                  <span className="flex items-center gap-0.5 text-muted-foreground">
-                                    {(entry.checkout_photo_url || entry.checkin_photo_url) && <Camera className="w-3 h-3" />}
-                                    {(entry.checkout_signature_url || entry.checkin_signature_url) && <FileSignature className="w-3 h-3" />}
-                                  </span>
-                                )}
-                              </div>
+                                  <Badge variant="default" className="text-[10px] py-0 h-5">Em Uso</Badge>
+                                )
+                              ) : (
+                                <Badge variant="secondary" className="text-[10px] py-0 h-5">Devolvida</Badge>
+                              )}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
