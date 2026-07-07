@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { subDays, subMonths, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, PlugZap, ChevronDown, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { Loader2, Search, Eye, FileText, FileSpreadsheet, Camera, Brain, Trash2, X, List, Clock, PlugZap, ChevronDown, ChevronRight, SlidersHorizontal, ChevronLeft, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { HistorySkeleton } from "@/components/PageSkeleton";
 import { AssetTimeline } from "@/components/admin/AssetTimeline";
 import { SignedImage } from "@/components/SignedImage";
@@ -334,6 +334,21 @@ export default function AdminVehicleHistory() {
 
   const hasActiveFilters = searchQuery || statusFilter !== "all" || categoryFilter !== "all" || periodFilter !== "all";
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, statusFilter, categoryFilter, periodFilter, pageSize]);
+  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedHistory = useMemo(
+    () => filteredHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [filteredHistory, currentPage, pageSize]
+  );
+  const firstIdx = filteredHistory.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const lastIdx = Math.min(currentPage * pageSize, filteredHistory.length);
+
   const clearFilters = () => {
     setSearchQuery("");
     setStatusFilter("all");
@@ -618,7 +633,9 @@ export default function AdminVehicleHistory() {
           <div>
             <CardTitle>Histórico de Movimentações</CardTitle>
             <CardDescription>
-              Mostrando {filteredHistory.length} de {history.length} registros
+              {viewMode === "table" && filteredHistory.length > 0
+                ? `Mostrando ${firstIdx}–${lastIdx} de ${filteredHistory.length} registros (de ${history.length} totais)`
+                : `Mostrando ${filteredHistory.length} de ${history.length} registros`}
             </CardDescription>
           </div>
           <div className="flex gap-1">
@@ -680,7 +697,7 @@ export default function AdminVehicleHistory() {
                     </TableRow>
                   </TableHeader>
                   <TableBody className="[&_tr[data-row='main']:nth-child(4n+1)]:bg-muted/30 [&_tr[data-row='main']:hover]:bg-accent/40 [&_tr[data-row='main']]:transition-colors [&_td]:py-2">
-                    {filteredHistory.map((entry) => {
+                    {paginatedHistory.map((entry) => {
                       const isExpanded = expandedId === entry.id;
                       return (
                         <Fragment key={entry.id}>
@@ -926,7 +943,7 @@ export default function AdminVehicleHistory() {
 
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
-                {filteredHistory.map((entry) => (
+                {paginatedHistory.map((entry) => (
                   <Card key={entry.id} className="p-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 min-w-0">
@@ -993,6 +1010,42 @@ export default function AdminVehicleHistory() {
                   </Card>
                 ))}
               </div>
+
+              {filteredHistory.length > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 mt-4 border-t">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>Itens por página:</span>
+                    <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                      <SelectTrigger className="h-8 w-[80px]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      Página {currentPage} de {totalPages}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPage(1)} disabled={currentPage === 1} title="Primeira">
+                        <ChevronsLeft className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1} title="Anterior">
+                        <ChevronLeft className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} title="Próxima">
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} title="Última">
+                        <ChevronsRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </CardContent>

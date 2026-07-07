@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.3.5",
+    date: "2026-07-07",
+    title: "Histórico paginado para tabelas mais leves",
+    description: "Os históricos de ferramentas e veículos agora são divididos em páginas para melhor navegação.",
+    changes: [
+      { type: "improvement", text: "Adicionada paginação (10/25/50/100 por página) nos históricos de ferramentas e veículos, com navegação para primeira, anterior, próxima e última página." },
+      { type: "improvement", text: "Contador mostra a faixa atual e o total (ex: \"Mostrando 1–25 de 105 registros\"). Ao mudar filtros/busca, retorna automaticamente para a página 1." },
+    ],
+  },
+  {
     version: "2.3.4",
     date: "2026-07-07",
     title: "Editar e excluir registros direto no histórico",
