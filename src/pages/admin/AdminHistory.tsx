@@ -757,6 +757,65 @@ export default function AdminHistory() {
         description="Esta ação é irreversível. O registro será removido permanentemente do histórico."
         itemName={deleteDialog.entry ? `${deleteDialog.entry.tools?.name} - ${deleteDialog.entry.profiles?.full_name}` : ""}
       />
+
+      <Dialog open={!!editEntry} onOpenChange={(open) => !open && setEditEntry(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Registro</DialogTitle>
+            <DialogDescription>
+              {editEntry?.tools?.name} — {editEntry?.profiles?.full_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-site">Obra</Label>
+              <Input
+                id="edit-site"
+                value={editForm.construction_site}
+                onChange={(e) => setEditForm({ ...editForm, construction_site: e.target.value })}
+                placeholder="Nome da obra"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="edit-checkout">Data de Retirada</Label>
+                <Input
+                  id="edit-checkout"
+                  type="datetime-local"
+                  value={editForm.checkout_date}
+                  onChange={(e) => setEditForm({ ...editForm, checkout_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-checkin">Data de Devolução</Label>
+                <Input
+                  id="edit-checkin"
+                  type="datetime-local"
+                  value={editForm.checkin_date}
+                  onChange={(e) => setEditForm({ ...editForm, checkin_date: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-notes">Observações</Label>
+              <Textarea
+                id="edit-notes"
+                value={editForm.notes}
+                onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditEntry(null)} disabled={savingEdit}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={savingEdit || !editForm.checkout_date}>
+              {savingEdit ? "Salvando..." : "Salvar alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
