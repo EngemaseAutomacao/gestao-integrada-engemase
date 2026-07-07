@@ -633,7 +633,9 @@ export default function AdminVehicleHistory() {
           <div>
             <CardTitle>Histórico de Movimentações</CardTitle>
             <CardDescription>
-              Mostrando {filteredHistory.length} de {history.length} registros
+              {viewMode === "table" && filteredHistory.length > 0
+                ? `Mostrando ${firstIdx}–${lastIdx} de ${filteredHistory.length} registros (de ${history.length} totais)`
+                : `Mostrando ${filteredHistory.length} de ${history.length} registros`}
             </CardDescription>
           </div>
           <div className="flex gap-1">
