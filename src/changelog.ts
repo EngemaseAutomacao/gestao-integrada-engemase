@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.2",
+    date: "2026-07-09",
+    title: "Reforço de segurança de acesso",
+    description: "Registros de retirada de ferramentas passam a ser visíveis apenas para envolvidos e administradores, e campos sensíveis do perfil ficam protegidos por trigger.",
+    changes: [
+      { type: "security", text: "Removida regra que permitia a qualquer usuário autenticado visualizar todas as retiradas de ferramentas (fotos, assinaturas e observações incluídas)." },
+      { type: "security", text: "Somente administradores podem alterar função, categoria, aprovação e e-mail dos perfis, agora garantido no banco por trigger." },
+    ],
+  },
+  {
     version: "2.4.1",
     date: "2026-07-07",
     title: "Últimos Acessos considera login automático",
