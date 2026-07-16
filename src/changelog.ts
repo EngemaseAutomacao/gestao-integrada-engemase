@@ -11,6 +11,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.3",
+    date: "2026-07-16",
+    title: "Correção na edição de usuários",
+    description: "Administradores voltam a conseguir alterar função, categoria, aprovação e e-mail de outros usuários pela tela de Gerenciar Usuários.",
+    changes: [
+      { type: "fix", text: "Corrigido erro 'Edge Function returned a non-2xx status code' ao trocar a função de um usuário (ex.: para Administrador)." },
+    ],
+  },
+  {
     version: "2.4.2",
     date: "2026-07-09",
     title: "Reforço de segurança de acesso",
