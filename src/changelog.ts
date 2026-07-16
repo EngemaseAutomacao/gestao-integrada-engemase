@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.4.4",
+    date: "2026-07-16",
+    title: "Correção definitiva na edição de usuários",
+    description: "A trava de segurança dos perfis agora reconhece corretamente atualizações administrativas feitas pelo backend.",
+    changes: [
+      { type: "fix", text: "Corrigido bloqueio persistente ao alterar função, categoria, aprovação ou e-mail de usuários pela tela de Gerenciar Usuários." },
+      { type: "security", text: "Mantida a proteção que impede usuários comuns de alterar campos administrativos do próprio perfil." },
+    ],
+  },
+  {
     version: "2.4.3",
     date: "2026-07-16",
     title: "Correção na edição de usuários",
