@@ -328,6 +328,8 @@ export default function AdminGallery() {
     "photo_left_checkin",
     "photo_right_checkin",
     "photo_dashboard_checkin",
+    "photo_interior_front_checkin",
+    "photo_interior_back_checkin",
     "photo_control_checkin",
     "photo_wheel_fl_checkin",
     "photo_wheel_fr_checkin",
