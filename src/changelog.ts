@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.5.0",
+    date: "2026-08-17",
+    title: "Fotos do interior do veículo",
+    description: "Agora a retirada e a devolução de veículos exigem duas fotos da parte interna, reforçando a limpeza e a conservação.",
+    changes: [
+      { type: "feature", text: "Novas fotos obrigatórias: Interior Dianteiro e Interior Traseiro na retirada e na devolução de veículos." },
+      { type: "improvement", text: "As fotos internas também ficam disponíveis na galeria de imagens do administrador." },
+    ],
+  },
+  {
     version: "2.4.4",
     date: "2026-07-16",
     title: "Correção definitiva na edição de usuários",
