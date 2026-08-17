@@ -135,6 +135,8 @@ export default function VehicleCheckout() {
     left: "photo_left_checkout",
     right: "photo_right_checkout",
     dashboard: "photo_dashboard_checkout",
+    interior_front: "photo_interior_front_checkout",
+    interior_back: "photo_interior_back_checkout",
     control: "photo_control_checkout",
     wheel_fl: "photo_wheel_fl_checkout",
     wheel_fr: "photo_wheel_fr_checkout",
