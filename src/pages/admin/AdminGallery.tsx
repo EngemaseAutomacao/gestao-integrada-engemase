@@ -314,6 +314,8 @@ export default function AdminGallery() {
     "photo_left_checkout",
     "photo_right_checkout",
     "photo_dashboard_checkout",
+    "photo_interior_front_checkout",
+    "photo_interior_back_checkout",
     "photo_control_checkout",
     "photo_wheel_fl_checkout",
     "photo_wheel_fr_checkout",
