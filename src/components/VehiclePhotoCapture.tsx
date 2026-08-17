@@ -18,6 +18,11 @@ const BASE_ANGLES: PhotoAngle[] = [
 
 const DASHBOARD_ANGLE: PhotoAngle = { key: "dashboard", label: "Painel do Veículo" };
 
+const INTERIOR_ANGLES: PhotoAngle[] = [
+  { key: "interior_front", label: "Interior Dianteiro" },
+  { key: "interior_back", label: "Interior Traseiro" },
+];
+
 const PLATFORM_EXTRA_ANGLES: PhotoAngle[] = [
   { key: "control", label: "Controle da Plataforma" },
   { key: "wheel_fl", label: "Roda Dianteira Esquerda" },
@@ -41,13 +46,18 @@ export function getRequiredPhotoKeys(vehicleType: VehicleKind = "vehicle", inclu
   if (vehicleType === "platform") {
     return [...BASE_ANGLES.map(a => a.key), ...PLATFORM_EXTRA_ANGLES.map(a => a.key)];
   }
-  return includeDashboard ? [...BASE_ANGLES.map(a => a.key), DASHBOARD_ANGLE.key] : BASE_ANGLES.map(a => a.key);
+  return [
+    ...BASE_ANGLES.map(a => a.key),
+    ...(includeDashboard ? [DASHBOARD_ANGLE.key] : []),
+    ...INTERIOR_ANGLES.map(a => a.key),
+  ];
 }
 
 export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, includeDashboard = false, vehicleType = "vehicle", allowGallery = false }: VehiclePhotoCaptureProps) {
   const ANGLES: PhotoAngle[] = vehicleType === "platform"
     ? [...BASE_ANGLES, ...PLATFORM_EXTRA_ANGLES]
-    : (includeDashboard ? [...BASE_ANGLES, DASHBOARD_ANGLE] : BASE_ANGLES);
+    : [...BASE_ANGLES, ...(includeDashboard ? [DASHBOARD_ANGLE] : []), ...INTERIOR_ANGLES];
+
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -64,7 +74,7 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
 
   const headerLabel = vehicleType === "platform"
     ? "Fotos da Plataforma (4 lados + controle + 4 rodas)"
-    : `Fotos do Veículo (${includeDashboard ? "4 ângulos + painel" : "4 ângulos"})`;
+    : `Fotos do Veículo (${includeDashboard ? "4 ângulos + painel + interior" : "4 ângulos + interior"})`;
 
   return (
     <div className="space-y-3">

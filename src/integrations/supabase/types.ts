@@ -542,6 +542,10 @@ export type Database = {
           photo_dashboard_checkout: string | null
           photo_front_checkin: string | null
           photo_front_checkout: string | null
+          photo_interior_back_checkin: string | null
+          photo_interior_back_checkout: string | null
+          photo_interior_front_checkin: string | null
+          photo_interior_front_checkout: string | null
           photo_left_checkin: string | null
           photo_left_checkout: string | null
           photo_right_checkin: string | null
@@ -591,6 +595,10 @@ export type Database = {
           photo_dashboard_checkout?: string | null
           photo_front_checkin?: string | null
           photo_front_checkout?: string | null
+          photo_interior_back_checkin?: string | null
+          photo_interior_back_checkout?: string | null
+          photo_interior_front_checkin?: string | null
+          photo_interior_front_checkout?: string | null
           photo_left_checkin?: string | null
           photo_left_checkout?: string | null
           photo_right_checkin?: string | null
@@ -640,6 +648,10 @@ export type Database = {
           photo_dashboard_checkout?: string | null
           photo_front_checkin?: string | null
           photo_front_checkout?: string | null
+          photo_interior_back_checkin?: string | null
+          photo_interior_back_checkout?: string | null
+          photo_interior_front_checkin?: string | null
+          photo_interior_front_checkout?: string | null
           photo_left_checkin?: string | null
           photo_left_checkout?: string | null
           photo_right_checkin?: string | null

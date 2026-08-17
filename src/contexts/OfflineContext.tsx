@@ -174,6 +174,8 @@ export function OfflineProvider({ children }: { children: ReactNode }) {
         left: op.type === "vehicle_checkout" ? "photo_left_checkout" : "photo_left_checkin",
         right: op.type === "vehicle_checkout" ? "photo_right_checkout" : "photo_right_checkin",
         dashboard: op.type === "vehicle_checkout" ? "photo_dashboard_checkout" : "photo_dashboard_checkin",
+        interior_front: op.type === "vehicle_checkout" ? "photo_interior_front_checkout" : "photo_interior_front_checkin",
+        interior_back: op.type === "vehicle_checkout" ? "photo_interior_back_checkout" : "photo_interior_back_checkin",
       };
 
       if (fieldMap[photo.angleKey]) {
