@@ -74,7 +74,7 @@ export default function VehiclePhotoCapture({ photos, previews, onPhotoChange, i
 
   const headerLabel = vehicleType === "platform"
     ? "Fotos da Plataforma (4 lados + controle + 4 rodas)"
-    : `Fotos do Veículo (${includeDashboard ? "4 ângulos + painel" : "4 ângulos"})`;
+    : `Fotos do Veículo (${includeDashboard ? "4 ângulos + painel + interior" : "4 ângulos + interior"})`;
 
   return (
     <div className="space-y-3">
