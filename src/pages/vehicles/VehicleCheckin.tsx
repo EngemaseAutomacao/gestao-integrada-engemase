@@ -119,6 +119,8 @@ export default function VehicleCheckin() {
     left: "photo_left_checkin",
     right: "photo_right_checkin",
     dashboard: "photo_dashboard_checkin",
+    interior_front: "photo_interior_front_checkin",
+    interior_back: "photo_interior_back_checkin",
     control: "photo_control_checkin",
     wheel_fl: "photo_wheel_fl_checkin",
     wheel_fr: "photo_wheel_fr_checkin",
