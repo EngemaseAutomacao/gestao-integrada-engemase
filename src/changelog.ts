@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.0",
+    date: "2026-08-18",
+    title: "Veículos em Uso no painel administrativo",
+    description: "Novo submenu que mostra todos os veículos em uso e permite que o administrador registre a devolução manualmente.",
+    changes: [
+      { type: "feature", text: "Nova tela 'Veículos em Uso' com responsável, data/hora de saída, destino, previsão e observações." },
+      { type: "feature", text: "Devolução manual pelo administrador, com justificativa obrigatória e KM de chegada opcional, registrada em nome do admin." },
+    ],
+  },
+  {
     version: "2.5.0",
     date: "2026-08-17",
     title: "Fotos do interior do veículo",
