@@ -188,6 +188,7 @@ const App = () => (
                       <Route path="/admin/audit" element={<Navigate to="/admin/auditoria?tab=auditoria" replace />} />
                       <Route path="/admin/auditoria" element={<AdminAuditoria />} />
                       <Route path="/admin/ferramentas-em-uso" element={<AdminToolsInUse />} />
+                      <Route path="/admin/veiculos-em-uso" element={<AdminVehiclesInUse />} />
                       <Route path="/admin/ultimos-acessos" element={<AdminUserAccess />} />
 
                       {/* Ponto Online & Transferências removidos — redirect para Home */}
