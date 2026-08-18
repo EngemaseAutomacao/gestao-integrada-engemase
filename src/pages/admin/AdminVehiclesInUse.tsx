@@ -110,16 +110,15 @@ export default function AdminVehiclesInUse() {
         .filter(Boolean)
         .join("\n");
 
-      const updateData: Record<string, unknown> = {
+      const updateData = {
         status: "checked_in",
         checkin_date: new Date().toISOString(),
         checked_in_by: profile.id,
         notes: composedNotes,
+        ...(kmValue !== null
+          ? { km_checkin: kmValue, km_checkin_automatic: false }
+          : {}),
       };
-      if (kmValue !== null) {
-        updateData.km_checkin = kmValue;
-        updateData.km_checkin_automatic = false;
-      }
 
       const { error } = await supabase
         .from("vehicle_checkouts")
