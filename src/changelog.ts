@@ -20,6 +20,7 @@ export const changelog: ChangelogEntry[] = [
       { type: "improvement", text: "Se a internet falhar durante o registro, a saída é salva no celular e enviada automaticamente quando a conexão voltar." },
     ],
   },
+  {
 
     version: "2.6.0",
     date: "2026-08-18",
