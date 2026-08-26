@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.1",
+    date: "2026-08-26",
+    title: "Retirada de veículo mais confiável em rede móvel",
+    description: "Correção para quem usa apenas 4G/5G: as fotos agora são enviadas com novas tentativas e, se a conexão cair, a retirada é salva no aparelho e sincronizada sozinha depois.",
+    changes: [
+      { type: "fix", text: "Envio das fotos em pequenos lotes com até 3 tentativas, evitando o erro 'Ocorreu um erro' em sinal instável." },
+      { type: "improvement", text: "Se a internet falhar durante o registro, a saída é salva no celular e enviada automaticamente quando a conexão voltar." },
+    ],
+  },
+
     version: "2.6.0",
     date: "2026-08-18",
     title: "Veículos em Uso no painel administrativo",
