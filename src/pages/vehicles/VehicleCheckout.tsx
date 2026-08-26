@@ -275,13 +275,16 @@ export default function VehicleCheckout() {
       return "online" as const;
     },
 
-    onSuccess: () => {
-      toast.success("Saída registrada com sucesso!");
+    onSuccess: (result) => {
+      if (result !== "offline") {
+        toast.success("Saída registrada com sucesso!");
+      }
       queryClient.invalidateQueries({ queryKey: ["available-vehicles"] });
       queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
       queryClient.invalidateQueries({ queryKey: ["recent-vehicle-checkouts"] });
       navigate("/veiculos");
     },
+
     onError: (error: Error) => {
       toast.error(error.message || "Erro ao registrar saída");
     }
