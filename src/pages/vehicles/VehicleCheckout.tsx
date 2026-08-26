@@ -144,6 +144,57 @@ export default function VehicleCheckout() {
     wheel_rr: "photo_wheel_rr_checkout",
   };
 
+  /** Identifica falhas de rede (offline real, 5G instável, timeout, CORS por queda). */
+  const isNetworkError = (err: unknown): boolean => {
+    const msg = (err instanceof Error ? err.message : String(err || "")).toLowerCase();
+    return (
+      msg.includes("failed to fetch") ||
+      msg.includes("networkerror") ||
+      msg.includes("network request failed") ||
+      msg.includes("load failed") ||
+      msg.includes("timeout") ||
+      msg.includes("net::") ||
+      msg.includes("aborted")
+    );
+  };
+
+  /** Upload com até 3 tentativas e backoff, tolerante a oscilação de sinal. */
+  const uploadWithRetry = async (file: File, prefix: string, attempts = 3): Promise<string> => {
+    let lastErr: unknown;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await uploadPhoto(file, prefix);
+      } catch (err) {
+        lastErr = err;
+        if (!isNetworkError(err) || i === attempts - 1) throw err;
+        await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
+      }
+    }
+    throw lastErr;
+  };
+
+  /** Salva a retirada na fila offline (fotos em IndexedDB) para sincronizar depois. */
+  const queueOffline = async (insertData: Record<string, any>) => {
+    const opId = addPendingOperation("vehicle_checkout", insertData);
+    let photosSaved = 0;
+    for (const key of requiredPhotoKeys) {
+      if (photos[key]) {
+        try {
+          const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
+          await saveOfflinePhoto(opId, key, photos[key]!);
+          photosSaved++;
+        } catch (e) {
+          console.error(`Erro ao salvar foto ${key} offline:`, e);
+        }
+      }
+    }
+    const photoMsg = photosSaved > 0 ? ` ${photosSaved} foto(s) salva(s) no aparelho.` : "";
+    toast.success(
+      `Saída registrada e salva no aparelho!${photoMsg} Será enviada automaticamente quando a conexão estabilizar.`
+    );
+  };
+
+
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
@@ -179,30 +230,8 @@ export default function VehicleCheckout() {
 
 
       if (!isOnline) {
-        const opId = crypto.randomUUID();
-        // Save photos to IndexedDB if available
-        let photosSaved = 0;
-        for (const key of requiredPhotoKeys) {
-          if (photos[key]) {
-            try {
-              const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
-              await saveOfflinePhoto(opId, key, photos[key]!);
-              photosSaved++;
-            } catch (e) {
-              console.error(`Erro ao salvar foto ${key} offline:`, e);
-            }
-          }
-        }
-        addPendingOperation("vehicle_checkout", insertData);
-        const ops = JSON.parse(localStorage.getItem("engemase_pending_operations") || "[]");
-        if (ops.length > 0) {
-          ops[ops.length - 1].id = opId;
-          localStorage.setItem("engemase_pending_operations", JSON.stringify(ops));
-        }
-        const photoMsg = photosSaved > 0 ? ` ${photosSaved} foto(s) salva(s) localmente.` : " Fotos não foram salvas.";
-        toast.success(`Saída registrada (offline)!${photoMsg} Será sincronizada quando conectar.`);
-        navigate("/veiculos");
-        return;
+        await queueOffline(insertData);
+        return "offline" as const;
       }
 
       const photosOptional = isAdmin && manualMode && skipPhotos;
@@ -212,31 +241,50 @@ export default function VehicleCheckout() {
           : "Tire todas as fotos do veículo (incluindo painel)");
       }
 
-      // Upload available photos in parallel
+      // Upload photos in small batches with retry (redes móveis instáveis derrubam
+      // uploads paralelos; 2 por vez + 3 tentativas aumenta muito a taxa de sucesso)
       const photoKeysToUpload = requiredPhotoKeys.filter((key) => !!photos[key]);
-      const uploadResults = await Promise.all(
-        photoKeysToUpload.map(async (key) => {
-          const url = await uploadPhoto(photos[key]!, `${key}_out`);
-          return { key, url };
-        })
-      );
+      try {
+        const uploadResults: { key: string; url: string }[] = [];
+        for (let i = 0; i < photoKeysToUpload.length; i += 2) {
+          const batch = photoKeysToUpload.slice(i, i + 2);
+          const results = await Promise.all(
+            batch.map(async (key) => ({
+              key,
+              url: await uploadWithRetry(photos[key]!, `${key}_out`),
+            }))
+          );
+          uploadResults.push(...results);
+        }
 
-      for (const { key, url } of uploadResults) {
-        const col = photoColumnMap[key];
-        if (col) insertData[col] = url;
+        for (const { key, url } of uploadResults) {
+          const col = photoColumnMap[key];
+          if (col) insertData[col] = url;
+        }
+
+        const { error } = await supabase.from("vehicle_checkouts").insert(insertData);
+        if (error) throw error;
+      } catch (err) {
+        // Falha de rede (5G instável): não perde o registro — vai para a fila offline
+        if (isNetworkError(err)) {
+          await queueOffline(insertData);
+          return "offline" as const;
+        }
+        throw err;
       }
-
-      const { error } = await supabase.from("vehicle_checkouts").insert(insertData);
-
-      if (error) throw error;
+      return "online" as const;
     },
-    onSuccess: () => {
-      toast.success("Saída registrada com sucesso!");
+
+    onSuccess: (result) => {
+      if (result !== "offline") {
+        toast.success("Saída registrada com sucesso!");
+      }
       queryClient.invalidateQueries({ queryKey: ["available-vehicles"] });
       queryClient.invalidateQueries({ queryKey: ["vehicle-stats"] });
       queryClient.invalidateQueries({ queryKey: ["recent-vehicle-checkouts"] });
       navigate("/veiculos");
     },
+
     onError: (error: Error) => {
       toast.error(error.message || "Erro ao registrar saída");
     }
