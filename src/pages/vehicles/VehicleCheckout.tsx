@@ -144,6 +144,57 @@ export default function VehicleCheckout() {
     wheel_rr: "photo_wheel_rr_checkout",
   };
 
+  /** Identifica falhas de rede (offline real, 5G instável, timeout, CORS por queda). */
+  const isNetworkError = (err: unknown): boolean => {
+    const msg = (err instanceof Error ? err.message : String(err || "")).toLowerCase();
+    return (
+      msg.includes("failed to fetch") ||
+      msg.includes("networkerror") ||
+      msg.includes("network request failed") ||
+      msg.includes("load failed") ||
+      msg.includes("timeout") ||
+      msg.includes("net::") ||
+      msg.includes("aborted")
+    );
+  };
+
+  /** Upload com até 3 tentativas e backoff, tolerante a oscilação de sinal. */
+  const uploadWithRetry = async (file: File, prefix: string, attempts = 3): Promise<string> => {
+    let lastErr: unknown;
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await uploadPhoto(file, prefix);
+      } catch (err) {
+        lastErr = err;
+        if (!isNetworkError(err) || i === attempts - 1) throw err;
+        await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
+      }
+    }
+    throw lastErr;
+  };
+
+  /** Salva a retirada na fila offline (fotos em IndexedDB) para sincronizar depois. */
+  const queueOffline = async (insertData: Record<string, any>) => {
+    const opId = addPendingOperation("vehicle_checkout", insertData);
+    let photosSaved = 0;
+    for (const key of requiredPhotoKeys) {
+      if (photos[key]) {
+        try {
+          const { saveOfflinePhoto } = await import("@/hooks/useOfflinePhotos");
+          await saveOfflinePhoto(opId, key, photos[key]!);
+          photosSaved++;
+        } catch (e) {
+          console.error(`Erro ao salvar foto ${key} offline:`, e);
+        }
+      }
+    }
+    const photoMsg = photosSaved > 0 ? ` ${photosSaved} foto(s) salva(s) no aparelho.` : "";
+    toast.success(
+      `Saída registrada e salva no aparelho!${photoMsg} Será enviada automaticamente quando a conexão estabilizar.`
+    );
+  };
+
+
   const checkoutMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Usuário não autenticado");
