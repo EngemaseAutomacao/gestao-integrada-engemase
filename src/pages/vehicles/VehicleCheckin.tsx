@@ -154,21 +154,23 @@ export default function VehicleCheckin() {
       if (!isPlatform) {
         const km_checkout = currentCheckoutData?.km_checkout || 0;
         let checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
-        
+
         // If manual and no value provided, use checkout km as placeholder
         if (showManualKm && !manualKm) {
           checkin_km = km_checkout;
         }
 
-        // Only validate if not manual (AI result should be valid)
-        // If manual, we allow it to be the same as checkout if they don't know it yet
-        if (!showManualKm && checkin_km <= km_checkout && checkin_km !== 0) {
-          throw new Error(`O KM de chegada (${checkin_km}) deve ser maior que o KM de saída (${km_checkout}).`);
+        // Nunca bloquear a devolução por causa do KM: valores inválidos
+        // (menores/iguais ao de saída ou ilegíveis) viram "0 km rodado" e são apenas marcados.
+        if (!Number.isFinite(checkin_km) || checkin_km <= km_checkout) {
+          checkin_km = km_checkout;
+          kmNeedsReview = true;
         }
 
         updateData.km_checkin = checkin_km;
         updateData.km_checkin_automatic = !!(odometerResult && !showManualKm);
       }
+
 
       if (!isOnline) {
         const opId = crypto.randomUUID();
