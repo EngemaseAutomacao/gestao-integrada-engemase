@@ -247,36 +247,52 @@ export default function VehicleCheckin() {
             const result = odometerData as OdometerResult;
             setOdometerResult(result);
 
-            if (result.distance_km !== null && result.confidence !== "low") {
-              updateData.km_checkin = result.checkin_km || 0;
+            const kmSaida = currentCheckoutData?.km_checkout || 0;
+            const lido = typeof result.checkin_km === "number" ? result.checkin_km : null;
+
+            if (result.confidence !== "low" && lido !== null && lido > kmSaida) {
+              updateData.km_checkin = lido;
               updateData.km_checkin_automatic = true;
               if (result.checkout_km && result.checkout_km > 0 && currentCheckoutData.km_checkout === 0) {
                 updateData.km_checkout = result.checkout_km;
               }
             } else {
-              setShowManualKm(true);
-              throw new Error("Não foi possível ler o hodômetro com precisão. Informe a quilometragem manualmente abaixo e clique em 'Registrar Chegada' novamente.");
+              // Leitura ilegível ou igual/menor ao KM de saída: registra 0 km rodado e marca para revisão.
+              updateData.km_checkin = kmSaida;
+              updateData.km_checkin_automatic = false;
+              kmNeedsReview = true;
             }
+          } else {
+            kmNeedsReview = true;
           }
         } catch (e: any) {
           setIsEstimatingKm(false);
-          // If it's our controlled abort, rethrow so onError shows the message and DB stays untouched
-          if (e?.message?.includes("hodômetro")) throw e;
           console.error("Odometer estimation failed:", e);
-          setShowManualKm(true);
-          setOdometerResult({
-            checkout_km: null, checkin_km: null, distance_km: null,
-            confidence: "low",
-            notes: "Erro ao processar as fotos. Informe a quilometragem manualmente abaixo e clique em 'Registrar Chegada' novamente.",
-          });
-          throw new Error("Não foi possível estimar a quilometragem automaticamente. Informe manualmente abaixo e tente novamente.");
+          // Nunca bloquear a devolução por falha da IA.
+          updateData.km_checkin = currentCheckoutData?.km_checkout || 0;
+          updateData.km_checkin_automatic = false;
+          kmNeedsReview = true;
         }
       }
 
       if (!isPlatform && manualKm) {
-        updateData.km_checkin = parseInt(manualKm);
+        const kmSaida = currentCheckoutData?.km_checkout || 0;
+        const manual = parseInt(manualKm);
+        if (Number.isFinite(manual) && manual > kmSaida) {
+          updateData.km_checkin = manual;
+          kmNeedsReview = false;
+        } else {
+          updateData.km_checkin = kmSaida;
+          kmNeedsReview = true;
+        }
         updateData.km_checkin_automatic = false;
       }
+
+      if (kmNeedsReview) {
+        const aviso = "[KM pendente de conferência: leitura do hodômetro não confirmada — registrado 0 km rodado]";
+        updateData.notes = updateData.notes ? `${updateData.notes} ${aviso}` : aviso;
+      }
+
 
       // Apply photo URLs to update payload
       const finalUpdate: any = { ...updateData };
