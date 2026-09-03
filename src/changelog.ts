@@ -11,6 +11,18 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.2",
+    date: "2026-09-03",
+    title: "Leitura de quilometragem não trava mais a devolução",
+    description: "A leitura automática do hodômetro deixou de bloquear o registro: se a foto não for legível ou a quilometragem for igual à da saída, o sistema registra 0 km rodado e apenas marca para conferência.",
+    changes: [
+      { type: "fix", text: "Devolução de veículo não é mais interrompida quando a leitura automática do painel falha." },
+      { type: "improvement", text: "Quilometragem igual ou menor que a da saída passa a registrar 0 km rodado, sem erro para o usuário." },
+      { type: "improvement", text: "Registros com leitura não confirmada recebem uma observação automática para conferência do administrador." },
+    ],
+  },
+  {
+
     version: "2.6.1",
     date: "2026-08-26",
     title: "Retirada de veículo mais confiável em rede móvel",
