@@ -141,6 +141,10 @@ export default function VehicleCheckin() {
         throw new Error("Justificativa obrigatória (mín. 5 caracteres) ao devolver veículo em nome de outro usuário.");
       }
 
+      // Marcação interna: quando o KM não pôde ser lido/validado, registramos observação
+      // mas NUNCA impedimos a devolução.
+      let kmNeedsReview = false;
+
       const updateData: any = {
         status: "checked_in",
         checkin_date: (isAdmin && manualMode && manualDate ? new Date(manualDate) : new Date()).toISOString(),
@@ -148,6 +152,7 @@ export default function VehicleCheckin() {
         notes: notes || undefined,
         km_checkin_automatic: false,
       };
+
 
 
 
