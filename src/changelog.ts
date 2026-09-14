@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.5",
+    date: "2026-09-14",
+    title: "Obras das três listas do Trello",
+    description: "A relação de obras agora reúne as listas A Fazer, Fazendo – Curto Prazo e Fazendo – Longo Prazo.",
+    changes: [
+      { type: "fix", text: "As três listas passam a ser consultadas em todas as sincronizações, sem duplicar obras repetidas." },
+      { type: "fix", text: "Uma obra deixa de aparecer somente quando não estiver mais em nenhuma das três listas." },
+    ],
+  },
+  {
     version: "2.6.4",
     date: "2026-09-14",
     title: "Sincronização diária das obras",

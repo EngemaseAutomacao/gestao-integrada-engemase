@@ -30,17 +30,12 @@ Deno.serve(async (req) => {
       throw new Error("Missing Supabase configuration");
     }
 
-    // Fetch cards from one or more Trello lists (comma-separated TRELLO_LIST_ID + optional TRELLO_LIST_ID_2)
-    const extraListId = Deno.env.get("TRELLO_LIST_ID_2");
-    const listIds = Array.from(
-      new Set(
-        [TRELLO_LIST_ID, extraListId, "68ee51cadc1f85da721361b7"]
-          .filter(Boolean)
-          .flatMap((v) => v!.split(","))
-          .map((v) => v.trim())
-          .filter(Boolean),
-      ),
-    );
+    // Source of truth: A Fazer, Fazendo – Curto Prazo and Fazendo – Longo Prazo.
+    const listIds = [
+      "620c56ba85aa9536c3cbc86d",
+      "620c56bd53d96f7e9ac3c1a6",
+      "68ee51cadc1f85da721361b7",
+    ];
 
     const allCards: { name: string }[] = [];
     for (const listId of listIds) {
