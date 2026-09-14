@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.4",
+    date: "2026-09-14",
+    title: "Sincronização diária das obras",
+    description: "As obras do Trello agora são atualizadas automaticamente todos os dias às 03:00 de Brasília, mantendo a opção de sincronização manual para atualizações fora desse horário.",
+    changes: [
+      { type: "improvement", text: "Sincronização automática ajustada para uma execução diária às 03:00 de Brasília." },
+      { type: "improvement", text: "A sincronização manual continua disponível na área administrativa." },
+    ],
+  },
+  {
     version: "2.6.3",
     date: "2026-09-14",
     title: "Sincronização automática das obras corrigida",

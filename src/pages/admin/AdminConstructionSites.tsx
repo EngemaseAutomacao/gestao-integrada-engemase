@@ -89,7 +89,7 @@ export default function AdminConstructionSites() {
   const { data: lastSiteSync } = useQuery({
     queryKey: ["last-site-sync"],
     queryFn: async () => {
-      const { data } = await (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-trello-every-5min" });
+      const { data } = await (supabase as any).rpc("get_last_cron_run", { _jobname: "sync-trello-daily-3am-brasilia" });
       return data as string | undefined;
     },
     refetchInterval: 60000,
