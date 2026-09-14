@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.3",
+    date: "2026-09-14",
+    title: "Sincronização automática das obras corrigida",
+    description: "As obras do Trello voltam a ser atualizadas automaticamente no sistema a cada 5 minutos.",
+    changes: [
+      { type: "fix", text: "Corrigido o agendamento que estava atualizando as obras apenas uma vez por dia." },
+      { type: "fix", text: "O horário da última sincronização volta a aparecer corretamente na área administrativa." },
+    ],
+  },
+  {
     version: "2.6.2",
     date: "2026-09-03",
     title: "Leitura de quilometragem não trava mais a devolução",
