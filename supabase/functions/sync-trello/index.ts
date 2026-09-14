@@ -19,11 +19,10 @@ Deno.serve(async (req) => {
   try {
     const TRELLO_API_KEY = Deno.env.get("TRELLO_API_KEY");
     const TRELLO_TOKEN = Deno.env.get("TRELLO_TOKEN");
-    const TRELLO_LIST_ID = Deno.env.get("TRELLO_LIST_ID");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!TRELLO_API_KEY || !TRELLO_TOKEN || !TRELLO_LIST_ID) {
+    if (!TRELLO_API_KEY || !TRELLO_TOKEN) {
       throw new Error("Missing Trello configuration");
     }
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
