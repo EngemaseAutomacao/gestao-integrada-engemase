@@ -122,8 +122,8 @@ Respond ONLY with valid JSON in this exact format:
   "confidence": "high" | "medium" | "low",
   "notes": "<brief explanation in Portuguese>"
 }
-If you cannot read a value, set it to null. IMPORTANT: The checkin_km MUST be greater than checkout_km. If the reading suggests otherwise, mark confidence as "low" and explain in notes.
-If both values are readable and consistent, calculate the distance.
+If you cannot read a value, set it to null. IMPORTANT: checkin_km may be equal to checkout_km; in that case return distance_km as 0 and keep the confidence based on image legibility. Only when checkin_km is lower than checkout_km, mark confidence as "low" and explain in notes.
+If both values are readable and consistent, including equal values, calculate the distance.
 Do NOT include any text outside the JSON.`,
           },
           {

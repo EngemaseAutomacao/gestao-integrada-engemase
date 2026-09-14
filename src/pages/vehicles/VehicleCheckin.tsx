@@ -158,16 +158,23 @@ export default function VehicleCheckin() {
 
       if (!isPlatform) {
         const km_checkout = currentCheckoutData?.km_checkout || 0;
-        let checkin_km = manualKm ? parseInt(manualKm) : (odometerResult?.checkin_km || 0);
+        const manualReading = manualKm ? parseInt(manualKm) : null;
+        const automaticReading = typeof odometerResult?.checkin_km === "number"
+          ? odometerResult.checkin_km
+          : null;
+        const hasKmReading = showManualKm
+          ? manualReading !== null && Number.isFinite(manualReading)
+          : automaticReading !== null && Number.isFinite(automaticReading);
+        let checkin_km = manualReading ?? automaticReading ?? km_checkout;
 
         // If manual and no value provided, use checkout km as placeholder
         if (showManualKm && !manualKm) {
           checkin_km = km_checkout;
         }
 
-        // Nunca bloquear a devolução por causa do KM: valores inválidos
-        // (menores/iguais ao de saída ou ilegíveis) viram "0 km rodado" e são apenas marcados.
-        if (!Number.isFinite(checkin_km) || checkin_km <= km_checkout) {
+        // KM igual ao de saída é válido e representa 0 km rodado. Somente leituras
+        // ausentes, inválidas ou menores são marcadas, sem bloquear a devolução.
+        if (!hasKmReading || !Number.isFinite(checkin_km) || checkin_km < km_checkout) {
           checkin_km = km_checkout;
           kmNeedsReview = true;
         }
@@ -250,14 +257,15 @@ export default function VehicleCheckin() {
             const kmSaida = currentCheckoutData?.km_checkout || 0;
             const lido = typeof result.checkin_km === "number" ? result.checkin_km : null;
 
-            if (result.confidence !== "low" && lido !== null && lido > kmSaida) {
+            if (result.confidence !== "low" && lido !== null && lido >= kmSaida) {
               updateData.km_checkin = lido;
               updateData.km_checkin_automatic = true;
+              kmNeedsReview = false;
               if (result.checkout_km && result.checkout_km > 0 && currentCheckoutData.km_checkout === 0) {
                 updateData.km_checkout = result.checkout_km;
               }
             } else {
-              // Leitura ilegível ou igual/menor ao KM de saída: registra 0 km rodado e marca para revisão.
+              // Leitura ilegível ou menor que o KM de saída: registra 0 km rodado e marca para revisão.
               updateData.km_checkin = kmSaida;
               updateData.km_checkin_automatic = false;
               kmNeedsReview = true;
@@ -278,7 +286,7 @@ export default function VehicleCheckin() {
       if (!isPlatform && manualKm) {
         const kmSaida = currentCheckoutData?.km_checkout || 0;
         const manual = parseInt(manualKm);
-        if (Number.isFinite(manual) && manual > kmSaida) {
+        if (Number.isFinite(manual) && manual >= kmSaida) {
           updateData.km_checkin = manual;
           kmNeedsReview = false;
         } else {

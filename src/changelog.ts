@@ -11,6 +11,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "2.6.6",
+    date: "2026-09-14",
+    title: "Devolução com zero quilômetro",
+    description: "A devolução do veículo agora é registrada normalmente quando a quilometragem de chegada é igual à de saída.",
+    changes: [
+      { type: "fix", text: "Quilometragens iguais passam a contabilizar 0 km rodado sem gerar erro ou pendência de conferência." },
+      { type: "fix", text: "A leitura automática reconhece corretamente a mesma quilometragem na saída e na devolução." },
+    ],
+  },
+  {
     version: "2.6.5",
     date: "2026-09-14",
     title: "Obras das três listas do Trello",
