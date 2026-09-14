@@ -1,6 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, jsonResponse, verifyCronSecret, verifyAdmin, getAdminClient } from "../_shared/auth.ts";
 
+interface ExistingSite {
+  id: string;
+  name: string;
+  active: boolean;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -60,7 +66,8 @@ Deno.serve(async (req) => {
       .select("id, name, active");
     if (fetchErr) throw fetchErr;
 
-    const existingMap = new Map((existing || []).map((s: any) => [s.name.toLowerCase(), s]));
+    const existingSites = (existing || []) as ExistingSite[];
+    const existingMap = new Map(existingSites.map((site) => [site.name.toLowerCase(), site]));
 
     let added = 0;
     let reactivated = 0;
@@ -81,7 +88,7 @@ Deno.serve(async (req) => {
 
     // Delete sites no longer in Trello "Fazendo"
     const trelloNamesLower = new Set(trelloNames.map(n => n.toLowerCase()));
-    for (const site of (existing || [])) {
+    for (const site of existingSites) {
       if (!trelloNamesLower.has(site.name.toLowerCase())) {
         const { error } = await supabase.from("construction_sites").delete().eq("id", site.id);
         if (!error) deleted++;
