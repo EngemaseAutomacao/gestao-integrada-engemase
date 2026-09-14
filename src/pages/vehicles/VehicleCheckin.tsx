@@ -260,6 +260,7 @@ export default function VehicleCheckin() {
             if (result.confidence !== "low" && lido !== null && lido >= kmSaida) {
               updateData.km_checkin = lido;
               updateData.km_checkin_automatic = true;
+              kmNeedsReview = false;
               if (result.checkout_km && result.checkout_km > 0 && currentCheckoutData.km_checkout === 0) {
                 updateData.km_checkout = result.checkout_km;
               }
