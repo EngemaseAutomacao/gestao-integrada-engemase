@@ -55,6 +55,7 @@ const AdminAnalyticsHub = lazy(() => import("./pages/admin/AdminAnalyticsHub"));
 const AdminToolsInUse = lazy(() => import("./pages/admin/AdminToolsInUse"));
 const AdminUserAccess = lazy(() => import("./pages/admin/AdminUserAccess"));
 const AdminVehiclesInUse = lazy(() => import("./pages/admin/AdminVehiclesInUse"));
+const AdminExportPhotos = lazy(() => import("./pages/admin/AdminExportPhotos")); // TEMPORÁRIO
 // AdminSiteTools removed
 
 const DevolucoesPendentes = lazy(() => import("./pages/DevolucoesPendentes"));
@@ -190,6 +191,7 @@ const App = () => (
                       <Route path="/admin/ferramentas-em-uso" element={<AdminToolsInUse />} />
                       <Route path="/admin/veiculos-em-uso" element={<AdminVehiclesInUse />} />
                       <Route path="/admin/ultimos-acessos" element={<AdminUserAccess />} />
+                      <Route path="/admin/exportar-fotos" element={<AdminExportPhotos />} />
 
                       {/* Ponto Online & Transferências removidos — redirect para Home */}
                       <Route path="/ponto" element={<Navigate to="/" replace />} />
