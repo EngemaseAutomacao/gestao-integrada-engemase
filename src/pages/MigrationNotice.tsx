@@ -24,9 +24,16 @@ export default function MigrationNotice() {
       <div className="max-w-md w-full rounded-xl border bg-card p-8 text-center shadow-sm space-y-5">
         <h1 className="text-2xl font-bold text-foreground">O sistema mudou de endereço</h1>
         <p className="text-muted-foreground">
-          A Gestão Integrada Engemase agora está em um novo endereço. Salve o novo link nos seus favoritos
-          e, se usa o app instalado no celular, instale-o novamente pelo novo endereço.
+          A Gestão Integrada Engemase agora está em um novo endereço. Salve o novo link nos seus favoritos.
         </p>
+        <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-left text-sm text-foreground space-y-2">
+          <p className="font-semibold">Usa o app instalado no celular?</p>
+          <ol className="list-decimal pl-5 space-y-1">
+            <li>Desinstale o app antigo (segure o ícone e toque em "Desinstalar" ou "Remover").</li>
+            <li>Abra o novo endereço abaixo no navegador.</li>
+            <li>Instale o app novamente pelo menu do navegador ("Instalar app" ou "Adicionar à tela inicial").</li>
+          </ol>
+        </div>
         <p className="font-medium text-primary break-all">{NEW_APP_URL}</p>
         <Button className="w-full" onClick={() => window.location.replace(target)}>
           Ir para o novo endereço <ExternalLink className="ml-2 h-4 w-4" />
