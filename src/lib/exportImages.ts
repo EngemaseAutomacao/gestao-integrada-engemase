@@ -26,7 +26,6 @@ async function listViaClient(): Promise<ExportEntry[]> {
     const prefix = queue.shift() as string;
     let offset = 0;
     // Paginação: o storage devolve no máximo `limit` itens por chamada.
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { data, error } = await supabase.storage.from(EXPORT_BUCKET).list(prefix, {
         limit: PAGE_SIZE,
