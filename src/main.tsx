@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
+import MigrationNotice from "./pages/MigrationNotice";
 import "./index.css";
 import "./i18n";
 import "@fontsource/space-grotesk/400.css";
@@ -82,9 +83,15 @@ registerServiceWorker();
   }
 })();
 
+// Endereço antigo publicado: mostra apenas o aviso de migração e redireciona.
+const isOldPublishedHost = window.location.hostname === "gestao-integrada-engemase.lovable.app";
+if (isOldPublishedHost && "serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then((r) => r.forEach((x) => x.unregister())).catch(() => {});
+}
+
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    {isOldPublishedHost ? <MigrationNotice /> : <App />}
   </React.StrictMode>
 );
 
