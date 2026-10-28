@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 
 export const NEW_APP_URL = "https://gestao-integrada-engemase.vercel.app/";
-const SECONDS = 8;
+const SECONDS = 30;
 
 /** Aviso de migração exibido somente no endereço antigo (lovable.app). */
 export default function MigrationNotice() {
